@@ -5,12 +5,12 @@
     <ProjectGuid>0f81836d-d0c6-4a6f-870a-64bf1b06439f</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>Maya_Modules.py</StartupFile>
-    <SearchPath>
-    </SearchPath>
+    <SearchPath>..\..\..\..\..\..\..\Program Files\Autodesk\Maya2022\Python37\Lib\site-packages;..\..\..\..\..\..\..\Program Files\Autodesk\Maya2022\lib;..\..\..\..\..\..\..\Program Files\Autodesk\Maya2022\devkit\2020\devkitBase\devkit\other\pymel\extras\completion\py;..\..\..\..\..\..\..\Program Files\Autodesk\Maya2022\devkit\2020\devkitBase\devkit\other\pymel\extras\completion\py\maya</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Maya_Modules</Name>
     <RootNamespace>Maya_Modules</RootNamespace>
+    <InterpreterId>Global|VisualStudio|Maya2022 Python37</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +21,22 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CustomRig_API.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Maya_Modules.py" />
+    <Compile Include="PATH_API.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Plugins\NoiseDeformer.py">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Plugins\" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|VisualStudio|Maya2022 Python37" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

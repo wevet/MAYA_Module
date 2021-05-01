@@ -27,7 +27,6 @@ class NoiseDeformerNode(OpenMayaMPx.MPxDeformerNode):
         """
         Node初期化
         """
-        print("NoiseDeformerNode.Initializer")
 
         # scale attributeを作成する
         n_attr = OpenMaya.MFnNumericAttribute()

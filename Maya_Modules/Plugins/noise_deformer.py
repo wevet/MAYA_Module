@@ -83,7 +83,7 @@ def initializePlugin(MObj_mobject):
                                  NoiseDeformerNode.creator,
                                  NoiseDeformerNode.initializer,
                                  OpenMayaMPx.MPxNode.kDeformerNode)
-    except:
+    except ArithmeticError as e:
         msg = "Failed to register node\n{0}"
         sys.stderr.write(msg.format(traceback.format_exc()))
 
@@ -93,6 +93,6 @@ def uninitializePlugin(MObj_mobject):
     MPlg_plugin = OpenMayaMPx.MFnPlugin(MObj_mobject)
     try:
         MPlg_plugin.deregisterNode(NoiseDeformerNode.node_id)
-    except:
+    except ArithmeticError as e:
         msg = "Failed to unregister node\n{0}"
         sys.stderr.write(msg.format(traceback.format_exc()))

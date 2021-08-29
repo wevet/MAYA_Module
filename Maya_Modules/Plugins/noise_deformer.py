@@ -7,6 +7,17 @@ import maya.OpenMaya as OpenMaya
 import maya.OpenMayaMPx as OpenMayaMPx
 
 
+"""
+import maya.cmds as cmds
+deformer_name = "NoiseDeformer"
+plguin_settings = cmds.pluginInfo(deformer_name, q=True, settings=True)
+if not plguin_settings[0]:
+    cmds.loadPlugin(deformer_name + ".py")
+cmds.polyPlane(w=50, h=50, sw=100, sh=100)
+cmds.deformer(type=deformer_name)
+"""
+
+
 class NoiseDeformerNode(OpenMayaMPx.MPxDeformerNode):
     type_name = "NoiseDeformer"
     node_id = OpenMaya.MTypeId(0x70100)

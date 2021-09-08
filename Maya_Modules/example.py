@@ -1,6 +1,7 @@
 # coding: utf-8
 import maya.cmds as cmds
 import random
+import os
 
 """
 using
@@ -12,6 +13,12 @@ example.create_hat()
 
 
 """
+
+
+# Pythonファイルの保存先ディレクトリを調べる
+paths = os.environ["MAYA_SCRIPT_PATH"]
+for path in paths.split(";"):
+    print(path)
 
 
 def create_hat(cone_color=None, pompom_color=None):

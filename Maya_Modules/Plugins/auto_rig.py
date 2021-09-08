@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-
 import sys
-import maya.OpenMaya as OpenMaya
-import maya.OpenMayaMPx as OpenMayaMPx
+import maya.api.OpenMaya as OpenMaya
 import maya.cmds as cmds
 import maya.mel as mel
 from functools import partial
 
-
+# プラグインの名前
 kPluginCmdName = 'AutoRig'
 
 
@@ -21,11 +19,10 @@ cmds.AutoRig()
 """
 
 
-class AutoRig(OpenMayaMPx.MPxCommand):
-    node_id = OpenMaya.MTypeId(0x70100)
+class AutoRig(OpenMaya.MPxCommand):
 
     def __init__(self):
-        OpenMayaMPx.MPxCommand.__init__(self)
+        OpenMaya.MPxCommand.__init__(self)
 
     @staticmethod
     def create_auto_rig_window():
@@ -1669,26 +1666,25 @@ class AutoRig(OpenMayaMPx.MPxCommand):
         pass
 
 
-def creator():
-    return OpenMayaMPx.asMPxPtr(AutoRig())
+def cmdCreator():
+    return AutoRig()
 
 
 def initializePlugin(mObject):
-    mPlugin = OpenMayaMPx.MFnPlugin(mObject, "Dev Version", "1.0", "Any")
+    mPlugin = OpenMaya.MFnPlugin(mObject)
     try:
-        mPlugin.registerCommand(kPluginCmdName, creator)
+        mPlugin.registerCommand(kPluginCmdName, cmdCreator)
     except ArithmeticError as e:
         sys.stderr.write('Failed to register command: ' + kPluginCmdName)
         raise
 
 
 def uninitializePlugin(mObject):
-    mPlugin = OpenMayaMPx.MFnPlugin(mObject)
+    mPlugin = OpenMaya.MFnPlugin(mObject)
     try:
         mPlugin.deregisterCommand(kPluginCmdName)
     except ArithmeticError as e:
         sys.stderr.write('Failed to unregister command: ' + kPluginCmdName)
         raise
-
 
 

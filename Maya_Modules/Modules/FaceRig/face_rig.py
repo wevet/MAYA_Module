@@ -4,6 +4,7 @@ import maya.cmds as cmds
 import maya.mel as mel
 import re
 import pickle
+import sys
 
 vw_rightCurve = []
 vw_centerCurve = []
@@ -20,11 +21,11 @@ vw_targetMesh = ' '
 vw_fileTemp = []
 vw_faceButtonNum = False
 
-#pathOri = sys.path
-#vw_path = ''
+pathOri = sys.path
+vw_path = ''
 
 pathOri = cmds.internalVar(usd=True)
-vw_path = pathOri+'faceRig/Facial_Check/'
+vw_path = pathOri + 'FaceRig/Facial_Check/'
 
 
 vw_selRightCurve = 'R_Eyebrow', 'R_UpEye', 'R_LowEye', 'R_Zygoma', 'R_Nasolabial', 'R_Cheek', 'R_Jaw'
@@ -136,13 +137,13 @@ def facialSetCreateModeWin(*args):
     global vw_path
     global vw_faceSelCluster
 
-    if cmds.window('facialCreateWindow',ex=True):
+    if cmds.window('facialCreateWindow', ex=True):
         cmds.deleteUI('facialCreateWindow')
-    elif cmds.window('facialEditWindow',ex=True):
+    elif cmds.window('facialEditWindow', ex=True):
         cmds.deleteUI('facialEditWindow')
-    elif cmds.window('facialControlWindow',ex=True):
+    elif cmds.window('facialControlWindow', ex=True):
         cmds.deleteUI('facialControlWindow')
-    elif cmds.window('copyModeWindow',ex=True):
+    elif cmds.window('copyModeWindow', ex=True):
         cmds.deleteUI('copyModeWindow')
         
     mel.eval('setObjectPickMask "Joint" false;')
@@ -153,9 +154,9 @@ def facialSetCreateModeWin(*args):
     for x in vw_faceSelCluster:
         cmds.hide(x+'Handle')
            
-    cmds.window('facialCreateWindow',title='ventaworks Facial Rig Tool',w=600,h=600,sizeable=False)
-    cmds.columnLayout( columnAttach=('both',1), rowSpacing=0, cal='center',columnWidth=600)
-    cmds.image('imageViewField',w=500,h=500,i=vw_path+'fs_createMode.jpg')
+    cmds.window('facialCreateWindow', title='ventaworks Facial Rig Tool', w=600, h=600, sizeable=False)
+    cmds.columnLayout(columnAttach=('both', 1), rowSpacing=0, cal='center', columnWidth=600)
+    cmds.image('imageViewField', w=500, h=500, i=vw_path+'fs_createMode.jpg')
     cmds.rowLayout(numberOfColumns=3, columnWidth3=(100, 400, 100), adjustableColumn=2, columnAlign=(1, 'center'),
                    columnAttach=[(1, 'both', 0), (2, 'both', 0), (3, 'both', 0)] )
     cmds.text('')
@@ -312,20 +313,21 @@ def facialSetControlModeWin(*args):
     cmds.select(cl=True)
         
     if vw_headObject != ' ':    
-        if cmds.window('facialCreateWindow',ex=True):
+        if cmds.window('facialCreateWindow', ex=True):
             cmds.deleteUI('facialCreateWindow')
-        elif cmds.window('facialEditWindow',ex=True):
+        elif cmds.window('facialEditWindow', ex=True):
             cmds.deleteUI('facialEditWindow')
-        elif cmds.window('facialControlWindow',ex=True):
+        elif cmds.window('facialControlWindow', ex=True):
             cmds.deleteUI('facialControlWindow')
-        elif cmds.window('copyModeWindow',ex=True):
+        elif cmds.window('copyModeWindow', ex=True):
             cmds.deleteUI('copyModeWindow')
             
-        cmds.window('facialControlWindow',title='ventaworks Facial Set Tool',w=600,h=600,sizeable=False)
-        cmds.columnLayout( columnAttach=('both',2), rowSpacing=0, columnWidth=600)
-        cmds.image('imageViewField',w=500,h=500,i=vw_path+'fs_controlMode.jpg')
-        cmds.button('defaultFaceButtonField',label='default Face Image',h=30,aop=True,c=defaultFaceImage)
-        cmds.rowLayout( numberOfColumns=3, columnWidth3=(100, 400, 100), adjustableColumn=2, columnAlign=(1, 'center'), columnAttach=[(1, 'both', 0), (2, 'both', 0), (3, 'both', 0)] )
+        cmds.window('facialControlWindow', title='ventaworks Facial Set Tool', w=600, h=600, sizeable=False)
+        cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=600)
+        cmds.image('imageViewField', w=500, h=500, i=vw_path+'fs_controlMode.jpg')
+        cmds.button('defaultFaceButtonField', label='default Face Image', h=30, aop=True, c=defaultFaceImage)
+        cmds.rowLayout( numberOfColumns=3, columnWidth3=(100, 400, 100), adjustableColumn=2, columnAlign=(1, 'center'),
+                        columnAttach=[(1, 'both', 0), (2, 'both', 0), (3, 'both', 0)])
         cmds.text('')
         cmds.radioButtonGrp('radioModeField',cw4=(100,100,100,100) ,labelArray4=['Create Mode','Edit Mode','Control Mode','Copy Key'],\
         numberOfRadioButtons=4,h=50,sl=3,on1=facialSetCreateModeWin,on2=facialSetEditModeWin,on3=facialSetControlModeWin,on4=copyKeyWin)

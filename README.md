@@ -1,6 +1,6 @@
 # MAYA_Module
 MAYA Sample Sources
-using IDE PyCharm 2020.3.5
+using IDE PyCharm
 
 
 ## noise_deformer.py
@@ -18,13 +18,3 @@ cmds.deformer(type=deformer_name)
 ```
 
 
-
-## joint_size.py
-![JointSize](Demo/JointSize.png)
-```python
-
-import joint_size as joint
-joint.set_joint_size_GUI()
-
-
-```

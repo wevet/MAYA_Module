@@ -116,9 +116,10 @@ def create_main_window():
     cmds.setParent('..')
 
     cmds.tabLayout(tabs, edit=True, tabLabel=(
-        (child1, 'Create Fk Control'), (child4, 'Scale Fk Controls'),
-        (child2, 'Organize'), (child3, 'Bi-Ped Auto Rig')))
-
+        (child1, 'Create Fk Control'),
+        (child4, 'Scale Fk Control'),
+        (child2, 'Organize'),
+        (child3, 'Biped Auto Rig')))
     cmds.showWindow()
 
 
@@ -1203,11 +1204,13 @@ def if_fk_switch(**kwargs):
     num = 0
     ctrl = []
     if part == 'leg':
-        ctrl = create_ik_fk_switch_control(joint=bnList[-3], bodyPart=part,
+        ctrl = create_ik_fk_switch_control(joint=bnList[-3],
+                                           bodyPart=part,
                                            locAttributes=['tx', 'ty', 'tz', 'rx', 'ry', 'rz', 'sx', 'sy', 'sz', 'v'],
                                            scale=scale, side=side)
     elif part == 'arm':
-        ctrl = create_ik_fk_switch_control(joint=bnList[-2], bodyPart=part,
+        ctrl = create_ik_fk_switch_control(joint=bnList[-2],
+                                           bodyPart=part,
                                            locAttributes=['tx', 'ty', 'tz', 'rx', 'ry', 'rz', 'sx', 'sy', 'sz', 'v'],
                                            scale=scale, side=side)
 
@@ -1244,49 +1247,49 @@ def finger_setup(**kwargs):
     parentJoint = kwargs.setdefault("parentJoint")
 
     cmds.select(joint, hierarchy=True)
-    jtList = cmds.ls(selection=True)
+    joint_list = cmds.ls(selection=True)
 
-    jointPosList = []
-    newJointTempList = []
+    joint_pos_list = []
+    new_joint_temp_list = []
     main_skeleton_list = []
-    deleteList = []
+    delete_list = []
 
     main_skeleton_list.append(parentJoint)
 
-    for jt in jtList:
-        jointPos = cmds.joint(jt, q=True, position=True)
-        jointPosList.append(jointPos)
+    for joint in joint_list:
+        jointPos = cmds.joint(joint, q=True, position=True)
+        joint_pos_list.append(jointPos)
 
-    value = len(jtList) - (len(jtList) / 2)
+    value = len(joint_list) - (len(joint_list) / 2)
     for n in range(int(value)):
         cmds.select(parentJoint)
-        jt = cmds.joint(name=side + '_' + finger + str(n + 1) + 'Temp_jt',
-                        position=(jointPosList[n][0], jointPosList[n][1], jointPosList[n][2]))
-        newJointTempList.append([jt, jtList[-n - 1]])
-        deleteList.append(jt)
+        joint = cmds.joint(name=side + '_' + finger + str(n + 1) + 'Temp_jt',
+                        position=(joint_pos_list[n][0], joint_pos_list[n][1], joint_pos_list[n][2]))
+        new_joint_temp_list.append([joint, joint_list[-n - 1]])
+        delete_list.append(joint)
 
         if n != 0:
-            cmds.aimConstraint(jt, newJointTempList[n - 1][0], maintainOffset=False, aimVector=[1, 0, 0],
-                               upVector=[0, 1, 0], worldUpType='object', worldUpObject=newJointTempList[n - 1][1])
+            cmds.aimConstraint(joint, new_joint_temp_list[n - 1][0], maintainOffset=False, aimVector=[1, 0, 0],
+                               upVector=[0, 1, 0], worldUpType='object', worldUpObject=new_joint_temp_list[n - 1][1])
 
-            cmds.select(newJointTempList[n - 1][0])
+            cmds.select(new_joint_temp_list[n - 1][0])
             if finger == 'pinky' or finger == 'thumb':
                 if finger == 'pinky' and n == 1:
                     bn = cmds.joint(name=side + '_outerHand_bn',
-                                    position=(jointPosList[n - 1][0], jointPosList[n - 1][1], jointPosList[n - 1][2]))
+                                    position=(joint_pos_list[n - 1][0], joint_pos_list[n - 1][1], joint_pos_list[n - 1][2]))
                 elif finger == 'thumb' and n == 1:
                     bn = cmds.joint(name=side + '_innerHand_bn',
-                                    position=(jointPosList[n - 1][0], jointPosList[n - 1][1], jointPosList[n - 1][2]))
+                                    position=(joint_pos_list[n - 1][0], joint_pos_list[n - 1][1], joint_pos_list[n - 1][2]))
                 else:
                     bn = cmds.joint(name=side + '_' + finger + str(n - 1) + '_bn',
-                                    position=(jointPosList[n - 1][0], jointPosList[n - 1][1], jointPosList[n - 1][2]))
+                                    position=(joint_pos_list[n - 1][0], joint_pos_list[n - 1][1], joint_pos_list[n - 1][2]))
             else:
                 bn = cmds.joint(name=side + '_' + finger + str(n) + '_bn',
-                                position=(jointPosList[n - 1][0], jointPosList[n - 1][1], jointPosList[n - 1][2]))
+                                position=(joint_pos_list[n - 1][0], joint_pos_list[n - 1][1], joint_pos_list[n - 1][2]))
             cmds.parent(bn, main_skeleton_list[n - 1])
             main_skeleton_list.append(bn)
 
-    cmds.delete(deleteList)
+    cmds.delete(delete_list)
     fk = fk_setup(side=side, jointList=main_skeleton_list[1:], bodyPart=finger, scale=scale, parentJoints=False,
                   useAllJoints=True)
     return main_skeleton_list[1:], fk[2]
@@ -1295,12 +1298,12 @@ def finger_setup(**kwargs):
 def create_temp_skeleton_control(**kwargs):
     scale = kwargs.setdefault('scale', 1)
     name = kwargs.setdefault('name')
-    ctrl = cmds.circle(name=name, normal=(0, 1, 0), center=(0, 0, 0), ch=True, radius=1)[0]
-    cmds.scale(5, 5, 5, ctrl)
+    control = cmds.circle(name=name, normal=(0, 1, 0), center=(0, 0, 0), ch=True, radius=1)[0]
+    cmds.scale(5, 5, 5, control)
     cmds.makeIdentity(apply=True, t=1, r=1, s=1, n=0)
-    cmds.scale(scale, scale, scale, ctrl)
+    cmds.scale(scale, scale, scale, control)
     cmds.makeIdentity(apply=True, t=1, r=1, s=1, n=0)
-    return ctrl
+    return control
 
 
 def create_pole_vector_control(**kwargs):
@@ -1308,11 +1311,11 @@ def create_pole_vector_control(**kwargs):
     joint = kwargs.setdefault("joint")
     part = kwargs.setdefault('bodyPart')
     ikHandle = kwargs.setdefault('ikHandle')
-    locAttr = kwargs.setdefault('locAttributes')
+    lock_attribute = kwargs.setdefault('locAttributes')
     scale = kwargs.setdefault('scale')
     grp = cmds.group(empty=True, name=side + '_' + part + '_ctrlGrp')
-    spaceConstrain = cmds.pointConstraint(joint, grp, maintainOffset=False, skip="none")[0]
-    cmds.delete(spaceConstrain)
+    space_constraint = cmds.pointConstraint(joint, grp, maintainOffset=False, skip="none")[0]
+    cmds.delete(space_constraint)
 
     ctrl = cmds.curve(name=side + "_ik_" + part + "_ctrl", degree=3,
                       point=[(0, 0, 0), (0, 0.25, 0), (-0.5, 0.25, 0), (-0.5, -0.5, 0),
@@ -1322,7 +1325,7 @@ def create_pole_vector_control(**kwargs):
     cmds.scale(scale, scale, scale, grp)
     cmds.poleVectorConstraint(ctrl, ikHandle)
 
-    for attr in locAttr:
+    for attr in lock_attribute:
         cmds.setAttr(ctrl + '.' + attr, lock=True, keyable=False, channelBox=False)
     return grp
 
@@ -1331,8 +1334,8 @@ def create_arm_control(**kwargs):
     side = kwargs.setdefault("side")
     joint = kwargs.setdefault("joint")
     ulnaJt = kwargs.setdefault("ulnaJoint")
-    ikHandle = kwargs.setdefault('ikHandle')
-    locAttr = kwargs.setdefault('locAttributes')
+    ik_handle = kwargs.setdefault('ikHandle')
+    lock_attribute = kwargs.setdefault('locAttributes')
     scale = kwargs.setdefault('scale')
     jtRO = kwargs.setdefault('jointRotateOrder', 0)
     ctrlRO = kwargs.setdefault('controlRotateOrder', 0)
@@ -1347,6 +1350,7 @@ def create_arm_control(**kwargs):
                              (1.51, 0.40, -0.91),
                              (1.51, -0.69, -0.91)],
                       knot=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
+
     if side == 'r':
         cmds.scale(-1, 1, 1, ctrl)
         cmds.makeIdentity(ctrl, apply=True, scale=True)
@@ -1361,13 +1365,13 @@ def create_arm_control(**kwargs):
     cmds.setAttr(ikArmDoNotTouch + ".rotateOrder", dntRO)
 
     grp = cmds.group(empty=True, name=side + "_ik_hand_ctrlGrp")
-    spaceConstrain = cmds.parentConstraint(joint, grp, maintainOffset=False)
-    cmds.delete(spaceConstrain)
+    space_constraint = cmds.parentConstraint(joint, grp, maintainOffset=False)
+    cmds.delete(space_constraint)
     cmds.parent(ctrl, grp, r=True)
     cmds.scale(scale, scale, scale, grp)
 
     cmds.parentConstraint(ctrl, ikArmDoNotTouch, maintainOffset=False)
-    cmds.parent(ikHandle, ikArmDoNotTouch)
+    cmds.parent(ik_handle, ikArmDoNotTouch)
 
     if cmds.checkBox('Rig_AutoRigUlna', q=True, value=True) is True:
         cmds.orientConstraint(spaceLoc, ulnaJt, skip=['y', 'z'], maintainOffset=True)
@@ -1375,7 +1379,7 @@ def create_arm_control(**kwargs):
     else:
         cmds.orientConstraint(spaceLoc, joint, skip='none', maintainOffset=False)
 
-    for attr in locAttr:
+    for attr in lock_attribute:
         cmds.setAttr(ctrl + '.' + attr, lock=True, keyable=False, channelBox=False)
     return grp, ikArmDoNotTouch
 
@@ -1383,8 +1387,8 @@ def create_arm_control(**kwargs):
 def create_foot_control(**kwargs):
     side = kwargs.setdefault("side")
     joint = kwargs.setdefault("joint")
-    ikHandle = kwargs.setdefault('ikHandle')
-    locAttr = kwargs.setdefault('locAttributes')
+    ik_handle = kwargs.setdefault('ikHandle')
+    lock_attribute = kwargs.setdefault('locAttributes')
     scale = kwargs.setdefault('scale')
     aimJoint = kwargs.setdefault('aimJoint')
     addAttr = kwargs.setdefault('addAttributes')
@@ -1394,10 +1398,10 @@ def create_foot_control(**kwargs):
         cmds.mirrorJoint('l_hip_tempJt', mirrorBehavior=True, mirrorYZ=True, searchReplace=('l_', 'r_'))
         mel.eval('searchReplaceNames "1" "" "hierarchy";')
 
-    anklePos = cmds.joint(joint, q=True, p=True, a=True)
-    heelPos = cmds.joint(side + '_heelFoot_tempJt', q=True, p=True, a=True)
+    ankle_pos = cmds.joint(joint, q=True, p=True, a=True)
+    heel_pos = cmds.joint(side + '_heelFoot_tempJt', q=True, p=True, a=True)
 
-    scaleY = anklePos[1] - heelPos[1]
+    scaleY = ankle_pos[1] - heel_pos[1]
 
     ctrl = cmds.curve(name=side + "_ik_foot_ctrl", degree=1,
                       point=[(-0.9, -0.4, 2.4), (-0.9, -0.4, 2.4), (-0.9, -1.2, 2.6), (0.7, -1.2, 2.6),
@@ -1409,89 +1413,93 @@ def create_foot_control(**kwargs):
                       knot=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
 
     grp = cmds.group(empty=True, name=side + "_ik_foot_ctrlGrp")
-    spaceConstrain = cmds.pointConstraint(joint, grp, maintainOffset=False, skip="none")
-    cmds.delete(spaceConstrain)
+    space_constraint = cmds.pointConstraint(joint, grp, maintainOffset=False, skip="none")
+    cmds.delete(space_constraint)
     cmds.parent(ctrl, grp, r=True)
 
     cmds.scale(scale, scaleY / 1.2, scale, grp)
     cmds.makeIdentity(grp, apply=True, scale=True)
-    spaceConstrain = cmds.aimConstraint(aimJoint, grp, aimVector=(0.0, 0.0, 1.0), skip=["x", "z"])
-    cmds.delete(spaceConstrain)
+    space_constraint = cmds.aimConstraint(aimJoint, grp, aimVector=(0.0, 0.0, 1.0), skip=["x", "z"])
+    cmds.delete(space_constraint)
 
     ikFootDoNotTouch = cmds.group(name=side + "_ik_foot_doNotTouch", empty=True)
     cmds.parentConstraint(ctrl, ikFootDoNotTouch, maintainOffset=False, skipTranslate="none", skipRotate="none")
 
     onHeel = cmds.group(name=side + "_ik_onHell_negRX", empty=True, parent=ikFootDoNotTouch)
-    spaceConstrain = cmds.pointConstraint(side + '_heelFoot_tempJt', onHeel)
-    cmds.delete(spaceConstrain)
+    space_constraint = cmds.pointConstraint(side + '_heelFoot_tempJt', onHeel)
+    cmds.delete(space_constraint)
 
     onToe = cmds.group(name=side + "_ik_onToe_posRX", empty=True, parent=onHeel)
-    spaceConstrain = cmds.pointConstraint(side + '_toeEnd_tempJt', onToe)
-    cmds.delete(spaceConstrain)
+    space_constraint = cmds.pointConstraint(side + '_toeEnd_tempJt', onToe)
+    cmds.delete(space_constraint)
 
     outerBank = None
     if side == 'l':
         outerBank = cmds.group(name=side + "_ik_outerBank_negRZ", empty=True, parent=onToe)
     elif side == 'r':
         outerBank = cmds.group(name=side + "_ik_outerBank_posRZ", empty=True, parent=onToe)
-    spaceConstrain = cmds.pointConstraint(side + '_footOuter_tempJt', outerBank)
-    cmds.delete(spaceConstrain)
+    space_constraint = cmds.pointConstraint(side + '_footOuter_tempJt', outerBank)
+    cmds.delete(space_constraint)
 
     innerBank = None
     if side == 'l':
         innerBank = cmds.group(name=side + "_ik_innerBank_posRZ", empty=True, parent=outerBank)
     elif side == 'r':
         innerBank = cmds.group(name=side + "_ik_innerBank_negRZ", empty=True, parent=outerBank)
-    spaceConstrain = cmds.pointConstraint(side + '_footInner_tempJt', innerBank)
-    cmds.delete(spaceConstrain)
+    space_constraint = cmds.pointConstraint(side + '_footInner_tempJt', innerBank)
+    cmds.delete(space_constraint)
 
+    # toe setting
     toeFlip = cmds.group(name=side + "_ik_toeFlip_negRX", empty=True, parent=innerBank)
-    spaceConstrain = cmds.pointConstraint(side + '_toe_tempJt', toeFlip)
-    cmds.delete(spaceConstrain)
+    space_constraint = cmds.pointConstraint(side + '_toe_tempJt', toeFlip)
+    cmds.delete(space_constraint)
 
+    # ball setting
     onBall = cmds.group(name=side + "_ik_onBall_posRX", empty=True, parent=innerBank)
-    spaceConstrain = cmds.pointConstraint(side + '_toe_tempJt', onBall)
-    cmds.delete(spaceConstrain)
+    space_constraint = cmds.pointConstraint(side + '_toe_tempJt', onBall)
+    cmds.delete(space_constraint)
+    cmds.parent(ik_handle[0], onBall)
+    cmds.parent(ik_handle[1], innerBank)
+    cmds.parent(ik_handle[2], toeFlip)
 
-    cmds.parent(ikHandle[0], onBall)
-    cmds.parent(ikHandle[1], innerBank)
-    cmds.parent(ikHandle[2], toeFlip)
-
-    for attr in locAttr:
+    for attr in lock_attribute:
         cmds.setAttr(ctrl + '.' + attr, lock=True, keyable=False, channelBox=False)
 
     for attr in addAttr:
         cmds.addAttr(ctrl, longName=attr, attributeType='float', keyable=True)
 
-    multiplyDivide = cmds.shadingNode('multiplyDivide', name=side + '_ik_foot_mulDiv', asUtility=True)
-    cmds.setAttr(multiplyDivide + '.input2X', -1)
-    cmds.setAttr(multiplyDivide + '.input2Y', -1)
-    cmds.setAttr(multiplyDivide + '.input2Z', -1)
+    multiply_divide = cmds.shadingNode('multiplyDivide', name=side + '_ik_foot_mulDiv', asUtility=True)
+    cmds.setAttr(multiply_divide + '.input2X', -1)
+    cmds.setAttr(multiply_divide + '.input2Y', -1)
+    cmds.setAttr(multiply_divide + '.input2Z', -1)
 
     if 'onToe' in addAttr:
         cmds.connectAttr(ctrl + '.onToe', onToe + '.rx')
     if 'onHeel' in addAttr:
-        cmds.connectAttr(ctrl + '.onHeel', multiplyDivide + '.input1X')
-        cmds.connectAttr(multiplyDivide + '.outputX', onHeel + '.rx')
+        cmds.connectAttr(ctrl + '.onHeel', multiply_divide + '.input1X')
+        cmds.connectAttr(multiply_divide + '.outputX', onHeel + '.rx')
+
     if side == 'l':
         if 'outerBank' in addAttr:
-            cmds.connectAttr(ctrl + '.outerBank', multiplyDivide + '.input1Y')
-            cmds.connectAttr(multiplyDivide + '.outputY', outerBank + '.rz')
+            cmds.connectAttr(ctrl + '.outerBank', multiply_divide + '.input1Y')
+            cmds.connectAttr(multiply_divide + '.outputY', outerBank + '.rz')
         if 'innerBank' in addAttr:
             cmds.connectAttr(ctrl + '.innerBank', innerBank + '.rz')
     elif side == 'r':
         if 'outerBank' in addAttr:
             cmds.connectAttr(ctrl + '.outerBank', outerBank + '.rz')
         if 'innerBank' in addAttr:
-            cmds.connectAttr(ctrl + '.innerBank', multiplyDivide + '.input1Y')
-            cmds.connectAttr(multiplyDivide + '.outputY', innerBank + '.rz')
+            cmds.connectAttr(ctrl + '.innerBank', multiply_divide + '.input1Y')
+            cmds.connectAttr(multiply_divide + '.outputY', innerBank + '.rz')
+
     if 'onBall' in addAttr:
         cmds.connectAttr(ctrl + '.onBall', onBall + '.rx')
     if 'toeFlip' in addAttr:
-        cmds.connectAttr(ctrl + '.toeFlip', multiplyDivide + '.input1Z')
-        cmds.connectAttr(multiplyDivide + '.outputZ', toeFlip + '.rx')
+        cmds.connectAttr(ctrl + '.toeFlip', multiply_divide + '.input1Z')
+        cmds.connectAttr(multiply_divide + '.outputZ', toeFlip + '.rx')
 
-    if cmds.radioCollection('Rig_MirrorTempSkeleton', q=True,
+    if cmds.radioCollection('Rig_MirrorTempSkeleton',
+                            q=True,
                             select=True) == 'Rig_MirrorTempSkeleton_true' and side == 'r':
         cmds.delete('r_hip_tempJt')
     return grp, ikFootDoNotTouch
@@ -1500,7 +1508,7 @@ def create_foot_control(**kwargs):
 def create_shoulder_hip_control(**kwargs):
     joint = kwargs.setdefault("joint")
     part = kwargs.setdefault("bodyPart")
-    locAttr = kwargs.setdefault('locAttributes')
+    lock_attribute = kwargs.setdefault('locAttributes')
     scale = kwargs.setdefault('scale')
     ro = kwargs.setdefault('rotationOrder', 'xyz')
 
@@ -1530,8 +1538,8 @@ def create_shoulder_hip_control(**kwargs):
     cmds.makeIdentity(ctrl, apply=True, rotate=True)
 
     grp = cmds.group(name="c_ik_" + part + "_ctrlGrp", empty=True)
-    spaceConstrain = cmds.parentConstraint(joint, grp, maintainOffset=False)
-    cmds.delete(spaceConstrain)
+    space_constraint = cmds.parentConstraint(joint, grp, maintainOffset=False)
+    cmds.delete(space_constraint)
     cmds.parent(ctrl, grp, r=True)
     cmds.scale(scale, scale, scale, grp)
 
@@ -1543,19 +1551,19 @@ def create_shoulder_hip_control(**kwargs):
     cmds.parent(joint, doNotTouch)
     cmds.xform(ctrl, rotateOrder=ro)
 
-    for attr in locAttr:
+    for attr in lock_attribute:
         cmds.setAttr(ctrl + '.' + attr, lock=True, keyable=False, channelBox=False)
     return grp, doNotTouch, spaceLoc[0], ctrl
 
 
 def create_pelvis_control(**kwargs):
     joint = kwargs.setdefault("joint")
-    locAttr = kwargs.setdefault('locAttributes')
+    lock_attribute = kwargs.setdefault('locAttributes')
     scale = kwargs.setdefault('scale')
     ro = kwargs.setdefault('rotationOrder', 'xyz')
     grp = cmds.group(empty=True, name='c_pelvis_ctrlGrp')
-    spaceConstrain = cmds.parentConstraint(joint, grp)
-    cmds.delete(spaceConstrain)
+    space_constraint = cmds.parentConstraint(joint, grp)
+    cmds.delete(space_constraint)
     cmds.scale(scale, scale, scale, grp)
 
     ctrl = cmds.circle(name='c_pelvis_ctrl', normal=(0, 1, 0), center=(0, 0, 0), ch=True, radius=1)[0]
@@ -1567,9 +1575,8 @@ def create_pelvis_control(**kwargs):
     cmds.makeIdentity(ctrl, apply=True, scale=True, t=True)
 
     cmds.xform(ctrl, rotateOrder=ro)
-    for attr in locAttr:
+    for attr in lock_attribute:
         cmds.setAttr(ctrl + '.' + attr, lock=True, keyable=False, channelBox=False)
-
     cmds.orientConstraint(ctrl, joint, skip='none', maintainOffset=False)
     return ctrl, grp
 
@@ -1577,18 +1584,18 @@ def create_pelvis_control(**kwargs):
 def create_ik_fk_switch_control(**kwargs):
     joint = kwargs.setdefault("joint")
     part = kwargs.setdefault("bodyPart")
-    locAttr = kwargs.setdefault('locAttributes')
+    lock_attribute = kwargs.setdefault('locAttributes')
     scale = kwargs.setdefault('scale')
     side = kwargs.setdefault('side')
     grp = cmds.group(name=side + "_" + part + "IkFkSwitch_ctrlGrp", empty=True)
     cmds.scale(scale, scale, scale, grp)
 
-    spaceConstraint = None
+    space_constraint = None
     if part == 'arm':
-        spaceConstraint = cmds.parentConstraint(joint, grp)
+        space_constraint = cmds.parentConstraint(joint, grp)
     elif part == 'leg':
-        spaceConstraint = cmds.pointConstraint(joint, grp)
-    cmds.delete(spaceConstraint)
+        space_constraint = cmds.pointConstraint(joint, grp)
+    cmds.delete(space_constraint)
 
     ctrl = cmds.curve(name=side + "_" + part + "IkFkSwitch_ctrl", degree=3,
                       point=[(0, 0.65, 0), (0, 0, 0), (-1, 0, 0), (0, 0, 0),
@@ -1607,7 +1614,7 @@ def create_ik_fk_switch_control(**kwargs):
 
     cmds.parentConstraint(joint, grp, maintainOffset=True, skipRotate="none", skipTranslate="none")
     cmds.addAttr(ctrl, longName='ikFkSwitch', attributeType='float', minValue=0.0, maxValue=1.0, keyable=True)
-    for attr in locAttr:
+    for attr in lock_attribute:
         cmds.setAttr(ctrl + '.' + attr, lock=True, keyable=False, channelBox=False)
     if side == 'l':
         cmds.parent(grp, 'LEFT')

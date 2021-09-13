@@ -127,8 +127,13 @@ vw_facialListGuide = {
     'ChinUpperRaise': 'ChinUpperRaise',
     'ChinLowerRaise': 'ChinLowerRaise'}
 
+kFacialCreateWindow = 'facialCreateWindow'
+kFacialEditWindow = 'facialEditWindow'
+kFacialControlWindow = 'facialControlWindow'
+kFacialCopyModeWindow = 'copyModeWindow'
 
-def facialSetCreateModeWin(*args):
+
+def facial_set_create_mode_window(*args):
     global vw_rightCurve
     global vw_centerCurve
     global vw_leftCurve
@@ -136,24 +141,24 @@ def facialSetCreateModeWin(*args):
     global vw_path
     global vw_faceSelCluster
 
-    if cmds.window('facialCreateWindow', ex=True):
-        cmds.deleteUI('facialCreateWindow')
-    elif cmds.window('facialEditWindow', ex=True):
-        cmds.deleteUI('facialEditWindow')
-    elif cmds.window('facialControlWindow', ex=True):
-        cmds.deleteUI('facialControlWindow')
-    elif cmds.window('copyModeWindow', ex=True):
-        cmds.deleteUI('copyModeWindow')
+    if cmds.window(kFacialCreateWindow, ex=True):
+        cmds.deleteUI(kFacialCreateWindow)
+    elif cmds.window(kFacialEditWindow, ex=True):
+        cmds.deleteUI(kFacialEditWindow)
+    elif cmds.window(kFacialControlWindow, ex=True):
+        cmds.deleteUI(kFacialControlWindow)
+    elif cmds.window(kFacialCopyModeWindow, ex=True):
+        cmds.deleteUI(kFacialCopyModeWindow)
 
     mel.eval('setObjectPickMask "Joint" false;')
     mel.eval('setObjectPickMask "Surface" true;')
     mel.eval('setObjectPickMask "Curve" true;')
 
-    clusterFilter()
+    cluster_filter()
     for x in vw_faceSelCluster:
         cmds.hide(x + 'Handle')
 
-    cmds.window('facialCreateWindow', title='ventaworks Facial Rig Tool', w=600, h=600, sizeable=False)
+    cmds.window(kFacialCreateWindow, title='Facial Rig Tool', w=600, h=600, sizeable=False)
     cmds.columnLayout(columnAttach=('both', 1), rowSpacing=0, cal='center', columnWidth=600)
     cmds.image('imageViewField', w=500, h=500, i=vw_path + 'fs_createMode.jpg')
     cmds.rowLayout(numberOfColumns=3, columnWidth3=(100, 400, 100), adjustableColumn=2, columnAlign=(1, 'center'),
@@ -162,11 +167,11 @@ def facialSetCreateModeWin(*args):
     cmds.radioButtonGrp('radioModeField', cw4=(100, 100, 100, 100),
                         labelArray4=['Create Mode', 'Edit Mode', 'Control Mode', 'Copy Key'],
                         numberOfRadioButtons=4, h=50, sl=1,
-                        on1=facialSetCreateModeWin, on2=facialSetEditModeWin,
-                        on3=facialSetControlModeWin, on4=copyKeyWin)
+                        on1=facial_set_create_mode_window, on2=facial_set_edit_mode_window,
+                        on3=facial_set_control_mode_window, on4=copy_key_window)
     cmds.setParent(u=True)
     cmds.textFieldButtonGrp('selHead', label='Select Head Object ', tx=vw_headObject[0],
-                            buttonLabel='<<<', h=50, bc=selHeadInButton, ed=False)
+                            buttonLabel='<<<', h=50, bc=set_head_in_button, ed=False)
 
     if vw_headObject != ' ':
         cmds.rowLayout(numberOfColumns=3, columnWidth3=(200, 200, 200), adjustableColumn=2,
@@ -175,28 +180,28 @@ def facialSetCreateModeWin(*args):
 
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=200)
         cmds.text(label='R I G H T', h=30, bgc=(0.1, 0.1, 0.1))
-        cmds.textScrollList('facialControlRightList', append=vw_rightCurve, sc=selectRightScrollCurve, h=130)
-        cmds.button(label='Create Right Curve', h=40, c=createRightCurve)
+        cmds.textScrollList('facialControlRightList', append=vw_rightCurve, sc=select_right_scroll_curve, h=130)
+        cmds.button(label='Create Right Curve', h=40, c=create_right_curve)
         cmds.setParent(u=True)
 
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=200)
         cmds.text(label='C E N T E R', h=30, bgc=(0.1, 0.1, 0.1))
-        cmds.textScrollList('facialControlCenterList', append=vw_centerCurve, sc=selectCenterScrollCurve, h=130)
-        cmds.button(label='Create Center Curve', h=40, c=createCenterCurve)
+        cmds.textScrollList('facialControlCenterList', append=vw_centerCurve, sc=select_center_scroll_curve, h=130)
+        cmds.button(label='Create Center Curve', h=40, c=create_center_curve)
         cmds.setParent(u=True)
 
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=200)
         cmds.text(label='L E F T', h=30, bgc=(0.1, 0.1, 0.1))
-        cmds.textScrollList('facialControlLeftList', append=vw_leftCurve, sc=selectLeftScrollCurve, h=130)
-        cmds.button(label='Create Left Curve', h=40, c=createLeftCurve)
+        cmds.textScrollList('facialControlLeftList', append=vw_leftCurve, sc=select_left_scroll_curve, h=130)
+        cmds.button(label='Create Left Curve', h=40, c=create_left_curve)
         cmds.setParent(u=True)
         cmds.setParent(u=True)
-        cmds.button(label='Attach Curve', h=60, c=attachCommand, bgc=(0.9, 0.3, 0.9))
-        curveExists()
+        cmds.button(label='Attach Curve', h=60, c=attach_command, bgc=(0.9, 0.3, 0.9))
+        curve_exists()
     else:
         pass
 
-    cmds.showWindow('facialCreateWindow')
+    cmds.showWindow(kFacialCreateWindow)
 
     mel.eval('SelectToolOptionsMarkingMenu;\
     buildSelectMM;\
@@ -208,7 +213,7 @@ def facialSetCreateModeWin(*args):
     MarkingMenuPopDown;')
 
 
-def facialSetEditModeWin(*args):
+def facial_set_edit_mode_window(*args):
     global vw_rightCurve
     global vw_centerCurve
     global vw_leftCurve
@@ -220,22 +225,22 @@ def facialSetEditModeWin(*args):
     mel.eval('setObjectPickMask "Curve" true;')
 
     mel.eval('artAttrToolScript 3 "wire";')
-    clusterFilter()
+    cluster_filter()
     for x in vw_faceSelCluster:
         cmds.hide(x + 'Handle')
 
     if vw_headObject != ' ':
 
-        if cmds.window('facialCreateWindow', ex=True):
-            cmds.deleteUI('facialCreateWindow')
-        elif cmds.window('facialEditWindow', ex=True):
-            cmds.deleteUI('facialEditWindow')
-        elif cmds.window('facialControlWindow', ex=True):
-            cmds.deleteUI('facialControlWindow')
-        elif cmds.window('copyModeWindow', ex=True):
-            cmds.deleteUI('copyModeWindow')
+        if cmds.window(kFacialCreateWindow, ex=True):
+            cmds.deleteUI(kFacialCreateWindow)
+        elif cmds.window(kFacialEditWindow, ex=True):
+            cmds.deleteUI(kFacialEditWindow)
+        elif cmds.window(kFacialControlWindow, ex=True):
+            cmds.deleteUI(kFacialControlWindow)
+        elif cmds.window(kFacialCopyModeWindow, ex=True):
+            cmds.deleteUI(kFacialCopyModeWindow)
 
-        cmds.window('facialEditWindow', title='ventaworks Facial Set Tool', w=600, h=600, sizeable=False)
+        cmds.window(kFacialEditWindow, title='Facial Set Tool', w=600, h=600, sizeable=False)
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=600)
         cmds.image('imageViewField', w=500, h=500, i=vw_path + 'fs_editMode.jpg')
         cmds.rowLayout(numberOfColumns=3, columnWidth3=(100, 400, 100), adjustableColumn=2, columnAlign=(1, 'center'),
@@ -244,12 +249,12 @@ def facialSetEditModeWin(*args):
         cmds.radioButtonGrp('radioModeField', cw4=(100, 100, 100, 100),
                             labelArray4=['Create Mode', 'Edit Mode', 'Control Mode', 'Copy Key'],
                             numberOfRadioButtons=4, h=50, sl=2,
-                            on1=facialSetCreateModeWin, on2=facialSetEditModeWin,
-                            on3=facialSetControlModeWin, on4=copyKeyWin)
+                            on1=facial_set_create_mode_window, on2=facial_set_edit_mode_window,
+                            on3=facial_set_control_mode_window, on4=copy_key_window)
         cmds.setParent(u=True)
 
         cmds.textFieldButtonGrp('selHead', label='Select Head Object ', tx=vw_headObject[0],
-                                buttonLabel='<<<', h=50, bc=selHeadInButton, ed=False, eb=False)
+                                buttonLabel='<<<', h=50, bc=set_head_in_button, ed=False, eb=False)
         cmds.rowLayout(numberOfColumns=3, columnWidth3=(200, 200, 200),
                        adjustableColumn=2,
                        columnAlign=(1, 'center'),
@@ -257,31 +262,31 @@ def facialSetEditModeWin(*args):
 
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=200)
         cmds.text(label='R I G H T', h=30, bgc=(0.1, 0.1, 0.1))
-        cmds.textScrollList('facialControlRightList', append=vw_rightCurve, sc=selectRightScrollEditCurve, h=130)
+        cmds.textScrollList('facialControlRightList', append=vw_rightCurve, sc=select_right_scroll_edit_curve, h=130)
         cmds.setParent(u=True)
 
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=200)
         cmds.text(label='C E N T E R', h=30, bgc=(0.1, 0.1, 0.1))
-        cmds.textScrollList('facialControlCenterList', append=vw_centerCurve, sc=selectCenterScrollEditCurve, h=130)
+        cmds.textScrollList('facialControlCenterList', append=vw_centerCurve, sc=select_center_scroll_edit_curve, h=130)
         cmds.setParent(u=True)
 
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=200)
         cmds.text(label='L E F T', h=30, bgc=(0.1, 0.1, 0.1))
-        cmds.textScrollList('facialControlLeftList', append=vw_leftCurve, sc=selectLeftScrollEditCurve, h=130)
+        cmds.textScrollList('facialControlLeftList', append=vw_leftCurve, sc=select_left_scroll_edit_curve, h=130)
         cmds.setParent(u=True)
         cmds.setParent(u=True)
         cmds.gridLayout(numberOfColumns=2, cellWidthHeight=(300, 40))
-        cmds.button('importMapField', label='Import Map', c=importMapImage, h=40)
-        cmds.button('exportMapField', label='Export Map', c=exportMapImage, h=40)
+        cmds.button('importMapField', label='Import Map', c=import_map_image, h=40)
+        cmds.button('exportMapField', label='Export Map', c=export_map_image, h=40)
         cmds.setParent(u=True)
-        cmds.button(label='Create Controller', h=60, c=controllerCommand, bgc=(0.9, 0.3, 0.9))
-        cmds.showWindow('facialEditWindow')
-        curveExists()
+        cmds.button(label='Create Controller', h=60, c=controller_command, bgc=(0.9, 0.3, 0.9))
+        cmds.showWindow(kFacialEditWindow)
+        curve_exists()
     else:
-        facialSetCreateModeWin()
+        facial_set_create_mode_window()
 
 
-def facialSetControlModeWin(*args):
+def facial_set_control_mode_window(*args):
     global vw_rightCurve
     global vw_centerCurve
     global vw_leftCurve
@@ -296,7 +301,7 @@ def facialSetControlModeWin(*args):
     mel.eval('setObjectPickMask "Surface" false;')
     mel.eval('setObjectPickMask "Curve" false;')
 
-    clusterFilter()
+    cluster_filter()
     allCurve = []
     num = 0
 
@@ -314,73 +319,73 @@ def facialSetControlModeWin(*args):
     cmds.select(cl=True)
 
     if vw_headObject != ' ':
-        if cmds.window('facialCreateWindow', ex=True):
-            cmds.deleteUI('facialCreateWindow')
-        elif cmds.window('facialEditWindow', ex=True):
-            cmds.deleteUI('facialEditWindow')
-        elif cmds.window('facialControlWindow', ex=True):
-            cmds.deleteUI('facialControlWindow')
-        elif cmds.window('copyModeWindow', ex=True):
-            cmds.deleteUI('copyModeWindow')
+        if cmds.window(kFacialCreateWindow, ex=True):
+            cmds.deleteUI(kFacialCreateWindow)
+        elif cmds.window(kFacialEditWindow, ex=True):
+            cmds.deleteUI(kFacialEditWindow)
+        elif cmds.window(kFacialControlWindow, ex=True):
+            cmds.deleteUI(kFacialControlWindow)
+        elif cmds.window(kFacialCopyModeWindow, ex=True):
+            cmds.deleteUI(kFacialCopyModeWindow)
 
-        cmds.window('facialControlWindow', title='ventaworks Facial Set Tool', w=600, h=600, sizeable=False)
+        cmds.window(kFacialControlWindow, title='Facial Set Tool', w=600, h=600, sizeable=False)
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=600)
         cmds.image('imageViewField', w=500, h=500, i=vw_path + 'fs_controlMode.jpg')
-        cmds.button('defaultFaceButtonField', label='default Face Image', h=30, aop=True, c=defaultFaceImage)
+        cmds.button('defaultFaceButtonField', label='default Face Image', h=30, aop=True, c=default_face_image)
         cmds.rowLayout(numberOfColumns=3, columnWidth3=(100, 400, 100), adjustableColumn=2, columnAlign=(1, 'center'),
                        columnAttach=[(1, 'both', 0), (2, 'both', 0), (3, 'both', 0)])
         cmds.text('')
         cmds.radioButtonGrp('radioModeField', cw4=(100, 100, 100, 100),
                             labelArray4=['Create Mode', 'Edit Mode', 'Control Mode', 'Copy Key'],
                             numberOfRadioButtons=4, h=50, sl=3,
-                            on1=facialSetCreateModeWin,
-                            on2=facialSetEditModeWin,
-                            on3=facialSetControlModeWin,
-                            on4=copyKeyWin)
+                            on1=facial_set_create_mode_window,
+                            on2=facial_set_edit_mode_window,
+                            on3=facial_set_control_mode_window,
+                            on4=copy_key_window)
 
         cmds.setParent(u=True)
         cmds.textFieldButtonGrp('selHead', label='Select Head Object ', tx=vw_headObject[0], buttonLabel='<<<', h=50,
-                                bc=selHeadInButton, ed=False, eb=False)
+                                bc=set_head_in_button, ed=False, eb=False)
         cmds.text('faceGuideField', label=vw_facialListGuide.get('BrowsD_L'), h=50, fn='plainLabelFont', rs=True)
         cmds.rowLayout(numberOfColumns=3, columnWidth3=(240, 240, 110), adjustableColumn=3, columnAlign=(1, 'center'),
                        columnAttach=[(1, 'both', 0), (2, 'both', 0), (3, 'both', 0)])
 
         cmds.columnLayout(columnAttach=('both', 1), rowSpacing=0, columnWidth=240)
         cmds.text(label='F A C E   L I S T', h=30, bgc=(0.3, 0.1, 0.1))
-        cmds.textScrollList('facialControlFaceList', append=vw_facialList, sc=selectFaceScrollControlCurve, h=300,
+        cmds.textScrollList('facialControlFaceList', append=vw_facialList, sc=select_face_scroll_control_curve, h=300,
                             sii=vw_selItemIndex[0], bgc=(0.4, 0.3, 0.3))
         cmds.setParent(u=True)
 
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=240)
         cmds.text(label='Curve Controller', h=30, bgc=(0.1, 0.1, 0.1))
-        cmds.textScrollList('facialControlList', append=allCurve, sc=selectScrollControlCurve, h=300, ams=True)
+        cmds.textScrollList('facialControlList', append=allCurve, sc=select_scroll_control_curve, h=300, ams=True)
         cmds.setParent(u=True)
 
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=110, h=333)
         cmds.text(label='SET Button', h=30, bgc=(0.1, 0.1, 0.1))
-        cmds.button(label='S E T', h=100, c=controlModeSet, bgc=(0.5, 0, 0.0))
-        cmds.button(label='copy', h=30, c=copyButton, bgc=(0.4, 0.4, 0.4))
+        cmds.button(label='S E T', h=100, c=control_mode_set, bgc=(0.5, 0, 0.0))
+        cmds.button(label='copy', h=30, c=copy_button, bgc=(0.4, 0.4, 0.4))
         cmds.gridLayout(numberOfColumns=3, cellWidthHeight=(36.7, 40))
-        cmds.button(label='Pst', h=40, c=pasteButton, bgc=(0.4, 0.4, 0.4))
-        cmds.button(label='CM', h=40, c=CmirrorPasteButton, bgc=(0.4, 0.4, 0.4))
-        cmds.button(label='M', h=40, c=mirrorPasteButton, bgc=(0.4, 0.4, 0.4))
+        cmds.button(label='Pst', h=40, c=paste_button, bgc=(0.4, 0.4, 0.4))
+        cmds.button(label='CM', h=40, c=copy_mirror_paste_button, bgc=(0.4, 0.4, 0.4))
+        cmds.button(label='M', h=40, c=mirror_paste_button, bgc=(0.4, 0.4, 0.4))
         cmds.setParent(u=True)
 
         cmds.text(label='File menu', h=30, bgc=(0.1, 0.1, 0.1))
         ##mc.button(label='All Reset',h=30,c=defaultSetButton)
-        cmds.button(label='Select Reset', h=30, c=selectResetButton)
-        cmds.button(label='Import', h=30, c=importButton)
-        cmds.button(label='SAVE', h=50, c=saveButton, bgc=(0.9, 0.2, 0))
+        cmds.button(label='Select Reset', h=30, c=select_reset_button)
+        cmds.button(label='Import', h=30, c=import_button)
+        cmds.button(label='SAVE', h=50, c=save_button, bgc=(0.9, 0.2, 0))
         cmds.setParent(u=True)
         cmds.setParent(u=True)
 
-        cmds.button(label='Final Step', h=60, c=finalStep, bgc=(0.9, 0.3, 0.9))
-        cmds.showWindow('facialControlWindow')
+        cmds.button(label='Final Step', h=60, c=final_step, bgc=(0.9, 0.3, 0.9))
+        cmds.showWindow(kFacialControlWindow)
 
     else:
-        facialSetCreateModeWin()
+        facial_set_create_mode_window()
 
-    selectFaceScrollControlCurve()
+    select_face_scroll_control_curve()
     mel.eval('SelectToolOptionsMarkingMenu;\
     buildSelectMM;\
     global string $gSelect; setToolTo $gSelect;\
@@ -391,7 +396,7 @@ def facialSetControlModeWin(*args):
     MarkingMenuPopDown;')
 
 
-def copyKeyWin(*args):
+def copy_key_window(*args):
     global vw_sourceMesh
     global vw_targetMesh
 
@@ -399,16 +404,16 @@ def copyKeyWin(*args):
     mel.eval('setObjectPickMask "Surface" true;')
     mel.eval('setObjectPickMask "Curve" true;')
 
-    if cmds.window('facialCreateWindow', ex=True):
-        cmds.deleteUI('facialCreateWindow')
-    elif cmds.window('facialEditWindow', ex=True):
-        cmds.deleteUI('facialEditWindow')
-    elif cmds.window('facialControlWindow', ex=True):
-        cmds.deleteUI('facialControlWindow')
-    elif cmds.window('copyModeWindow', ex=True):
-        cmds.deleteUI('copyModeWindow')
+    if cmds.window(kFacialCreateWindow, ex=True):
+        cmds.deleteUI(kFacialCreateWindow)
+    elif cmds.window(kFacialEditWindow, ex=True):
+        cmds.deleteUI(kFacialEditWindow)
+    elif cmds.window(kFacialControlWindow, ex=True):
+        cmds.deleteUI(kFacialControlWindow)
+    elif cmds.window(kFacialCopyModeWindow, ex=True):
+        cmds.deleteUI(kFacialCopyModeWindow)
 
-    cmds.window('copyModeWindow', title='ventaworks Facial Set Tool', w=600, h=600, sizeable=False)
+    cmds.window(kFacialCopyModeWindow, title='Facial Set Tool', w=600, h=600, sizeable=False)
     cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=600)
     cmds.image('imageViewField', w=500, h=500, i=vw_path + 'fs_controlMode.jpg')
     cmds.rowLayout(numberOfColumns=3, columnWidth3=(100, 400, 100), adjustableColumn=2, columnAlign=(1, 'center'),
@@ -416,44 +421,42 @@ def copyKeyWin(*args):
     cmds.text('')
     cmds.radioButtonGrp('radioModeField', cw4=(100, 100, 100, 100),
                         labelArray4=['Create Mode', 'Edit Mode', 'Control Mode', 'Copy Key'],
-                        numberOfRadioButtons=4, h=50, sl=4, on1=facialSetCreateModeWin, on2=facialSetEditModeWin,
-                        on3=facialSetControlModeWin, on4=copyKeyWin)
+                        numberOfRadioButtons=4, h=50, sl=4, on1=facial_set_create_mode_window, on2=facial_set_edit_mode_window,
+                        on3=facial_set_control_mode_window, on4=copy_key_window)
     cmds.setParent(u=True)
     cmds.columnLayout(columnAttach=('both', 1), rowSpacing=0, columnWidth=600)
 
     if vw_sourceMesh == ' ':
         cmds.textFieldButtonGrp('importSourceMeshField', label='Source Mesh', tx='', buttonLabel='<<<', h=50,
-                                bc=importSourceMesh, ed=False, eb=True)
+                                bc=import_source_mesh, ed=False, eb=True)
     else:
         cmds.textFieldButtonGrp('importSourceMeshField', label='Source Mesh', tx=vw_sourceMesh, buttonLabel='<<<', h=50,
-                                bc=importSourceMesh, ed=False, eb=True)
+                                bc=import_source_mesh, ed=False, eb=True)
     if vw_targetMesh == ' ':
         cmds.textFieldButtonGrp('importTargetMeshField', label='Target Mesh', tx='', buttonLabel='<<<', h=50,
-                                bc=importTargetMesh, ed=False, eb=True)
+                                bc=import_target_mesh, ed=False, eb=True)
     else:
         cmds.textFieldButtonGrp('importTargetMeshField', label='Target Mesh', tx=vw_targetMesh, buttonLabel='<<<', h=50,
-                                bc=importTargetMesh, ed=False, eb=True)
+                                bc=import_target_mesh, ed=False, eb=True)
 
     if vw_sourceMesh == ' ' or vw_targetMesh == ' ':
-        cmds.button('copyKeyBtn', label='Copy Key', h=60, en=False, c=copyKeyProcess, bgc=(0.9, 0.3, 0.9))
+        cmds.button('copyKeyBtn', label='Copy Key', h=60, en=False, c=copy_key_process, bgc=(0.9, 0.3, 0.9))
 
     elif vw_sourceMesh != ' ' and vw_targetMesh != ' ':
-        cmds.button('copyKeyBtn', label='Copy Key', h=60, en=True, c=copyKeyProcess, bgc=(0.9, 0.3, 0.9))
+        cmds.button('copyKeyBtn', label='Copy Key', h=60, en=True, c=copy_key_process, bgc=(0.9, 0.3, 0.9))
 
-    cmds.showWindow('copyModeWindow')
+    cmds.showWindow(kFacialCopyModeWindow)
 
 
-def createRightCurve(*args):
+def create_right_curve(*args):
     global vw_selRightCurve
     global vw_selCenterCurve
     global vw_selLeftCurve
     
     if cmds.window('createLeftCurveWin', ex=True):
         cmds.deleteUI('createLeftCurveWin')
-
     if cmds.window('createCenterCurveWin', ex=True):
         cmds.deleteUI('createCenterCurveWin')
-
     if cmds.window('createRightCurveWin', ex=True):
         cmds.deleteUI('createRightCurveWin')
 
@@ -466,12 +469,11 @@ def createRightCurve(*args):
             cmds.textScrollList('selRightCurveWin', e=True, ri=x)
         else:
             pass
-
-    cmds.button(label='O K ! !', h=60, c=selRightCurveList)
+    cmds.button(label='O K ! !', h=60, c=set_right_curve_window)
     cmds.showWindow('createRightCurveWin')
 
 
-def selRightCurveList(*args):
+def set_right_curve_window(*args):
     global vw_selRightCurve
     global vw_selCenterCurve
     global vw_selLeftCurve
@@ -481,23 +483,21 @@ def selRightCurveList(*args):
     global vw_headObject
 
     selRightItem = cmds.textScrollList('selRightCurveWin', q=True, si=True)
-    sideEdgeToCurve(selRightItem[0])
+    side_edge_to_curve(selRightItem[0])
     vw_rightCurve.sort()
-    curveExists()
+    curve_exists()
     cmds.deleteUI('createRightCurveWin')
 
 
-def createCenterCurve(*args):
+def create_center_curve(*args):
     global vw_selRightCurve
     global vw_selCenterCurve
     global vw_selLeftCurve
 
     if cmds.window('createLeftCurveWin', ex=True):
         cmds.deleteUI('createLeftCurveWin')
-
     if cmds.window('createCenterCurveWin', ex=True):
         cmds.deleteUI('createCenterCurveWin')
-
     if cmds.window('createRightCurveWin', ex=True):
         cmds.deleteUI('createRightCurveWin')
 
@@ -510,12 +510,11 @@ def createCenterCurve(*args):
             cmds.textScrollList('selCenterCurveWin', e=True, ri=x)
         else:
             pass
-
-    cmds.button(label='O K ! !', h=60, c=selCenterCurveList)
+    cmds.button(label='O K ! !', h=60, c=set_center_curve_list)
     cmds.showWindow('createCenterCurveWin')
 
 
-def selCenterCurveList(*args):
+def set_center_curve_list(*args):
     global vw_selRightCurve
     global vw_selCenterCurve
     global vw_selLeftCurve
@@ -524,23 +523,21 @@ def selCenterCurveList(*args):
     global vw_leftCurve
 
     selCenterItem = cmds.textScrollList('selCenterCurveWin', q=True, si=True)
-    centerEdgeToCurve(selCenterItem[0])
+    center_edge_to_curve(selCenterItem[0])
     vw_centerCurve.sort()
     cmds.deleteUI('createCenterCurveWin')
-    curveExists()
+    curve_exists()
 
 
-def createLeftCurve(*args):
+def create_left_curve(*args):
     global vw_selRightCurve
     global vw_selCenterCurve
     global vw_selLeftCurve
 
     if cmds.window('createLeftCurveWin', ex=True):
         cmds.deleteUI('createLeftCurveWin')
-
     if cmds.window('createCenterCurveWin', ex=True):
         cmds.deleteUI('createCenterCurveWin')
-
     if cmds.window('createRightCurveWin', ex=True):
         cmds.deleteUI('createRightCurveWin')
 
@@ -554,11 +551,11 @@ def createLeftCurve(*args):
         else:
             pass
 
-    cmds.button(label='O K ! !', h=60, c=selLeftCurveList)
+    cmds.button(label='O K ! !', h=60, c=set_left_curve_list)
     cmds.showWindow('createLeftCurveWin')
 
 
-def selLeftCurveList(*args):
+def set_left_curve_list(*args):
     global vw_selRightCurve
     global vw_selCenterCurve
     global vw_selLeftCurve
@@ -567,13 +564,13 @@ def selLeftCurveList(*args):
     global vw_leftCurve
 
     selLeftItem = cmds.textScrollList('selLeftCurveWin', q=True, si=True)
-    sideEdgeToCurve(selLeftItem[0])
+    side_edge_to_curve(selLeftItem[0])
     vw_leftCurve.sort()
     cmds.deleteUI('createLeftCurveWin')
-    curveExists()
+    curve_exists()
 
 
-def curveExists():
+def curve_exists():
     global vw_selRightCurve
     global vw_selCenterCurve
     global vw_selLeftCurve
@@ -608,7 +605,6 @@ def curveExists():
                     vw_leftCurve.append(y)
 
     cmds.select(cl=True)
-
     cmds.textScrollList('facialControlRightList', e=True, ra=True)
     cmds.textScrollList('facialControlRightList', e=True, append=vw_rightCurve)
     cmds.textScrollList('facialControlCenterList', e=True, ra=True)
@@ -617,15 +613,14 @@ def curveExists():
     cmds.textScrollList('facialControlLeftList', e=True, append=vw_leftCurve)
 
 
-def selHeadInButton(*args):
+def set_head_in_button(*args):
     global vw_headObject
     vw_headObject = cmds.ls(sl=True, fl=True)
     cmds.textFieldButtonGrp('selHead', e=True, tx=vw_headObject[0])
-    facialSetCreateModeWin()
+    facial_set_create_mode_window()
 
 
-def centerEdgeToCurve(curveName):
-
+def center_edge_to_curve(curveName):
     global vw_selRightCurve
     global vw_selCenterCurve
     global vw_selLeftCurve
@@ -636,7 +631,7 @@ def centerEdgeToCurve(curveName):
     cmds.rebuildCurve(curveName, ch=True, rpo=True, rt=0, end=0, kr=0, kcp=False, kep=False, kt=False, s=5, d=3)
 
 
-def sideEdgeToCurve(curveName):
+def side_edge_to_curve(curveName):
     global vw_selRightCurve
     global vw_selCenterCurve
     global vw_selLeftCurve
@@ -644,7 +639,6 @@ def sideEdgeToCurve(curveName):
     centerX = cmds.objectCenter(vw_headObject[0], x=True)
     centerY = cmds.objectCenter(vw_headObject[0], y=True)
     centerZ = cmds.objectCenter(vw_headObject[0], z=True)
-
     # selVertex = cmds.ls(sl=True, fl=True)
     mel.eval('polyToCurve -n ' + curveName + ' -form 5 -degree 3;')
     cmds.select(curveName)
@@ -652,28 +646,28 @@ def sideEdgeToCurve(curveName):
     cmds.move(centerX, centerY, centerZ, curveName + '.scalePivot', curveName + '.rotatePivot', rpr=True, spr=True)
 
 
-def selectRightScrollCurve(*args):
+def select_right_scroll_curve(*args):
     selRight = cmds.textScrollList('facialControlRightList', q=True, si=True)
     cmds.textScrollList('facialControlCenterList', e=True, da=True)
     cmds.textScrollList('facialControlLeftList', e=True, da=True)
     cmds.select(selRight, r=True)
 
 
-def selectCenterScrollCurve(*args):
+def select_center_scroll_curve(*args):
     selCenter = cmds.textScrollList('facialControlCenterList', q=True, si=True)
     cmds.textScrollList('facialControlRightList', e=True, da=True)
     cmds.textScrollList('facialControlLeftList', e=True, da=True)
     cmds.select(selCenter, r=True)
 
 
-def selectLeftScrollCurve(*args):
+def select_left_scroll_curve(*args):
     selLeft = cmds.textScrollList('facialControlLeftList', q=True, si=True)
     cmds.textScrollList('facialControlRightList', e=True, da=True)
     cmds.textScrollList('facialControlCenterList', e=True, da=True)
     cmds.select(selLeft, r=True)
 
 
-def attachCommand(*args):
+def attach_command(*args):
     global vw_selRightCurve
     global vw_selCenterCurve
     global vw_selLeftCurve
@@ -682,7 +676,8 @@ def attachCommand(*args):
     global vw_leftCurve
     global vw_headObject
 
-    confirmMsg = cmds.confirmDialog(title='Confirm', icn='question', message='Are you ok?', button=['Yes', 'No'],
+    confirmMsg = cmds.confirmDialog(title='Confirm', icn='question', message='Are you ok?',
+                                    button=['Yes', 'No'],
                                     defaultButton='Yes', cancelButton='No', dismissString='No')
 
     if confirmMsg == 'Yes':
@@ -715,7 +710,7 @@ def attachCommand(*args):
                 else:
                     pass
 
-        curveExists()
+        curve_exists()
         # allCurve = []
         # allCurve = vw_rightCurve + vw_leftCurve + vw_centerCurve
         cmds.select(vw_headObject)
@@ -753,54 +748,54 @@ def attachCommand(*args):
         SelectToolOptionsMarkingMenuPopDown;\
         MarkingMenuPopDown;')
 
-        facialSetEditModeWin()
+        facial_set_edit_mode_window()
     elif confirmMsg == 'No':
         pass
 
 
-def selectRightScrollEditCurve(*args):
+def select_right_scroll_edit_curve(*args):
     global vw_headObject
 
-    selRight = cmds.textScrollList('facialControlRightList', q=True, si=True)
+    select_right = cmds.textScrollList('facialControlRightList', q=True, si=True)
     cmds.textScrollList('facialControlCenterList', e=True, da=True)
     cmds.textScrollList('facialControlLeftList', e=True, da=True)
 
-    if cmds.objExists(selRight[0] + '_wire'):
-        cmds.select(vw_headObject, selRight[0])
-        mel.eval('artSetToolAndSelectAttr( "artAttrCtx", "wire.' + selRight[0] + '_wire.weights" )')
+    if cmds.objExists(select_right[0] + '_wire'):
+        cmds.select(vw_headObject, select_right[0])
+        mel.eval('artSetToolAndSelectAttr( "artAttrCtx", "wire.' + select_right[0] + '_wire.weights" )')
     else:
         pass
 
 
-def selectCenterScrollEditCurve(*args):
+def select_center_scroll_edit_curve(*args):
     global vw_headObject
 
-    selCenter = cmds.textScrollList('facialControlCenterList', q=True, si=True)
+    select_center = cmds.textScrollList('facialControlCenterList', q=True, si=True)
     cmds.textScrollList('facialControlRightList', e=True, da=True)
     cmds.textScrollList('facialControlLeftList', e=True, da=True)
 
-    if cmds.objExists(selCenter[0] + '_wire'):
-        cmds.select(vw_headObject, selCenter[0])
-        mel.eval('artSetToolAndSelectAttr( "artAttrCtx", "wire.' + selCenter[0] + '_wire.weights" )')
+    if cmds.objExists(select_center[0] + '_wire'):
+        cmds.select(vw_headObject, select_center[0])
+        mel.eval('artSetToolAndSelectAttr( "artAttrCtx", "wire.' + select_center[0] + '_wire.weights" )')
     else:
         pass
 
 
-def selectLeftScrollEditCurve(*args):
+def select_left_scroll_edit_curve(*args):
     global vw_headObject
 
-    selLeft = cmds.textScrollList('facialControlLeftList', q=True, si=True)
+    select_left = cmds.textScrollList('facialControlLeftList', q=True, si=True)
     cmds.textScrollList('facialControlRightList', e=True, da=True)
     cmds.textScrollList('facialControlCenterList', e=True, da=True)
 
-    if cmds.objExists(selLeft[0] + '_wire'):
-        cmds.select(vw_headObject, selLeft[0])
-        mel.eval('artSetToolAndSelectAttr( "artAttrCtx", "wire.' + selLeft[0] + '_wire.weights" )')
+    if cmds.objExists(select_left[0] + '_wire'):
+        cmds.select(vw_headObject, select_left[0])
+        mel.eval('artSetToolAndSelectAttr( "artAttrCtx", "wire.' + select_left[0] + '_wire.weights" )')
     else:
         pass
 
 
-def importMapImage(*args):
+def import_map_image(*args):
     # rightList = []
     # centerList = []
     # leftList = []
@@ -824,27 +819,27 @@ def importMapImage(*args):
         mel.eval('artImportMapDialog "artAttrCtx";')
 
 
-def exportMapImage(*args):
+def export_map_image(*args):
     # rightList = []
     # centerList = []
     # leftList = []
-    allList = []
+    all_list = []
 
-    rightList = cmds.textScrollList('facialControlRightList', q=True, si=True)
-    centerList = cmds.textScrollList('facialControlCenterList', q=True, si=True)
-    leftList = cmds.textScrollList('facialControlLeftList', q=True, si=True)
+    right_list = cmds.textScrollList('facialControlRightList', q=True, si=True)
+    center_list = cmds.textScrollList('facialControlCenterList', q=True, si=True)
+    left_list = cmds.textScrollList('facialControlLeftList', q=True, si=True)
 
-    if rightList is not None:
-        allList.append(rightList)
-    elif centerList is not None:
-        allList.append(centerList)
-    elif leftList is not None:
-        allList.append(leftList)
+    if right_list is not None:
+        all_list.append(right_list)
+    elif center_list is not None:
+        all_list.append(center_list)
+    elif left_list is not None:
+        all_list.append(left_list)
 
-    if allList is []:
+    if all_list is []:
         pass
     else:
-        mel.eval('artSetToolAndSelectAttr( "artAttrCtx", "wire.' + allList[0][0] + '_wire.weights" );')
+        mel.eval('artSetToolAndSelectAttr( "artAttrCtx", "wire.' + all_list[0][0] + '_wire.weights" );')
         mel.eval('artExportMapValue "Luminance" artAttrCtx;')
         mel.eval('artExportFileTypeValue "JPEG" artAttrCtx;')
         mel.eval('artAttrCtx -e -exportfilesizex 4096 `currentCtx`;')
@@ -852,7 +847,7 @@ def exportMapImage(*args):
         mel.eval('artExportMapDialog "artAttrCtx";')
 
 
-def controllerCommand(*args):
+def controller_command(*args):
     global vw_selRightCurve
     global vw_selCenterCurve
     global vw_selLeftCurve
@@ -908,13 +903,13 @@ def controllerCommand(*args):
                 selTemp = []
                 '''
         cmds.deleteUI(clusterProgressWin)
-        facialSetControlModeWin()
+        facial_set_control_mode_window()
 
     if confirmMsg == 'No':
         pass
 
 
-def selectFaceScrollControlCurve(*args):
+def select_face_scroll_control_curve(*args):
     global vw_showCluster
     global vw_faceSelCluster
     global vw_faceEmotionData
@@ -929,7 +924,7 @@ def selectFaceScrollControlCurve(*args):
     stepNum = 0
 
     if vw_faceEmotionData is []:
-        defaultSetButton()
+        default_set_button()
 
     elif vw_faceEmotionData[intNum] is not []:
         for x in vw_faceSelCluster:
@@ -954,7 +949,7 @@ def selectFaceScrollControlCurve(*args):
     cmds.image('imageViewField', e=True, i=vw_path + 'Facial_Check/' + selectItem[0] + '.jpg')
 
 
-def defaultFaceImage(*args):
+def default_face_image(*args):
     global vw_faceButtonNum
     selectItem = cmds.textScrollList('facialControlFaceList', q=True, si=True)
 
@@ -967,7 +962,7 @@ def defaultFaceImage(*args):
         vw_faceButtonNum = False
 
 
-def controlModeSet(*args):
+def control_mode_set(*args):
     global vw_showCluster
     global vw_faceSelCluster
     global vw_faceEmotionData
@@ -989,7 +984,7 @@ def controlModeSet(*args):
     cmds.showWindow(setProgressWin)
 
     if vw_faceEmotionData is []:
-        defaultSetButton()
+        default_set_button()
         for x in vw_faceSelCluster:
             # clPosition = []
             posX = cmds.getAttr(x + 'Handle.translateX')
@@ -1041,14 +1036,14 @@ def controlModeSet(*args):
     cmds.deleteUI(setProgressWin)
 
     if vw_fileTemp is []:
-        saveButton()
+        save_button()
     else:
         fs = open(vw_fileTemp[:-3] + '_tmp.fd', 'wb')
         pickle.dump(vw_faceEmotionData, fs)
         fs.close()
 
 
-def copyButton(*args):
+def copy_button(*args):
     global vw_selClusterPosTemp
     vw_selClusterPosTemp = []
     # clPosition = []
@@ -1066,7 +1061,7 @@ def copyButton(*args):
     vw_selClusterPosTemp = clAllPos
 
 
-def pasteButton(*args):
+def paste_button(*args):
     global vw_selClusterPosTemp
 
     selCluster = cmds.ls(sl=True, fl=True)
@@ -1079,7 +1074,7 @@ def pasteButton(*args):
         stepNum += 1
 
 
-def CmirrorPasteButton(*args):
+def copy_mirror_paste_button(*args):
     global vw_selClusterPosTemp
 
     selCluster = cmds.ls(sl=True, fl=True)
@@ -1093,7 +1088,7 @@ def CmirrorPasteButton(*args):
         stepNum += 1
 
 
-def mirrorPasteButton(*args):
+def mirror_paste_button(*args):
     global vw_selClusterPosTemp
 
     selCluster = cmds.ls(sl=True, fl=True)
@@ -1106,7 +1101,7 @@ def mirrorPasteButton(*args):
         stepNum += 1
 
 
-def defaultSetButton(*args):
+def default_set_button(*args):
     global vw_faceEmotionData
 
     vw_faceEmotionData = []
@@ -1130,7 +1125,7 @@ def defaultSetButton(*args):
         vw_faceEmotionData.append(clusterSet)
 
 
-def selectResetButton(*args):
+def select_reset_button(*args):
     global vw_showCluster
     global vw_faceSelCluster
     global vw_faceEmotionData
@@ -1145,7 +1140,7 @@ def selectResetButton(*args):
     stepNum = 0
 
     if vw_faceEmotionData is []:
-        defaultSetButton()
+        default_set_button()
 
     elif vw_faceEmotionData[intNum] is not []:
         for x in vw_faceSelCluster:
@@ -1165,10 +1160,10 @@ def selectResetButton(*args):
             else:
                 pass
 
-    controlModeSet()
+    control_mode_set()
 
 
-def importButton(*args):
+def import_button(*args):
     global vw_facialList
     global vw_faceEmotionData
     global vw_faceSelCluster
@@ -1180,7 +1175,7 @@ def importButton(*args):
     # stepNum = 0
 
     if vw_faceEmotionData is []:
-        defaultSetButton()
+        default_set_button()
     else:
         pass
 
@@ -1199,7 +1194,7 @@ def importButton(*args):
                            defaultButton='ok')
 
 
-def saveButton(*args):
+def save_button(*args):
     global vw_facialList
     global vw_faceEmotionData
     global vw_faceSelCluster
@@ -1221,7 +1216,7 @@ def saveButton(*args):
                            defaultButton='ok')
 
 
-def selectScrollControlCurve(*args):
+def select_scroll_control_curve(*args):
     global vw_headObject
     global vw_showCluster
     global vw_hideCluster
@@ -1229,7 +1224,7 @@ def selectScrollControlCurve(*args):
     global vw_centerCurve
     global vw_selCenterCurve
 
-    clusterFilter()
+    cluster_filter()
     selJawCurve = []
     selCurveList = cmds.textScrollList('facialControlList', q=True, si=True)
     selItemNum = cmds.textScrollList('facialControlList', q=True, nsi=True)
@@ -1277,7 +1272,7 @@ def selectScrollControlCurve(*args):
         pass
 
 
-def clusterFilter():
+def cluster_filter():
     global vw_rightCurve
     global vw_centerCurve
     global vw_leftCurve
@@ -1300,7 +1295,7 @@ def clusterFilter():
                 pass
 
 
-def finalStep(*args):
+def final_step(*args):
     global vw_showCluster
     global vw_faceSelCluster
     global vw_faceEmotionData
@@ -1341,15 +1336,15 @@ def finalStep(*args):
 
         for x in range(len(vw_facialList)):
             cmds.textScrollList('facialControlFaceList', e=True, sii=x + 1)
-            selectFaceScrollControlCurve()
+            select_face_scroll_control_curve()
             cmds.duplicate(str(vw_headObject[0]), rr=True, n=vw_facialList[x])
             cmds.setAttr(vw_facialList[x] + '.translateX', headSize + 50)
             blendShapeObj.append(vw_facialList[x])
             cmds.progressBar(progressValue, edit=True, step=1)
 
         cmds.deleteUI(progressWin)
-        defaultSetButton()
-        selectFaceScrollControlCurve()
+        default_set_button()
+        select_face_scroll_control_curve()
         blendShapeObj.append(str(vw_headObject[0]))
         cmds.blendShape(blendShapeObj, n='__Facial_List__')
         blendShapeObj.pop()
@@ -1375,25 +1370,25 @@ def finalStep(*args):
         pass
 
 
-def importSourceMesh(*args):
+def import_source_mesh(*args):
     global vw_sourceMesh
     global vw_targetMesh
     source_object = cmds.ls(sl=True)
     vw_sourceMesh = source_object[0]
     cmds.textFieldButtonGrp('importSourceMeshField', e=True, tx=vw_sourceMesh, eb=True)
-    copyKeyButtonEn()
+    copy_key_button_enter()
 
 
-def importTargetMesh(*args):
+def import_target_mesh(*args):
     global vw_sourceMesh
     global vw_targetMesh
     source_object = cmds.ls(sl=True)
     vw_targetMesh = source_object[0]
     cmds.textFieldButtonGrp('importTargetMeshField', e=True, tx=vw_targetMesh, eb=True)
-    copyKeyButtonEn()
+    copy_key_button_enter()
 
 
-def copyKeyProcess(*args):
+def copy_key_process(*args):
     global vw_sourceMesh
     global vw_targetMesh
     # sourceAttrList = []
@@ -1422,7 +1417,7 @@ def copyKeyProcess(*args):
     cmds.deleteUI(copyProgressWin)
 
 
-def copyKeyButtonEn():
+def copy_key_button_enter():
     global vw_sourceMesh
     global vw_targetMesh
     if vw_sourceMesh == ' ' or vw_targetMesh == ' ':
@@ -1448,4 +1443,4 @@ if __name__ == '__main__':
         pass
     else:
         vw_fileTemp[0] = []
-    facialSetCreateModeWin()
+    facial_set_create_mode_window()

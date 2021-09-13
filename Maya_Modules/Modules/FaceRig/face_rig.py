@@ -6,32 +6,32 @@ import re
 import pickle
 import sys
 
-vw_rightCurve = []
-vw_centerCurve = []
-vw_leftCurve = []
-vw_showCluster = []
-vw_hideCluster = []
-vw_faceSelCluster = []
-vw_headObject = ' '
-vw_faceEmotionData = []
-vw_selItemIndex = [1]
-vw_selClusterPosTemp = []
-vw_sourceMesh = ' '
-vw_targetMesh = ' '
-vw_fileTemp = []
-vw_faceButtonNum = False
+vw_right_curve = []
+vw_center_curve = []
+vw_left_curve = []
+vw_show_cluster = []
+vw_hide_cluster = []
+vw_face_select_cluster = []
+vw_head_object = ' '
+vw_face_emotion_data = []
+vw_select_item_index = [1]
+vw_select_cluster_pos_temp = []
+vw_source_mesh = ' '
+vw_target_mesh = ' '
+vw_file_temp = []
+vw_face_button_num = False
 
-pathOri = sys.path
+path_original = sys.path
 vw_path = ''
 
-pathOri = cmds.internalVar(usd=True)
-vw_path = pathOri + 'FaceRig/Facial_Check/'
+path_original = cmds.internalVar(usd=True)
+vw_path = path_original + 'FaceRig/Facial_Check/'
 
-vw_selRightCurve = 'R_Eyebrow', 'R_UpEye', 'R_LowEye', 'R_Zygoma', 'R_Nasolabial', 'R_Cheek', 'R_Jaw'
-vw_selCenterCurve = 'C_ForeHead', 'C_Eyebrow', 'C_UpLip', 'C_LowLip', 'C_FrontJaw', 'C_JawFull'
-vw_selLeftCurve = 'L_Eyebrow', 'L_UpEye', 'L_LowEye', 'L_Zygoma', 'L_Nasolabial', 'L_Cheek', 'L_Jaw'
+vw_select_right_curve = 'R_Eyebrow', 'R_UpEye', 'R_LowEye', 'R_Zygoma', 'R_Nasolabial', 'R_Cheek', 'R_Jaw'
+vw_select_center_curve = 'C_ForeHead', 'C_Eyebrow', 'C_UpLip', 'C_LowLip', 'C_FrontJaw', 'C_JawFull'
+vw_select_left_curve = 'L_Eyebrow', 'L_UpEye', 'L_LowEye', 'L_Zygoma', 'L_Nasolabial', 'L_Cheek', 'L_Jaw'
 
-vw_facialList = \
+vw_facial_list = \
     'BrowsD_L', \
     'BrowsD_R', \
     'BrowsU_C', \
@@ -79,7 +79,7 @@ vw_facialList = \
     'JawLeft', \
     'JawRight'
 
-vw_facialListGuide = {
+vw_facial_list_guide = {
     'BrowsD_L': 'Brows DownLeft',
     'BrowsD_R': 'Brows DownRight',
     'BrowsU_C': 'Brows UpCenter',
@@ -131,15 +131,18 @@ kFacialCreateWindow = 'facialCreateWindow'
 kFacialEditWindow = 'facialEditWindow'
 kFacialControlWindow = 'facialControlWindow'
 kFacialCopyModeWindow = 'copyModeWindow'
+kCreateLeftCurveWindow = 'createLeftCurveWindow'
+kCreateCenterCurveWindow = 'createCenterCurveWindow'
+kCreateRightCurveWindow = 'createRightCurveWindow'
 
 
 def facial_set_create_mode_window(*args):
-    global vw_rightCurve
-    global vw_centerCurve
-    global vw_leftCurve
-    global vw_headObject
+    global vw_right_curve
+    global vw_center_curve
+    global vw_left_curve
+    global vw_head_object
     global vw_path
-    global vw_faceSelCluster
+    global vw_face_select_cluster
 
     if cmds.window(kFacialCreateWindow, ex=True):
         cmds.deleteUI(kFacialCreateWindow)
@@ -155,7 +158,7 @@ def facial_set_create_mode_window(*args):
     mel.eval('setObjectPickMask "Curve" true;')
 
     cluster_filter()
-    for x in vw_faceSelCluster:
+    for x in vw_face_select_cluster:
         cmds.hide(x + 'Handle')
 
     cmds.window(kFacialCreateWindow, title='Facial Rig Tool', w=600, h=600, sizeable=False)
@@ -170,29 +173,29 @@ def facial_set_create_mode_window(*args):
                         on1=facial_set_create_mode_window, on2=facial_set_edit_mode_window,
                         on3=facial_set_control_mode_window, on4=copy_key_window)
     cmds.setParent(u=True)
-    cmds.textFieldButtonGrp('selHead', label='Select Head Object ', tx=vw_headObject[0],
+    cmds.textFieldButtonGrp('selHead', label='Select Head Object ', tx=vw_head_object[0],
                             buttonLabel='<<<', h=50, bc=set_head_in_button, ed=False)
 
-    if vw_headObject != ' ':
+    if vw_head_object != ' ':
         cmds.rowLayout(numberOfColumns=3, columnWidth3=(200, 200, 200), adjustableColumn=2,
                        columnAlign=(1, 'center'),
                        columnAttach=[(1, 'both', 0), (2, 'both', 0), (3, 'both', 0)])
 
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=200)
         cmds.text(label='R I G H T', h=30, bgc=(0.1, 0.1, 0.1))
-        cmds.textScrollList('facialControlRightList', append=vw_rightCurve, sc=select_right_scroll_curve, h=130)
+        cmds.textScrollList('facialControlRightList', append=vw_right_curve, sc=select_right_scroll_curve, h=130)
         cmds.button(label='Create Right Curve', h=40, c=create_right_curve)
         cmds.setParent(u=True)
 
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=200)
         cmds.text(label='C E N T E R', h=30, bgc=(0.1, 0.1, 0.1))
-        cmds.textScrollList('facialControlCenterList', append=vw_centerCurve, sc=select_center_scroll_curve, h=130)
+        cmds.textScrollList('facialControlCenterList', append=vw_center_curve, sc=select_center_scroll_curve, h=130)
         cmds.button(label='Create Center Curve', h=40, c=create_center_curve)
         cmds.setParent(u=True)
 
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=200)
         cmds.text(label='L E F T', h=30, bgc=(0.1, 0.1, 0.1))
-        cmds.textScrollList('facialControlLeftList', append=vw_leftCurve, sc=select_left_scroll_curve, h=130)
+        cmds.textScrollList('facialControlLeftList', append=vw_left_curve, sc=select_left_scroll_curve, h=130)
         cmds.button(label='Create Left Curve', h=40, c=create_left_curve)
         cmds.setParent(u=True)
         cmds.setParent(u=True)
@@ -214,11 +217,11 @@ def facial_set_create_mode_window(*args):
 
 
 def facial_set_edit_mode_window(*args):
-    global vw_rightCurve
-    global vw_centerCurve
-    global vw_leftCurve
-    global vw_headObject
-    global vw_faceSelCluster
+    global vw_right_curve
+    global vw_center_curve
+    global vw_left_curve
+    global vw_head_object
+    global vw_face_select_cluster
 
     mel.eval('setObjectPickMask "Joint" false;')
     mel.eval('setObjectPickMask "Surface" true;')
@@ -226,10 +229,10 @@ def facial_set_edit_mode_window(*args):
 
     mel.eval('artAttrToolScript 3 "wire";')
     cluster_filter()
-    for x in vw_faceSelCluster:
+    for x in vw_face_select_cluster:
         cmds.hide(x + 'Handle')
 
-    if vw_headObject != ' ':
+    if vw_head_object != ' ':
 
         if cmds.window(kFacialCreateWindow, ex=True):
             cmds.deleteUI(kFacialCreateWindow)
@@ -253,7 +256,7 @@ def facial_set_edit_mode_window(*args):
                             on3=facial_set_control_mode_window, on4=copy_key_window)
         cmds.setParent(u=True)
 
-        cmds.textFieldButtonGrp('selHead', label='Select Head Object ', tx=vw_headObject[0],
+        cmds.textFieldButtonGrp('selHead', label='Select Head Object ', tx=vw_head_object[0],
                                 buttonLabel='<<<', h=50, bc=set_head_in_button, ed=False, eb=False)
         cmds.rowLayout(numberOfColumns=3, columnWidth3=(200, 200, 200),
                        adjustableColumn=2,
@@ -262,17 +265,17 @@ def facial_set_edit_mode_window(*args):
 
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=200)
         cmds.text(label='R I G H T', h=30, bgc=(0.1, 0.1, 0.1))
-        cmds.textScrollList('facialControlRightList', append=vw_rightCurve, sc=select_right_scroll_edit_curve, h=130)
+        cmds.textScrollList('facialControlRightList', append=vw_right_curve, sc=select_right_scroll_edit_curve, h=130)
         cmds.setParent(u=True)
 
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=200)
         cmds.text(label='C E N T E R', h=30, bgc=(0.1, 0.1, 0.1))
-        cmds.textScrollList('facialControlCenterList', append=vw_centerCurve, sc=select_center_scroll_edit_curve, h=130)
+        cmds.textScrollList('facialControlCenterList', append=vw_center_curve, sc=select_center_scroll_edit_curve, h=130)
         cmds.setParent(u=True)
 
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=200)
         cmds.text(label='L E F T', h=30, bgc=(0.1, 0.1, 0.1))
-        cmds.textScrollList('facialControlLeftList', append=vw_leftCurve, sc=select_left_scroll_edit_curve, h=130)
+        cmds.textScrollList('facialControlLeftList', append=vw_left_curve, sc=select_left_scroll_edit_curve, h=130)
         cmds.setParent(u=True)
         cmds.setParent(u=True)
         cmds.gridLayout(numberOfColumns=2, cellWidthHeight=(300, 40))
@@ -287,15 +290,15 @@ def facial_set_edit_mode_window(*args):
 
 
 def facial_set_control_mode_window(*args):
-    global vw_rightCurve
-    global vw_centerCurve
-    global vw_leftCurve
-    global vw_headObject
-    global vw_facialList
-    global vw_faceSelCluster
-    global vw_faceEmotionData
-    global vw_selItemIndex
-    global vw_facialListGuide
+    global vw_right_curve
+    global vw_center_curve
+    global vw_left_curve
+    global vw_head_object
+    global vw_facial_list
+    global vw_face_select_cluster
+    global vw_face_emotion_data
+    global vw_select_item_index
+    global vw_facial_list_guide
 
     mel.eval('setObjectPickMask "Joint" false;')
     mel.eval('setObjectPickMask "Surface" false;')
@@ -305,20 +308,20 @@ def facial_set_control_mode_window(*args):
     allCurve = []
     num = 0
 
-    for x in vw_faceSelCluster:
+    for x in vw_face_select_cluster:
         cmds.hide(x + 'Handle')
 
-    for x in vw_leftCurve:
+    for x in vw_left_curve:
         allCurve.append(str(x))
-        allCurve.append(str(vw_rightCurve[num]))
+        allCurve.append(str(vw_right_curve[num]))
         num += 1
 
-    for x in vw_centerCurve:
+    for x in vw_center_curve:
         allCurve.append(str(x))
 
     cmds.select(cl=True)
 
-    if vw_headObject != ' ':
+    if vw_head_object != ' ':
         if cmds.window(kFacialCreateWindow, ex=True):
             cmds.deleteUI(kFacialCreateWindow)
         elif cmds.window(kFacialEditWindow, ex=True):
@@ -344,16 +347,16 @@ def facial_set_control_mode_window(*args):
                             on4=copy_key_window)
 
         cmds.setParent(u=True)
-        cmds.textFieldButtonGrp('selHead', label='Select Head Object ', tx=vw_headObject[0], buttonLabel='<<<', h=50,
+        cmds.textFieldButtonGrp('selHead', label='Select Head Object ', tx=vw_head_object[0], buttonLabel='<<<', h=50,
                                 bc=set_head_in_button, ed=False, eb=False)
-        cmds.text('faceGuideField', label=vw_facialListGuide.get('BrowsD_L'), h=50, fn='plainLabelFont', rs=True)
+        cmds.text('faceGuideField', label=vw_facial_list_guide.get('BrowsD_L'), h=50, fn='plainLabelFont', rs=True)
         cmds.rowLayout(numberOfColumns=3, columnWidth3=(240, 240, 110), adjustableColumn=3, columnAlign=(1, 'center'),
                        columnAttach=[(1, 'both', 0), (2, 'both', 0), (3, 'both', 0)])
 
         cmds.columnLayout(columnAttach=('both', 1), rowSpacing=0, columnWidth=240)
         cmds.text(label='F A C E   L I S T', h=30, bgc=(0.3, 0.1, 0.1))
-        cmds.textScrollList('facialControlFaceList', append=vw_facialList, sc=select_face_scroll_control_curve, h=300,
-                            sii=vw_selItemIndex[0], bgc=(0.4, 0.3, 0.3))
+        cmds.textScrollList('facialControlFaceList', append=vw_facial_list, sc=select_face_scroll_control_curve, h=300,
+                            sii=vw_select_item_index[0], bgc=(0.4, 0.3, 0.3))
         cmds.setParent(u=True)
 
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=240)
@@ -397,8 +400,8 @@ def facial_set_control_mode_window(*args):
 
 
 def copy_key_window(*args):
-    global vw_sourceMesh
-    global vw_targetMesh
+    global vw_source_mesh
+    global vw_target_mesh
 
     mel.eval('setObjectPickMask "Joint" true;')
     mel.eval('setObjectPickMask "Surface" true;')
@@ -426,161 +429,161 @@ def copy_key_window(*args):
     cmds.setParent(u=True)
     cmds.columnLayout(columnAttach=('both', 1), rowSpacing=0, columnWidth=600)
 
-    if vw_sourceMesh == ' ':
+    if vw_source_mesh == ' ':
         cmds.textFieldButtonGrp('importSourceMeshField', label='Source Mesh', tx='', buttonLabel='<<<', h=50,
                                 bc=import_source_mesh, ed=False, eb=True)
     else:
-        cmds.textFieldButtonGrp('importSourceMeshField', label='Source Mesh', tx=vw_sourceMesh, buttonLabel='<<<', h=50,
+        cmds.textFieldButtonGrp('importSourceMeshField', label='Source Mesh', tx=vw_source_mesh, buttonLabel='<<<', h=50,
                                 bc=import_source_mesh, ed=False, eb=True)
-    if vw_targetMesh == ' ':
+    if vw_target_mesh == ' ':
         cmds.textFieldButtonGrp('importTargetMeshField', label='Target Mesh', tx='', buttonLabel='<<<', h=50,
                                 bc=import_target_mesh, ed=False, eb=True)
     else:
-        cmds.textFieldButtonGrp('importTargetMeshField', label='Target Mesh', tx=vw_targetMesh, buttonLabel='<<<', h=50,
+        cmds.textFieldButtonGrp('importTargetMeshField', label='Target Mesh', tx=vw_target_mesh, buttonLabel='<<<', h=50,
                                 bc=import_target_mesh, ed=False, eb=True)
 
-    if vw_sourceMesh == ' ' or vw_targetMesh == ' ':
+    if vw_source_mesh == ' ' or vw_target_mesh == ' ':
         cmds.button('copyKeyBtn', label='Copy Key', h=60, en=False, c=copy_key_process, bgc=(0.9, 0.3, 0.9))
 
-    elif vw_sourceMesh != ' ' and vw_targetMesh != ' ':
+    elif vw_source_mesh != ' ' and vw_target_mesh != ' ':
         cmds.button('copyKeyBtn', label='Copy Key', h=60, en=True, c=copy_key_process, bgc=(0.9, 0.3, 0.9))
 
     cmds.showWindow(kFacialCopyModeWindow)
 
 
 def create_right_curve(*args):
-    global vw_selRightCurve
-    global vw_selCenterCurve
-    global vw_selLeftCurve
+    global vw_select_right_curve
+    global vw_select_center_curve
+    global vw_select_left_curve
     
-    if cmds.window('createLeftCurveWin', ex=True):
-        cmds.deleteUI('createLeftCurveWin')
-    if cmds.window('createCenterCurveWin', ex=True):
-        cmds.deleteUI('createCenterCurveWin')
-    if cmds.window('createRightCurveWin', ex=True):
-        cmds.deleteUI('createRightCurveWin')
+    if cmds.window(kCreateLeftCurveWindow, ex=True):
+        cmds.deleteUI(kCreateLeftCurveWindow)
+    if cmds.window(kCreateCenterCurveWindow, ex=True):
+        cmds.deleteUI(kCreateCenterCurveWindow)
+    if cmds.window(kCreateRightCurveWindow, ex=True):
+        cmds.deleteUI(kCreateRightCurveWindow)
 
-    cmds.window('createRightCurveWin', title='create Right Curve', w=250, h=350, sizeable=False)
+    cmds.window(kCreateRightCurveWindow, title='create Right Curve', w=250, h=350, sizeable=False)
     cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=250)
-    cmds.textScrollList('selRightCurveWin', append=vw_selRightCurve)
+    cmds.textScrollList('selRightCurveWin', append=vw_select_right_curve)
 
-    for x in vw_selRightCurve:
+    for x in vw_select_right_curve:
         if cmds.objExists(x):
             cmds.textScrollList('selRightCurveWin', e=True, ri=x)
         else:
             pass
     cmds.button(label='O K ! !', h=60, c=set_right_curve_window)
-    cmds.showWindow('createRightCurveWin')
+    cmds.showWindow(kCreateRightCurveWindow)
 
 
 def set_right_curve_window(*args):
-    global vw_selRightCurve
-    global vw_selCenterCurve
-    global vw_selLeftCurve
-    global vw_rightCurve
-    global vw_centerCurve
-    global vw_leftCurve
-    global vw_headObject
+    global vw_select_right_curve
+    global vw_select_center_curve
+    global vw_select_left_curve
+    global vw_right_curve
+    global vw_center_curve
+    global vw_left_curve
+    global vw_head_object
 
-    selRightItem = cmds.textScrollList('selRightCurveWin', q=True, si=True)
-    side_edge_to_curve(selRightItem[0])
-    vw_rightCurve.sort()
+    select_right_item = cmds.textScrollList('selRightCurveWin', q=True, si=True)
+    side_edge_to_curve(select_right_item[0])
+    vw_right_curve.sort()
+    cmds.deleteUI(kCreateRightCurveWindow)
     curve_exists()
-    cmds.deleteUI('createRightCurveWin')
 
 
 def create_center_curve(*args):
-    global vw_selRightCurve
-    global vw_selCenterCurve
-    global vw_selLeftCurve
+    global vw_select_right_curve
+    global vw_select_center_curve
+    global vw_select_left_curve
 
-    if cmds.window('createLeftCurveWin', ex=True):
-        cmds.deleteUI('createLeftCurveWin')
-    if cmds.window('createCenterCurveWin', ex=True):
-        cmds.deleteUI('createCenterCurveWin')
-    if cmds.window('createRightCurveWin', ex=True):
-        cmds.deleteUI('createRightCurveWin')
+    if cmds.window(kCreateLeftCurveWindow, ex=True):
+        cmds.deleteUI(kCreateLeftCurveWindow)
+    if cmds.window(kCreateCenterCurveWindow, ex=True):
+        cmds.deleteUI(kCreateCenterCurveWindow)
+    if cmds.window(kCreateRightCurveWindow, ex=True):
+        cmds.deleteUI(kCreateRightCurveWindow)
 
-    cmds.window('createCenterCurveWin', title='create Center Curve', w=250, h=350, sizeable=False)
+    cmds.window(kCreateCenterCurveWindow, title='create Center Curve', w=250, h=350, sizeable=False)
     cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=250)
-    cmds.textScrollList('selCenterCurveWin', append=vw_selCenterCurve)
+    cmds.textScrollList('selCenterCurveWin', append=vw_select_center_curve)
 
-    for x in vw_selCenterCurve:
+    for x in vw_select_center_curve:
         if cmds.objExists(x):
             cmds.textScrollList('selCenterCurveWin', e=True, ri=x)
         else:
             pass
     cmds.button(label='O K ! !', h=60, c=set_center_curve_list)
-    cmds.showWindow('createCenterCurveWin')
+    cmds.showWindow(kCreateCenterCurveWindow)
 
 
 def set_center_curve_list(*args):
-    global vw_selRightCurve
-    global vw_selCenterCurve
-    global vw_selLeftCurve
-    global vw_rightCurve
-    global vw_centerCurve
-    global vw_leftCurve
+    global vw_select_right_curve
+    global vw_select_center_curve
+    global vw_select_left_curve
+    global vw_right_curve
+    global vw_center_curve
+    global vw_left_curve
 
-    selCenterItem = cmds.textScrollList('selCenterCurveWin', q=True, si=True)
-    center_edge_to_curve(selCenterItem[0])
-    vw_centerCurve.sort()
-    cmds.deleteUI('createCenterCurveWin')
+    select_center_item = cmds.textScrollList('selCenterCurveWin', q=True, si=True)
+    center_edge_to_curve(select_center_item[0])
+    vw_center_curve.sort()
+    cmds.deleteUI(kCreateCenterCurveWindow)
     curve_exists()
 
 
 def create_left_curve(*args):
-    global vw_selRightCurve
-    global vw_selCenterCurve
-    global vw_selLeftCurve
+    global vw_select_right_curve
+    global vw_select_center_curve
+    global vw_select_left_curve
 
-    if cmds.window('createLeftCurveWin', ex=True):
-        cmds.deleteUI('createLeftCurveWin')
-    if cmds.window('createCenterCurveWin', ex=True):
-        cmds.deleteUI('createCenterCurveWin')
-    if cmds.window('createRightCurveWin', ex=True):
-        cmds.deleteUI('createRightCurveWin')
+    if cmds.window(kCreateLeftCurveWindow, ex=True):
+        cmds.deleteUI(kCreateLeftCurveWindow)
+    if cmds.window(kCreateCenterCurveWindow, ex=True):
+        cmds.deleteUI(kCreateCenterCurveWindow)
+    if cmds.window(kCreateRightCurveWindow, ex=True):
+        cmds.deleteUI(kCreateRightCurveWindow)
 
-    cmds.window('createLeftCurveWin', title='create Left Curve', w=250, h=350, sizeable=False)
+    cmds.window(kCreateLeftCurveWindow, title='create Left Curve', w=250, h=350, sizeable=False)
     cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=250)
-    cmds.textScrollList('selLeftCurveWin', append=vw_selLeftCurve)
+    cmds.textScrollList('selLeftCurveWin', append=vw_select_left_curve)
 
-    for x in vw_selLeftCurve:
+    for x in vw_select_left_curve:
         if cmds.objExists(x):
             cmds.textScrollList('selLeftCurveWin', e=True, ri=x)
         else:
             pass
 
     cmds.button(label='O K ! !', h=60, c=set_left_curve_list)
-    cmds.showWindow('createLeftCurveWin')
+    cmds.showWindow(kCreateLeftCurveWindow)
 
 
 def set_left_curve_list(*args):
-    global vw_selRightCurve
-    global vw_selCenterCurve
-    global vw_selLeftCurve
-    global vw_rightCurve
-    global vw_centerCurve
-    global vw_leftCurve
+    global vw_select_right_curve
+    global vw_select_center_curve
+    global vw_select_left_curve
+    global vw_right_curve
+    global vw_center_curve
+    global vw_left_curve
 
-    selLeftItem = cmds.textScrollList('selLeftCurveWin', q=True, si=True)
-    side_edge_to_curve(selLeftItem[0])
-    vw_leftCurve.sort()
-    cmds.deleteUI('createLeftCurveWin')
+    select_left_item = cmds.textScrollList('selLeftCurveWin', q=True, si=True)
+    side_edge_to_curve(select_left_item[0])
+    vw_left_curve.sort()
+    cmds.deleteUI(kCreateLeftCurveWindow)
     curve_exists()
 
 
 def curve_exists():
-    global vw_selRightCurve
-    global vw_selCenterCurve
-    global vw_selLeftCurve
-    global vw_rightCurve
-    global vw_centerCurve
-    global vw_leftCurve
+    global vw_select_right_curve
+    global vw_select_center_curve
+    global vw_select_left_curve
+    global vw_right_curve
+    global vw_center_curve
+    global vw_left_curve
 
-    vw_rightCurve = []
-    vw_centerCurve = []
-    vw_leftCurve = []
+    vw_right_curve = []
+    vw_center_curve = []
+    vw_left_curve = []
 
     cmds.select(all=True)
     allCurve = cmds.filterExpand(ex=True, sm=9)
@@ -589,41 +592,41 @@ def curve_exists():
         pass
 
     elif allCurve is not None:
-        for x in vw_selRightCurve:
+        for x in vw_select_right_curve:
             for y in allCurve:
                 if re.search(x + '$', y):
-                    vw_rightCurve.append(y)
+                    vw_right_curve.append(y)
 
-        for x in vw_selCenterCurve:
+        for x in vw_select_center_curve:
             for y in allCurve:
                 if re.search(x + '$', y):
-                    vw_centerCurve.append(y)
+                    vw_center_curve.append(y)
 
-        for x in vw_selLeftCurve:
+        for x in vw_select_left_curve:
             for y in allCurve:
                 if re.search(x + '$', y):
-                    vw_leftCurve.append(y)
+                    vw_left_curve.append(y)
 
     cmds.select(cl=True)
     cmds.textScrollList('facialControlRightList', e=True, ra=True)
-    cmds.textScrollList('facialControlRightList', e=True, append=vw_rightCurve)
+    cmds.textScrollList('facialControlRightList', e=True, append=vw_right_curve)
     cmds.textScrollList('facialControlCenterList', e=True, ra=True)
-    cmds.textScrollList('facialControlCenterList', e=True, append=vw_centerCurve)
+    cmds.textScrollList('facialControlCenterList', e=True, append=vw_center_curve)
     cmds.textScrollList('facialControlLeftList', e=True, ra=True)
-    cmds.textScrollList('facialControlLeftList', e=True, append=vw_leftCurve)
+    cmds.textScrollList('facialControlLeftList', e=True, append=vw_left_curve)
 
 
 def set_head_in_button(*args):
-    global vw_headObject
-    vw_headObject = cmds.ls(sl=True, fl=True)
-    cmds.textFieldButtonGrp('selHead', e=True, tx=vw_headObject[0])
+    global vw_head_object
+    vw_head_object = cmds.ls(sl=True, fl=True)
+    cmds.textFieldButtonGrp('selHead', e=True, tx=vw_head_object[0])
     facial_set_create_mode_window()
 
 
 def center_edge_to_curve(curveName):
-    global vw_selRightCurve
-    global vw_selCenterCurve
-    global vw_selLeftCurve
+    global vw_select_right_curve
+    global vw_select_center_curve
+    global vw_select_left_curve
 
     # selVertex = cmds.ls(sl=True, fl=True)
     mel.eval('polyToCurve -n ' + curveName + ' -form 5 -degree 3;')
@@ -632,13 +635,13 @@ def center_edge_to_curve(curveName):
 
 
 def side_edge_to_curve(curveName):
-    global vw_selRightCurve
-    global vw_selCenterCurve
-    global vw_selLeftCurve
-    global vw_headObject
-    centerX = cmds.objectCenter(vw_headObject[0], x=True)
-    centerY = cmds.objectCenter(vw_headObject[0], y=True)
-    centerZ = cmds.objectCenter(vw_headObject[0], z=True)
+    global vw_select_right_curve
+    global vw_select_center_curve
+    global vw_select_left_curve
+    global vw_head_object
+    centerX = cmds.objectCenter(vw_head_object[0], x=True)
+    centerY = cmds.objectCenter(vw_head_object[0], y=True)
+    centerZ = cmds.objectCenter(vw_head_object[0], z=True)
     # selVertex = cmds.ls(sl=True, fl=True)
     mel.eval('polyToCurve -n ' + curveName + ' -form 5 -degree 3;')
     cmds.select(curveName)
@@ -668,21 +671,21 @@ def select_left_scroll_curve(*args):
 
 
 def attach_command(*args):
-    global vw_selRightCurve
-    global vw_selCenterCurve
-    global vw_selLeftCurve
-    global vw_rightCurve
-    global vw_centerCurve
-    global vw_leftCurve
-    global vw_headObject
+    global vw_select_right_curve
+    global vw_select_center_curve
+    global vw_select_left_curve
+    global vw_right_curve
+    global vw_center_curve
+    global vw_left_curve
+    global vw_head_object
 
     confirmMsg = cmds.confirmDialog(title='Confirm', icn='question', message='Are you ok?',
                                     button=['Yes', 'No'],
                                     defaultButton='Yes', cancelButton='No', dismissString='No')
 
     if confirmMsg == 'Yes':
-        allOriginCurve = vw_selRightCurve + vw_selCenterCurve + vw_selLeftCurve
-        allCurve = vw_rightCurve + vw_centerCurve + vw_leftCurve
+        allOriginCurve = vw_select_right_curve + vw_select_center_curve + vw_select_left_curve
+        allCurve = vw_right_curve + vw_center_curve + vw_left_curve
 
         for d in allOriginCurve:
             for x in allCurve:
@@ -713,9 +716,9 @@ def attach_command(*args):
         curve_exists()
         # allCurve = []
         # allCurve = vw_rightCurve + vw_leftCurve + vw_centerCurve
-        cmds.select(vw_headObject)
+        cmds.select(vw_head_object)
         mel.eval('artAttrToolScript 3 "wire";')
-        allCurve = vw_rightCurve + vw_leftCurve + vw_centerCurve
+        allCurve = vw_right_curve + vw_left_curve + vw_center_curve
 
         attachProgressWin = cmds.window(t='Attch Progress')
         cmds.columnLayout()
@@ -726,10 +729,10 @@ def attach_command(*args):
             cmds.select(x)
             mel.eval('DeleteHistory;')
             mel.eval('CenterPivot;')
-            cmds.wire(vw_headObject, w=x, n=x + '_wire')
+            cmds.wire(vw_head_object, w=x, n=x + '_wire')
             cmds.setAttr(x + '_wire' + '.dropoffDistance[0]', 100)
             cmds.setAttr(x + '_wire' + '.rotation', 0)
-            cmds.select(vw_headObject)
+            cmds.select(vw_head_object)
 
             mel.eval('artSetToolAndSelectAttr( "artAttrCtx", "wire.' + x + '_wire.weights" )')
             mel.eval('artAttrPaintOperation artAttrCtx Replace;')
@@ -754,42 +757,42 @@ def attach_command(*args):
 
 
 def select_right_scroll_edit_curve(*args):
-    global vw_headObject
+    global vw_head_object
 
     select_right = cmds.textScrollList('facialControlRightList', q=True, si=True)
     cmds.textScrollList('facialControlCenterList', e=True, da=True)
     cmds.textScrollList('facialControlLeftList', e=True, da=True)
 
     if cmds.objExists(select_right[0] + '_wire'):
-        cmds.select(vw_headObject, select_right[0])
+        cmds.select(vw_head_object, select_right[0])
         mel.eval('artSetToolAndSelectAttr( "artAttrCtx", "wire.' + select_right[0] + '_wire.weights" )')
     else:
         pass
 
 
 def select_center_scroll_edit_curve(*args):
-    global vw_headObject
+    global vw_head_object
 
     select_center = cmds.textScrollList('facialControlCenterList', q=True, si=True)
     cmds.textScrollList('facialControlRightList', e=True, da=True)
     cmds.textScrollList('facialControlLeftList', e=True, da=True)
 
     if cmds.objExists(select_center[0] + '_wire'):
-        cmds.select(vw_headObject, select_center[0])
+        cmds.select(vw_head_object, select_center[0])
         mel.eval('artSetToolAndSelectAttr( "artAttrCtx", "wire.' + select_center[0] + '_wire.weights" )')
     else:
         pass
 
 
 def select_left_scroll_edit_curve(*args):
-    global vw_headObject
+    global vw_head_object
 
     select_left = cmds.textScrollList('facialControlLeftList', q=True, si=True)
     cmds.textScrollList('facialControlRightList', e=True, da=True)
     cmds.textScrollList('facialControlCenterList', e=True, da=True)
 
     if cmds.objExists(select_left[0] + '_wire'):
-        cmds.select(vw_headObject, select_left[0])
+        cmds.select(vw_head_object, select_left[0])
         mel.eval('artSetToolAndSelectAttr( "artAttrCtx", "wire.' + select_left[0] + '_wire.weights" )')
     else:
         pass
@@ -848,19 +851,19 @@ def export_map_image(*args):
 
 
 def controller_command(*args):
-    global vw_selRightCurve
-    global vw_selCenterCurve
-    global vw_selLeftCurve
-    global vw_rightCurve
-    global vw_centerCurve
-    global vw_leftCurve
-    global vw_headObject
+    global vw_select_right_curve
+    global vw_select_center_curve
+    global vw_select_left_curve
+    global vw_right_curve
+    global vw_center_curve
+    global vw_left_curve
+    global vw_head_object
 
     confirmMsg = cmds.confirmDialog(title='Confirm', icn='question', message='Are you ok?', button=['Yes', 'No'],
                                     defaultButton='Yes', cancelButton='No', dismissString='No')
 
     if confirmMsg == 'Yes':
-        allCurve = vw_rightCurve + vw_centerCurve + vw_leftCurve
+        allCurve = vw_right_curve + vw_center_curve + vw_left_curve
         # selTemp = []
         # stepNum = 1
 
@@ -871,7 +874,7 @@ def controller_command(*args):
 
         for x in allCurve:
 
-            if re.search(vw_selCenterCurve[-1] + '$', x):
+            if re.search(vw_select_center_curve[-1] + '$', x):
                 pass
             else:
                 cmds.select(x + '.cv[0:]', r=True)
@@ -910,72 +913,72 @@ def controller_command(*args):
 
 
 def select_face_scroll_control_curve(*args):
-    global vw_showCluster
-    global vw_faceSelCluster
-    global vw_faceEmotionData
-    global vw_selItemIndex
-    global vw_facialListGuide
-    global vw_centerCurve
-    global vw_selCenterCurve
+    global vw_show_cluster
+    global vw_face_select_cluster
+    global vw_face_emotion_data
+    global vw_select_item_index
+    global vw_facial_list_guide
+    global vw_center_curve
+    global vw_select_center_curve
 
-    vw_selItemIndex = cmds.textScrollList('facialControlFaceList', q=True, sii=True)
+    vw_select_item_index = cmds.textScrollList('facialControlFaceList', q=True, sii=True)
     selectItem = cmds.textScrollList('facialControlFaceList', q=True, si=True)
-    intNum = vw_selItemIndex[0] - 1
+    intNum = vw_select_item_index[0] - 1
     stepNum = 0
 
-    if vw_faceEmotionData is []:
+    if vw_face_emotion_data is []:
         default_set_button()
 
-    elif vw_faceEmotionData[intNum] is not []:
-        for x in vw_faceSelCluster:
-            cmds.setAttr(x + 'Handle.translateX', vw_faceEmotionData[intNum][stepNum][0])
-            cmds.setAttr(x + 'Handle.translateY', vw_faceEmotionData[intNum][stepNum][1])
-            cmds.setAttr(x + 'Handle.translateZ', vw_faceEmotionData[intNum][stepNum][2])
+    elif vw_face_emotion_data[intNum] is not []:
+        for x in vw_face_select_cluster:
+            cmds.setAttr(x + 'Handle.translateX', vw_face_emotion_data[intNum][stepNum][0])
+            cmds.setAttr(x + 'Handle.translateY', vw_face_emotion_data[intNum][stepNum][1])
+            cmds.setAttr(x + 'Handle.translateZ', vw_face_emotion_data[intNum][stepNum][2])
             stepNum += 1
 
-        for y in vw_centerCurve:
-            if re.search(vw_selCenterCurve[-1] + '$', y):
-                cmds.setAttr(y + '.translateX', vw_faceEmotionData[intNum][-1][0])
-                cmds.setAttr(y + '.translateY', vw_faceEmotionData[intNum][-1][1])
-                cmds.setAttr(y + '.translateZ', vw_faceEmotionData[intNum][-1][2])
-                cmds.setAttr(y + '.rotateX', vw_faceEmotionData[intNum][-1][3])
-                cmds.setAttr(y + '.rotateY', vw_faceEmotionData[intNum][-1][4])
-                cmds.setAttr(y + '.rotateZ', vw_faceEmotionData[intNum][-1][5])
+        for y in vw_center_curve:
+            if re.search(vw_select_center_curve[-1] + '$', y):
+                cmds.setAttr(y + '.translateX', vw_face_emotion_data[intNum][-1][0])
+                cmds.setAttr(y + '.translateY', vw_face_emotion_data[intNum][-1][1])
+                cmds.setAttr(y + '.translateZ', vw_face_emotion_data[intNum][-1][2])
+                cmds.setAttr(y + '.rotateX', vw_face_emotion_data[intNum][-1][3])
+                cmds.setAttr(y + '.rotateY', vw_face_emotion_data[intNum][-1][4])
+                cmds.setAttr(y + '.rotateZ', vw_face_emotion_data[intNum][-1][5])
             else:
                 pass
 
-    faceGuideValue = vw_facialListGuide.get(selectItem[0])
+    faceGuideValue = vw_facial_list_guide.get(selectItem[0])
     cmds.text('faceGuideField', e=True, label=faceGuideValue)
     cmds.image('imageViewField', e=True, i=vw_path + 'Facial_Check/' + selectItem[0] + '.jpg')
 
 
 def default_face_image(*args):
-    global vw_faceButtonNum
+    global vw_face_button_num
     selectItem = cmds.textScrollList('facialControlFaceList', q=True, si=True)
 
-    if vw_faceButtonNum is False:
+    if vw_face_button_num is False:
         cmds.image('imageViewField', e=True, i=vw_path + 'Facial_Check/defaultFace.jpg')
-        vw_faceButtonNum = True
+        vw_face_button_num = True
 
-    elif vw_faceButtonNum is True:
+    elif vw_face_button_num is True:
         cmds.image('imageViewField', e=True, i=vw_path + 'Facial_Check/' + selectItem[0] + '.jpg')
-        vw_faceButtonNum = False
+        vw_face_button_num = False
 
 
 def control_mode_set(*args):
-    global vw_showCluster
-    global vw_faceSelCluster
-    global vw_faceEmotionData
-    global vw_selItemIndex
-    global vw_centerCurve
-    global vw_fileTemp
-    global vw_facialList
+    global vw_show_cluster
+    global vw_face_select_cluster
+    global vw_face_emotion_data
+    global vw_select_item_index
+    global vw_center_curve
+    global vw_file_temp
+    global vw_facial_list
 
-    vw_selItemIndex = cmds.textScrollList('facialControlFaceList', q=True, sii=True)
+    vw_select_item_index = cmds.textScrollList('facialControlFaceList', q=True, sii=True)
     clAllPos = []
 
     fs = open('c:/Facial_temp.fd', 'wb')
-    pickle.dump(vw_faceEmotionData, fs)
+    pickle.dump(vw_face_emotion_data, fs)
     fs.close()
 
     setProgressWin = cmds.window(t='Set Progress')
@@ -983,9 +986,9 @@ def control_mode_set(*args):
     progressValue = cmds.progressBar(maxValue=2500, width=300)
     cmds.showWindow(setProgressWin)
 
-    if vw_faceEmotionData is []:
+    if vw_face_emotion_data is []:
         default_set_button()
-        for x in vw_faceSelCluster:
+        for x in vw_face_select_cluster:
             # clPosition = []
             posX = cmds.getAttr(x + 'Handle.translateX')
             posY = cmds.getAttr(x + 'Handle.translateY')
@@ -993,8 +996,8 @@ def control_mode_set(*args):
             clPosition = [posX, posY, posZ]
             clAllPos.append(clPosition)
 
-        for x in vw_centerCurve:
-            if re.search(vw_selCenterCurve[-1] + '$', x):
+        for x in vw_center_curve:
+            if re.search(vw_select_center_curve[-1] + '$', x):
                 # clPosition = []
                 jawPosX = cmds.getAttr(x + '.translateX')
                 jawPosY = cmds.getAttr(x + '.translateY')
@@ -1007,8 +1010,8 @@ def control_mode_set(*args):
             else:
                 pass
 
-    elif vw_faceEmotionData is not []:
-        for x in vw_faceSelCluster:
+    elif vw_face_emotion_data is not []:
+        for x in vw_face_select_cluster:
             # clPosition = []
             posX = cmds.getAttr(x + 'Handle.translateX')
             posY = cmds.getAttr(x + 'Handle.translateY')
@@ -1016,8 +1019,8 @@ def control_mode_set(*args):
             clPosition = [posX, posY, posZ]
             clAllPos.append(clPosition)
 
-        for x in vw_centerCurve:
-            if re.search(vw_selCenterCurve[-1] + '$', x):
+        for x in vw_center_curve:
+            if re.search(vw_select_center_curve[-1] + '$', x):
                 # clPosition = []
                 jawPosX = cmds.getAttr(x + '.translateX')
                 jawPosY = cmds.getAttr(x + '.translateY')
@@ -1030,22 +1033,22 @@ def control_mode_set(*args):
             else:
                 pass
 
-    vw_faceEmotionData[vw_selItemIndex[0] - 1] = clAllPos
+    vw_face_emotion_data[vw_select_item_index[0] - 1] = clAllPos
     for x in range(1500):
         cmds.progressBar(progressValue, edit=True, step=1)
     cmds.deleteUI(setProgressWin)
 
-    if vw_fileTemp is []:
+    if vw_file_temp is []:
         save_button()
     else:
-        fs = open(vw_fileTemp[:-3] + '_tmp.fd', 'wb')
-        pickle.dump(vw_faceEmotionData, fs)
+        fs = open(vw_file_temp[:-3] + '_tmp.fd', 'wb')
+        pickle.dump(vw_face_emotion_data, fs)
         fs.close()
 
 
 def copy_button(*args):
-    global vw_selClusterPosTemp
-    vw_selClusterPosTemp = []
+    global vw_select_cluster_pos_temp
+    vw_select_cluster_pos_temp = []
     # clPosition = []
     clAllPos = []
 
@@ -1058,53 +1061,53 @@ def copy_button(*args):
         clPosition = [posX, posY, posZ]
         clAllPos.append(clPosition)
 
-    vw_selClusterPosTemp = clAllPos
+    vw_select_cluster_pos_temp = clAllPos
 
 
 def paste_button(*args):
-    global vw_selClusterPosTemp
+    global vw_select_cluster_pos_temp
 
     selCluster = cmds.ls(sl=True, fl=True)
     selCluster.sort()
     stepNum = 0
     for x in selCluster:
-        cmds.setAttr(x + '.translateX', vw_selClusterPosTemp[stepNum][0])
-        cmds.setAttr(x + '.translateY', vw_selClusterPosTemp[stepNum][1])
-        cmds.setAttr(x + '.translateZ', vw_selClusterPosTemp[stepNum][2])
+        cmds.setAttr(x + '.translateX', vw_select_cluster_pos_temp[stepNum][0])
+        cmds.setAttr(x + '.translateY', vw_select_cluster_pos_temp[stepNum][1])
+        cmds.setAttr(x + '.translateZ', vw_select_cluster_pos_temp[stepNum][2])
         stepNum += 1
 
 
 def copy_mirror_paste_button(*args):
-    global vw_selClusterPosTemp
+    global vw_select_cluster_pos_temp
 
     selCluster = cmds.ls(sl=True, fl=True)
     selCluster.sort()
     selCluster.reverse()
     stepNum = 0
     for x in selCluster:
-        cmds.setAttr(x + '.translateX', vw_selClusterPosTemp[stepNum][0] * -1)
-        cmds.setAttr(x + '.translateY', vw_selClusterPosTemp[stepNum][1])
-        cmds.setAttr(x + '.translateZ', vw_selClusterPosTemp[stepNum][2])
+        cmds.setAttr(x + '.translateX', vw_select_cluster_pos_temp[stepNum][0] * -1)
+        cmds.setAttr(x + '.translateY', vw_select_cluster_pos_temp[stepNum][1])
+        cmds.setAttr(x + '.translateZ', vw_select_cluster_pos_temp[stepNum][2])
         stepNum += 1
 
 
 def mirror_paste_button(*args):
-    global vw_selClusterPosTemp
+    global vw_select_cluster_pos_temp
 
     selCluster = cmds.ls(sl=True, fl=True)
     selCluster.sort()
     stepNum = 0
     for x in selCluster:
-        cmds.setAttr(x + '.translateX', vw_selClusterPosTemp[stepNum][0] * -1)
-        cmds.setAttr(x + '.translateY', vw_selClusterPosTemp[stepNum][1])
-        cmds.setAttr(x + '.translateZ', vw_selClusterPosTemp[stepNum][2])
+        cmds.setAttr(x + '.translateX', vw_select_cluster_pos_temp[stepNum][0] * -1)
+        cmds.setAttr(x + '.translateY', vw_select_cluster_pos_temp[stepNum][1])
+        cmds.setAttr(x + '.translateZ', vw_select_cluster_pos_temp[stepNum][2])
         stepNum += 1
 
 
 def default_set_button(*args):
-    global vw_faceEmotionData
+    global vw_face_emotion_data
 
-    vw_faceEmotionData = []
+    vw_face_emotion_data = []
     posSet = []
     clusterSet = []
     curveSet = []
@@ -1114,7 +1117,7 @@ def default_set_button(*args):
     for z in range(3):
         posSet.append(0.0)
 
-    for y in range(len(vw_faceSelCluster)):
+    for y in range(len(vw_face_select_cluster)):
         clusterSet.append(posSet)
 
     for a in range(6):
@@ -1122,35 +1125,35 @@ def default_set_button(*args):
 
     clusterSet.append(curveSet)
     for x in range(itemNumber):
-        vw_faceEmotionData.append(clusterSet)
+        vw_face_emotion_data.append(clusterSet)
 
 
 def select_reset_button(*args):
-    global vw_showCluster
-    global vw_faceSelCluster
-    global vw_faceEmotionData
-    global vw_selItemIndex
-    global vw_facialListGuide
-    global vw_centerCurve
-    global vw_selCenterCurve
+    global vw_show_cluster
+    global vw_face_select_cluster
+    global vw_face_emotion_data
+    global vw_select_item_index
+    global vw_facial_list_guide
+    global vw_center_curve
+    global vw_select_center_curve
 
-    vw_selItemIndex = cmds.textScrollList('facialControlFaceList', q=True, sii=True)
+    vw_select_item_index = cmds.textScrollList('facialControlFaceList', q=True, sii=True)
     # selectItem = cmds.textScrollList('facialControlFaceList', q=True, si=True)
-    intNum = vw_selItemIndex[0] - 1
+    intNum = vw_select_item_index[0] - 1
     stepNum = 0
 
-    if vw_faceEmotionData is []:
+    if vw_face_emotion_data is []:
         default_set_button()
 
-    elif vw_faceEmotionData[intNum] is not []:
-        for x in vw_faceSelCluster:
+    elif vw_face_emotion_data[intNum] is not []:
+        for x in vw_face_select_cluster:
             cmds.setAttr(x + 'Handle.translateX', 0.0)
             cmds.setAttr(x + 'Handle.translateY', 0.0)
             cmds.setAttr(x + 'Handle.translateZ', 0.0)
             stepNum += 1
 
-        for y in vw_centerCurve:
-            if re.search(vw_selCenterCurve[-1] + '$', y):
+        for y in vw_center_curve:
+            if re.search(vw_select_center_curve[-1] + '$', y):
                 cmds.setAttr(y + '.translateX', 0.0)
                 cmds.setAttr(y + '.translateY', 0.0)
                 cmds.setAttr(y + '.translateZ', 0.0)
@@ -1164,17 +1167,17 @@ def select_reset_button(*args):
 
 
 def import_button(*args):
-    global vw_facialList
-    global vw_faceEmotionData
-    global vw_faceSelCluster
-    global vw_fileTemp
+    global vw_facial_list
+    global vw_face_emotion_data
+    global vw_face_select_cluster
+    global vw_file_temp
 
     # fileData = []
     # fileTemp = []
     # convertTemp = []
     # stepNum = 0
 
-    if vw_faceEmotionData is []:
+    if vw_face_emotion_data is []:
         default_set_button()
     else:
         pass
@@ -1186,19 +1189,19 @@ def import_button(*args):
         print('no select file')
     else:
         openfilename = openfileList[0]
-        vw_fileTemp = openfileList[0]
+        vw_file_temp = openfileList[0]
         fo = open(openfilename, 'rb')
-        vw_faceEmotionData = pickle.load(fo)
+        vw_face_emotion_data = pickle.load(fo)
         fo.close()
         cmds.confirmDialog(title='Complete', icn="information", message='Import Complete!!', button='ok',
                            defaultButton='ok')
 
 
 def save_button(*args):
-    global vw_facialList
-    global vw_faceEmotionData
-    global vw_faceSelCluster
-    global vw_fileTemp
+    global vw_facial_list
+    global vw_face_emotion_data
+    global vw_face_select_cluster
+    global vw_file_temp
 
     faceDataFilters = 'Facial Data File (*.fd)'
     savefileList = cmds.fileDialog2(cap='SAVE', fileFilter=faceDataFilters, dialogStyle=2)
@@ -1208,28 +1211,28 @@ def save_button(*args):
 
     else:
         savefilename = savefileList[0]
-        vw_fileTemp = savefileList[0]
+        vw_file_temp = savefileList[0]
         fs = open(savefilename, 'wb')
-        pickle.dump(vw_faceEmotionData, fs)
+        pickle.dump(vw_face_emotion_data, fs)
         fs.close()
         cmds.confirmDialog(title='Complete', icn="information", message='Save Complete!!', button='ok',
                            defaultButton='ok')
 
 
 def select_scroll_control_curve(*args):
-    global vw_headObject
-    global vw_showCluster
-    global vw_hideCluster
-    global vw_faceSelCluster
-    global vw_centerCurve
-    global vw_selCenterCurve
+    global vw_head_object
+    global vw_show_cluster
+    global vw_hide_cluster
+    global vw_face_select_cluster
+    global vw_center_curve
+    global vw_select_center_curve
 
     cluster_filter()
     selJawCurve = []
     selCurveList = cmds.textScrollList('facialControlList', q=True, si=True)
     selItemNum = cmds.textScrollList('facialControlList', q=True, nsi=True)
 
-    if vw_faceSelCluster is not []:
+    if vw_face_select_cluster is not []:
         if selItemNum > 1:
             cmds.select(cl=True)
             if selJawCurve is []:
@@ -1238,29 +1241,29 @@ def select_scroll_control_curve(*args):
                 cmds.select(selCurveList[0])
 
             for y in range(selItemNum):
-                for x in vw_faceSelCluster:
+                for x in vw_face_select_cluster:
                     if re.search('^' + selCurveList[y], x):
-                        vw_showCluster.append(x + 'Handle')
+                        vw_show_cluster.append(x + 'Handle')
                     else:
-                        vw_hideCluster.append(x + 'Handle')
+                        vw_hide_cluster.append(x + 'Handle')
 
-            for z in vw_faceSelCluster:
+            for z in vw_face_select_cluster:
                 cmds.hide(z)
 
-            for x in vw_showCluster:
+            for x in vw_show_cluster:
                 cmds.showHidden(x)
 
         elif selItemNum == 1:
-            vw_showCluster = []
-            vw_hideCluster = []
-            cmds.hide(vw_faceSelCluster)
+            vw_show_cluster = []
+            vw_hide_cluster = []
+            cmds.hide(vw_face_select_cluster)
             cmds.select(cl=True)
 
-            if re.search(vw_selCenterCurve[-1] + '$', selCurveList[0]):
+            if re.search(vw_select_center_curve[-1] + '$', selCurveList[0]):
                 cmds.select(selCurveList[0])
                 # selJawCurve = selCurveList[0]
 
-            for x in vw_faceSelCluster:
+            for x in vw_face_select_cluster:
                 if re.search('^' + selCurveList[0], x):
                     cmds.showHidden(x + 'Handle')
                 else:
@@ -1273,14 +1276,14 @@ def select_scroll_control_curve(*args):
 
 
 def cluster_filter():
-    global vw_rightCurve
-    global vw_centerCurve
-    global vw_leftCurve
-    global vw_faceSelCluster
+    global vw_right_curve
+    global vw_center_curve
+    global vw_left_curve
+    global vw_face_select_cluster
 
-    vw_faceSelCluster = []
+    vw_face_select_cluster = []
     selCluster = []
-    allClusterNameSource = vw_rightCurve + vw_leftCurve + vw_centerCurve
+    allClusterNameSource = vw_right_curve + vw_left_curve + vw_center_curve
 
     allObjects = cmds.ls(l=True)
     for obj in allObjects:
@@ -1290,22 +1293,22 @@ def cluster_filter():
     for x in allClusterNameSource:
         for y in selCluster:
             if re.search('^' + x, y):
-                vw_faceSelCluster.append(y)
+                vw_face_select_cluster.append(y)
             else:
                 pass
 
 
 def final_step(*args):
-    global vw_showCluster
-    global vw_faceSelCluster
-    global vw_faceEmotionData
-    global vw_selItemIndex
-    global vw_facialListGuide
-    global vw_facialList
-    global vw_headObject
-    global vw_rightCurve
-    global vw_centerCurve
-    global vw_leftCurve
+    global vw_show_cluster
+    global vw_face_select_cluster
+    global vw_face_emotion_data
+    global vw_select_item_index
+    global vw_facial_list_guide
+    global vw_facial_list
+    global vw_head_object
+    global vw_right_curve
+    global vw_center_curve
+    global vw_left_curve
 
     confirmMsg = cmds.confirmDialog(title='Confirm', icn='question', message='Are you ok?',
                                     button=['Yes', 'No'],
@@ -1316,89 +1319,89 @@ def final_step(*args):
     if confirmMsg == 'Yes':
         blendShapeObj = []
 
-        cmds.setAttr(vw_headObject[0] + '.tx', lock=False)
-        cmds.setAttr(vw_headObject[0] + '.ty', lock=False)
-        cmds.setAttr(vw_headObject[0] + '.tz', lock=False)
-        cmds.setAttr(vw_headObject[0] + '.rx', lock=False)
-        cmds.setAttr(vw_headObject[0] + '.ry', lock=False)
-        cmds.setAttr(vw_headObject[0] + '.rz', lock=False)
-        cmds.setAttr(vw_headObject[0] + '.sx', lock=False)
-        cmds.setAttr(vw_headObject[0] + '.sy', lock=False)
-        cmds.setAttr(vw_headObject[0] + '.sz', lock=False)
-        cmds.setAttr(vw_headObject[0] + '.v', lock=False)
+        cmds.setAttr(vw_head_object[0] + '.tx', lock=False)
+        cmds.setAttr(vw_head_object[0] + '.ty', lock=False)
+        cmds.setAttr(vw_head_object[0] + '.tz', lock=False)
+        cmds.setAttr(vw_head_object[0] + '.rx', lock=False)
+        cmds.setAttr(vw_head_object[0] + '.ry', lock=False)
+        cmds.setAttr(vw_head_object[0] + '.rz', lock=False)
+        cmds.setAttr(vw_head_object[0] + '.sx', lock=False)
+        cmds.setAttr(vw_head_object[0] + '.sy', lock=False)
+        cmds.setAttr(vw_head_object[0] + '.sz', lock=False)
+        cmds.setAttr(vw_head_object[0] + '.v', lock=False)
 
-        headBoundingBox = cmds.xform(vw_headObject, q=True, bb=True)
+        headBoundingBox = cmds.xform(vw_head_object, q=True, bb=True)
         headSize = headBoundingBox[3] - headBoundingBox[0]
         progressWin = cmds.window(t='Final Progress')
         cmds.columnLayout()
-        progressValue = cmds.progressBar(maxValue=len(vw_facialList) - 1, width=300)
+        progressValue = cmds.progressBar(maxValue=len(vw_facial_list) - 1, width=300)
         cmds.showWindow(progressWin)
 
-        for x in range(len(vw_facialList)):
+        for x in range(len(vw_facial_list)):
             cmds.textScrollList('facialControlFaceList', e=True, sii=x + 1)
             select_face_scroll_control_curve()
-            cmds.duplicate(str(vw_headObject[0]), rr=True, n=vw_facialList[x])
-            cmds.setAttr(vw_facialList[x] + '.translateX', headSize + 50)
-            blendShapeObj.append(vw_facialList[x])
+            cmds.duplicate(str(vw_head_object[0]), rr=True, n=vw_facial_list[x])
+            cmds.setAttr(vw_facial_list[x] + '.translateX', headSize + 50)
+            blendShapeObj.append(vw_facial_list[x])
             cmds.progressBar(progressValue, edit=True, step=1)
 
         cmds.deleteUI(progressWin)
         default_set_button()
         select_face_scroll_control_curve()
-        blendShapeObj.append(str(vw_headObject[0]))
+        blendShapeObj.append(str(vw_head_object[0]))
         cmds.blendShape(blendShapeObj, n='__Facial_List__')
         blendShapeObj.pop()
-        allDelObj = blendShapeObj + vw_faceSelCluster
-        AllCurve = vw_rightCurve + vw_leftCurve + vw_centerCurve
+        allDelObj = blendShapeObj + vw_face_select_cluster
+        AllCurve = vw_right_curve + vw_left_curve + vw_center_curve
         cmds.delete(allDelObj)
         cmds.delete(AllCurve)
         mel.eval('setObjectPickMask "Joint" true;')
         mel.eval('setObjectPickMask "Surface" true;')
         mel.eval('setObjectPickMask "Curve" true;')
 
-        cmds.setAttr(vw_headObject[0] + '.tx', lock=True)
-        cmds.setAttr(vw_headObject[0] + '.ty', lock=True)
-        cmds.setAttr(vw_headObject[0] + '.tz', lock=True)
-        cmds.setAttr(vw_headObject[0] + '.rx', lock=True)
-        cmds.setAttr(vw_headObject[0] + '.ry', lock=True)
-        cmds.setAttr(vw_headObject[0] + '.rz', lock=True)
-        cmds.setAttr(vw_headObject[0] + '.sx', lock=True)
-        cmds.setAttr(vw_headObject[0] + '.sy', lock=True)
-        cmds.setAttr(vw_headObject[0] + '.sz', lock=True)
-        cmds.setAttr(vw_headObject[0] + '.v', lock=False)
+        cmds.setAttr(vw_head_object[0] + '.tx', lock=True)
+        cmds.setAttr(vw_head_object[0] + '.ty', lock=True)
+        cmds.setAttr(vw_head_object[0] + '.tz', lock=True)
+        cmds.setAttr(vw_head_object[0] + '.rx', lock=True)
+        cmds.setAttr(vw_head_object[0] + '.ry', lock=True)
+        cmds.setAttr(vw_head_object[0] + '.rz', lock=True)
+        cmds.setAttr(vw_head_object[0] + '.sx', lock=True)
+        cmds.setAttr(vw_head_object[0] + '.sy', lock=True)
+        cmds.setAttr(vw_head_object[0] + '.sz', lock=True)
+        cmds.setAttr(vw_head_object[0] + '.v', lock=False)
     elif confirmMsg == 'No':
         pass
 
 
 def import_source_mesh(*args):
-    global vw_sourceMesh
-    global vw_targetMesh
+    global vw_source_mesh
+    global vw_target_mesh
     source_object = cmds.ls(sl=True)
-    vw_sourceMesh = source_object[0]
-    cmds.textFieldButtonGrp('importSourceMeshField', e=True, tx=vw_sourceMesh, eb=True)
+    vw_source_mesh = source_object[0]
+    cmds.textFieldButtonGrp('importSourceMeshField', e=True, tx=vw_source_mesh, eb=True)
     copy_key_button_enter()
 
 
 def import_target_mesh(*args):
-    global vw_sourceMesh
-    global vw_targetMesh
+    global vw_source_mesh
+    global vw_target_mesh
     source_object = cmds.ls(sl=True)
-    vw_targetMesh = source_object[0]
-    cmds.textFieldButtonGrp('importTargetMeshField', e=True, tx=vw_targetMesh, eb=True)
+    vw_target_mesh = source_object[0]
+    cmds.textFieldButtonGrp('importTargetMeshField', e=True, tx=vw_target_mesh, eb=True)
     copy_key_button_enter()
 
 
 def copy_key_process(*args):
-    global vw_sourceMesh
-    global vw_targetMesh
+    global vw_source_mesh
+    global vw_target_mesh
     # sourceAttrList = []
     # targetAttrList = []
     # sourceBlndfind = []
     # targetBlndfind = []
-    sourceListHis = cmds.listHistory(vw_sourceMesh)
+    sourceListHis = cmds.listHistory(vw_source_mesh)
     sourceBlndfind = cmds.ls(sourceListHis, typ='blendShape')
     sourceAttrList = cmds.listAttr(sourceBlndfind[0] + ".w", m=True)
-    targetListHis = cmds.listHistory(vw_targetMesh)
+    targetListHis = cmds.listHistory(vw_target_mesh)
     targetBlndfind = cmds.ls(targetListHis, typ='blendShape')
     targetAttrList = cmds.listAttr(targetBlndfind[0] + ".w", m=True)
     copyProgressWin = cmds.window(t='Progress')
@@ -1418,29 +1421,29 @@ def copy_key_process(*args):
 
 
 def copy_key_button_enter():
-    global vw_sourceMesh
-    global vw_targetMesh
-    if vw_sourceMesh == ' ' or vw_targetMesh == ' ':
+    global vw_source_mesh
+    global vw_target_mesh
+    if vw_source_mesh == ' ' or vw_target_mesh == ' ':
         cmds.button('copyKeyBtn', e=True, en=False)
-    elif vw_sourceMesh != ' ' and vw_targetMesh != ' ':
+    elif vw_source_mesh != ' ' and vw_target_mesh != ' ':
         cmds.button('copyKeyBtn', e=True, en=True)
 
 
 if __name__ == '__main__':
-    vw_rightCurve = []
-    vw_centerCurve = []
-    vw_leftCurve = []
-    vw_showCluster = []
-    vw_hideCluster = []
-    vw_faceSelCluster = []
-    vw_headObject = ' '
-    vw_faceEmotionData = []
-    vw_selItemIndex = [1]
-    vw_selClusterPosTemp = []
-    vw_sourceMesh = ' '
-    vw_targetMesh = ' '
-    if vw_fileTemp is []:
+    vw_right_curve = []
+    vw_center_curve = []
+    vw_left_curve = []
+    vw_show_cluster = []
+    vw_hide_cluster = []
+    vw_face_select_cluster = []
+    vw_head_object = ' '
+    vw_face_emotion_data = []
+    vw_select_item_index = [1]
+    vw_select_cluster_pos_temp = []
+    vw_source_mesh = ' '
+    vw_target_mesh = ' '
+    if vw_file_temp is []:
         pass
     else:
-        vw_fileTemp[0] = []
+        vw_file_temp[0] = []
     facial_set_create_mode_window()

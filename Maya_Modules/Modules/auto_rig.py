@@ -13,7 +13,6 @@ kBiPedAutoRig = 'biPedAutoRig'
 kScaleFkControles = 'scaleFkControles'
 
 """
-using
 import auto_rig
 import importlib
 importlib.reload(auto_rig)
@@ -27,6 +26,7 @@ def create_main_window():
 
     cmds.window(kWindowName, title="Rigging Tool", menuBar=False, widthHeight=(500, 300))
     tabs = cmds.tabLayout(innerMarginWidth=5, innerMarginHeight=5)
+
     child1 = cmds.rowColumnLayout(numberOfColumns=1)
     cmds.rowColumnLayout(numberOfColumns=1)
     cmds.button(label="Help", command=partial(create_help_window, kFKControlName), width=80)
@@ -117,9 +117,9 @@ def create_main_window():
 
     cmds.tabLayout(tabs, edit=True, tabLabel=(
         (child1, 'Create Fk Control'),
-        (child4, 'Scale Fk Control'),
         (child2, 'Organize'),
-        (child3, 'Biped Auto Rig')))
+        (child3, 'Biped Auto Rig'),
+        (child4, 'Scale Fk Control')))
     cmds.showWindow()
 
 
@@ -153,7 +153,7 @@ def create_help_window(text, *args):
                   font="plainLabelFont", align="left")
 
     if text == kBiPedAutoRig:
-        cmds.text(label='Welcome To The Auto Rigging Script!', font="boldLabelFont", align="left")
+        cmds.text(label='Auto Rigging Script', font="boldLabelFont", align="left")
         cmds.text(label='You can choose to create a full bi-ped rig or just some part of it.',
                   font="plainLabelFont",
                   align="left")

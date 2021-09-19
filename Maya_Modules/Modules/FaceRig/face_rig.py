@@ -24,10 +24,8 @@ vw_face_button_num = False
 
 path_original = sys.path
 vw_path = ''
-
 path_original = cmds.internalVar(usd=True)
 vw_path = path_original + 'FaceRig/Facial_Check/'
-
 vw_select_right_curve = 'R_Eyebrow', 'R_UpEye', 'R_LowEye', 'R_Zygoma', 'R_Nasolabial', 'R_Cheek', 'R_Jaw'
 vw_select_center_curve = 'C_ForeHead', 'C_Eyebrow', 'C_UpLip', 'C_LowLip', 'C_FrontJaw', 'C_JawFull'
 vw_select_left_curve = 'L_Eyebrow', 'L_UpEye', 'L_LowEye', 'L_Zygoma', 'L_Nasolabial', 'L_Cheek', 'L_Jaw'
@@ -128,6 +126,7 @@ vw_facial_list_guide = {
     'ChinUpperRaise': 'ChinUpperRaise',
     'ChinLowerRaise': 'ChinLowerRaise'}
 
+
 kFacialCreateWindow = 'facialCreateWindow'
 kFacialEditWindow = 'facialEditWindow'
 kFacialControlWindow = 'facialControlWindow'
@@ -183,24 +182,25 @@ def facial_set_create_mode_window(*args):
         cmds.rowLayout(numberOfColumns=3, columnWidth3=(200, 200, 200), adjustableColumn=2,
                        columnAlign=(1, 'center'),
                        columnAttach=[(1, 'both', 0), (2, 'both', 0), (3, 'both', 0)])
-
+        # Right
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=200)
         cmds.text(label='R I G H T', h=30, bgc=(0.1, 0.1, 0.1))
         cmds.textScrollList('facialControlRightList', append=vw_right_curve, sc=select_right_scroll_curve, h=130)
         cmds.button(label='Create Right Curve', h=40, command=partial(create_right_curve))
         cmds.setParent(u=True)
-
+        # Center
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=200)
         cmds.text(label='C E N T E R', h=30, bgc=(0.1, 0.1, 0.1))
         cmds.textScrollList('facialControlCenterList', append=vw_center_curve, sc=select_center_scroll_curve, h=130)
         cmds.button(label='Create Center Curve', h=40, command=partial(create_center_curve))
         cmds.setParent(u=True)
-
+        # Left
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=200)
         cmds.text(label='L E F T', h=30, bgc=(0.1, 0.1, 0.1))
         cmds.textScrollList('facialControlLeftList', append=vw_left_curve, sc=select_left_scroll_curve, h=130)
         cmds.button(label='Create Left Curve', h=40, command=partial(create_left_curve))
         cmds.setParent(u=True)
+
         cmds.setParent(u=True)
         cmds.button(label='Attach Curve', h=60, command=partial(attach_command), bgc=(0.9, 0.3, 0.9))
         curve_exists()
@@ -263,20 +263,22 @@ def facial_set_edit_mode_window(*args):
                        adjustableColumn=2,
                        columnAlign=(1, 'center'),
                        columnAttach=[(1, 'both', 0), (2, 'both', 0), (3, 'both', 0)])
+        # Right
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=200)
         cmds.text(label='R I G H T', h=30, bgc=(0.1, 0.1, 0.1))
         cmds.textScrollList('facialControlRightList', append=vw_right_curve, sc=select_right_scroll_edit_curve, h=130)
         cmds.setParent(u=True)
-
+        # Center
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=200)
         cmds.text(label='C E N T E R', h=30, bgc=(0.1, 0.1, 0.1))
         cmds.textScrollList('facialControlCenterList', append=vw_center_curve, sc=select_center_scroll_edit_curve, h=130)
         cmds.setParent(u=True)
-
+        # Left
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=200)
         cmds.text(label='L E F T', h=30, bgc=(0.1, 0.1, 0.1))
         cmds.textScrollList('facialControlLeftList', append=vw_left_curve, sc=select_left_scroll_edit_curve, h=130)
         cmds.setParent(u=True)
+
         cmds.setParent(u=True)
         cmds.gridLayout(numberOfColumns=2, cellWidthHeight=(300, 40))
         cmds.button('importMapField', label='Import Map', command=partial(import_map_image), h=40)
@@ -350,12 +352,14 @@ def facial_set_control_mode_window(*args):
         cmds.rowLayout(numberOfColumns=3, columnWidth3=(240, 240, 110), adjustableColumn=3, columnAlign=(1, 'center'),
                        columnAttach=[(1, 'both', 0), (2, 'both', 0), (3, 'both', 0)])
 
+        # FaceList
         cmds.columnLayout(columnAttach=('both', 1), rowSpacing=0, columnWidth=240)
         cmds.text(label='F A C E   L I S T', h=30, bgc=(0.3, 0.1, 0.1))
         cmds.textScrollList('facialControlFaceList', append=vw_facial_list, sc=select_face_scroll_control_curve, h=300,
                             sii=vw_select_item_index[0], bgc=(0.4, 0.3, 0.3))
         cmds.setParent(u=True)
 
+        # Curve Ctrl
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=0, columnWidth=240)
         cmds.text(label='Curve Controller', h=30, bgc=(0.1, 0.1, 0.1))
         cmds.textScrollList('facialControlList', append=all_curve, sc=select_scroll_control_curve, h=300, ams=True)

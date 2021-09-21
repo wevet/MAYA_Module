@@ -18,3 +18,14 @@ cmds.deformer(type=deformer_name)
 ```
 
 
+## auto_rig.py
+![auto_rig](Demo/Rigging_Tool.png)
+```python
+
+import auto_rig
+import importlib
+importlib.reload(auto_rig)
+auto_rig.create_main_window()
+
+```
+

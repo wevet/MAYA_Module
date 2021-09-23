@@ -10,7 +10,11 @@ kWindowName = 'CustomRig_Window'
 kWindowHelpName = 'ReHelp_window'
 kFKControlName = 'CreateFKControls'
 kBiPedAutoRig = 'biPedAutoRig'
-kScaleFkControles = 'scaleFkControles'
+kScaleFkControls = 'scaleFkControls'
+
+kRigAddToJoints = 'Rig_AddToJoints'
+kRigFKConstraintType = 'Rig_FKConstraintType'
+kRigMirrorTempSkeleton = 'Rig_MirrorTempSkeleton'
 
 """
 import auto_rig
@@ -27,6 +31,7 @@ def create_main_window():
     cmds.window(kWindowName, title="Rigging Tool", menuBar=False, widthHeight=(500, 300))
     tabs = cmds.tabLayout(innerMarginWidth=5, innerMarginHeight=5)
 
+    # Rig_FKConstraintType
     child1 = cmds.rowColumnLayout(numberOfColumns=1)
     cmds.rowColumnLayout(numberOfColumns=1)
     cmds.button(label="Help", command=partial(create_help_window, kFKControlName), width=80)
@@ -34,35 +39,36 @@ def create_main_window():
     cmds.text(label='')
     cmds.text(label='Lock following attributes:', font="plainLabelFont", align="left")
     cmds.paneLayout()
-    cmds.textScrollList('Rig_FKControlLockAttribute', numberOfRows=8, allowMultiSelection=True,
+    cmds.textScrollList('Rig FKControlLockAttribute', numberOfRows=8, allowMultiSelection=True,
                         append=['tx', 'ty', 'tz', 'rx', 'ry', 'rz', 'sx', 'sy', 'sz', 'v'],
                         selectItem=['tx', 'tz', 'ty', 'sx', 'sy', 'sz', 'v'], showIndexedItem=4)
     cmds.setParent('..')
     cmds.text(label='Type of constraint:', font="plainLabelFont", align="left")
-    cmds.radioCollection('Rig_FKConstraintType')
+    cmds.radioCollection(kRigFKConstraintType)
     cmds.rowColumnLayout(numberOfColumns=3)
     cmds.radioButton('Rig_FKConstraintType_point', label='Point')
     cmds.radioButton('Rig_FKConstraintType_orient', label='Orient')
     cmds.radioButton('Rig_FKConstraintType_parent', label='Parent')
-    cmds.radioCollection('Rig_FKConstraintType', edit=True, select='Rig_FKConstraintType_orient')
+    cmds.radioCollection(kRigFKConstraintType, edit=True, select='Rig_FKConstraintType_orient')
     cmds.setParent('..')
     cmds.button(label="Create FK Controls", command=create_fk_control_button)
     cmds.text(label='')
     cmds.button(label="Parent FK Controls", command=parent_fk_control_button)
     cmds.setParent('..')
 
+    # Rig_FKControlSelect
     child4 = cmds.rowColumnLayout(numberOfColumns=1)
     cmds.rowColumnLayout(numberOfColumns=1)
-    cmds.button(label="Help", command=partial(create_help_window, kScaleFkControles), width=80)
+    cmds.button(label="Help", command=partial(create_help_window, kScaleFkControls), width=80)
     cmds.setParent('..')
     cmds.text(label='')
     cmds.button(label="List All FK Control", command=list_fk_control_button)
-    cmds.textFieldGrp('Rig_FKControlSelect', changeCommand=create_scale_fk_select_button)
+    cmds.textFieldGrp('Rig FKControlSelect', changeCommand=create_scale_fk_select_button)
     cmds.paneLayout()
-    cmds.textScrollList('Rig_FKControlList', numberOfRows=8, allowMultiSelection=True,
+    cmds.textScrollList('Rig FKControlList', numberOfRows=8, allowMultiSelection=True,
                         append=[], showIndexedItem=4)
     cmds.setParent('..')
-    cmds.floatSliderGrp('Rig_FKControlScale', field=True, label='Scale Fk Control ',
+    cmds.floatSliderGrp('Rig FKControlScale', field=True, label='Scale Fk Control ',
                         minValue=0.01, maxValue=5, fieldMinValue=0.01, fieldMaxValue=20, value=1, precision=2,
                         dragCommand=change_scale_fk_button, changeCommand=change_scale_fk_button)
     cmds.rowColumnLayout(numberOfColumns=1)
@@ -71,30 +77,32 @@ def create_main_window():
     cmds.setParent('..')
     cmds.setParent('..')
 
+    # Rig_AddToJoints
     child2 = cmds.rowColumnLayout(numberOfColumns=1)
-    cmds.radioCollection('Rig_AddToJoints')
+    cmds.radioCollection(kRigAddToJoints)
     cmds.rowColumnLayout(numberOfColumns=2)
     cmds.radioButton('Rig_AddToJoints_selected', label='Selected joints')
     cmds.radioButton('Rig_AddToJoints_hierarchy', label='Joint hierarchy')
-    cmds.radioCollection('Rig_AddToJoints', edit=True, select='Rig_AddToJoints_hierarchy')
+    cmds.radioCollection(kRigAddToJoints, edit=True, select='Rig_AddToJoints_hierarchy')
     cmds.setParent('..')
     cmds.button(label="Add '_bn' To All Joints", command=rename_joint_button)
     cmds.text(label='')
     cmds.button(label="Create Main Groups", command=create_main_group_button)
     cmds.text(label='')
-    cmds.button(label="Change displayed joint size", command=display_joint_size_button)
+    cmds.button(label="Change Displayed JointSize", command=display_joint_size_button)
     cmds.setParent('..')
 
+    # Rig_MirrorTempSkeleton
     child3 = cmds.rowColumnLayout(numberOfColumns=1)
     cmds.rowColumnLayout(numberOfColumns=1)
     cmds.button(label="Help", command=partial(create_help_window, kBiPedAutoRig), width=80)
     cmds.setParent('..')
     cmds.text(label='')
-    cmds.radioCollection('Rig_MirrorTempSkeleton')
+    cmds.radioCollection(kRigMirrorTempSkeleton)
     cmds.rowColumnLayout(numberOfColumns=2)
     cmds.radioButton('Rig_MirrorTempSkeleton_true', label='Mirror joint position on both sides')
     cmds.radioButton('Rig_MirrorTempSkeleton_false', label='Unique positions')
-    cmds.radioCollection('Rig_MirrorTempSkeleton', edit=True, select='Rig_MirrorTempSkeleton_true')
+    cmds.radioCollection(kRigMirrorTempSkeleton, edit=True, select='Rig_MirrorTempSkeleton_true')
     cmds.setParent('..')
     cmds.button(label="Position Your Joints", command=create_temp_skeleton_button)
     cmds.text(label='')
@@ -132,24 +140,24 @@ def create_help_window(text, *args):
 
     if text == kFKControlName:
         cmds.text(label='Create Easy FK Controls', font="boldLabelFont", align="left")
-        cmds.text(label='Select all the joints you want to create a FK control for.',
+        cmds.text(label='FKコントロールを作りたいジョイントをすべて選択する.',
                   font="plainLabelFont",
                   align="left")
-        cmds.text(label='Make sure you have named your joints properly.',
+        cmds.text(label='関節の名称が適切かどうか確認する.',
                   font="plainLabelFont", align="left")
         cmds.text(label='Your joints should be named: nameOnJoint_bn',
                   font="plainLabelFont", align="left")
-        cmds.text(label='Select the attributes you want to look on your control.',
+        cmds.text(label='コントロールに表示させたいAttributeを選択.',
                   font="plainLabelFont", align="left")
-        cmds.text(label='Select which type of constraint you want to create: point, parent or orient.',
+        cmds.text(label='ポイント、ペアレント、オリエントのどのタイプの制約を作成するかを選択.',
                   font="plainLabelFont", align="left")
         cmds.text(label="")
         cmds.text(label='Parent FK Controls', font="boldLabelFont", align="left")
-        cmds.text(label='Select the child fk control first then the parent control.',
+        cmds.text(label='Child FKコントロールを先に選択し、次にParentコントロールを選択する.',
                   font="plainLabelFont", align="left")
         cmds.text(label='Example: hand_ctrl -> elbow_ctrl -> shoulder_ctrl.',
                   font="plainLabelFont", align="left")
-        cmds.text(label='Works with all controls created by the Reanimted Rigging Tool.',
+        cmds.text(label='Works with all controls created by the Re Animated Rigging Tool.',
                   font="plainLabelFont", align="left")
 
     if text == kBiPedAutoRig:
@@ -157,48 +165,48 @@ def create_help_window(text, *args):
         cmds.text(label='You can choose to create a full bi-ped rig or just some part of it.',
                   font="plainLabelFont",
                   align="left")
-        cmds.text(label='To start you need to position out where you want your skeleton to go.',
+        cmds.text(label='骨格をどこに配置するかを決める必要があります.',
                   font="plainLabelFont", align="left")
-        cmds.text(label='Make sure your character are standing on the grid and facing front view. ',
+        cmds.text(label='キャラクターがグリッド上に立ち、正面を向いていることを確認します. ',
                   font="plainLabelFont", align="left")
         cmds.text(label='')
-        cmds.text(label='Start by creating your temporary skeleton. Do this by clicking on "Position Your Joints".',
+        cmds.text(label='仮のスケルトンを作成します。それには、"Position Your Joints "をクリックします".',
                   font="plainLabelFont", align="left")
-        cmds.text(label='This skeleton you can scale, translate and rotate how ever you want to.',
+        cmds.text(label='このスケルトンは、自由にスケール、平行移動、回転させることができます.',
                   font="plainLabelFont", align="left")
-        cmds.text(label='It will not effect your final rig.',
+        cmds.text(label='最終的なリグへの影響はありません.',
                   font="plainLabelFont", align="left")
         cmds.text(label='')
         cmds.text(label='Mirror joint position on both sides',
                   font="boldLabelFont", align="left")
-        cmds.text(label='Use this option if your character is mirrored and has symmetric geometry. This is standard.',
+        cmds.text(label='キャラクタがミラーリングされており、対称的なジオメトリを持つ場合にこのオプションを使用します.',
                   font="plainLabelFont", align="left")
         cmds.text(label='')
         cmds.text(label='Unique positions', font="boldLabelFont", align="left")
-        cmds.text(label='Use this option if your character has asymmetric geometry.',
+        cmds.text(label='キャラクタのジオメトリが非対称の場合、このオプションを使用します.',
                   font="plainLabelFont", align="left")
         cmds.text(label='')
         cmds.text(label='Create your final rig', font="boldLabelFont", align="left")
-        cmds.text(label='When you are done with the position of your joints, you need to choose with element you',
+        cmds.text(label='関節の位置が決まると、次は要素を選ぶ必要があります',
                   font="plainLabelFont", align="left")
         cmds.text(label='want to incorporate (arms, legs, spine, fingers and head).',
                   font="plainLabelFont", align="left")
-        cmds.text(label='You can also choose how many joint you want in your rig and how high up you waist fk control',
+        cmds.text(label='また、Rigの中に何個のジョイントを入れるか、どのくらいの高さで腰を動かすかを選択することができます.',
                   font="plainLabelFont", align="left")
-        cmds.text(label='will be. This will only be calculated if you have selected "spine".',
+        cmds.text(label='これは、"spine"を選択した場合にのみ計算されます.',
                   font="plainLabelFont", align="left")
 
-    if text == kScaleFkControles:
+    if text == kScaleFkControls:
         cmds.text(label='Scale FK Controls', font="boldLabelFont", align="left")
-        cmds.text(label='Here you can scale all FK controls created with the script.',
+        cmds.text(label='スクリプトで作成されたすべてのFKコントロールをスケーリングできます.',
                   font="plainLabelFont", align="left")
-        cmds.text(label='Start by listing all FK controls, which you do by clicking on "List all FK controls".',
+        cmds.text(label='"List all FK controls"をクリックして、すべてのFKコントロールのリストを作成します.',
                   font="plainLabelFont", align="left")
         cmds.text(label='Select X numbers of controls from the list, or type in key words in the field above.',
                   font="plainLabelFont", align="left")
-        cmds.text(label='You can type in multiply keywords. Separate them with space. Ex: "thumb toe index"',
+        cmds.text(label='複数のキーワードを入力することができます。スペースで区切って入力してください. Ex: "thumb toe index"',
                   font="plainLabelFont", align="left")
-        cmds.text(label='Use the slider or type in a value which you want your control to scale.',
+        cmds.text(label='スライダーを使用するか、コントロールを拡大したい値を入力してください.',
                   font="plainLabelFont", align="left")
         cmds.text(label="When you are done, it's important to freeze your controls. Select the controls",
                   font="plainLabelFont", align="left")
@@ -210,7 +218,7 @@ def create_help_window(text, *args):
 
 def create_fk_control_button(self):
     attr = cmds.textScrollList('Rig_FKControlLockAttribute', q=True, selectItem=True)
-    radio_button = cmds.radioCollection('Rig_FKConstraintType', q=True, select=True)
+    radio_button = cmds.radioCollection(kRigFKConstraintType, q=True, select=True)
     const = radio_button.rsplit('_', 1)[1]
     create_fk_control(jointList=cmds.ls(sl=True), lockAttributes=attr, constraint=const)
 
@@ -220,7 +228,7 @@ def parent_fk_control_button(self):
 
 
 def rename_joint_button(self):
-    if cmds.radioCollection('Rig_AddToJoints', q=True, select=True) == 'Rig_AddToJoints_hierarchy':
+    if cmds.radioCollection(kRigAddToJoints, q=True, select=True) == 'Rig_AddToJoints_hierarchy':
         cmds.select(hi=True)
         joint_list = cmds.ls(sl=True)
     else:
@@ -232,12 +240,15 @@ def create_main_group_button(self):
     create_main_group()
 
 
+"""
+一時的なスケルトンを生成する
+"""
 def create_temp_skeleton_button(self):
     if cmds.objExists('scale_tempSkeleton_ctrl'):
         cmds.delete('scale_tempSkeleton_ctrl')
-        OpenMaya.MGlobal.displayInfo("Deleted you existing temporary skeleton and created a new one.")
+        OpenMaya.MGlobal.displayInfo("既存の一時的なスケルトンを削除し、新しいスケルトンを作成します.")
     else:
-        OpenMaya.MGlobal.displayInfo("Created a temporary skeleton.")
+        OpenMaya.MGlobal.displayInfo("一時的なスケルトンを作成します.")
 
     create_temp_skeleton_spine()
     create_temp_skeleton_leg()
@@ -246,7 +257,7 @@ def create_temp_skeleton_button(self):
     cmds.select('l_wrist_tempJt')
     create_temp_skeleton_finger()
 
-    if cmds.radioCollection('Rig_MirrorTempSkeleton', q=True, select=True) == 'Rig_MirrorTempSkeleton_false':
+    if cmds.radioCollection(kRigMirrorTempSkeleton, q=True, select=True) == 'Rig_MirrorTempSkeleton_false':
         cmds.mirrorJoint('l_collarbone_tempJt', mirrorBehavior=True, mirrorYZ=True, searchReplace=('l_', 'r_'))
         cmds.mirrorJoint('l_hip_tempJt', mirrorBehavior=True, mirrorYZ=True, searchReplace=('l_', 'r_'))
 
@@ -267,11 +278,9 @@ def list_fk_control_button(self):
 def change_scale_fk_button(self):
     fk_list = cmds.textScrollList('Rig_FKControlList', q=True, selectItem=True)
     scale = cmds.floatSliderGrp('Rig_FKControlScale', q=True, value=True)
-
     attr = ['sx', 'sy', 'sz']
-
     if fk_list is None:
-        OpenMaya.MGlobal.displayWarning("Please select the controls you want to change size.")
+        OpenMaya.MGlobal.displayWarning("サイズを変更したいコントロールを選択してください.")
     else:
         for item in fk_list:
             for a in attr:
@@ -287,7 +296,7 @@ def create_scale_fk_select_button(self):
     select_list = []
     cmds.textScrollList('Rig_FKControlList', e=True, deselectAll=True)
     if fk_list is None:
-        OpenMaya.MGlobal.displayWarning("Your list with FK controls is empty! ):")
+        OpenMaya.MGlobal.displayWarning("Your list with FK controls is empty.")
     else:
         for item in fk_list:
             for key in keywords:
@@ -301,7 +310,7 @@ def freeze_transformation_button(self):
     fk_list = cmds.textScrollList('Rig_FKControlList', q=True, selectItem=True)
     attr = ['sx', 'sy', 'sz']
     if fk_list is None:
-        OpenMaya.MGlobal.displayWarning("Please select the FK controls you want to freeze.")
+        OpenMaya.MGlobal.displayWarning("フリーズさせたいFKコントロールを選択してください.")
     else:
         for item in fk_list:
             if cmds.getAttr(item + '.sx', lock=True) is False:
@@ -312,7 +321,7 @@ def freeze_transformation_button(self):
 
 def create_biped_rig_button(self):
     if not cmds.objExists('scale_tempSkeleton_ctrl'):
-        OpenMaya.MGlobal.displayWarning("You need to position your joints before you create your rig.")
+        OpenMaya.MGlobal.displayWarning("リグを作成する前に、ジョイントの位置を決める必要があります.")
 
     else:
         scale = cmds.getAttr('scale_tempSkeleton_ctrl.scaleX')
@@ -324,19 +333,18 @@ def create_biped_rig_button(self):
                                numberOfJoints=cmds.intSliderGrp('Rig_numberOfJt', q=True, value=True))
             result_list.append('SPINE')
 
+        checked_mirror_skeleton = cmds.radioCollection(kRigMirrorTempSkeleton, q=True, select=True)
         if cmds.checkBox('Rig_AutoRigArm', q=True, value=True) is True:
             create_main_group()
             create_arm_joint(side='l', scale=scale)
-            if cmds.radioCollection('Rig_MirrorTempSkeleton', q=True,
-                                    select=True) == 'Rig_MirrorTempSkeleton_false':
+            if checked_mirror_skeleton == 'Rig_MirrorTempSkeleton_false':
                 create_arm_joint(side='r', scale=scale)
             result_list.append('ARMS')
 
         if cmds.checkBox('Rig_AutoRigLeg', q=True, value=True) is True:
             create_main_group()
             create_leg_joint(side='l', scale=scale)
-            if cmds.radioCollection('Rig_MirrorTempSkeleton', q=True,
-                                    select=True) == 'Rig_MirrorTempSkeleton_false':
+            if checked_mirror_skeleton == 'Rig_MirrorTempSkeleton_false':
                 create_leg_joint(side='r', scale=scale)
             result_list.append('LEGS')
 
@@ -345,17 +353,17 @@ def create_biped_rig_button(self):
             create_head_joint(scale=scale, side='c')
             result_list.append('HEAD')
 
-        if cmds.checkBox('Rig_AutoRigFingers', q=True, value=True) is True and cmds.checkBox('Rig_AutoRigArm',
-                                                                                             q=True,
-                                                                                             value=True) is True:
+        has_finger = cmds.checkBox('Rig_AutoRigFingers', q=True, value=True)
+        has_arm = cmds.checkBox('Rig_AutoRigArm', q=True, value=True)
+        if has_finger is True and has_arm is True:
             create_main_group()
             create_finger_joint(scale=scale, side='l')
             create_finger_joint(scale=scale, side='r')
             result_list.append('FINGERS')
 
-        if cmds.checkBox('Rig_AutoRigSpine', q=True, value=True) is True and cmds.checkBox('Rig_AutoRigArm',
-                                                                                           q=True,
-                                                                                           value=True) is True:
+        has_spine = cmds.checkBox('Rig_AutoRigSpine', q=True, value=True)
+        has_arm = cmds.checkBox('Rig_AutoRigArm', q=True, value=True)
+        if has_spine is True and has_arm is True:
             connect_arm_to_spine()
 
         if cmds.checkBox('Rig_AutoMasterCtrl', q=True, value=True) is True:
@@ -363,10 +371,9 @@ def create_biped_rig_button(self):
             result_list.append('MASTER CONTROL')
 
         clean_string = clean_list_to_string(dirtyList=result_list)
-
-        if cmds.checkBox('Rig_AutoRigFingers', q=True, value=True) is True and cmds.checkBox('Rig_AutoRigArm',
-                                                                                             q=True,
-                                                                                             value=True) is False:
+        has_finger = cmds.checkBox('Rig_AutoRigFingers', q=True, value=True)
+        has_arm = cmds.checkBox('Rig_AutoRigArm', q=True, value=True)
+        if has_finger is True and has_arm is False:
             OpenMaya.MGlobal.displayWarning("You can not create fingers without an arm! : " + clean_string + '.')
         else:
             OpenMaya.MGlobal.displayInfo("Successfully created: " + clean_string + '.')
@@ -386,7 +393,7 @@ def create_fk_control(**kwargs):
     constraint = kwargs.setdefault('constraint', 'orient')
 
     if selection is []:
-        OpenMaya.MGlobal.displayWarning("You have to at least select 1 joint.")
+        OpenMaya.MGlobal.displayWarning("少なくとも1つのジョイントを選択する必要があります.")
 
     control_list = []
 
@@ -421,7 +428,7 @@ def create_fk_control(**kwargs):
                 cmds.setAttr(control[0] + '.' + loc, lock=True, keyable=False, channelBox=False)
             cmds.setAttr(control[0] + '.v', lock=False)
         else:
-            OpenMaya.MGlobal.displayWarning("Your joints are not named correctly: jointName_bn")
+            OpenMaya.MGlobal.displayWarning("関節の名称が正しくありません. Ex: jointName_bn")
 
     return control_list
 
@@ -673,7 +680,7 @@ def create_arm_joint(**kwargs):
     arm_joint_list = cmds.ls(selection=True)
     ik_fk_joints = duplicate_joint(side=side, jointList=arm_joint_list)
 
-    if cmds.radioCollection('Rig_MirrorTempSkeleton', q=True, select=True) == 'Rig_MirrorTempSkeleton_true':
+    if cmds.radioCollection(kRigMirrorTempSkeleton, q=True, select=True) == 'Rig_MirrorTempSkeleton_true':
         arm_joint_list_r = cmds.mirrorJoint(arm_joint_list[0], mirrorYZ=True, mirrorBehavior=True,
                                           searchReplace=('l_', 'r_'))
         armIkJtHi_r = cmds.mirrorJoint(ik_fk_joints[0][0], mirrorYZ=True,
@@ -750,7 +757,7 @@ def create_leg_joint(**kwargs):
 
     ik_fk_joints = duplicate_joint(side=side, jointList=leg_joint_list)
 
-    if cmds.radioCollection('Rig_MirrorTempSkeleton', q=True, select=True) == 'Rig_MirrorTempSkeleton_true':
+    if cmds.radioCollection(kRigMirrorTempSkeleton, q=True, select=True) == 'Rig_MirrorTempSkeleton_true':
         leg_joint_list_r = cmds.mirrorJoint(leg_joint_list[0], mirrorYZ=True, mirrorBehavior=True,
                                           searchReplace=('l_', 'r_'))
         legIkJtHi_r = cmds.mirrorJoint(ik_fk_joints[0][0], mirrorYZ=True, mirrorBehavior=True,
@@ -890,7 +897,7 @@ def create_finger_joint(**kwargs):
     side = kwargs.setdefault("side")
     scale = kwargs.setdefault("scale")
 
-    if cmds.radioCollection('Rig_MirrorTempSkeleton', q=True,
+    if cmds.radioCollection(kRigMirrorTempSkeleton, q=True,
                             select=True) == 'Rig_MirrorTempSkeleton_true' and side == 'r':
         cmds.mirrorJoint('l_collarbone_tempJt', mirrorBehavior=True, mirrorYZ=True, searchReplace=('l_', 'r_'))
 
@@ -924,7 +931,7 @@ def create_finger_joint(**kwargs):
     grp = cmds.group(finished_list, name=side + '_fk_fingers_grp')
     cmds.parentConstraint(side + '_manus_bn', grp, maintainOffset=True)
 
-    if cmds.radioCollection('Rig_MirrorTempSkeleton', q=True,
+    if cmds.radioCollection(kRigMirrorTempSkeleton, q=True,
                             select=True) == 'Rig_MirrorTempSkeleton_true' and side == 'r':
         cmds.delete('r_collarbone_tempJt')
 
@@ -1393,7 +1400,7 @@ def create_foot_control(**kwargs):
     aimJoint = kwargs.setdefault('aimJoint')
     addAttr = kwargs.setdefault('addAttributes')
 
-    if cmds.radioCollection('Rig_MirrorTempSkeleton', q=True,
+    if cmds.radioCollection(kRigMirrorTempSkeleton, q=True,
                             select=True) == 'Rig_MirrorTempSkeleton_true' and side == 'r':
         cmds.mirrorJoint('l_hip_tempJt', mirrorBehavior=True, mirrorYZ=True, searchReplace=('l_', 'r_'))
         mel.eval('searchReplaceNames "1" "" "hierarchy";')
@@ -1498,7 +1505,7 @@ def create_foot_control(**kwargs):
         cmds.connectAttr(ctrl + '.toeFlip', multiply_divide + '.input1Z')
         cmds.connectAttr(multiply_divide + '.outputZ', toeFlip + '.rx')
 
-    if cmds.radioCollection('Rig_MirrorTempSkeleton',
+    if cmds.radioCollection(kRigMirrorTempSkeleton,
                             q=True,
                             select=True) == 'Rig_MirrorTempSkeleton_true' and side == 'r':
         cmds.delete('r_hip_tempJt')

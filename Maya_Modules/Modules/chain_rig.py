@@ -48,24 +48,36 @@ def create_main_window():
 
     spline_type_options = cmds.optionMenuGrp(label='Spline Type: ',
                                            changeCommand=partial(change_spline_type,
-                                                                 control_int_slider,
-                                                                 start_color_slider,
-                                                                 end_color_slider,
-                                                                 volume_preserve_checkbox))
+                                                                 intSlider=control_int_slider,
+                                                                 startColor=start_color_slider,
+                                                                 endColor=end_color_slider,
+                                                                 checkbox=volume_preserve_checkbox))
     cmds.menuItem(label='Cluster Controls')
     cmds.menuItem(label='Stretchy Spine')
 
     chain_btn = cmds.button(label='Create Chain !',
                             command=partial(execute_chain,
-                                            joint_chain_options, start_joint_text, end_joint_text, bone_int_slider,
-                                            spline_type_options, control_int_slider, start_color_slider, end_color_slider,
+                                            joint_chain_options,
+                                            start_joint_text,
+                                            end_joint_text,
+                                            bone_int_slider,
+                                            spline_type_options,
+                                            control_int_slider,
+                                            start_color_slider,
+                                            end_color_slider,
                                             volume_preserve_checkbox),
                             parent=form)
 
     apply_btn = cmds.button(label='Apply',
                            command=partial(apply_chain,
-                                           joint_chain_options, start_joint_text, end_joint_text, bone_int_slider,
-                                           spline_type_options, control_int_slider, start_color_slider, end_color_slider,
+                                           joint_chain_options,
+                                           start_joint_text,
+                                           end_joint_text,
+                                           bone_int_slider,
+                                           spline_type_options,
+                                           control_int_slider,
+                                           start_color_slider,
+                                           end_color_slider,
                                            volume_preserve_checkbox),
                            parent=form)
 
@@ -145,7 +157,11 @@ def change_joint_chain(bone_int_slider, *args):
         cmds.intSliderGrp(bone_int_slider, edit=1, visible=0)
 
 
-def change_spline_type(control_int_slider, start_color_slider, end_color_slider, volume_preserve_checkbox, *args):
+def change_spline_type(*args, **kwargs):
+    control_int_slider = kwargs.setdefault("intSlider")
+    start_color_slider = kwargs.setdefault("startColor")
+    end_color_slider = kwargs.setdefault("endColor")
+    volume_preserve_checkbox = kwargs.setdefault("checkbox")
     if args[0] == 'Cluster Controls':
         cmds.intSliderGrp(control_int_slider, edit=1, visible=1)
         cmds.colorSliderGrp(start_color_slider, edit=1, visible=1)
@@ -158,19 +174,39 @@ def change_spline_type(control_int_slider, start_color_slider, end_color_slider,
         cmds.checkBoxGrp(volume_preserve_checkbox, edit=1, visible=1)
 
 
-def execute_chain(joint_chain_options, start_joint_text, end_joint_text, bone_int_slider, spline_type_options,
+def execute_chain(joint_chain_options,
+                  start_joint_text,
+                  end_joint_text,
+                  bone_int_slider,
+                  spline_type_options,
                   control_int_slider,
-                  start_color_slider, end_color_slider, volume_preserve_checkbox, *args):
+                  start_color_slider,
+                  end_color_slider,
+                  volume_preserve_checkbox,
+                  *args):
 
-    apply_chain(joint_chain_options, start_joint_text, end_joint_text, bone_int_slider,
-                spline_type_options, control_int_slider,
-                start_color_slider, end_color_slider, volume_preserve_checkbox)
+    apply_chain(joint_chain_options,
+                start_joint_text,
+                end_joint_text,
+                bone_int_slider,
+                spline_type_options,
+                control_int_slider,
+                start_color_slider,
+                end_color_slider,
+                volume_preserve_checkbox)
     close_window()
 
 
-def apply_chain(joint_chain_options, start_joint_text, end_joint_text, bone_int_slider, spline_type_options,
+def apply_chain(joint_chain_options,
+                start_joint_text,
+                end_joint_text,
+                bone_int_slider,
+                spline_type_options,
                 control_int_slider,
-                start_color_slider, end_color_slider, volume_preserve_checkbox, *args):
+                start_color_slider,
+                end_color_slider,
+                volume_preserve_checkbox,
+                *args):
 
     joint_chain_option = cmds.optionMenuGrp(joint_chain_options, q=1, value=1)
     start_joint = cmds.textFieldGrp(start_joint_text, q=1, text=1)
@@ -189,14 +225,27 @@ def apply_chain(joint_chain_options, start_joint_text, end_joint_text, bone_int_
         cmds.confirmDialog(title='Error', message="Start and end joints are identical.")
         return
 
-    create_spline(joint_chain_option, start_joint, end_joint, bone_count,
-                  spline_type_option, control_count,
-                  start_color, end_color, preserve_volume)
+    create_spline(chainOption=joint_chain_option,
+                  startJoint=start_joint,
+                  endJoint=end_joint,
+                  boneCount=bone_count,
+                  splineOption=spline_type_option,
+                  controlCount=control_count,
+                  startColor=start_color,
+                  endColor=end_color,
+                  volume=preserve_volume)
 
 
-def create_spline(joint_chain_option, start_joint, end_joint, bone_num,
-                  spline_type_option, handle_num,
-                  start_color, end_color, preserve_volume):
+def create_spline(**kwargs):
+    joint_chain_option = kwargs.setdefault("chainOption")
+    start_joint = kwargs.setdefault("startJoint")
+    end_joint = kwargs.setdefault("endJoint")
+    bone_num = kwargs.setdefault("boneCount")
+    spline_type_option = kwargs.setdefault("splineOption")
+    handle_num = kwargs.setdefault("controlCount")
+    start_color = kwargs.setdefault("startColor")
+    end_color = kwargs.setdefault("endColor")
+    preserve_volume = kwargs.setdefault("volume")
     joint_chain = None
     naming_prefix = None
 
@@ -218,9 +267,19 @@ def create_spline(joint_chain_option, start_joint, end_joint, bone_num,
         re_color_control(start_color, end_color, cluster_controls)
 
     elif spline_type_option == 'Stretchy Spine':
-        start_bind_joint, end_bind_joint, start_bind_control, end_bind_control = create_bind_joints(start_joint, end_joint, spline_curve)
+        start_bind_joint, end_bind_joint, start_bind_control, end_bind_control = create_bind_joints(
+            start_joint,
+            end_joint,
+            spline_curve)
+
         make_stretchy(spline_curve, joint_chain, preserve_volume)
-        cmds.group(spline_ik_handle, spline_curve, start_bind_joint, end_bind_joint, start_bind_control, end_bind_control, name='str_all_GRP')
+
+        cmds.group(spline_ik_handle,
+                   spline_curve,
+                   start_bind_joint,
+                   end_bind_joint,
+                   start_bind_control,
+                   end_bind_control, name='str_all_GRP')
 
 
 def create_joint_chain(start_joint, end_joint, bone_num):

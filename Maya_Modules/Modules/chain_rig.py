@@ -55,30 +55,30 @@ def create_main_window():
     cmds.menuItem(label='Cluster Controls')
     cmds.menuItem(label='Stretchy Spine')
 
-    chain_btn = cmds.button(label='Create Chain !',
+    chain_btn = cmds.button(label='Create Chain',
                             command=partial(execute_chain,
-                                            joint_chain_options,
-                                            start_joint_text,
-                                            end_joint_text,
-                                            bone_int_slider,
-                                            spline_type_options,
-                                            control_int_slider,
-                                            start_color_slider,
-                                            end_color_slider,
-                                            volume_preserve_checkbox),
+                                            chainOption=joint_chain_options,
+                                            startJoint=start_joint_text,
+                                            endJoint=end_joint_text,
+                                            boneIntSlider=bone_int_slider,
+                                            splineType=spline_type_options,
+                                            controlIntSlider=control_int_slider,
+                                            startColor=start_color_slider,
+                                            endColor=end_color_slider,
+                                            checkbox=volume_preserve_checkbox),
                             parent=form)
 
     apply_btn = cmds.button(label='Apply',
                            command=partial(apply_chain,
-                                           joint_chain_options,
-                                           start_joint_text,
-                                           end_joint_text,
-                                           bone_int_slider,
-                                           spline_type_options,
-                                           control_int_slider,
-                                           start_color_slider,
-                                           end_color_slider,
-                                           volume_preserve_checkbox),
+                                           chainOption=joint_chain_options,
+                                           startJoint=start_joint_text,
+                                           endJoint=end_joint_text,
+                                           boneIntSlider=bone_int_slider,
+                                           splineType=spline_type_options,
+                                           controlIntSlider=control_int_slider,
+                                           startColor=start_color_slider,
+                                           endColor=end_color_slider,
+                                           checkbox=volume_preserve_checkbox),
                            parent=form)
 
     close_btn = cmds.button(label='Close', command=partial(close_window), parent=form)
@@ -174,49 +174,29 @@ def change_spline_type(*args, **kwargs):
         cmds.checkBoxGrp(volume_preserve_checkbox, edit=1, visible=1)
 
 
-def execute_chain(joint_chain_options,
-                  start_joint_text,
-                  end_joint_text,
-                  bone_int_slider,
-                  spline_type_options,
-                  control_int_slider,
-                  start_color_slider,
-                  end_color_slider,
-                  volume_preserve_checkbox,
-                  *args):
-
-    apply_chain(joint_chain_options,
-                start_joint_text,
-                end_joint_text,
-                bone_int_slider,
-                spline_type_options,
-                control_int_slider,
-                start_color_slider,
-                end_color_slider,
-                volume_preserve_checkbox)
+def execute_chain(**kwargs):
+    apply_chain(chainOption=kwargs.setdefault("chainOption"),
+                startJoint=kwargs.setdefault("startJoint"),
+                endJoint=kwargs.setdefault("endJoint"),
+                boneIntSlider=kwargs.setdefault("boneIntSlider"),
+                splineType=kwargs.setdefault("splineType"),
+                controlIntSlider=kwargs.setdefault("controlIntSlider"),
+                startColor=kwargs.setdefault("startColor"),
+                endColor=kwargs.setdefault("endColor"),
+                checkbox=kwargs.setdefault("checkbox"))
     close_window()
 
 
-def apply_chain(joint_chain_options,
-                start_joint_text,
-                end_joint_text,
-                bone_int_slider,
-                spline_type_options,
-                control_int_slider,
-                start_color_slider,
-                end_color_slider,
-                volume_preserve_checkbox,
-                *args):
-
-    joint_chain_option = cmds.optionMenuGrp(joint_chain_options, q=1, value=1)
-    start_joint = cmds.textFieldGrp(start_joint_text, q=1, text=1)
-    end_joint = cmds.textFieldGrp(end_joint_text, q=1, text=1)
-    bone_count = cmds.intSliderGrp(bone_int_slider, q=1, value=1)
-    spline_type_option = cmds.optionMenuGrp(spline_type_options, q=1, value=1)
-    control_count = cmds.intSliderGrp(control_int_slider, q=1, value=1)
-    start_color = cmds.colorSliderGrp(start_color_slider, q=1, rgbValue=1)
-    end_color = cmds.colorSliderGrp(end_color_slider, q=1, rgbValue=1)
-    preserve_volume = cmds.checkBoxGrp(volume_preserve_checkbox, q=1, value1=1)
+def apply_chain(**kwargs):
+    joint_chain_option = cmds.optionMenuGrp(kwargs.setdefault("chainOption"), q=1, value=1)
+    start_joint = cmds.textFieldGrp(kwargs.setdefault("startJoint"), q=1, text=1)
+    end_joint = cmds.textFieldGrp(kwargs.setdefault("endJoint"), q=1, text=1)
+    bone_count = cmds.intSliderGrp(kwargs.setdefault("boneIntSlider"), q=1, value=1)
+    spline_type_option = cmds.optionMenuGrp(kwargs.setdefault("splineType"), q=1, value=1)
+    control_count = cmds.intSliderGrp(kwargs.setdefault("controlIntSlider"), q=1, value=1)
+    start_color = cmds.colorSliderGrp(kwargs.setdefault("startColor"), q=1, rgbValue=1)
+    end_color = cmds.colorSliderGrp(kwargs.setdefault("endColor"), q=1, rgbValue=1)
+    preserve_volume = cmds.checkBoxGrp(kwargs.setdefault("checkbox"), q=1, value1=1)
 
     if start_joint == '' or end_joint == '':
         cmds.confirmDialog(title='Error', message="Please fill in all text fields.")
@@ -234,6 +214,7 @@ def apply_chain(joint_chain_options,
                   startColor=start_color,
                   endColor=end_color,
                   volume=preserve_volume)
+    close_window()
 
 
 def create_spline(**kwargs):
@@ -247,7 +228,7 @@ def create_spline(**kwargs):
     end_color = kwargs.setdefault("endColor")
     preserve_volume = kwargs.setdefault("volume")
     joint_chain = None
-    naming_prefix = None
+    # naming_prefix = None
 
     if joint_chain_option == 'Create From Start/End Joints':
         joint_chain = create_joint_chain(start_joint, end_joint, bone_num)
@@ -279,7 +260,8 @@ def create_spline(**kwargs):
                    start_bind_joint,
                    end_bind_joint,
                    start_bind_control,
-                   end_bind_control, name='str_all_GRP')
+                   end_bind_control,
+                   name='str_all_GRP')
 
 
 def create_joint_chain(start_joint, end_joint, bone_num):
@@ -388,7 +370,7 @@ def cluster_curve(spline_curve):
 
 def re_connect_joints(start_joint, end_joint, joint_chain, clusters):
     cmds.pointConstraint(start_joint, clusters[0], maintainOffset=1)
-    # Unparent end joint, point constrain to spline IK handle
+    # UnParent end joint, point constrain to spline IK handle
     cmds.parent(end_joint, world=1)
     cmds.pointConstraint(joint_chain[len(joint_chain) - 1], end_joint, maintainOffset=1)
 
@@ -493,5 +475,3 @@ def make_stretchy(curve, joint_chain, preserve_volume):
         if preserve_volume:
             cmds.connectAttr(power_div + '.outputX', joint + '.scaleY')
             cmds.connectAttr(power_div + '.outputX', joint + '.scaleZ')
-
-

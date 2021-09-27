@@ -9,7 +9,7 @@ from functools import partial
 import animal_rig
 import importlib
 importlib.reload(animal_rig)
-window = animal_rig.AutoRig_OptionsWindow()
+window = animal_rig.generate_rig_window()
 window.create()
 """
 
@@ -31,45 +31,45 @@ class generate_rig_window(object):
             widthHeight=self.size,
             menuBar=True
         )
-        self.commonMenu()
+        self.show_common_menu()
         mc.showWindow()
 
-    def commonMenu(self):
-        self.editMenu = mc.menu(label='Edit')
-        self.editMenuDiv = mc.menuItem(d=True)
-        self.editMenuskelRadio = mc.radioMenuItemCollection()
-        self.editMenuTool = mc.menuItem(
+    def show_common_menu(self):
+        self.edit_menu = mc.menu(label='Edit')
+        self.edit_menu_division = mc.menuItem(d=True)
+        self.edit_menu_skeleton_radio = mc.radioMenuItemCollection()
+        self.edit_menu_tool = mc.menuItem(
             label='As Tool',
             radioButton=True,
             enable=self.supportsToolAction,
-            command=self.editMenuToolCmd
+            command=self.edit_menu_tool_command
         )
-        self.helpMenu = mc.menu(label='Help')
-        self.helpMenuItem = mc.menuItem(label='Help on %s' % self.title, command=self.helpMenuCmd)
+        self.help_menu = mc.menu(label='Help')
+        self.help_menu_item = mc.menuItem(label='Help on %s' % self.title, command=self.help_menu_command)
 
         mc.columnLayout(columnAttach=('both', 2), rowSpacing=4, columnWidth=340)
         mc.text("QUADRUPED CHARACTER", align="center")
         mc.text("")
         mc.text("Step 1: Create quadruped skeleton")
-        self.buttonSkelQuad = mc.button(label='Quadruped Skeleton',
-                                        command=self.skeletonButton_Q,
-                                        width=120, height=40)
+        self.button_skeleton_quad = mc.button(label='Quadruped Skeleton',
+                                              command=self.create_skeleton,
+                                              width=120, height=40)
 
         mc.text("  ")
         mc.text("Step 2: Create Legs control")
         mc.text("____________________________________")
         mc.text(label='REAR BODY CONTROL', align='center')
         buttonMirrorJoints = mc.button(label='Mirror Joints',
-                                       command=self.MirrorJoints,
+                                       command=self.mirror_joints,
                                        width=120, height=40)
         buttonRigFrontLegsCtrl = mc.button(label='Front Legs Control',
-                                           command=self.Front_Legs_Control,
+                                           command=self.front_legs_control,
                                            width=120, height=40)
         buttonRigRearLegsCtrl = mc.button(label='Rear Legs Control',
-                                          command=self.Rear_Legs_Control,
+                                          command=self.rear_legs_control,
                                           width=120, height=40)
         buttonRigSpineCtrl = mc.button(label='Spine Control',
-                                       command=self.Spine_Control,
+                                       command=self.spine_control,
                                        width=120, height=40,
                                        align="center")
 
@@ -78,51 +78,51 @@ class generate_rig_window(object):
         mc.text("__________________________________")
         mc.text(label='FRONT BODY CONTROL', align='center')
         buttonRigNeckCtrl = mc.button(label='Neck Control',
-                                      command=self.Neck_Control,
+                                      command=self.neck_control,
                                       width=120, height=40)
         buttonRigHeadCtrl = mc.button(label='Head Control',
-                                      command=self.Head_Control,
+                                      command=self.head_control,
                                       width=120, height=40)
         buttonRigJawCtrl = mc.button(label="Jaw Control",
-                                     command=self.Jaw_Control,
+                                     command=self.jaw_control,
                                      width=120, height=40)
         buttonRigTongueCtrl = mc.button(label="Tongue Control",
-                                        command=self.Tongue_Control,
+                                        command=self.tongue_control,
                                         width=120, height=40)
 
         mc.text("   ")
         mc.text("Step 4: Create Tail Control")
         buttonRigTailCtrl = mc.button(label="Tail Control",
-                                      command=self.Tail_Control,
+                                      command=self.tail_control,
                                       width=120, height=40)
         mc.text("   ")
         mc.text("Step 5: Create Master control")
         mc.text(label='MASTER CONTROL', align='center')
         buttonMainCtrl = mc.button(label='Master Control',
-                                   command=self.Master_Control,
+                                   command=self.master_control,
                                    width=120, height=40,
                                    align='center')
         closeButton = mc.button(label="Close",
-                                command=self.closeWindow,
+                                command=self.close_window,
                                 width=120, height=40,
                                 align='center')
 
-    def closeWindow(self, *args):
+    def close_window(self, *args):
         if mc.window(self.window, exists=True):
             mc.deleteUI(self.window, window=True);
 
-    def skeletonButton_Q(*args, **kwargs):
-        skeletonQT = animal_skeleton()
-        skeletonQT.__CreateFrontLegsSkeleton__()
-        skeletonQT.__CreateSpineSkeleton__()
-        skeletonQT.__CreateBackLegsSkeleton__()
-        skeletonQT.__Tail__()
-        skeletonQT.__Head__()
-        skeletonQT.__Jaw__()
-        skeletonQT.__Ears__()
-        skeletonQT.__Tongue__()
+    def create_skeleton(*args, **kwargs):
+        skeleton = animal_skeleton()
+        skeleton.__create_front_legs_skeleton__()
+        skeleton.__create_spine_skeleton__()
+        skeleton.__create_back_legs_skeleton__()
+        skeleton.__create_tail_skeleton__()
+        skeleton.__create_head_skeleton__()
+        skeleton.__create_jaw_skeleton__()
+        skeleton.__create_ears_skeleton__()
+        skeleton.__create_tongue_skeleton__()
 
-    def CreateMiddleLegsSkeleton(self, *args, **kwargs):
+    def create_middle_legs_skeleton(self, *args, **kwargs):
         mc.select("B03")
         self.M_PelvicJoint = mc.joint(name="L_Middle_Pelvis_Jt", position=(-0.037, 7.297, -1.41))
         mc.joint(name="L_Middle_Pelvis_Jt", edit=True, zso=True, oj="xyz", sao="yup")
@@ -135,36 +135,36 @@ class generate_rig_window(object):
         self.M_Toe02Joint = mc.joint(name="L_Middle_Toe02_Jt", position=(0.896, -0.093, -1.432))
         mc.joint(name="L_Middle_Toe02_Jt", edit=True, zso=True, oj="xyz", sao="yup")
 
-    def MirrorJoints(self, *args):
+    def mirror_joints(self, *args):
         mc.select('A_Front_Hip_Jt')
-        self.MirrorEachJoint = mc.mirrorJoint('L_Front_Shoulder_Jt', mirrorXY=True,
-                                              mirrorBehavior=True,
-                                              searchReplace=('L_', 'R_'))
+        self.mirror_each_joint = mc.mirrorJoint('L_Front_Shoulder_Jt', mirrorXY=True,
+                                                mirrorBehavior=True,
+                                                searchReplace=('L_', 'R_'))
         mc.select('B_Back_Hip_Jt')
-        self.MirrorEachJoint = mc.mirrorJoint('L_Back_Pelvic_Jt', mirrorXY=True,
-                                              mirrorBehavior=True,
-                                              searchReplace=('L_', 'R_'))
+        self.mirror_each_joint = mc.mirrorJoint('L_Back_Pelvic_Jt', mirrorXY=True,
+                                                mirrorBehavior=True,
+                                                searchReplace=('L_', 'R_'))
         mc.select("Head_Jt")
-        self.MirrorEachJoint = mc.mirrorJoint("L_Ear_Jt", mirrorXY=True,
-                                              mirrorBehavior=True,
-                                              searchReplace=("L_", "R_"))
+        self.mirror_each_joint = mc.mirrorJoint("L_Ear_Jt", mirrorXY=True,
+                                                mirrorBehavior=True,
+                                                searchReplace=("L_", "R_"))
 
-    def helpMenuCmd(self, *args):
+    def help_menu_command(self, *args):
         mc.launch(web='http://www.maya-python.com/')
 
-    def editMenuSaveCmd(self, *args):
+    def edit_menu_save_command(self, *args):
         pass
 
-    def editMenuResetCmd(self, *args):
+    def edit_menu_reset_command(self, *args):
         pass
 
-    def editMenuToolCmd(self, *args):
+    def edit_menu_tool_command(self, *args):
         pass
 
-    def editMenuActionCmd(self, *args):
+    def edit_menu_action_command(self, *args):
         pass
 
-    def Front_Legs_Control(*args, **kwargs):
+    def front_legs_control(*args, **kwargs):
         prefix_L = "L"
         prefix_R = "R"
         prefix = "_"
@@ -438,7 +438,7 @@ class generate_rig_window(object):
             # mc.setAttr(prefix_R+"_Shoulder_Ctrl.rotate", lock=True)
         return Left_Foot, Right_Foot
 
-    def Rear_Legs_Control(*args, **kwargs):
+    def rear_legs_control(*args, **kwargs):
         prefix_L = "L"
         prefix_R = "R"
         prefix = "_"
@@ -659,7 +659,7 @@ class generate_rig_window(object):
         mc.setAttr(prefix_R + "_Back_Foot_Ctrl.scale", lock=True)
         return Left_Foot, Right_Foot
 
-    def Spine_Control(*args, **kwargs):
+    def spine_control(*args, **kwargs):
         prefix = "_"
         # Near Spine
         rearSpineControl = [mc.curve(name="Rear_Spine" + prefix + "Ctrl", d=3,
@@ -770,7 +770,7 @@ class generate_rig_window(object):
         mc.group("L_Shoulder_Ctrl", "R_Shoulder_Ctrl", name="GRP_Shoulder_Ctrl")
         mc.parent("GRP_Shoulder_Ctrl", "Front_Spine_Ctrl")
 
-    def Neck_Control(*args, **kwargs):
+    def neck_control(*args, **kwargs):
         NeckJt = "Neck_Jt"
         NeckCtrl = [mc.curve(name="Neck_Ctrl", degree=3,
                              point=[(-0.801407, 0, 0.00716748), (-0.802768, 0.023587, -0.220859),
@@ -792,7 +792,7 @@ class generate_rig_window(object):
         lockTranslation = mc.setAttr("Neck_Ctrl.translate", lock=True)
         return NeckCtrl, NeckJt
 
-    def Head_Control(*args, **kwargs):
+    def head_control(*args, **kwargs):
         HeadJt = "Head_Jt"
         HeadCtrl = [mc.circle(name="Head_Ctrl"),
                     mc.setAttr("Head_Ctrl.overrideColor", 18),
@@ -865,7 +865,7 @@ class generate_rig_window(object):
             mc.parent("GRP_R_Ear_Ctrl", "Head_Ctrl")
         return HeadCtrl, HeadJt
 
-    def Jaw_Control(*args, **kwargs):
+    def jaw_control(*args, **kwargs):
         prefix = "_"
         JawJt = "Lower_Jaw_Jt"
         JawCtrl = [mc.curve(name="Jaw" + prefix + "Ctrl", d=1,
@@ -894,7 +894,7 @@ class generate_rig_window(object):
             mc.setAttr("Jaw" + prefix + "Ctrl.scale", lock=True),
             mc.setAttr("Jaw" + prefix + "Ctrl.translate", lock=True)
 
-    def Tongue_Control(*args, **kwargs):
+    def tongue_control(*args, **kwargs):
         tongueJoints = ["First_Tongue_Jt", "Second_Tongue_Jt", "Third_Tongue_Jt", "Fourth_Tongue_Jt", "Fifth_Tongue_Jt"]
         for tongueRing in range(len(tongueJoints)):
             controls = [mc.circle(name="Tongue_Ctrl_" + str(tongueRing)), mc.scale(0.5, 0.3, 0.5),
@@ -915,7 +915,7 @@ class generate_rig_window(object):
             mc.setAttr("Tongue_Ctrl_" + str(lock) + ".scale", lock=True),
             mc.setAttr("Tongue_Ctrl_" + str(lock) + ".translate", lock=True)
 
-    def Tail_Control(*args, **kwargs):
+    def tail_control(*args, **kwargs):
         tailJoints = ["Tail_Jt_A", "Tail_Jt_B", "Tail_Jt_C", "Tail_Jt_D", "Tail_Jt_E"]
         for tailRing in range(len(tailJoints)):
             controls = [mc.curve(name="Tail_Ctrl_" + str(tailRing), d=3,
@@ -946,7 +946,7 @@ class generate_rig_window(object):
             mc.setAttr("Tail_Ctrl_" + str(lock) + ".translate", lock=True)
         return tailJoints
 
-    def Master_Control(*args, **kwargs):
+    def master_control(*args, **kwargs):
         mc.circle(name="Tiger_Ctrl")
         mc.scale(8.77, 8.77, 8.77)
         mc.setAttr("Tiger_Ctrl.rotateX", 90)
@@ -974,7 +974,7 @@ class generate_rig_window(object):
 Animal Skeleton Class
 """
 class animal_skeleton(object):
-    def __CreateFrontLegsSkeleton__(self):
+    def __create_front_legs_skeleton__(self):
         self.F_HipJoint = mc.joint(name='A_Front_Hip_Jt', position=(4.086, 8.755, 0.002))
         mc.joint('A_Front_Hip_Jt', edit=True, zso=True, oj='xyz')
         self.F_ShoulderJoint = mc.joint(name='L_Front_Shoulder_Jt', position=(3.76, 6.725, -1.448))
@@ -989,7 +989,7 @@ class animal_skeleton(object):
         mc.joint('L_Front_Toe_Jt', edit=True, zso=True, oj='xyz')
         mc.select('A_Front_Hip_Jt')
 
-    def __CreateSpineSkeleton__(self):
+    def __create_spine_skeleton__(self):
         mc.select('A_Front_Hip_Jt')
         self.Backbone_01 = mc.joint(name='B01', position=(2.064, 8.829, 0.041))
         mc.joint('B01', edit=True, zso=True, oj='xyz', sao='yup')
@@ -1002,7 +1002,7 @@ class animal_skeleton(object):
         self.BackHipJoint = mc.joint(name='B_Back_Hip_Jt', position=(-5.321, 8.599, 0.04))
         mc.joint('B_Back_Hip_Jt', edit=True, zso=True, oj='xyz', sao='yup')
 
-    def __CreateBackLegsSkeleton__(self):
+    def __create_back_legs_skeleton__(self):
         mc.select('B_Back_Hip_Jt')
         self.B_PelvicJoint = mc.joint(name='L_Back_Pelvic_Jt', position=(-4.754, 7.296, -1.494))
         mc.joint(name='L_Back_Pelvic_Jt', edit=True, zso=True, oj='xyz', sao='yup')
@@ -1015,7 +1015,7 @@ class animal_skeleton(object):
         self.B_Toe02Joint = mc.joint(name='L_Back_Toe02_Jt', position=(-4.992, -0.103, -1.449))
         mc.joint(name='L_Back_Toe02_Jt', edit=True, zso=True, oj='xyz', sao='yup')
 
-    def __Tail__(self):
+    def __create_tail_skeleton__(self):
         mc.select('B_Back_Hip_Jt')
         self.A_TailJoint = mc.joint(name='Tail_Jt_A', position=(-6.141, 8.196, 0))
         mc.joint(name='Tail_Jt_A', edit=True, zso=True, oj='xyz', sao='yup')
@@ -1030,7 +1030,7 @@ class animal_skeleton(object):
         self.F_TailJoint = mc.joint(name='Tail_Jt_F', position=(-9.866, 8.115, 0))
         mc.joint(name='Tail_Jt_F', edit=True, zso=True, oj='xyz', sao='yup')
 
-    def __Head__(self):
+    def __create_head_skeleton__(self):
         mc.select('A_Front_Hip_Jt')
         self.NeckJoint = mc.joint(name='Neck_Jt', position=(6.016, 9.717, 0))
         mc.joint(name='Neck_Jt', edit=True, zso=True, oj='xyz', sao='yup')
@@ -1040,21 +1040,21 @@ class animal_skeleton(object):
         mc.joint(name='Jaw_Jt', edit=True, zso=True, oj='xyz', sao='yup')
         mc.select("A_Front_Hip_Jt")
 
-    def __Ears__(self):
+    def __create_ears_skeleton__(self):
         mc.select("Head_Jt")
         self.EarJoint = mc.joint(name="L_Ear_Jt", position=(7.71, 12.503, -0.896))
         mc.joint(name="L_Ear_Jt", edit=True, zso=True, oj="xyz", sao="yup")
         self.EarJoint = mc.joint(name="L_Ear_Tip_Jt", position=(7.515, 13.229, -1.142))
         mc.joint(name="L_Ear_Tip_Jt", edit=True, zso=True, oj="xyz", sao="yup")
 
-    def __Jaw__(self):
+    def __create_jaw_skeleton__(self):
         mc.select("Head_Jt")
         self.LowerJawJoint = mc.joint(name="Lower_Jaw_Jt", position=(7.723, 10.89, 0.0))
         mc.joint(name="Lower_Jaw_Jt", edit=True, zso=True, oj="xyz", sao="yup")
         self.TipJawJoint = mc.joint(name="Tip_Jaw_Jt", position=(10.119, 9.707, 0.019))
         mc.joint(name="Tip_Jaw_Jt", edit=True, zso=True, oj="xyz", sao="yup")
 
-    def __Tongue__(self):
+    def __create_tongue_skeleton__(self):
         mc.select("Lower_Jaw_Jt")
         self.FirstTongueJoint = mc.joint(name="First_Tongue_Jt", position=(8.106, 11.268, 0.0))
         mc.joint(name="First_Tongue_Jt", edit=True, zso=True, oj="xyz", sao="yup")

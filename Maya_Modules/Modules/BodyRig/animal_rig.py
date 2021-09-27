@@ -35,7 +35,7 @@ class animal_rig_window(object):
         cmds.showWindow()
 
     def show_common_menu(self):
-        self.edit_menu = cmds.menu(label='Edit')
+        #self.edit_menu = cmds.menu(label='Edit')
         self.edit_menu_division = cmds.menuItem(d=True)
         self.edit_menu_skeleton_radio = cmds.radioMenuItemCollection()
         self.edit_menu_tool = cmds.menuItem(
@@ -44,31 +44,31 @@ class animal_rig_window(object):
             enable=self.supportsToolAction,
             command=self.edit_menu_tool_command
         )
-        self.help_menu = cmds.menu(label='Help')
-        self.help_menu_item = cmds.menuItem(label='Help on %s' % self.title, command=self.help_menu_command)
+        #self.help_menu = cmds.menu(label='Help')
+        #self.help_menu_item = cmds.menuItem(label='Help on %s' % self.title, command=self.help_menu_command)
 
         cmds.columnLayout(columnAttach=('both', 2), rowSpacing=4, columnWidth=340)
         cmds.text("QUADRUPED CHARACTER", align="center")
         cmds.text("  ")
         cmds.text("Step 1: Create quadruped skeleton")
-        self.button_skeleton_quad = cmds.button(label='Quadruped Skeleton',
-                                                command=partial(self.create_skeleton),
-                                                width=120, height=40)
+        self.button_skeleton_quadruped = cmds.button(label='Quadruped Skeleton',
+                                                     command=partial(self.create_skeleton),
+                                                     width=120, height=40)
 
         cmds.text("  ")
         cmds.text("Step 2: Create Legs control")
         cmds.text("____________________________________")
         cmds.text(label='REAR BODY CONTROL', align='center')
-        buttonMirrorJoints = cmds.button(label='Mirror Joints',
+        button_mirror_joints = cmds.button(label='Mirror Joints',
                                          command=partial(self.mirror_joints),
                                          width=120, height=40)
-        buttonRigFrontLegsCtrl = cmds.button(label='Front Legs Control',
+        button_rig_front_legs_ctrl = cmds.button(label='Front Legs Control',
                                              command=partial(self.front_legs_control),
                                              width=120, height=40)
-        buttonRigRearLegsCtrl = cmds.button(label='Rear Legs Control',
+        button_rig_rear_legs_ctrl = cmds.button(label='Rear Legs Control',
                                             command=partial(self.rear_legs_control),
                                             width=120, height=40)
-        buttonRigSpineCtrl = cmds.button(label='Spine Control',
+        button_rig_spine_ctrl = cmds.button(label='Spine Control',
                                          command=partial(self.spine_control),
                                          width=120, height=40,
                                          align="center")
@@ -77,32 +77,32 @@ class animal_rig_window(object):
         cmds.text("Step 3: Create Neck/Head controls")
         cmds.text("__________________________________")
         cmds.text(label='FRONT BODY CONTROL', align='center')
-        buttonRigNeckCtrl = cmds.button(label='Neck Control',
+        button_rig_neck_ctrl = cmds.button(label='Neck Control',
                                         command=partial(self.neck_control),
                                         width=120, height=40)
-        buttonRigHeadCtrl = cmds.button(label='Head Control',
+        button_rig_head_ctrl = cmds.button(label='Head Control',
                                         command=partial(self.head_control),
                                         width=120, height=40)
-        buttonRigJawCtrl = cmds.button(label="Jaw Control",
+        button_rig_jaw_ctrl = cmds.button(label="Jaw Control",
                                        command=partial(self.jaw_control),
                                        width=120, height=40)
-        buttonRigTongueCtrl = cmds.button(label="Tongue Control",
+        button_rig_tongue_ctrl = cmds.button(label="Tongue Control",
                                           command=partial(self.tongue_control),
                                           width=120, height=40)
 
         cmds.text("   ")
         cmds.text("Step 4: Create Tail Control")
-        buttonRigTailCtrl = cmds.button(label="Tail Control",
+        button_rig_tail_ctrl = cmds.button(label="Tail Control",
                                         command=partial(self.tail_control),
                                         width=120, height=40)
         cmds.text("   ")
         cmds.text("Step 5: Create Master control")
         cmds.text(label='MASTER CONTROL', align='center')
-        buttonMainCtrl = cmds.button(label='Master Control',
+        button_main_ctrl = cmds.button(label='Master Control',
                                      command=partial(self.master_control),
                                      width=120, height=40,
                                      align='center')
-        closeButton = cmds.button(label="Close",
+        close_button = cmds.button(label="Close",
                                   command=partial(self.close_window),
                                   width=120, height=40,
                                   align='center')

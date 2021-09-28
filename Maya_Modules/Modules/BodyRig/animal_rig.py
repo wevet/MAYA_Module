@@ -149,19 +149,7 @@ class animal_rig_window(object):
                                                   mirrorBehavior=True,
                                                   searchReplace=("L_", "R_"))
 
-    def help_menu_command(self, *args):
-        cmds.launch(web='http://www.maya-python.com/')
-
-    def edit_menu_save_command(self, *args):
-        pass
-
-    def edit_menu_reset_command(self, *args):
-        pass
-
     def edit_menu_tool_command(self, *args):
-        pass
-
-    def edit_menu_action_command(self, *args):
         pass
 
     def front_legs_control(*args, **kwargs):

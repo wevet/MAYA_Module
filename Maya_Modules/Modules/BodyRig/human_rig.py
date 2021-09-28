@@ -337,313 +337,308 @@ class human_rig_window(object):
 			pass
 
 	def arm_control(*args, **kwargs):
-		armListRight = ["R_Collarbone_Jt", "R_Shoulder_Jt", "R_Wrist_Jt"]
-		armListLeft = ["L_Collarbone_Jt", "L_Shoulder_Jt", "L_Wrist_Jt"]
-		armCtrl = True
-		cmds.ikHandle(name="R_ArmCtrl", startJoint=armListRight[1],
-					  endEffector=armListRight[2], solver="ikRPsolver", parentCurve=False)
-		cmds.ikHandle(name="L_ArmCtrl", startJoint=armListLeft[1],
-					  endEffector=armListLeft[2], solver="ikRPsolver", parentCurve=False)
+		arm_list_right = ["R_Collarbone_Jt", "R_Shoulder_Jt", "R_Wrist_Jt"]
+		arm_list_left = ["L_Collarbone_Jt", "L_Shoulder_Jt", "L_Wrist_Jt"]
+		arm_ctrl = True
+		cmds.ikHandle(name="R_ArmCtrl", startJoint=arm_list_right[1],
+					  endEffector=arm_list_right[2], solver="ikRPsolver", parentCurve=False)
+		cmds.ikHandle(name="L_ArmCtrl", startJoint=arm_list_left[1],
+					  endEffector=arm_list_left[2], solver="ikRPsolver", parentCurve=False)
 
 		#Right arm fk controls
-		for i in range(len(armListRight)):
+		for i in range(len(arm_list_right)):
 			controls = [cmds.CreateNURBSCircle()]
 			cmds.rename('nurbsCircle1', 'Fk_R_ForeArm_' + str(i))
-			if i in range(len(armListRight)):
-				scaleNurbs = 0.5
+			if i in range(len(arm_list_right)):
+				scale_nurbs = 0.5
 				cmds.rotate("-45deg", 0, 0, "Fk_R_ForeArm_" + str(i))
-				cmds.scale(scaleNurbs, scaleNurbs, scaleNurbs)
+				cmds.scale(scale_nurbs, scale_nurbs, scale_nurbs)
 		
 		#Left arm fk controls
-		for i in range(len(armListLeft)):
+		for i in range(len(arm_list_left)):
 			controls = [cmds.CreateNURBSCircle()]
 			cmds.rename('nurbsCircle1', 'Fk_L_ForeArm_' + str(i))
-			if i in range(len(armListLeft)):
-				scaleNurbs = 0.5
+			if i in range(len(arm_list_left)):
+				scale_nurbs = 0.5
 				cmds.rotate("45deg", 0, 0, "Fk_L_ForeArm_" + str(i))
-				cmds.scale(scaleNurbs, scaleNurbs, scaleNurbs)
+				cmds.scale(scale_nurbs, scale_nurbs, scale_nurbs)
 		
-		#Fk Arms
-		FKarmR = ["Fk_R_ForeArm_0", "Fk_R_ForeArm_1", "Fk_R_ForeArm_2"]
-		FKarmL = ["Fk_L_ForeArm_0", "Fk_L_ForeArm_1", "Fk_L_ForeArm_2"]
+		fk_arm_right = ["Fk_R_ForeArm_0", "Fk_R_ForeArm_1", "Fk_R_ForeArm_2"]
+		fk_arm_left = ["Fk_L_ForeArm_0", "Fk_L_ForeArm_1", "Fk_L_ForeArm_2"]
 		
 		#Right Arm
-		if armCtrl:
-			if FKarmR[0] is "Fk_R_ForeArm_0":
+		if arm_ctrl:
+			if fk_arm_right[0] is "Fk_R_ForeArm_0":
 				#Collar Bone
-				valRcolar = cmds.xform(armListRight[0], query=True, ws=True, translation=True)
-				cmds.xform(FKarmR[0], ws=1, t=(valRcolar[0], valRcolar[1], valRcolar[2]))
-				cmds.rotate(0, 0, "90deg", FKarmR[0])
-				orient = cmds.orientConstraint(FKarmR[0], armListRight[0], mo=True)
-				parent = cmds.parentConstraint(FKarmR[0], armListRight[0], mo=True)
-				cmds.parent(FKarmR[0], "Ik_shoulder_ctrl")
-
-			if FKarmR[1] is "Fk_R_ForeArm_1":
+				val_right_collar = cmds.xform(arm_list_right[0], query=True, ws=True, translation=True)
+				cmds.xform(fk_arm_right[0], ws=1, t=(val_right_collar[0], val_right_collar[1], val_right_collar[2]))
+				cmds.rotate(0, 0, "90deg", fk_arm_right[0])
+				orient = cmds.orientConstraint(fk_arm_right[0], arm_list_right[0], mo=True)
+				parent = cmds.parentConstraint(fk_arm_right[0], arm_list_right[0], mo=True)
+				cmds.parent(fk_arm_right[0], "Ik_shoulder_ctrl")
+			if fk_arm_right[1] is "Fk_R_ForeArm_1":
 				#Shoulder Bone
-				valRshoulder = cmds.xform(armListRight[1], query=True, ws=True, translation=True)
-				cmds.xform(FKarmR[1], ws=1, t=(valRshoulder[0], valRshoulder[1], valRshoulder[2]))
-				orient = cmds.orientConstraint(FKarmR[1], armListRight[1], mo=True)
-				parent = cmds.parentConstraint(FKarmR[1], armListRight[1], mo=True)
-				cmds.parent(FKarmR[1], "Ik_shoulder_ctrl")
-
-			if FKarmR[2] is "Fk_R_ForeArm_2":
+				val_right_shoulder = cmds.xform(arm_list_right[1], query=True, ws=True, translation=True)
+				cmds.xform(fk_arm_right[1], ws=1, t=(val_right_shoulder[0], val_right_shoulder[1], val_right_shoulder[2]))
+				orient = cmds.orientConstraint(fk_arm_right[1], arm_list_right[1], mo=True)
+				parent = cmds.parentConstraint(fk_arm_right[1], arm_list_right[1], mo=True)
+				cmds.parent(fk_arm_right[1], "Ik_shoulder_ctrl")
+			if fk_arm_right[2] is "Fk_R_ForeArm_2":
 				#Wrist Bone
-				valRwrist = cmds.xform(armListRight[2], query=True, ws=True, translation=True)
-				cmds.xform(FKarmR[2], ws=1, t=(valRwrist[0], valRwrist[1], valRwrist[2]))
-				orient = cmds.orientConstraint(FKarmR[2], armListRight[2], mo=True)
-				parent = cmds.parent("R_ArmCtrl", FKarmR[2])
-				cmds.parent(FKarmR[2], "Ik_shoulder_ctrl")
-				cmds.parent(FKarmR[2], FKarmR[1])
+				val_right_wrist = cmds.xform(arm_list_right[2], query=True, ws=True, translation=True)
+				cmds.xform(fk_arm_right[2], ws=1, t=(val_right_wrist[0], val_right_wrist[1], val_right_wrist[2]))
+				orient = cmds.orientConstraint(fk_arm_right[2], arm_list_right[2], mo=True)
+				parent = cmds.parent("R_ArmCtrl", fk_arm_right[2])
+				cmds.parent(fk_arm_right[2], "Ik_shoulder_ctrl")
+				cmds.parent(fk_arm_right[2], fk_arm_right[1])
 			else:
-				return FKarmR
+				return fk_arm_right
 
 		#Left Arm
-		if armCtrl:
-			if FKarmL[0] is "Fk_L_ForeArm_0":
+		if arm_ctrl:
+			if fk_arm_left[0] is "Fk_L_ForeArm_0":
 				#Collar Bone
-				valRcolar = cmds.xform(armListLeft[0], query=True, ws=True, translation=True)
-				cmds.xform(FKarmL[0], ws=1, t=(valRcolar[0], valRcolar[1], valRcolar[2]))
-				cmds.rotate(0, 0, "90deg", FKarmL[0])
-				orient = cmds.orientConstraint(FKarmL[0], armListLeft[0], mo=True)
-				parent = cmds.parentConstraint(FKarmL[0], armListLeft[0], mo=True)
-				cmds.parent(FKarmL[0], "Ik_shoulder_ctrl")
-
-			if FKarmL[1] is "Fk_L_ForeArm_1":
+				val_right_collar = cmds.xform(arm_list_left[0], query=True, ws=True, translation=True)
+				cmds.xform(fk_arm_left[0], ws=1, t=(val_right_collar[0], val_right_collar[1], val_right_collar[2]))
+				cmds.rotate(0, 0, "90deg", fk_arm_left[0])
+				orient = cmds.orientConstraint(fk_arm_left[0], arm_list_left[0], mo=True)
+				parent = cmds.parentConstraint(fk_arm_left[0], arm_list_left[0], mo=True)
+				cmds.parent(fk_arm_left[0], "Ik_shoulder_ctrl")
+			if fk_arm_left[1] is "Fk_L_ForeArm_1":
 				#Shoulder Bone
-				valRshoulder = cmds.xform(armListLeft[1], query=True, ws=True, translation=True)
-				cmds.xform(FKarmL[1], ws=1, t=(valRshoulder[0], valRshoulder[1], valRshoulder[2]))
-				orient = cmds.orientConstraint(FKarmL[1], armListLeft[1], mo=True)
-				parent = cmds.parentConstraint(FKarmL[1], armListLeft[1], mo=True)
-				cmds.parent(FKarmL[1], "Ik_shoulder_ctrl")
-
-			if FKarmL[2] is "Fk_L_ForeArm_2":
+				val_right_shoulder = cmds.xform(arm_list_left[1], query=True, ws=True, translation=True)
+				cmds.xform(fk_arm_left[1], ws=1, t=(val_right_shoulder[0], val_right_shoulder[1], val_right_shoulder[2]))
+				orient = cmds.orientConstraint(fk_arm_left[1], arm_list_left[1], mo=True)
+				parent = cmds.parentConstraint(fk_arm_left[1], arm_list_left[1], mo=True)
+				cmds.parent(fk_arm_left[1], "Ik_shoulder_ctrl")
+			if fk_arm_left[2] is "Fk_L_ForeArm_2":
 				#Wrist Bone
-				valRwrist = cmds.xform(armListLeft[2], query=True, ws=True, translation=True)
-				cmds.xform(FKarmL[2], ws=1, t=(valRwrist[0], valRwrist[1], valRwrist[2]))
-				orient = cmds.orientConstraint(FKarmL[2], armListLeft[2], mo=True)
-				parent = cmds.parent("L_ArmCtrl", FKarmL[2])
-				cmds.parent(FKarmL[2], "Ik_shoulder_ctrl")
-				cmds.parent(FKarmL[2], FKarmL[1])
+				val_right_wrist = cmds.xform(arm_list_left[2], query=True, ws=True, translation=True)
+				cmds.xform(fk_arm_left[2], ws=1, t=(val_right_wrist[0], val_right_wrist[1], val_right_wrist[2]))
+				orient = cmds.orientConstraint(fk_arm_left[2], arm_list_left[2], mo=True)
+				parent = cmds.parent("L_ArmCtrl", fk_arm_left[2])
+				cmds.parent(fk_arm_left[2], "Ik_shoulder_ctrl")
+				cmds.parent(fk_arm_left[2], fk_arm_left[1])
 			else:
-				return FKarmL
+				return fk_arm_left
 					
 		#Right elbow control
-		elbowRight = 'R_Elbow_Jt'
-		rightElbowCtrl = [cmds.CreateNURBSCircle(),
+		elbow_right = 'R_Elbow_Jt'
+		right_elbow_ctrl = [cmds.CreateNURBSCircle(),
 						  cmds.scale(0.3, 0.3, 0.3),
 						  cmds.select("nurbsCircle1"),
 						  cmds.rename("nurbsCircle1", 'R_ElbowCtrl'),
 						  cmds.setAttr('R_ElbowCtrl.rz', 90)]
-		cmds.xform(elbowRight + ".tx", elbowRight + ".ty", elbowRight + ".tz")
-		valElbow = cmds.xform(elbowRight, query=True, ws=True, translation=True)
-		cmds.xform(rightElbowCtrl[0], ws=1, t=(valElbow[0] - 0.6, valElbow[1], valElbow[2]))
-		if rightElbowCtrl:
-			cmds.poleVectorConstraint(rightElbowCtrl[3], 'R_ArmCtrl')
-			cmds.parent(rightElbowCtrl[3], FKarmR[2])
+		cmds.xform(elbow_right + ".tx", elbow_right + ".ty", elbow_right + ".tz")
+		val_elbow = cmds.xform(elbow_right, query=True, ws=True, translation=True)
+		cmds.xform(right_elbow_ctrl[0], ws=1, t=(val_elbow[0] - 0.6, val_elbow[1], val_elbow[2]))
+		if right_elbow_ctrl:
+			cmds.poleVectorConstraint(right_elbow_ctrl[3], 'R_ArmCtrl')
+			cmds.parent(right_elbow_ctrl[3], fk_arm_right[2])
 		
 		#Left elbow control
-		elbowLeft = 'L_Elbow_Jt'
-		leftElbowCtrl = [cmds.CreateNURBSCircle(),
+		elbow_left = 'L_Elbow_Jt'
+		left_elbow_ctrl = [cmds.CreateNURBSCircle(),
 						 cmds.scale(0.3, 0.3, 0.3),
 						 cmds.select("nurbsCircle1"),
 						 cmds.rename("nurbsCircle1", 'L_ElbowCtrl'),
 						 cmds.setAttr('L_ElbowCtrl.rz', 90)]
-		cmds.xform(elbowLeft + ".tx", elbowLeft + ".ty", elbowLeft + ".tz")
-		valElbow = cmds.xform(elbowLeft, query=True, ws=True, translation=True)
-		cmds.xform(leftElbowCtrl[0], ws=1, t=(valElbow[0] - 0.6, valElbow[1], valElbow[2]))
-		if leftElbowCtrl:
-			cmds.poleVectorConstraint(leftElbowCtrl[3], 'L_ArmCtrl')
-			cmds.parent(leftElbowCtrl[3], FKarmL[2])
+		cmds.xform(elbow_left + ".tx", elbow_left + ".ty", elbow_left + ".tz")
+		val_elbow = cmds.xform(elbow_left, query=True, ws=True, translation=True)
+		cmds.xform(left_elbow_ctrl[0], ws=1, t=(val_elbow[0] - 0.6, val_elbow[1], val_elbow[2]))
+		if left_elbow_ctrl:
+			cmds.poleVectorConstraint(left_elbow_ctrl[3], 'L_ArmCtrl')
+			cmds.parent(left_elbow_ctrl[3], fk_arm_left[2])
 
-		cmds.parent(FKarmR[1], FKarmR[0])
-		cmds.parent(FKarmL[1], FKarmL[0])
-		return FKarmR, FKarmL, armListRight, armListLeft, armCtrl
+		cmds.parent(fk_arm_right[1], fk_arm_right[0])
+		cmds.parent(fk_arm_left[1], fk_arm_left[0])
+		return fk_arm_right, fk_arm_left, arm_list_right, arm_list_left, arm_ctrl
 		
 	def finger_control(*args, **kwargs):
 		wrist = True
-		wristJt = ["R_Wrist_Jt", "L_Wrist_Jt"]
+		wrist_jt = ["R_Wrist_Jt", "L_Wrist_Jt"]
 
 		# Create Wrists for both hands
 		if wrist is True:
 			# Right hand  side
-			wristRight = cmds.circle(name="Right_Wrist_Fk", ch=1, o=1, r=0.5, nr=(0, 1, 0))
+			wrist_right = cmds.circle(name="Right_Wrist_Fk", ch=1, o=1, r=0.5, nr=(0, 1, 0))
 			cmds.scale(0.5, 0.5, 0.5)
-			valWristRight = cmds.xform(wristJt[0], query=True, ws=True, translation=True)
-			cmds.xform(wristRight, ws=1, t=(valWristRight[0], valWristRight[1], valWristRight[2]))
-			valRotRight = cmds.xform(wristJt[0], query=True, ws=True, rotation=True)
-			cmds.xform(wristRight, ws=1, ro=(valRotRight[0], valRotRight[1], valRotRight[2]))
-			orientWrist = cmds.orientConstraint(wristRight, wristJt[0], mo=True)
+			val_wrist_right = cmds.xform(wrist_jt[0], query=True, ws=True, translation=True)
+			cmds.xform(wrist_right, ws=1, t=(val_wrist_right[0], val_wrist_right[1], val_wrist_right[2]))
+			val_rot_right = cmds.xform(wrist_jt[0], query=True, ws=True, rotation=True)
+			cmds.xform(wrist_right, ws=1, ro=(val_rot_right[0], val_rot_right[1], val_rot_right[2]))
+			orient_wrist = cmds.orientConstraint(wrist_right, wrist_jt[0], mo=True)
 			# Parent to wrist control
-			cmds.parent(wristRight, "Fk_R_ForeArm_2")
-			
-			wristLeft = cmds.circle(name="Left_Wrist_Fk", ch=1, o=1, r=0.5, nr=(0, 1, 0))
+			cmds.parent(wrist_right, "Fk_R_ForeArm_2")
+
+			# Left hand  side
+			wrist_left = cmds.circle(name="Left_Wrist_Fk", ch=1, o=1, r=0.5, nr=(0, 1, 0))
 			cmds.scale(0.5, 0.5, 0.5)
-			
-			valWristLeft = cmds.xform(wristJt[1], query=True, ws=True, translation=True)
-			cmds.xform(wristLeft, ws=1, t=(valWristLeft[0], valWristLeft[1], valWristLeft[2]))
-			valRotLeft = cmds.xform(wristJt[1], query=True, ws=True, rotation=True)
-			cmds.xform(wristLeft, ws=1, ro=(valRotLeft[0], valRotLeft[1], valRotLeft[2]))
-			orientWrist = cmds.orientConstraint(wristLeft, wristJt[1], mo=True)
+			val_wrist_left = cmds.xform(wrist_jt[1], query=True, ws=True, translation=True)
+			cmds.xform(wrist_left, ws=1, t=(val_wrist_left[0], val_wrist_left[1], val_wrist_left[2]))
+			val_rot_left = cmds.xform(wrist_jt[1], query=True, ws=True, rotation=True)
+			cmds.xform(wrist_left, ws=1, ro=(val_rot_left[0], val_rot_left[1], val_rot_left[2]))
+			orient_wrist = cmds.orientConstraint(wrist_left, wrist_jt[1], mo=True)
 			# Parent to wrist control
-			cmds.parent(wristLeft, "Fk_L_ForeArm_2")
+			cmds.parent(wrist_left, "Fk_L_ForeArm_2")
 				
 			# Lists of the right fingers joints 
-			thumbJoints = ["R_Thumb01_Jt", "R_Thumb02_Jt"]
-			indexJoints = ["R_IndexFinger01_Jt", "R_IndexFinger02_Jt", "R_IndexFinger03_Jt"]
-			middleJoints = ["R_MiddleFinger01_Jt", "R_MiddleFinger02_Jt", "R_MiddleFinger03_Jt"]
-			ringJoints = ["R_RingFinger01_Jt", "R_RingFinger02_Jt", "R_RingFinger03_Jt"]
-			pinkyJoints = ["R_Pinky01_tJt", "R_Pinky02_Jt", "R_Pinky03_Jt"]
+			thumb_joints = ["R_Thumb01_Jt", "R_Thumb02_Jt"]
+			index_joints = ["R_IndexFinger01_Jt", "R_IndexFinger02_Jt", "R_IndexFinger03_Jt"]
+			middle_joints = ["R_MiddleFinger01_Jt", "R_MiddleFinger02_Jt", "R_MiddleFinger03_Jt"]
+			ring_joints = ["R_RingFinger01_Jt", "R_RingFinger02_Jt", "R_RingFinger03_Jt"]
+			pinky_joints = ["R_Pinky01_tJt", "R_Pinky02_Jt", "R_Pinky03_Jt"]
 
 			# Right thumb 
-			for thumbs in range(len(thumbJoints)):
+			for thumbs in range(len(thumb_joints)):
 				controls = [cmds.CreateNURBSCircle(), cmds.rename("nurbsCircle1", "R_Thumb_Ctrl_" + str(thumbs)),
 							cmds.scale(0.1, 0.1, 0.1)]
-				valPos = cmds.xform(thumbJoints[thumbs], query=True, ws=True, translation=True)
-				cmds.xform(controls[thumbs], ws=1, t=(valPos[0], valPos[1], valPos[2]))
-				valRot = cmds.xform(thumbJoints[thumbs], query=True, ws=True, rotation=True)
-				cmds.xform(controls[thumbs], ws=1, ro=(valRot[0], valRot[1], valRot[2]))
-				orient = cmds.orientConstraint("R_Thumb_Ctrl_*", thumbJoints[thumbs], maintainOffset=True)
-				point = cmds.pointConstraint("R_Thumb_Ctrl_*", thumbJoints[thumbs], maintainOffset=True)
+				val_pos = cmds.xform(thumb_joints[thumbs], query=True, ws=True, translation=True)
+				cmds.xform(controls[thumbs], ws=1, t=(val_pos[0], val_pos[1], val_pos[2]))
+				val_rot = cmds.xform(thumb_joints[thumbs], query=True, ws=True, rotation=True)
+				cmds.xform(controls[thumbs], ws=1, ro=(val_rot[0], val_rot[1], val_rot[2]))
+				orient = cmds.orientConstraint("R_Thumb_Ctrl_*", thumb_joints[thumbs], maintainOffset=True)
+				point = cmds.pointConstraint("R_Thumb_Ctrl_*", thumb_joints[thumbs], maintainOffset=True)
 			#Finally parent controller to the wrist
 			cmds.parent("R_Thumb_Ctrl_1", "R_Thumb_Ctrl_0")
 			cmds.parent("R_Thumb_Ctrl_0", "Right_Wrist_Fk")
 				
 			# Right index
-			for index in range(len(indexJoints)):
+			for index in range(len(index_joints)):
 				controls = [cmds.CreateNURBSCircle(), cmds.rename("nurbsCircle1", "R_Index_Ctrl_" + str(index)),
 							cmds.scale(0.1, 0.1, 0.1)]
-				valPos = cmds.xform(indexJoints[index], query=True, ws=True, translation=True)
-				cmds.xform(controls[index], ws=1, t=(valPos[0], valPos[1], valPos[2]))
-				valRot = cmds.xform(indexJoints[index], query=True, ws=True, rotation=True)
-				cmds.xform(controls[index], ws=1, ro=(valRot[0], valRot[1], valRot[2]))
-				orient = cmds.orientConstraint("R_Index_Ctrl_*", indexJoints[index], maintainOffset=True)
-				point = cmds.pointConstraint("R_Index_Ctrl_*", indexJoints[index], maintainOffset=True)
+				val_pos = cmds.xform(index_joints[index], query=True, ws=True, translation=True)
+				cmds.xform(controls[index], ws=1, t=(val_pos[0], val_pos[1], val_pos[2]))
+				val_rot = cmds.xform(index_joints[index], query=True, ws=True, rotation=True)
+				cmds.xform(controls[index], ws=1, ro=(val_rot[0], val_rot[1], val_rot[2]))
+				orient = cmds.orientConstraint("R_Index_Ctrl_*", index_joints[index], maintainOffset=True)
+				point = cmds.pointConstraint("R_Index_Ctrl_*", index_joints[index], maintainOffset=True)
 			#Finally parent controller to the wrist
 			cmds.parent("R_Index_Ctrl_2", "R_Index_Ctrl_1")
 			cmds.parent("R_Index_Ctrl_1", "R_Index_Ctrl_0")
 			cmds.parent("R_Index_Ctrl_0", "Right_Wrist_Fk")
 
 			# Right middle
-			for middle in range(len(middleJoints)):
+			for middle in range(len(middle_joints)):
 				controls = [cmds.CreateNURBSCircle(), cmds.rename("nurbsCircle1", "R_Middle_Ctrl_" + str(middle)),
 							cmds.scale(0.1, 0.1, 0.1)]
-				valPos = cmds.xform(middleJoints[middle], query=True, ws=True, translation=True)
-				cmds.xform(controls[middle], ws=1, t=(valPos[0], valPos[1], valPos[2]))
-				valRot = cmds.xform(middleJoints[middle], query=True, ws=True, rotation=True)
-				cmds.xform(controls[middle], ws=1, ro=(valRot[0], valRot[1], valRot[2]))
-				orient = cmds.orientConstraint("R_Middle_Ctrl_*", middleJoints[middle], maintainOffset=True)
-				point = cmds.pointConstraint("R_Middle_Ctrl_*", middleJoints[middle], maintainOffset=True)
+				val_pos = cmds.xform(middle_joints[middle], query=True, ws=True, translation=True)
+				cmds.xform(controls[middle], ws=1, t=(val_pos[0], val_pos[1], val_pos[2]))
+				val_rot = cmds.xform(middle_joints[middle], query=True, ws=True, rotation=True)
+				cmds.xform(controls[middle], ws=1, ro=(val_rot[0], val_rot[1], val_rot[2]))
+				orient = cmds.orientConstraint("R_Middle_Ctrl_*", middle_joints[middle], maintainOffset=True)
+				point = cmds.pointConstraint("R_Middle_Ctrl_*", middle_joints[middle], maintainOffset=True)
 			#Finally parent controller to the wrist
 			cmds.parent("R_Middle_Ctrl_2", "R_Middle_Ctrl_1")
 			cmds.parent("R_Middle_Ctrl_1", "R_Middle_Ctrl_0")
 			cmds.parent("R_Middle_Ctrl_0", "Right_Wrist_Fk")
 				
 			# Right ring
-			for ring in range(len(ringJoints)):
+			for ring in range(len(ring_joints)):
 				controls = [cmds.CreateNURBSCircle(), cmds.rename("nurbsCircle1", "R_Ring_Ctrl_" + str(ring)),
 							cmds.scale(0.1, 0.1, 0.1)]
-				valPos = cmds.xform(ringJoints[ring], query=True, ws=True, translation=True)
-				cmds.xform(controls[ring], ws=1, t=(valPos[0], valPos[1], valPos[2]))
-				valRot = cmds.xform(ringJoints[ring], query=True, ws=True, rotation=True)
-				cmds.xform(controls[ring], ws=1, ro=(valRot[0], valRot[1], valRot[2]))
-				orient = cmds.orientConstraint("R_Ring_Ctrl_*", ringJoints[ring], maintainOffset=True)
-				point = cmds.pointConstraint("R_Ring_Ctrl_*", ringJoints[ring], maintainOffset=True)
+				val_pos = cmds.xform(ring_joints[ring], query=True, ws=True, translation=True)
+				cmds.xform(controls[ring], ws=1, t=(val_pos[0], val_pos[1], val_pos[2]))
+				val_rot = cmds.xform(ring_joints[ring], query=True, ws=True, rotation=True)
+				cmds.xform(controls[ring], ws=1, ro=(val_rot[0], val_rot[1], val_rot[2]))
+				orient = cmds.orientConstraint("R_Ring_Ctrl_*", ring_joints[ring], maintainOffset=True)
+				point = cmds.pointConstraint("R_Ring_Ctrl_*", ring_joints[ring], maintainOffset=True)
 			#Finally parent controller to the wrist
 			cmds.parent("R_Ring_Ctrl_2", "R_Ring_Ctrl_1")
 			cmds.parent("R_Ring_Ctrl_1", "R_Ring_Ctrl_0")
 			cmds.parent("R_Ring_Ctrl_0", "Right_Wrist_Fk")
 				
 			# Right pinky
-			for pinky in range(len(pinkyJoints)):
+			for pinky in range(len(pinky_joints)):
 				controls = [cmds.CreateNURBSCircle(), cmds.rename("nurbsCircle1", "R_Pinky_Ctrl_" + str(pinky)),
 							cmds.scale(0.1, 0.1, 0.1)]
-				valPos = cmds.xform(pinkyJoints[pinky], query=True, ws=True, translation=True)
-				cmds.xform(controls[pinky], ws=1, t=(valPos[0], valPos[1], valPos[2]))
-				valRot = cmds.xform(pinkyJoints[pinky], query=True, ws=True, rotation=True)
-				cmds.xform(controls[pinky], ws=1, ro=(valRot[0], valRot[1], valRot[2]))
-				orient = cmds.orientConstraint("R_Pinky_Ctrl_*", pinkyJoints[pinky], maintainOffset=True)
-				point = cmds.pointConstraint("R_Pinky_Ctrl_*", pinkyJoints[pinky], maintainOffset=True)
+				val_pos = cmds.xform(pinky_joints[pinky], query=True, ws=True, translation=True)
+				cmds.xform(controls[pinky], ws=1, t=(val_pos[0], val_pos[1], val_pos[2]))
+				val_rot = cmds.xform(pinky_joints[pinky], query=True, ws=True, rotation=True)
+				cmds.xform(controls[pinky], ws=1, ro=(val_rot[0], val_rot[1], val_rot[2]))
+				orient = cmds.orientConstraint("R_Pinky_Ctrl_*", pinky_joints[pinky], maintainOffset=True)
+				point = cmds.pointConstraint("R_Pinky_Ctrl_*", pinky_joints[pinky], maintainOffset=True)
 			#Finally parent controller to the wrist
 			cmds.parent("R_Pinky_Ctrl_2", "R_Pinky_Ctrl_1")
 			cmds.parent("R_Pinky_Ctrl_1", "R_Pinky_Ctrl_0")
 			cmds.parent("R_Pinky_Ctrl_0", "Right_Wrist_Fk")
 
 			# Lists of the left fingers joints 
-			thumbJoints = ["L_Thumb01_Jt", "L_Thumb02_Jt"]
-			indexJoints = ["L_IndexFinger01_Jt", "L_IndexFinger02_Jt", "L_IndexFinger03_Jt"]
-			middleJoints = ["L_MiddleFinger01_Jt", "L_MiddleFinger02_Jt", "L_MiddleFinger03_Jt"]
-			ringJoints = ["L_RingFinger01_Jt", "L_RingFinger02_Jt", "L_RingFinger03_Jt"]
-			pinkyJoints = ["L_Pinky01_tJt", "L_Pinky02_Jt", "L_Pinky03_Jt"]
+			thumb_joints = ["L_Thumb01_Jt", "L_Thumb02_Jt"]
+			index_joints = ["L_IndexFinger01_Jt", "L_IndexFinger02_Jt", "L_IndexFinger03_Jt"]
+			middle_joints = ["L_MiddleFinger01_Jt", "L_MiddleFinger02_Jt", "L_MiddleFinger03_Jt"]
+			ring_joints = ["L_RingFinger01_Jt", "L_RingFinger02_Jt", "L_RingFinger03_Jt"]
+			pinky_joints = ["L_Pinky01_tJt", "L_Pinky02_Jt", "L_Pinky03_Jt"]
 
 			# Left thumb
-			for thumbs in range(len(thumbJoints)):
+			for thumbs in range(len(thumb_joints)):
 				controls = [cmds.CreateNURBSCircle(), cmds.rename("nurbsCircle1", "L_Thumb_Ctrl_" + str(thumbs)),
 							cmds.scale(0.1, 0.1, 0.1)]
-				valPos = cmds.xform(thumbJoints[thumbs], query=True, ws=True, translation=True)
-				cmds.xform(controls[thumbs], ws=1, t=(valPos[0], valPos[1], valPos[2]))
-				valRot = cmds.xform(thumbJoints[thumbs], query=True, ws=True, rotation=True)
-				cmds.xform(controls[thumbs], ws=1, ro=(valRot[0], valRot[1], valRot[2]))
-				orient = cmds.orientConstraint("L_Thumb_Ctrl_*", thumbJoints[thumbs], maintainOffset=True)
-				point = cmds.pointConstraint("L_Thumb_Ctrl_*", thumbJoints[thumbs], maintainOffset=True)
+				val_pos = cmds.xform(thumb_joints[thumbs], query=True, ws=True, translation=True)
+				cmds.xform(controls[thumbs], ws=1, t=(val_pos[0], val_pos[1], val_pos[2]))
+				val_rot = cmds.xform(thumb_joints[thumbs], query=True, ws=True, rotation=True)
+				cmds.xform(controls[thumbs], ws=1, ro=(val_rot[0], val_rot[1], val_rot[2]))
+				orient = cmds.orientConstraint("L_Thumb_Ctrl_*", thumb_joints[thumbs], maintainOffset=True)
+				point = cmds.pointConstraint("L_Thumb_Ctrl_*", thumb_joints[thumbs], maintainOffset=True)
 			#Finally parent controller to the wrist
 			cmds.parent("L_Thumb_Ctrl_1", "L_Thumb_Ctrl_0")
 			cmds.parent("L_Thumb_Ctrl_0", "Left_Wrist_Fk")
 							
 			# Left index
-			for index in range(len(indexJoints)):
+			for index in range(len(index_joints)):
 				controls = [cmds.CreateNURBSCircle(), cmds.rename("nurbsCircle1", "L_Index_Ctrl_" + str(index)),
 							cmds.scale(0.1, 0.1, 0.1)]
-				valPos = cmds.xform(indexJoints[index], query=True, ws=True, translation=True)
-				cmds.xform(controls[index], ws=1, t=(valPos[0], valPos[1], valPos[2]))
-				valRot = cmds.xform(indexJoints[index], query=True, ws=True, rotation=True)
-				cmds.xform(controls[index], ws=1, ro=(valRot[0], valRot[1], valRot[2]))
-				orient = cmds.orientConstraint("L_Index_Ctrl_*", indexJoints[index], maintainOffset=True)
-				point = cmds.pointConstraint("L_Index_Ctrl_*", indexJoints[index], maintainOffset=True)
+				val_pos = cmds.xform(index_joints[index], query=True, ws=True, translation=True)
+				cmds.xform(controls[index], ws=1, t=(val_pos[0], val_pos[1], val_pos[2]))
+				val_rot = cmds.xform(index_joints[index], query=True, ws=True, rotation=True)
+				cmds.xform(controls[index], ws=1, ro=(val_rot[0], val_rot[1], val_rot[2]))
+				orient = cmds.orientConstraint("L_Index_Ctrl_*", index_joints[index], maintainOffset=True)
+				point = cmds.pointConstraint("L_Index_Ctrl_*", index_joints[index], maintainOffset=True)
 			#Finally parent controller to the wrist
 			cmds.parent("L_Index_Ctrl_2", "L_Index_Ctrl_1")
 			cmds.parent("L_Index_Ctrl_1", "L_Index_Ctrl_0")
 			cmds.parent("L_Index_Ctrl_0", "Left_Wrist_Fk")
 
 			# Left middle
-			for middle in range(len(middleJoints)):
+			for middle in range(len(middle_joints)):
 				controls = [cmds.CreateNURBSCircle(), cmds.rename("nurbsCircle1", "L_Middle_Ctrl_" + str(middle)),
 							cmds.scale(0.1, 0.1, 0.1)]
-				valPos = cmds.xform(middleJoints[middle], query=True, ws=True, translation=True)
-				cmds.xform(controls[middle], ws=1, t=(valPos[0], valPos[1], valPos[2]))
-				valRot = cmds.xform(middleJoints[middle], query=True, ws=True, rotation=True)
-				cmds.xform(controls[middle], ws=1, ro=(valRot[0], valRot[1], valRot[2]))
-				orient = cmds.orientConstraint("L_Middle_Ctrl_*", middleJoints[middle], maintainOffset=True)
-				point = cmds.pointConstraint("L_Middle_Ctrl_*", middleJoints[middle], maintainOffset=True)
+				val_pos = cmds.xform(middle_joints[middle], query=True, ws=True, translation=True)
+				cmds.xform(controls[middle], ws=1, t=(val_pos[0], val_pos[1], val_pos[2]))
+				val_rot = cmds.xform(middle_joints[middle], query=True, ws=True, rotation=True)
+				cmds.xform(controls[middle], ws=1, ro=(val_rot[0], val_rot[1], val_rot[2]))
+				orient = cmds.orientConstraint("L_Middle_Ctrl_*", middle_joints[middle], maintainOffset=True)
+				point = cmds.pointConstraint("L_Middle_Ctrl_*", middle_joints[middle], maintainOffset=True)
 			#Finally parent controller to the wrist
 			cmds.parent("L_Middle_Ctrl_2", "L_Middle_Ctrl_1")
 			cmds.parent("L_Middle_Ctrl_1", "L_Middle_Ctrl_0")
 			cmds.parent("L_Middle_Ctrl_0", "Left_Wrist_Fk")
 							
 			# Left ring
-			for ring in range(len(ringJoints)):
+			for ring in range(len(ring_joints)):
 				controls = [cmds.CreateNURBSCircle(), cmds.rename("nurbsCircle1", "L_Ring_Ctrl_" + str(ring)),
 							cmds.scale(0.1, 0.1, 0.1)]
-				valPos = cmds.xform(ringJoints[ring], query=True, ws=True, translation=True)
-				cmds.xform(controls[ring], ws=1, t=(valPos[0], valPos[1], valPos[2]))
-				valRot = cmds.xform(ringJoints[ring], query=True, ws=True, rotation=True)
-				cmds.xform(controls[ring], ws=1, ro=(valRot[0], valRot[1], valRot[2]))
-				orient = cmds.orientConstraint("L_Ring_Ctrl_*", ringJoints[ring], maintainOffset=True)
-				point = cmds.pointConstraint("L_Ring_Ctrl_*", ringJoints[ring], maintainOffset=True)
+				val_pos = cmds.xform(ring_joints[ring], query=True, ws=True, translation=True)
+				cmds.xform(controls[ring], ws=1, t=(val_pos[0], val_pos[1], val_pos[2]))
+				val_rot = cmds.xform(ring_joints[ring], query=True, ws=True, rotation=True)
+				cmds.xform(controls[ring], ws=1, ro=(val_rot[0], val_rot[1], val_rot[2]))
+				orient = cmds.orientConstraint("L_Ring_Ctrl_*", ring_joints[ring], maintainOffset=True)
+				point = cmds.pointConstraint("L_Ring_Ctrl_*", ring_joints[ring], maintainOffset=True)
 			#Finally parent controller to the wrist
 			cmds.parent("L_Ring_Ctrl_2", "L_Ring_Ctrl_1")
 			cmds.parent("L_Ring_Ctrl_1", "L_Ring_Ctrl_0")
 			cmds.parent("L_Ring_Ctrl_0", "Left_Wrist_Fk")
 							
 			# Left pinky
-			for pinky in range(len(pinkyJoints)):
+			for pinky in range(len(pinky_joints)):
 				controls = [cmds.CreateNURBSCircle(), cmds.rename("nurbsCircle1", "L_Pinky_Ctrl_" + str(pinky)),
 							cmds.scale(0.1, 0.1, 0.1)]
-				valPos = cmds.xform(pinkyJoints[pinky], query=True, ws=True, translation=True)
-				cmds.xform(controls[pinky], ws=1, t=(valPos[0], valPos[1], valPos[2]))
-				valRot = cmds.xform(pinkyJoints[pinky], query=True, ws=True, rotation=True)
-				cmds.xform(controls[pinky], ws=1, ro=(valRot[0], valRot[1], valRot[2]))
-				orient = cmds.orientConstraint("L_Pinky_Ctrl_*", pinkyJoints[pinky], maintainOffset=True)
-				point = cmds.pointConstraint("L_Pinky_Ctrl_*", pinkyJoints[pinky], maintainOffset=True)
+				val_pos = cmds.xform(pinky_joints[pinky], query=True, ws=True, translation=True)
+				cmds.xform(controls[pinky], ws=1, t=(val_pos[0], val_pos[1], val_pos[2]))
+				val_rot = cmds.xform(pinky_joints[pinky], query=True, ws=True, rotation=True)
+				cmds.xform(controls[pinky], ws=1, ro=(val_rot[0], val_rot[1], val_rot[2]))
+				orient = cmds.orientConstraint("L_Pinky_Ctrl_*", pinky_joints[pinky], maintainOffset=True)
+				point = cmds.pointConstraint("L_Pinky_Ctrl_*", pinky_joints[pinky], maintainOffset=True)
 			#Finally parent controller to the wrist
 			cmds.parent("L_Pinky_Ctrl_2", "L_Pinky_Ctrl_1")
 			cmds.parent("L_Pinky_Ctrl_1", "L_Pinky_Ctrl_0")
@@ -652,8 +647,8 @@ class human_rig_window(object):
 			return wrist
 	
 	def head_control(*args, **kwargs):
-		HeadJt = "E_Head_Jt"
-		HeadCtrl = cmds.curve(name="Head_Ctrl", degree=3,
+		head_jt = "E_Head_Jt"
+		head_ctrl = cmds.curve(name="Head_Ctrl", degree=3,
 							  point=[(-0.801407, 0, 0.00716748), (-0.802768, 0.023587, -0.220859),
 								   (-0.805489, 0.0707609, -0.676912), (0.761595, -0.283043, -0.667253),
 								   (1.045492, -0.194522, -0.0218101), (1.046678, -0.194804, 0.0403576),
@@ -662,153 +657,151 @@ class human_rig_window(object):
 							  knot=[0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 7])
 		cmds.scale(0.764, 1.591, 0.935)
 		cmds.makeIdentity('Head_Ctrl', apply=True, translate=True, scale=True)
-		valHead = cmds.xform(HeadJt, ws=True, query=True, translation=True)
-		cmds.xform(HeadCtrl, ws=1, t=(valHead[0], valHead[1], valHead[2]))
-		parentHead = cmds.parentConstraint(HeadCtrl, HeadJt)
-		cmds.parent(HeadCtrl, "Ik_shoulder_ctrl")
-		return HeadCtrl, HeadJt
+		val_head = cmds.xform(head_jt, ws=True, query=True, translation=True)
+		cmds.xform(head_ctrl, ws=1, t=(val_head[0], val_head[1], val_head[2]))
+		parent_head = cmds.parentConstraint(head_ctrl, head_jt)
+		cmds.parent(head_ctrl, "Ik_shoulder_ctrl")
+		return head_ctrl, head_jt
 
 	def master_control(*args, **kwargs):
-		MasterCtrl = cmds.curve(name="Master_Ctrl", d=1,
-								p=[(-4, 0, 0), (-2, 0, -1.5), (-2, 0, -0.5),
-			   (-0.5, 0, -0.5), (-0.5, 0, -2), (-1.5, 0, -2),
-			   (0, 0, -4), (1.5, 0, -2), (0.5, 0, -2), (0.5, 0, -0.5),
-			   (2, 0, -0.5), (2, 0, -1.5), (4, 0, 0), (2, 0, 1.5),
-			   (2, 0, 0.5), (0.5, 0, 0.5), (0.5, 0, 2), (1.5, 0, 2),
-			   (0, 0, 4), (-1.5, 0, 2), (-0.5, 0, 2), (-0.5, 0, 0.5),
-			   (-2, 0, 0.5), (-2, 0, 1.5), (-4, 0, 0)])
-		cmds.parent("A_Hip_Jt", MasterCtrl)
-		cmds.parent("UpperBody_Grp", MasterCtrl)
-		cmds.parent("Foot_Grp", MasterCtrl)
-		cmds.parent("Knee_Grp", MasterCtrl)
-		return MasterCtrl
+		master_ctrl = cmds.curve(name="Master_Ctrl", d=1,
+								 p=[(-4, 0, 0), (-2, 0, -1.5), (-2, 0, -0.5),
+									(-0.5, 0, -0.5), (-0.5, 0, -2), (-1.5, 0, -2),
+									(0, 0, -4), (1.5, 0, -2), (0.5, 0, -2), (0.5, 0, -0.5),
+									(2, 0, -0.5), (2, 0, -1.5), (4, 0, 0), (2, 0, 1.5),
+									(2, 0, 0.5), (0.5, 0, 0.5), (0.5, 0, 2), (1.5, 0, 2),
+									(0, 0, 4), (-1.5, 0, 2), (-0.5, 0, 2), (-0.5, 0, 0.5),
+									(-2, 0, 0.5), (-2, 0, 1.5), (-4, 0, 0)])
+		cmds.parent("A_Hip_Jt", master_ctrl)
+		cmds.parent("UpperBody_Grp", master_ctrl)
+		cmds.parent("Foot_Grp", master_ctrl)
+		cmds.parent("Knee_Grp", master_ctrl)
+		return master_ctrl
 
 
 class human_skeleton(object):
 	def __create_spine_skeleton__(self):
-		self.HipJoint = cmds.joint(name='A_Hip_Jt', position=(0.008, 4.451, 0))
+		self.hip_joint = cmds.joint(name='A_Hip_Jt', position=(0.008, 4.451, 0))
 		cmds.joint('A_Hip_Jt', edit=True, zso=True, oj='xyz')
-		numJt = list(range(4))
-		jtPosX = 0.08
-		jtPosY = 0.05
-		for joints in numJt: 
-			extraStrJt ="Hip_Jt_"
-			extraJt = cmds.joint(name=extraStrJt + str(joints), position=(0.008, 4.451, 0))
-			cmds.joint(extraStrJt + str(joints), edit=True, zso=True, oj='xyz')
-			cmds.select(extraStrJt + str(joints))
-			jointList = cmds.ls(selection=True)
+		num_jt = list(range(4))
+		jt_pos_x = 0.08
+		jt_pos_y = 0.05
+		for joints in num_jt:
+			extra_str_jt ="Hip_Jt_"
+			extra_jt = cmds.joint(name=extra_str_jt + str(joints), position=(0.008, 4.451, 0))
+			cmds.joint(extra_str_jt + str(joints), edit=True, zso=True, oj='xyz')
+			cmds.select(extra_str_jt + str(joints))
+			joint_list = cmds.ls(selection=True)
 			if joints:
-				jtPosY += 0.18
-				jtPosX += -0.08
-				cmds.select(extraStrJt + str(joints))
+				jt_pos_y += 0.18
+				jt_pos_x += -0.08
+				cmds.select(extra_str_jt + str(joints))
 				cmds.move(0.3, 0.0, 0.0)
-				#mc.move(0.008*randPos,4.751+jtPosY,0, extraStrJt+str(joints), absolute= True)
-				cmds.move(joints * 0.008 - 0.2, 4.751 + joints * jtPosY, 0, extraStrJt + str(joints), absolute=True)
-		cmds.move(jtPosX, 4.451 + 0.9 * 2, 0)
-		self.NeckJoint = cmds.joint(name='D_Neck_Jt', position=(-0.089, 6.965, 0))
+				cmds.move(joints * 0.008 - 0.2, 4.751 + joints * jt_pos_y, 0, extra_str_jt + str(joints), absolute=True)
+		cmds.move(jt_pos_x, 4.451 + 0.9 * 2, 0)
+		self.neck_joint = cmds.joint(name='D_Neck_Jt', position=(-0.089, 6.965, 0))
 		cmds.joint('D_Neck_Jt', edit=True, zso=True, oj='xyz')
-		self.HeadJoint = cmds.joint(name='E_Head_Jt', position=(-0.026, 7.306, 0))
+		self.head_joint = cmds.joint(name='E_Head_Jt', position=(-0.026, 7.306, 0))
 		cmds.joint('E_Head_Jt', edit=True, zso=True, oj='xyz')
-		self.HeadTipJoint = cmds.joint(name='F_HeadTip_Jt', position=(-0.015, 8.031, 0))
+		self.head_tip_joint = cmds.joint(name='F_HeadTip_Jt', position=(-0.015, 8.031, 0))
 		cmds.select('A_Hip_Jt')
 		cmds.joint(name='A_LowerHip_Jt', position=(-0.023, 4.327, 0))
-		#Move the first created back joint a little upward
 		cmds.select("Hip_Jt_0")
 		cmds.move(-0.008, 4.701, 0)
-		#0.008, 4.451, 0
 		cmds.select('A_Hip_Jt')
 
 	def __create_leg_skeleton__(self):
-		self.L_HipJoint =  cmds.joint(name='L_Hip_Jt', position=(-0.12, 4.369, -0.689))
+		self.l_hip_joint = cmds.joint(name='L_Hip_Jt', position=(-0.12, 4.369, -0.689))
 		cmds.select('L_Hip_Jt')
-		self.L_KneeJoint = cmds.joint(name='L_Knee_Jt', position=(0.2, 2.36, -0.689))
+		self.l_knee_joint = cmds.joint(name='L_Knee_Jt', position=(0.2, 2.36, -0.689))
 		cmds.select('L_Knee_Jt')
 		cmds.joint('L_Hip_Jt', edit=True, zso=True, oj='xyz', sao='yup')
-		self.L_AnkleJoint = cmds.joint(name='L_Ankle_Jt', position=(-0.24, 0.486, -0.689))
+		self.l_ankle_joint = cmds.joint(name='L_Ankle_Jt', position=(-0.24, 0.486, -0.689))
 		cmds.joint('L_Knee_Jt', edit=True, zso=True, oj='xyz', sao='yup')
 		cmds.joint('L_Ankle_Jt', edit=True, zso=True, oj='xyz', sao='yup')
-		self.L_ToeJoint = cmds.joint(name='L_Toe_Jt', position=(0.32, 0.051, -0.689))
-		self.L_ToeEndJoint = cmds.joint(name='L_ToeEnd_Jt', position=(0.69, 0.062, -0.689))
+		self.l_toe_joint = cmds.joint(name='L_Toe_Jt', position=(0.32, 0.051, -0.689))
+		self.l_toe_end_joint = cmds.joint(name='L_ToeEnd_Jt', position=(0.69, 0.062, -0.689))
 		cmds.joint('L_Toe_Jt', edit=True, zso=True, oj='xyz', sao='yup')
 		
 	def __create_arm_skeleton__(self):
 		cmds.select('D_Neck_Jt')
-		self.L_CollarBoneJoint = cmds.joint(name='L_Collarbone_Jt', position=(-0.233, 6.565, -0.793))
-		self.L_ShoulderJoint = cmds.joint(name='L_Shoulder_Jt', position=(0, 6.749, -1.31))
+		self.l_collar_bone_joint = cmds.joint(name='L_Collarbone_Jt', position=(-0.233, 6.565, -0.793))
+		self.l_shoulder_joint = cmds.joint(name='L_Shoulder_Jt', position=(0, 6.749, -1.31))
 		cmds.joint('L_Collarbone_Jt', edit=True, zso=True, oj='xyz', sao='yup')
-		self.L_ElbowJoint = cmds.joint(name='L_Elbow_Jt', position=(0, 5.773, -2.092))
+		self.l_elbow_joint = cmds.joint(name='L_Elbow_Jt', position=(0, 5.773, -2.092))
 		cmds.joint('L_Shoulder_Jt', edit=True, zso=True, oj='xyz', sao='yup')
-		self.L_WristJoint = cmds.joint(name='L_Wrist_Jt', position=(0.503, 5.126, -2.82))
+		self.l_wrist_joint = cmds.joint(name='L_Wrist_Jt', position=(0.503, 5.126, -2.82))
 		cmds.joint('L_Elbow_Jt', edit=True, zso=True, oj='xyz', sao='yup')
-		self.L_MiddleHandJoint = cmds.joint(name='L_MiddleHand_Jt', position=(0.641, 4.961, -2.963))
+		self.l_middle_hand_joint = cmds.joint(name='L_MiddleHand_Jt', position=(0.641, 4.961, -2.963))
 		cmds.joint('L_Wrist_Jt', edit=True, zso=True, oj='xyz', sao='yup')
-		cmds.select('L_Wrist_Jt');
+		cmds.select('L_Wrist_Jt')
 
 	def __create_finger_skeleton__(self):
 		# Thumb
-		self.L_Thumb01Joint = cmds.joint(name='L_Thumb01_Jt', position=(0.782, 4.973, -2.855))
-		self.L_Thumb02Joint = cmds.joint(name='L_Thumb02_Jt', position=(0.895, 4.867, -2.855))
+		self.l_thumb01_joint = cmds.joint(name='L_Thumb01_Jt', position=(0.782, 4.973, -2.855))
+		self.l_thumb02_joint = cmds.joint(name='L_Thumb02_Jt', position=(0.895, 4.867, -2.855))
 		cmds.joint('L_Thumb01_Jt', edit=True, zso=True, oj='xyz', sao='yup')
-		self.L_Thumb03Joint = cmds.joint(name='L_Thumb03_Jt', position=(0.938, 4.79, -2.855))
+		self.l_thumb03_joint = cmds.joint(name='L_Thumb03_Jt', position=(0.938, 4.79, -2.855))
 		cmds.joint('L_Thumb02_Jt', edit=True, zso=True, oj='xyz', sao='yup')
 		# Index
 		cmds.select('L_Wrist_Jt')
-		self.L_IndexFinger01Joint = cmds.joint(name='L_IndexFinger01_Jt', position=(0.749, 4.841, -3.093))
-		self.L_IndexFinger02Joint = cmds.joint(name='L_IndexFinger02_Jt', position=(0.816, 4.697, -3.159))
+		self.l_index_finger01_joint = cmds.joint(name='L_IndexFinger01_Jt', position=(0.749, 4.841, -3.093))
+		self.l_index_finger02_joint = cmds.joint(name='L_IndexFinger02_Jt', position=(0.816, 4.697, -3.159))
 		cmds.joint('L_IndexFinger01_Jt', edit=True, zso=True, oj='xyz', sao='yup')
-		self.L_IndexFinger03Joint = cmds.joint(name='L_IndexFinger03_Jt', position=(0.849, 4.568, -3.19))
+		self.l_index_finger03_joint = cmds.joint(name='L_IndexFinger03_Jt', position=(0.849, 4.568, -3.19))
 		cmds.joint('L_IndexFinger02_Jt', edit=True, zso=True, oj='xyz', sao='yup')
-		self.L_IndexFinger04Joint = cmds.joint(name='l_indexFinger04_Jt', position=(0.861, 4.484, -3.198))
+		self.l_index_finger04_joint = cmds.joint(name='l_indexFinger04_Jt', position=(0.861, 4.484, -3.198))
 		cmds.joint('L_IndexFinger03_Jt', edit=True, zso=True, oj='xyz', sao='yup')
 		# Middle
 		cmds.select('L_Wrist_Jt')
-		self.L_MiddleFinger01Joint = cmds.joint(name='L_MiddleFinger01_Jt', position=(0.637, 4.833, -3.183))
-		self.L_MiddleFinger02Joint = cmds.joint(name='L_MiddleFinger02_Jt', position=(0.682, 4.703, -3.276))
+		self.l_middle_finger01_joint = cmds.joint(name='L_MiddleFinger01_Jt', position=(0.637, 4.833, -3.183))
+		self.l_middle_finger02_joint = cmds.joint(name='L_MiddleFinger02_Jt', position=(0.682, 4.703, -3.276))
 		cmds.joint('L_MiddleFinger01_Jt', edit=True, zso=True, oj='xyz', sao='yup')
-		self.L_MiddleFinger03Joint = cmds.joint(name='L_MiddleFinger03_Jt', position=(0.702, 4.554, -3.322))
+		self.l_middle_finger03_joint = cmds.joint(name='L_MiddleFinger03_Jt', position=(0.702, 4.554, -3.322))
 		cmds.joint('L_MiddleFinger02_Jt', edit=True, zso=True, oj='xyz', sao='yup')
-		self.L_MiddleFinger04Joint = cmds.joint(name='L_MiddleFinger04_Jt', position=(0.711, 4.441, -3.334))
+		self.l_middle_finger04_joint = cmds.joint(name='L_MiddleFinger04_Jt', position=(0.711, 4.441, -3.334))
 		cmds.joint('L_MiddleFinger03_Jt', edit=True, zso=True, oj='xyz', sao='yup')
 		# Ring
 		cmds.select('L_Wrist_Jt')
-		self.L_RingFinger01Joint = cmds.joint(name='L_RingFinger01_Jt', position=(0.488, 4.827, -3.25))
-		self.L_RingFinger02Joint =cmds.joint(name='L_RingFinger02_Jt', position=(0.528, 4.713, -3.31))
+		self.l_ring_finger01_joint = cmds.joint(name='L_RingFinger01_Jt', position=(0.488, 4.827, -3.25))
+		self.l_ring_finger02_joint = cmds.joint(name='L_RingFinger02_Jt', position=(0.528, 4.713, -3.31))
 		cmds.joint('L_RingFinger01_Jt', edit=True, zso=True, oj='xyz', sao='yup')
-		self.L_RingFinger03Joint =cmds.joint(name='L_RingFinger03_Jt', position=(0.541, 4.584, -3.354))
+		self.l_ring_finger03_joint = cmds.joint(name='L_RingFinger03_Jt', position=(0.541, 4.584, -3.354))
 		cmds.joint('L_RingFinger02_Jt', edit=True, zso=True, oj='xyz', sao='yup')
-		self.L_RingFinger04Joint = cmds.joint(name='L_RingFinger04_Jt', position=(0.546, 4.49, -3.361))
+		self.l_ring_finger04_joint = cmds.joint(name='L_RingFinger04_Jt', position=(0.546, 4.49, -3.361))
 		cmds.joint('L_RingFinger03_Jt', edit=True, zso=True, oj='xyz', sao='yup')
 		# Pinky
 		cmds.select('L_Wrist_Jt')
-		self.L_Pinky01Joint = cmds.joint(name='L_Pinky01_tJt', position=(0.362, 4.818, -3.251))
-		self.L_Pinky02Joint = cmds.joint(name='L_Pinky02_Jt', position=(0.375, 4.73, -3.283))
+		self.l_pinky01_joint = cmds.joint(name='L_Pinky01_tJt', position=(0.362, 4.818, -3.251))
+		self.l_pinky02_joint = cmds.joint(name='L_Pinky02_Jt', position=(0.375, 4.73, -3.283))
 		cmds.joint('L_Pinky01_tJt', edit=True, zso=True, oj='xyz', sao='yup')
-		self.L_Pinky03Joint = cmds.joint(name='L_Pinky03_Jt', position=(0.38, 4.617, -3.329))
+		self.l_pinky03_joint = cmds.joint(name='L_Pinky03_Jt', position=(0.38, 4.617, -3.329))
 		cmds.joint('L_Pinky02_Jt', edit=True, zso=True, oj='xyz', sao='yup')
-		self.L_Pinky04Joint = cmds.joint(name='L_Pinky04_Jt', position=(0.385, 4.534, -3.341))
+		self.l_pinky04_joint = cmds.joint(name='L_Pinky04_Jt', position=(0.385, 4.534, -3.341))
 		cmds.joint('L_Pinky03_Jt', edit=True, zso=True, oj='xyz', sao='yup')
 
 	def __create_finger_control__(**kwargs):
 		joints = kwargs.setdefault("joints")
 		for jt in joints:
 			cmds.select(jt, hierarchy=True)
-			jointList = cmds.ls(selection=True)
-			for joint in jointList[:-2]:
+			joint_list = cmds.ls(selection=True)
+			for joint in joint_list[:-2]:
 				pos = cmds.joint(joint, q=True, position=True)
-				nameSplit = joint.rsplit('_', 1)
-				name = nameSplit[0]
+				name_split = joint.rsplit('_', 1)
+				name = name_split[0]
 				cmds.select(joint)
 				cmds.joint(name=name + 'Up_Jt', position=(pos[0] + 0.01, pos[1] + 0.05, pos[2] - 0.06))
 
 	def __mirror_joints_hands__(self, **kwargs):
 		cmds.select('D_Neck_Jt')
-		self.MirrorEachJoint = cmds.mirrorJoint('L_Collarbone_Jt', mirrorXY=True,
-												mirrorBehavior=True, searchReplace=('L_', 'R_'))
+		self.mirror_each_joint = cmds.mirrorJoint('L_Collarbone_Jt',
+												  mirrorXY=True,
+												  mirrorBehavior=True, searchReplace=('L_', 'R_'))
 
 	def __mirror_joints_legs__(self, **kwargs):
 		cmds.select('A_LowerHip_Jt')
-		self.MirrorEachJoint = cmds.mirrorJoint('L_Hip_Jt', mirrorXY=True,
-												mirrorBehavior=True, searchReplace=('L_', 'R_'))
-		#mc.mirrorJoint('L_Collarbone_Jt',mirrorBehavior=True,myz=True)
-		slBone = cmds.select('A_Hip_Jt')
+		self.mirror_each_joint = cmds.mirrorJoint('L_Hip_Jt',
+												  mirrorXY=True,
+												  mirrorBehavior=True, searchReplace=('L_', 'R_'))
+		select_bone = cmds.select('A_Hip_Jt')
 

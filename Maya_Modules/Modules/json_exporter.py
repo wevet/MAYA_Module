@@ -11,7 +11,7 @@ usage
 import json_exporter
 import importlib
 importlib.reload(json_exporter)
-json_exporter.save_selected_joints_to_json(1, 100, False)
+json_exporter.save_selected_joints_to_json(1, 680, False)
 """
 
 def save_selected_joints_to_json(start_time, end_time, export_joint: bool):
@@ -41,9 +41,7 @@ def save_selected_joints_to_json(start_time, end_time, export_joint: bool):
             else:
                 joint_dict[frame] = _get_frame_dict(obj, frame)
         joints[short_name] = joint_dict
-    json_objects = json.dumps(joints)
-    _export_json(json_objects, scene_name)
-
+    _export_json(joints, scene_name)
 
 #non root joints should pass values from object space
 def _get_frame_dict(obj, frame):
@@ -56,11 +54,15 @@ def _get_frame_dict(obj, frame):
     euler_rot.reorderIt(rot_order)
     translation = joint_transform_mat.getTranslation(om.MSpace.kTransform)
     angles = [math.degrees(angle) for angle in (euler_rot.x, euler_rot.y, euler_rot.z)]
-    # original %.8f
-    frame_dict = {'tx': "%.4f" % translation.x, 'ty': "%.4f" % translation.y, 'tz': "%.4f" % translation.z,
-                  'rx': "%.4f" % (angles[0]), 'ry': "%.4f" % (angles[1]), 'rz': "%.4f" % (angles[2])}
+    frame_dict = {
+        'tx': "%.8f" % translation.x,
+        'ty': "%.8f" % translation.y,
+        'tz': "%.8f" % translation.z,
+        'rx': "%.8f" % (angles[0]),
+        'ry': "%.8f" % (angles[1]),
+        'rz': "%.8f" % (angles[2])
+    }
     return frame_dict
-
 
 #root joints pass values from world space
 def _get_frame_dist_for_root(obj, frame):
@@ -74,24 +76,16 @@ def _get_frame_dist_for_root(obj, frame):
     euler_rot = joint_world_matrix.eulerRotation()
     euler_rot.reorderIt(rot_order)
     translation = joint_world_matrix.getTranslation(om.MSpace.kWorld)
-
     angles = [math.degrees(angle) for angle in (euler_rot.x, euler_rot.y, euler_rot.z)]
-
-    frame_dict = {'tx': "%.8f" % translation.x, 'ty': "%.8f" % translation.y, 'tz': "%.8f" % translation.z,
-                 'rx': "%.8f" % (angles[0]), 'ry': "%.8f" % (angles[1]), 'rz': "%.8f" % (angles[2])}
-
-    print("--------------")
-    print(obj)
-    print(frame)
-    print("--------------")
-    print(translation.x)
-    print(translation.y)
-    print(translation.z)
-    print(angles)
-    print(frame_dict)
-    print("--------------")
+    frame_dict = {
+        'tx': "%.8f" % translation.x,
+        'ty': "%.8f" % translation.y,
+        'tz': "%.8f" % translation.z,
+        'rx': "%.8f" % (angles[0]),
+        'ry': "%.8f" % (angles[1]),
+        'rz': "%.8f" % (angles[2])
+    }
     return frame_dict
-
 
 def _export_json(json_object, file_name):
     if ".json" not in file_name:
@@ -99,9 +93,7 @@ def _export_json(json_object, file_name):
     complete_name = os.path.join(os.path.expanduser('~'))
     complete_name += "/" + file_name
 
-    print(json_object)
-    #with open(complete_name, "w") as jsonFile:
-    json_open = open(complete_name, "w", encoding="utf-8")
-    json.dump(json_object, json_open, ensure_ascii=False, indent=4)
+    with open(complete_name, "w") as jsonFile:
+        json.dump(json_object, jsonFile, ensure_ascii=False, indent=4, sort_keys=True, separators=(',', ':'))
     print("Finished writing data to {0}".format(complete_name))
 

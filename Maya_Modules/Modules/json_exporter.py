@@ -6,8 +6,25 @@ import math
 import json
 import os
 
-def save_selected_joints_to_json(start_time, end_time, file_name="joints"):
-    objects = cmds.ls(selection=True, type="joint", dag=True, long=True)
+"""
+usage 
+import json_exporter
+import importlib
+importlib.reload(json_exporter)
+json_exporter.save_selected_joints_to_json(1, 100, False)
+"""
+
+def save_selected_joints_to_json(start_time, end_time, export_joint: bool):
+    base_path = cmds.file(q=True, sceneName=True)
+    base_path_list = base_path.split("/")
+    current_scene = base_path_list[-1]
+    scene_name = current_scene[:-3]
+
+    # Originally, it is a joint, but it gets a transform
+    if export_joint:
+        objects = cmds.ls(selection=True, type="joint", dag=True, long=True)
+    else:
+        objects = cmds.ls(selection=True, type="transform", dag=True, long=True)
     joints = {}
     time_range = range(start_time, end_time+1, 1)
 
@@ -18,17 +35,14 @@ def save_selected_joints_to_json(start_time, end_time, file_name="joints"):
         if "_ROOT_" in short_name:
             is_root = True
 
-        print(cmds.listAttr(r=True))
-
         for frame in time_range:
             if is_root:
                 joint_dict[frame] = _get_frame_dist_for_root(obj, frame)
             else:
                 joint_dict[frame] = _get_frame_dict(obj, frame)
         joints[short_name] = joint_dict
-
-    jsonObject = json.dumps(joints)
-    _export_json(jsonObject, file_name)
+    json_objects = json.dumps(joints)
+    _export_json(json_objects, scene_name)
 
 
 #non root joints should pass values from object space
@@ -42,8 +56,9 @@ def _get_frame_dict(obj, frame):
     euler_rot.reorderIt(rot_order)
     translation = joint_transform_mat.getTranslation(om.MSpace.kTransform)
     angles = [math.degrees(angle) for angle in (euler_rot.x, euler_rot.y, euler_rot.z)]
-    frame_dict = {'tx': "%.8f" % translation.x, 'ty': "%.8f" % translation.y, 'tz': "%.8f" % translation.z,
-                  'rx': "%.8f" % (angles[0]), 'ry': "%.8f" % (angles[1]), 'rz': "%.8f" % (angles[2])}
+    # original %.8f
+    frame_dict = {'tx': "%.4f" % translation.x, 'ty': "%.4f" % translation.y, 'tz': "%.4f" % translation.z,
+                  'rx': "%.4f" % (angles[0]), 'ry': "%.4f" % (angles[1]), 'rz': "%.4f" % (angles[2])}
     return frame_dict
 
 
@@ -84,7 +99,9 @@ def _export_json(json_object, file_name):
     complete_name = os.path.join(os.path.expanduser('~'))
     complete_name += "/" + file_name
 
-    with open(complete_name, "w") as jsonFile:
-        json.dump(json_object, jsonFile, indent=2)
+    print(json_object)
+    #with open(complete_name, "w") as jsonFile:
+    json_open = open(complete_name, "w", encoding="utf-8")
+    json.dump(json_object, json_open, ensure_ascii=False, indent=4)
     print("Finished writing data to {0}".format(complete_name))
 

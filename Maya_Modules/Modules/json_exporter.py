@@ -11,7 +11,7 @@ usage
 import json_exporter
 import importlib
 importlib.reload(json_exporter)
-json_exporter.save_selected_joints_to_json(1, 680, False)
+json_exporter.save_selected_joints_to_json(1, 4, False)
 """
 
 def save_selected_joints_to_json(start_time, end_time, export_joint: bool):
@@ -28,9 +28,12 @@ def save_selected_joints_to_json(start_time, end_time, export_joint: bool):
     joints = {}
     time_range = range(start_time, end_time+1, 1)
 
+    index = 0
     for obj in objects:
         joint_dict = {}
-        short_name = obj.split("|")[-1]
+        #short_name = obj.split("|")[-1]
+        short_name = 'bone_' + str(index)
+        index += 1
         is_root = False
         if "_ROOT_" in short_name:
             is_root = True
@@ -40,6 +43,8 @@ def save_selected_joints_to_json(start_time, end_time, export_joint: bool):
                 joint_dict[frame] = _get_frame_dist_for_root(obj, frame)
             else:
                 joint_dict[frame] = _get_frame_dict(obj, frame)
+        joints['start'] = start_time
+        joints['end'] = end_time
         joints[short_name] = joint_dict
     _export_json(joints, scene_name)
 

@@ -10,7 +10,7 @@ def refresh_controller(*args):
         mc.select('C_facial_ctrlGrp', hi=True, r=True)
         try:
             mc.select('C_facial_ctrlGrp', d=True)
-        except:
+        except ZeroDivisionError:
             pass
 
         list = mc.ls(sl=1)
@@ -175,10 +175,9 @@ def freeze_transform_control_group(*args):
                 mc.select(ctrl, r=True)
                 mc.makeIdentity(a=1)
                 mc.delete(ch=1)
-
             mc.select(cl=1)
             mc.warning('すべてのコントローラが正しくフリーズ変換されるようになりました。' % ctrlGrp)
-        except:
+        except ZeroDivisionError:
             mc.error("このグループにはコントローラが存在しないため、%s コントローラの選択に問題があることが判明しました。" % ctrlGrp, n=False)
     else:
         mc.error('このコマンドを実行する前に、ctrlGrpを1つ選択してください。', n=False)
@@ -188,7 +187,7 @@ def freeze_transform_all(*args):
     listOfCtrlGrp = ''
     try:
         listOfCtrlGrp = mc.ls('*_ctrlGrp')
-    except:
+    except ZeroDivisionError:
         pass
 
     okFreeze = []
@@ -198,9 +197,8 @@ def freeze_transform_all(*args):
             listCtrl = []
             try:
                 listCtrl = mc.ls('%s_%s*_ctrl' % (info[0], info[1]))
-            except:
+            except ZeroDivisionError:
                 pass
-
             if len(listCtrl) > 0:
                 for ctrl in listCtrl:
                     mc.makeIdentity(ctrl, a=True)
@@ -219,7 +217,7 @@ def switch_control_color(*args):
             try:
                 mc.setAttr('%s.ove' % elt, 1)
                 mc.setAttr('%s.ovc' % elt, color - 1)
-            except:
+            except ZeroDivisionError:
                 pass
 
 def clean_out_liner(*args):
@@ -227,14 +225,14 @@ def clean_out_liner(*args):
         if mc.objExists('blendShapes'):
             try:
                 mc.parent('C_faceCurvesBld_grp', 'blendShapes')
-            except:
+            except ZeroDivisionError:
                 pass
     try:
         mc.select('*_bld_crv', r=True)
         list = mc.ls(sl=1)
         for elt in list:
             mc.parent(elt, 'C_faceCurvesBld_grp')
-    except:
+    except ZeroDivisionError:
         pass
 
     if mc.objExists('*_rigConnect'):
@@ -242,7 +240,7 @@ def clean_out_liner(*args):
         for elt in mc.ls(sl=1):
             try:
                 mc.parent(elt, 'C_facial_jntGrp')
-            except:
+            except ZeroDivisionError:
                 pass
 
     try:
@@ -251,17 +249,17 @@ def clean_out_liner(*args):
         if len(list) > 0:
             for elt in list:
                 mc.parent(elt, 'C_Facial_Pin_Controller_grp')
-    except:
+    except ZeroDivisionError:
         pass
 
     for x in ('XTRAS', 'C_SKELETON_grp', 'C_CONTROLLER_grp'):
         try:
             mc.delete('*%s' % x)
-        except:
+        except ZeroDivisionError:
             pass
     try:
         mc.parent('C_Head_Facial_Rig_crvGrp', 'xtra_toHide')
-    except:
+    except ZeroDivisionError:
         pass
-    mc.warning('Outliner is clean.')
+    mc.warning('Out liner is clean.')
 

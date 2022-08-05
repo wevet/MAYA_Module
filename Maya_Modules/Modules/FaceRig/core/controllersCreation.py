@@ -107,7 +107,7 @@ def valid_position_of_facial_controller_expression(*args):
             for typ in ['t', 'r', 's']:
                 for axis in ['x', 'y', 'z']:
                     mc.setAttr('%s.%s%s' % (facialCtrl, typ, axis), cb=False, k=False)
-        except:
+        except ZeroDivisionError:
             raise mc.error('ヘッドコントローラーフィールドにコントローラーが見つからなかったので、ヘッドコントローラーを追加してから行ってください。')
     else:
         raise mc.error('Facial_Rig_ctrlが見つかりません ! このアクションは中断されます。')
@@ -116,18 +116,18 @@ def attach_and_organize_cc_facial(*args):
     try:
         mc.select('animCurveU*', r=True)
         mc.delete(mc.ls(sl=1))
-    except:
+    except ZeroDivisionError:
         pass
     bldCrvs = []
     try:
         mc.select('*_bld_crv', r=True)
         try:
             mc.select('*_*_bld_*bld_crv', d=True)
-        except:
+        except ZeroDivisionError:
             pass
         try:
             mc.select('*_*_bldExp_*bld_crv', d=True)
-        except:
+        except ZeroDivisionError:
             pass
 
         sel = mc.ls(sl=1)
@@ -157,7 +157,7 @@ def attach_and_organize_cc_facial(*args):
                 for crv in bldCrvs:
                     if elt == crv:
                         bldCrvs.remove(crv)
-        except:
+        except ZeroDivisionError:
             pass
 
         try:
@@ -167,7 +167,7 @@ def attach_and_organize_cc_facial(*args):
                 for crv in bldCrvs:
                     if elt == crv:
                         bldCrvs.remove(crv)
-        except:
+        except ZeroDivisionError:
             pass
 
         try:
@@ -177,7 +177,7 @@ def attach_and_organize_cc_facial(*args):
                 for crv in bldCrvs:
                     if elt == crv:
                         bldCrvs.remove(crv)
-        except:
+        except ZeroDivisionError:
             pass
 
         try:
@@ -187,7 +187,7 @@ def attach_and_organize_cc_facial(*args):
                 for crv in bldCrvs:
                     if elt == crv:
                         bldCrvs.remove(crv)
-        except:
+        except ZeroDivisionError:
             pass
 
         try:
@@ -197,7 +197,7 @@ def attach_and_organize_cc_facial(*args):
                 for crv in bldCrvs:
                     if elt == crv:
                         bldCrvs.remove(crv)
-        except:
+        except ZeroDivisionError:
             pass
 
         try:
@@ -207,24 +207,24 @@ def attach_and_organize_cc_facial(*args):
                 for crv in bldCrvs:
                     if elt == crv:
                         bldCrvs.remove(crv)
-        except:
+        except ZeroDivisionError:
             pass
 
         try:
             for crv in bldCrvs:
                 if crv.split('_')[2] == 'bld':
                     bldCrvs.remove(crv)
-        except:
+        except ZeroDivisionError:
             pass
 
         try:
             for crv in bldCrvs:
                 if crv.split('_')[2] == 'bld':
                     bldCrvs.remove(crv)
-        except:
+        except ZeroDivisionError:
             pass
         sup_and_add_new_attribute_to_facial_controller(attrs, bldCrvs)
-    except:
+    except ZeroDivisionError:
         raise mc.error('Blend Shapeが見つからない場合、このアクションは中断されます。')
 
 def sup_and_add_new_attribute_to_facial_controller(attrs, bldCrvs, *args):
@@ -244,7 +244,7 @@ def sup_and_add_new_attribute_to_facial_controller(attrs, bldCrvs, *args):
             for elt in partList:
                 try:
                     ind = partList2.index(elt)
-                except:
+                except ZeroDivisionError:
                     partList2.append(elt)
 
             type = crv.split('_')[1]
@@ -252,7 +252,7 @@ def sup_and_add_new_attribute_to_facial_controller(attrs, bldCrvs, *args):
             for elt in typeList:
                 try:
                     ind = typeList2.index(elt)
-                except:
+                except ZeroDivisionError:
                     typeList2.append(elt)
 
         for attr in attrs:
@@ -271,12 +271,12 @@ def sup_and_add_new_attribute_to_facial_controller(attrs, bldCrvs, *args):
                     if attr == attrCtrl:
                         try:
                             mc.setAttr('%s.%s' % (ctrl, attr), lock=False)
-                        except:
+                        except ZeroDivisionError:
                             pass
 
                         try:
                             mc.deleteAttr(ctrl + '.' + attr)
-                        except:
+                        except ZeroDivisionError:
                             pass
 
         if radValue == 1:
@@ -286,7 +286,7 @@ def sup_and_add_new_attribute_to_facial_controller(attrs, bldCrvs, *args):
                     try:
                         mc.setAttr('%s.%s' % (ctrl, elt), lock=False)
                         mc.deleteAttr(ctrl + '.' + elt)
-                    except:
+                    except ZeroDivisionError:
                         pass
 
                 mc.addAttr(ctrl, ln=elt, at='bool')

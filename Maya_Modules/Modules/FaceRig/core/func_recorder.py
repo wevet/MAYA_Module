@@ -278,7 +278,7 @@ def help_to_fix_build_Sym_menu_mouth(*args):
 
         lenght = len(info)
         if info[(lenght - 1)] == 'crv' and info[(lenght - 2)] == 'bld':
-            HelpToFixBldUI()
+            HelpToFixBuildUI()
             mc.textField('bldShapeToRepair', e=True, tx=sel)
             locList = []
             mc.select('%s_%s_*_%s_bld_recorder' % (info[0], info[1], info[2]), r=True)

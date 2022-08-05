@@ -10,7 +10,7 @@ class XtrasMenuUI:
     def __init__(self):
         if mc.window('XtrasMenu', exists=True):
             mc.deleteUI('XtrasMenu')
-        window3 = mc.window('XtrasMenu', title='XTRAS OPTIONS (clean out liner, none render controls...)', resizeToFitChildren=True, fw=1, mxb=False, w=350, h=200, s=False)
+        window3 = mc.window('XtrasMenu', title='EXTRA OPTIONS (clean out liner, none render controls...)', resizeToFitChildren=True, fw=1, mxb=False, w=350, h=200, s=False)
         mc.frameLayout(labelVisible=0)
         self.control_list()
         self.display_objects()
@@ -20,7 +20,7 @@ class XtrasMenuUI:
 
     def control_list(self):
         mc.frameLayout(l='Resize your controller and Locator')
-        mc.text(l='Before to go, select a controller group in "Ctrl List:"')
+        mc.text(l='その前に、"Ctrl List:" でコントローラグループを選択します。')
         mc.rowLayout(nc=6)
         mc.separator(w=15, style='none')
         mc.text(l='Ctrl List:', fn='boldLabelFont')
@@ -62,7 +62,7 @@ class XtrasMenuUI:
         mc.setParent('..')
         mc.separator(style='in')
         mc.button(l='Clean Out liner', c=clean_out_liner)
-        mc.text(l="コントローラーなどでリグをスケールさせたい場合は、'C_curves_setup' を自分のリグの親にしてください。'C_facial_jntGrp'にはコンストレイントを作らないようにします。")
+        mc.text(l="コントローラーなどでリグをスケールさせたい場合は、'C Curves Setup' を自分のリグの親にしてください。'C_facial_jntGrp'にはコンストレイントを作らないようにします。")
         mc.separator(h=10, style='none')
         mc.setParent('..')
 

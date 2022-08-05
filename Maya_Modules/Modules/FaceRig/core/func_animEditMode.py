@@ -7,7 +7,7 @@ def go_to_edit_mode(*args):
     headCtrl = ''
     try:
         headCtrl = mc.textScrollList('headCtrlBlendShape', q=True, ai=True)[0]
-    except:
+    except ZeroDivisionError:
         pass
 
     if headCtrl != '':
@@ -33,7 +33,7 @@ def go_to_edit_mode(*args):
                         mc.connectAttr('%s.xCoordinate' % mp, '%s.translateX' % loc)
                         mc.connectAttr('%s.yCoordinate' % mp, '%s.translateY' % loc)
                         mc.connectAttr('%s.zCoordinate' % mp, '%s.translateZ' % loc)
-                    except:
+                    except ZeroDivisionError:
                         pass
 
                 mc.select('*bld_recorder', r=True)
@@ -59,33 +59,33 @@ def go_to_edit_mode(*args):
                     for x in ('X', 'Y', 'Z'):
                         try:
                             mc.connectAttr('%s.constraintRotate%s' % (parCons, x), '%s.rotate%s' % (grpOff, x), f=True)
-                        except:
+                        except ZeroDivisionError:
                             pass
 
                         try:
                             mc.connectAttr('%s.constraintTranslate%s' % (parCons, x), '%s.translate%s' % (grpOff, x), f=True)
-                        except:
+                        except ZeroDivisionError:
                             pass
 
                         try:
                             mc.connectAttr('%s.constraintScale%s' % (jntCons, x), '%s.scale%s' % (jnt, x), f=True)
-                        except:
+                        except ZeroDivisionError:
                             pass
 
                     for x in (multNode, minNode, addNode, multNodeRot, multNodeScale, minNodeRot, minNodeScale, addNodeRot, addNodeScale):
                         try:
                             mc.delete(x)
-                        except:
+                        except ZeroDivisionError:
                             pass
 
                     try:
                         mc.delete(conformScaleNode)
-                    except:
+                    except ZeroDivisionError:
                         pass
 
                     try:
                         mc.delete('Constant_scale')
-                    except:
+                    except ZeroDivisionError:
                         pass
 
                 mc.setAttr('Facial_Rig_ctrl.mode', lock=False)
@@ -109,13 +109,13 @@ def set_all_attribute_of_cc_facial_at0(*args):
         try:
             mc.select('*bld_crv', r=True)
             listToAdd = mc.ls(sl=1)
-        except:
+        except ZeroDivisionError:
             pass
 
         if len(listToAdd) > 0:
             for elt in listToAdd:
                 info = elt.split('_')
-                name = ('').join([ i for i in info[2] if not i.isdigit() ])
+                name = ('').join([i for i in info[2] if not i.isdigit()])
                 if name != 'bld':
                     if name != 'bldExp':
                         if name != 'Open':
@@ -133,13 +133,13 @@ def set_all_attribute_of_cc_facial_at0(*args):
             for x in listAttrCCFacial:
                 try:
                     mc.setAttr('Facial_Rig_ctrl.%s' % x, 0)
-                except:
+                except ZeroDivisionError:
                     pass
 
         else:
-            mc.error('No blendshape made by the speed facial script was found. This action will be aborted')
+            mc.error('フェイシャルスクリプトで作成されたブレンドシェープが見つかりませんでした。このアクションは中断されます')
     else:
-        mc.error('The Facial_Rig_ctrl controller was not found, this operation will be aborted')
+        mc.error('Facial_Rig_ctrlコントローラが見つからなかったため、この操作を中断します。')
 
 def disco_all_mp_to_loc(*args):
     ctrlList2 = []
@@ -154,7 +154,7 @@ def disco_all_mp_to_loc(*args):
         for x in ('Orient', 'Position', 'Scale'):
             try:
                 mc.deleteAttr('%s.%s_%s' % (ctrl, 'Follow_BlendShape', x))
-            except:
+            except ZeroDivisionError:
                 pass
 
         try:
@@ -163,7 +163,7 @@ def disco_all_mp_to_loc(*args):
             mc.disconnectAttr('%s.xCoordinate' % mp, '%s.translateX' % loc)
             mc.disconnectAttr('%s.yCoordinate' % mp, '%s.translateY' % loc)
             mc.disconnectAttr('%s.zCoordinate' % mp, '%s.translateZ' % loc)
-        except:
+        except ZeroDivisionError:
             pass
 
 def go_to_anim_mode(*args):
@@ -171,7 +171,7 @@ def go_to_anim_mode(*args):
     headCtrl = ''
     try:
         headCtrl = mc.textScrollList('headCtrlBlendShape', q=True, ai=True)[0]
-    except:
+    except ZeroDivisionError:
         pass
 
     if headCtrl != '':
@@ -190,7 +190,7 @@ def go_to_anim_mode(*args):
                 mc.xform('blendShape_Loc_keepRecorder_RotAndScale_grp', ws=True, piv=[piv[0], piv[1], piv[2]])
                 try:
                     mc.orientConstraint(headCtrl, 'blendShape_Loc_keepRecorder_RotAndScale_grp', mo=True)
-                except:
+                except ZeroDivisionError:
                     pass
 
                 mc.select('*bld_recorder', r=True)
@@ -245,7 +245,7 @@ def go_to_anim_mode(*args):
                     try:
                         mc.connectAttr('%s_%s_%s_addScale.output3D' % (info[0], info[1], info[2]), '%s.input3D[1]' % conformScaleNode, f=True)
                         mc.connectAttr('%s.output3D' % conformScaleNode, '%s.scale' % jnt, f=True)
-                    except:
+                    except ZeroDivisionError:
                         pass
 
                     if not mc.objExists(addNode):
@@ -260,22 +260,20 @@ def go_to_anim_mode(*args):
                     for x in ('X', 'Y', 'Z'):
                         try:
                             mc.disconnectAttr('%s.constraintRotate%s' % (parCons, x), '%s.rotate%s' % (grpOff, x))
-                        except:
+                        except ZeroDivisionError:
                             pass
-
                         try:
                             mc.disconnectAttr('%s.constraintTranslate%s' % (parCons, x), '%s.translate%s' % (grpOff, x))
-                        except:
+                        except ZeroDivisionError:
                             pass
-
                         try:
                             mc.disconnectAttr('%s.constraintScale%s' % (jntCons, x), '%s.scale%s' % (jnt, x))
-                        except:
+                        except ZeroDivisionError:
                             pass
 
                     try:
                         mc.makeIdentity(grpOff, a=1)
-                    except:
+                    except ZeroDivisionError:
                         pass
 
                     nb = 0
@@ -289,34 +287,31 @@ def go_to_anim_mode(*args):
                     for x in ('X', 'Y', 'Z'):
                         try:
                             mc.connectAttr('%s.%sW%s' % (parCons, loc, nb), '%s.input2.input2%s' % (multNode, x), f=True)
-                        except:
+                        except ZeroDivisionError:
                             pass
-
                         try:
                             mc.connectAttr('%s.output3D' % minNode, '%s.input1' % multNode, f=True)
-                        except:
+                        except ZeroDivisionError:
                             pass
 
                     for x in ('X', 'Y', 'Z'):
                         try:
                             mc.connectAttr('%s.%sW%s' % (parCons, loc, nb), '%s.input2.input2%s' % (multNodeRot, x), f=True)
-                        except:
+                        except ZeroDivisionError:
                             pass
-
                         try:
                             mc.connectAttr('%s.output3D' % minNodeRot, '%s.input1' % multNodeRot, f=True)
-                        except:
+                        except ZeroDivisionError:
                             pass
 
                     for x in ('X', 'Y', 'Z'):
                         try:
                             mc.connectAttr('%s.%sW%s' % (jntCons, loc, nb), '%s.input2.input2%s' % (multNodeScale, x), f=True)
-                        except:
+                        except ZeroDivisionError:
                             pass
-
                         try:
                             mc.connectAttr('%s.output3D' % minNodeScale, '%s.input1' % multNodeScale, f=True)
-                        except:
+                        except ZeroDivisionError:
                             pass
 
                     try:
@@ -332,7 +327,7 @@ def go_to_anim_mode(*args):
 
                         if test >= lenght:
                             mc.connectAttr('%s.output' % multNode, '%s.input3D[%s]' % (addNode, test), f=True)
-                    except:
+                    except ZeroDivisionError:
                         mc.connectAttr('%s.output' % multNode, '%s.input3D[0]' % addNode, f=True)
 
                     try:
@@ -348,7 +343,7 @@ def go_to_anim_mode(*args):
 
                         if test >= lenght:
                             mc.connectAttr('%s.output' % multNodeRot, '%s.input3D[%s]' % (addNodeRot, test), f=True)
-                    except:
+                    except ZeroDivisionError:
                         mc.connectAttr('%s.output' % multNodeRot, '%s.input3D[0]' % addNodeRot, f=True)
 
                     try:
@@ -364,12 +359,12 @@ def go_to_anim_mode(*args):
 
                         if test >= lenght:
                             mc.connectAttr('%s.output' % multNodeScale, '%s.input3D[%s]' % (addNodeScale, test), f=True)
-                    except:
+                    except ZeroDivisionError:
                         mc.connectAttr('%s.output' % multNodeScale, '%s.input3D[1]' % addNodeScale, f=True)
 
                     try:
                         mc.connectAttr('%s.output3D' % addNodeScale, '%s.scale' % grpOff, f=True)
-                    except:
+                    except ZeroDivisionError:
                         pass
 
                 ctrlListClean = []
@@ -385,14 +380,13 @@ def go_to_anim_mode(*args):
                     for x in ['X', 'Y', 'Z']:
                         try:
                             mc.connectAttr(weight, '%s_mult_add.input2%s' % (loc, x), f=True)
-                        except:
+                        except ZeroDivisionError:
                             pass
 
                         try:
                             mc.connectAttr(weight, '%s_mult_addRot.input2%s' % (loc, x), f=True)
-                        except:
+                        except ZeroDivisionError:
                             pass
-
                     ctrlListClean.append('%s_%s_%s' % (info[0], info[1], info[2]))
 
                 list(set(ctrlListClean))
@@ -400,19 +394,18 @@ def go_to_anim_mode(*args):
                     grpOff = '%s_ctrl_grpOff' % ctrl
                     try:
                         mc.connectAttr('%s_addTrans.output3D' % ctrl, '%s.translate' % grpOff, f=True)
-                    except:
+                    except ZeroDivisionError:
                         pass
-
                     try:
                         mc.connectAttr('%s_addRot.output3D' % ctrl, '%s.rotate' % grpOff, f=True)
-                    except:
+                    except ZeroDivisionError:
                         pass
 
                 listCons = []
                 connect_ib_in_anim_mode()
                 try:
                     mc.select('*bld*_bld_crv', r=True)
-                except:
+                except ZeroDivisionError:
                     pass
 
                 listCons = mc.ls(sl=1)
@@ -421,21 +414,21 @@ def go_to_anim_mode(*args):
                         mel.eval('selectKey -add -k -f 0 -f 1 ' + con + ';')
                         try:
                             mel.eval('selectKey -add -k -f -1 -f 0 -f 1 ' + con + ';')
-                        except:
+                        except ZeroDivisionError:
                             pass
 
                 mc.setAttr('Facial_Rig_ctrl.mode', lock=False)
                 mc.setAttr('Facial_Rig_ctrl.mode', 1)
                 mc.setAttr('Facial_Rig_ctrl.mode', lock=True)
-                mc.warning('You are now in Anim Mode')
+                mc.warning('現在、Animation Modeです')
             elif mode == 1:
-                mc.warning('You already are in Anim Mode, this action will be skiped')
+                mc.warning('すでにAnimation Modeになっているため、このアクションはスキップされます。')
             else:
-                mc.error('You cannot back into the Anim mode if you have launch the Optimize Mode.')
+                mc.error('最適化モードを起動した場合、Animation Modeに戻すことはできません。')
         else:
-            mc.error('No Facial Rig Ctrl was found, this action will be aborted')
+            mc.error('フェイシャルリグCtrlが見つからなかったため、このアクションは中断されます。')
     else:
-        mc.error('please add your head controller into the "Head Controller" field')
+        mc.error('ヘッドコントローラを追加してください。')
 
 def connect_ib_in_anim_mode(*args):
     IBNameLocList = []
@@ -443,7 +436,7 @@ def connect_ib_in_anim_mode(*args):
     IBListClean = []
     try:
         IBNameLocList = mc.ls('*bldIB*_recorder')
-    except:
+    except ZeroDivisionError:
         pass
 
     if len(IBNameLocList) > 0:
@@ -516,12 +509,12 @@ def connect_ib_in_anim_mode(*args):
                                 resultNode = mc.createNode('plusMinusAverage', n=resultNode)
                             try:
                                 mc.connectAttr('%s.%s' % (locRecorder, x), '%s.input3D[0]' % deltaNode, f=True)
-                            except:
+                            except ZeroDivisionError:
                                 pass
 
                             try:
                                 mc.connectAttr('%s.%s' % (locIB, x), '%s.input3D[1]' % deltaNode, f=True)
-                            except:
+                            except ZeroDivisionError:
                                 pass
 
                             try:
@@ -530,32 +523,31 @@ def connect_ib_in_anim_mode(*args):
                                     mc.setAttr('%s.max%s' % (setRangeDelta, axis), 1)
                                     mc.setAttr('%s.oldMax%s' % (setRangeDelta, axis), 1)
                                     mc.connectAttr(parentConsWeight, '%s.value%s' % (setRangeDelta, axis), f=True)
-
-                            except:
+                            except ZeroDivisionError:
                                 pass
 
                             try:
                                 mc.connectAttr('%s.outValue' % setRangeDelta, '%s.input1' % multDelta, f=True)
-                            except:
+                            except ZeroDivisionError:
                                 pass
 
                             try:
                                 mc.connectAttr('%s.output3D' % deltaNode, '%s.input2' % multDelta, f=True)
-                            except:
+                            except ZeroDivisionError:
                                 pass
 
                             try:
                                 mc.connectAttr('%s.output' % multDelta, '%s.input3D[1]' % resultNode, f=True)
-                            except:
+                            except ZeroDivisionError:
                                 pass
 
                             try:
                                 mc.connectAttr('%s.colorIfFalse' % condNode, '%s.input3D[0]' % resultNode, f=True)
-                            except:
+                            except ZeroDivisionError:
                                 pass
 
                             try:
                                 mc.connectAttr('%s.output3D' % resultNode, '%s.colorIfTrue' % condNode, f=True)
-                            except:
+                            except ZeroDivisionError:
                                 pass
 

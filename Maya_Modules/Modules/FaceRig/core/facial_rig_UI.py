@@ -12,11 +12,11 @@ for i in range(4):
     if version[i].isdigit():
         num = num + version[i]
 
-mayaVersion = ['2017', '2018', '2019', '2020', '2022', '2023']
+mayaVersion = ['2018', '2019', '2020', '2022', '2023']
 num = int(num)
 numNb = num
 for v in mayaVersion:
-    if num >= 2017:
+    if num >= 2018:
         num = 'yes'
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -88,29 +88,29 @@ class FaceRigMainUI:
             mc.deleteUI('ReplaceCtrl')
 
     def show_ui(self):
-        window = mc.window('RIG', title='Speed Facial Rig v 2.0 Lite', resizeToFitChildren=False, h=900, sizeable=True, w=395)
+        window = mc.window('RIG', title='Custom Facial Rig v 1.0', resizeToFitChildren=False, h=900, sizeable=True, w=395)
         mc.columnLayout(adj=True)
-        self.menuBarUI()
-        self.entete()
-        self.tabLayoutUI()
+        self.menu_bar_ui()
+        self.entry()
+        self.tab_layout_ui()
         mc.setParent('..')
         mc.frameLayout(labelVisible=0)
-        mc.button(l='XTRAS Menu \n(help to resize and replace each element, \nwill be used before facial expression)', c=launch_XTRAS_menu_ui)
+        mc.button(l='Menu (各要素のリサイズや置き換えをサポート、表情付けの前に使用します）', c=launch_XTRAS_menu_ui)
         mc.textScrollList('HiddenTMPNodeList', vis=0, h=30)
         mc.textScrollList('RecordPosCtrl', vis=0, h=30)
         mc.setParent('..')
         mc.showWindow(window)
 
-    def menuBarUI(self):
+    def menu_bar_ui(self):
         menuBarLayout = mc.menuBarLayout(menuBarVisible=True, po=True)
         mc.menu(label='File Mode')
         mc.menuItem(label='Edit Mode', c=go_to_edit_mode)
         mc.menuItem(label='Anim Mode', c=go_to_anim_mode)
         mc.separator(w=5, style='in')
         mc.menu(label='Help')
-        mc.menuItem(label='About / Contact', c=helpBarAbout)
+        mc.menuItem(label='About / Contact', c=help_bar_about)
 
-    def entete(self):
+    def entry(self):
         mc.columnLayout()
         mc.rowLayout(nc=2)
         mc.separator(w=90, style='none')
@@ -118,7 +118,7 @@ class FaceRigMainUI:
         mc.setParent('..')
         mc.rowLayout(nc=2)
         mc.separator(w=35, style='none')
-        mc.text(fn='boldLabelFont', w=320, l='SPEED FACIAL RIG Lite')
+        mc.text(fn='boldLabelFont', w=320, l='FACIAL RIG')
         mc.setParent('..')
         mc.rowLayout(nc=2)
         mc.separator(w=90, style='none')
@@ -126,50 +126,50 @@ class FaceRigMainUI:
         mc.setParent('..')
         mc.setParent('..')
 
-    def tabLayoutUI(self):
+    def tab_layout_ui(self):
         mc.tabLayout(tv=0)
         tabs = mc.tabLayout(innerMarginWidth=1, innerMarginHeight=1, cr=20, h=700, w=385, scr=1)
         child1 = mc.frameLayout(labelVisible=0)
-        self.creationPlacement()
-        self.userReplaceUI()
-        self.attachNewSystem()
+        self.creation_placement()
+        self.user_replace_ui()
+        self.attach_new_system()
         mc.setParent('..')
         child2 = mc.frameLayout(labelVisible=0)
-        self.addToCurrentSkinUI(version)
-        self.addNewPartOnYourRig()
+        self.add_to_current_skin_ui(version)
+        self.add_new_part_on_your_rig()
         mc.setParent('..')
         child3 = mc.frameLayout(labelVisible=0)
-        self.makeTheFacialControllerUI()
-        self.mouthBlendShapeMenuUI()
-        self.blendShapeMenuUI()
-        self.attachToFacialController()
+        self.make_the_facial_controller_ui()
+        self.mouth_blend_shape_menu_ui()
+        self.blend_shape_menu_ui()
+        self.attach_to_facial_controller()
         mc.setParent('..')
         child4 = mc.frameLayout(labelVisible=0)
-        self.OthersMenuUI()
+        self.other_menu_ui()
         mc.setParent('..')
-        mc.tabLayout(tabs, edit=True, tabLabel=((child1, 'Setup And Creation'), (child2, 'Make Skin'), (child3, 'Make Blendshape'), (child4, 'Others')))
+        mc.tabLayout(tabs, edit=True, tabLabel=((child1, 'Setup And Creation'), (child2, 'Make Skin'), (child3, 'Make Blend shape'), (child4, 'Others')))
         mc.setParent('..')
 
-    def creationPlacement(self):
+    def creation_placement(self):
         mc.frameLayout(l='I - Creation and Placement', collapsable=1, collapse=0, labelVisible=1)
-        mc.text(l='Select your curve and define side and type', fn='boldLabelFont')
-        self.curveSel()
-        self.sideCreationUI()
-        self.typeCreationUI()
-        self.selShapeCtrlCreationUI()
+        mc.text(l='Curveを選択し、Side. Typeを定義します。', fn='boldLabelFont')
+        self.curve_select()
+        self.side_creation_ui()
+        self.type_creation_ui()
+        self.select_shape_control_creation_ui()
 
-    def curveSel(self):
+    def curve_select(self):
         mc.rowLayout(nc=6)
         mc.separator(w=15, style='none')
-        mc.text(l='Curve sel:', fn='boldLabelFont')
+        mc.text(l='Curve select:', fn='boldLabelFont')
         mc.separator(w=25, style='none')
         mc.textScrollList('curveSelList', w=170, h=20)
         mc.separator(w=5, style='none')
-        mc.button(l='Add', w=80, c=func_creation.addSelCurveCreation)
+        mc.button(l='Add', w=80, c=func_creation.add_sel_curve_creation)
         mc.setParent('..')
         mc.separator(style='double')
 
-    def sideCreationUI(self):
+    def side_creation_ui(self):
         mc.columnLayout()
         mc.rowLayout(nc=2)
         mc.separator(w=170, style='none')
@@ -184,7 +184,7 @@ class FaceRigMainUI:
         mc.setParent('..')
         mc.separator(style='double')
 
-    def typeCreationUI(self):
+    def type_creation_ui(self):
         mc.rowLayout(nc=2)
         mc.separator(w=170, style='none')
         mc.text(l='Type: ', fn='boldLabelFont')
@@ -192,35 +192,35 @@ class FaceRigMainUI:
         mc.radioCollection('typeRadioGrp')
         mc.rowLayout(nc=9)
         mc.separator(w=16, style='none')
-        rb1 = mc.radioButton('eyeBrow', l='EyeBrow    ')
+        rb1 = mc.radioButton('eyeBrow', l='EyeBrow')
         mc.separator(w=1, style='none')
-        rb2 = mc.radioButton('upperLid', l='UpperLid   ')
+        rb2 = mc.radioButton('upperLid', l='UpperLid')
         mc.separator(w=1, style='none')
-        rb3 = mc.radioButton('lowerLid', l='LowerLid   ')
+        rb3 = mc.radioButton('lowerLid', l='LowerLid')
         mc.separator(w=1, style='none')
         rb4 = mc.radioButton('upperCheeks', l='UpperCheeks')
         mc.separator(w=1, style='none')
         mc.setParent('..')
         mc.rowLayout(nc=9)
         mc.separator(w=15, style='none')
-        rb5 = mc.radioButton('cheeks', l='Cheeks     ')
+        rb5 = mc.radioButton('cheeks', l='Cheeks')
         mc.separator(w=5, style='none')
-        rb6 = mc.radioButton('nose', l='Nose       ')
+        rb6 = mc.radioButton('nose', l='Nose')
         mc.separator(w=10, style='none')
-        rb7 = mc.radioButton('crease', l='Crease     ')
+        rb7 = mc.radioButton('crease', l='Crease')
         mc.separator(w=7, style='none')
-        rb8 = mc.radioButton('upperLip', l='UpperLip   ')
+        rb8 = mc.radioButton('upperLip', l='UpperLip')
         mc.setParent('..')
         mc.rowLayout(nc=4)
         mc.separator(w=15, style='none')
-        rb9 = mc.radioButton('lowerLip', l='LowerLip   ')
+        rb9 = mc.radioButton('lowerLip', l='LowerLip')
         mc.separator(w=2, style='none')
-        rb10 = mc.radioButton('custom', l='Custom     ')
+        rb10 = mc.radioButton('custom', l='Custom')
         mc.setParent('..')
         mc.radioCollection('typeRadioGrp', edit=True, select=rb1)
         mc.rowLayout(nc=2)
         mc.separator(w=40, style='none')
-        mc.text(l='For your custom name, please respect this nomenclature:', fn='boldLabelFont')
+        mc.text(l='Custom Nameは、この命名規則に従ってください。:', fn='boldLabelFont')
         mc.setParent('..')
         mc.rowLayout(nc=2)
         mc.separator(w=135, style='none')
@@ -242,18 +242,18 @@ class FaceRigMainUI:
         mc.setParent('..')
         mc.separator(style='double')
 
-    def selShapeCtrlCreationUI(self):
-        mc.text('Select a type of shape controller', fn='boldLabelFont')
+    def select_shape_control_creation_ui(self):
+        mc.text('シェイプコントローラーの種類を選択します。', fn='boldLabelFont')
         mc.iconTextRadioCollection('ctrlShapeGrp')
         mc.rowLayout(nc=8)
         mc.separator(w=20, style='none')
-        rbc1 = mc.iconTextRadioButton('sphere', l='Sphere', i='sphereF.png', st='iconAndTextHorizontal')
+        rbc1 = mc.iconTextRadioButton('sphere', l='Sphere', i='../icons/sphereF.png', st='iconAndTextHorizontal')
         mc.separator(w=5, style='none')
-        rbc2 = mc.iconTextRadioButton('circle', l='Circle', i='circleF.png', st='iconAndTextHorizontal')
+        rbc2 = mc.iconTextRadioButton('circle', l='Circle', i='../icons/circleF.png', st='iconAndTextHorizontal')
         mc.separator(w=5, style='none')
-        rbc3 = mc.iconTextRadioButton('triangle', l='Triangle', i='triangleF.png', st='iconAndTextHorizontal')
+        rbc3 = mc.iconTextRadioButton('triangle', l='Triangle', i='../icons/triangleF.png', st='iconAndTextHorizontal')
         mc.separator(w=5, style='none')
-        rbc4 = mc.iconTextRadioButton('custom', l='Custom', i='interrogationPoint.png', st='iconAndTextHorizontal')
+        rbc4 = mc.iconTextRadioButton('custom', l='Custom', i='../icons/interrogationPoint.png', st='iconAndTextHorizontal')
         mc.setParent('..')
         mc.iconTextRadioCollection('ctrlShapeGrp', edit=True, select=rbc1)
         mc.rowLayout(nc=6)
@@ -262,7 +262,7 @@ class FaceRigMainUI:
         mc.separator(w=10, style='none')
         mc.textScrollList('otherCtrlShapeList', w=150, h=20)
         mc.separator(w=5, style='none')
-        mc.button(l='Add', w=80, c=func_creation.addCtrlToCurveCreation)
+        mc.button(l='Add', w=80, c=func_creation.add_control_to_curve_creation)
         mc.setParent('..')
         mc.rowLayout(nc=6)
         mc.separator(w=15, style='none')
@@ -270,20 +270,20 @@ class FaceRigMainUI:
         mc.separator(w=20, style='none')
         mc.intField('range', min=3, max=99, v=3, w=30)
         mc.separator(w=18, style='none')
-        mc.button(l='Create system', w=100, c=func_creation.createSystemOnCurveSelected)
+        mc.button(l='Create system', w=100, c=func_creation.create_system_on_curve_selected)
         mc.setParent('..')
         mc.setParent('..')
 
-    def userReplaceUI(self):
-        mc.frameLayout('II - User Replace Postion Controller System', collapsable=1, collapse=1)
+    def user_replace_ui(self):
+        mc.frameLayout('II - User Replace Position Controller System', collapsable=1, collapse=1)
         mc.frameLayout('How To:', collapsable=1, collapse=1)
-        mc.text(l='Select a controller made by the upper section\n click on Get Controllers\nselect it into the textField')
-        mc.text(l='and tweak his position with the slider\n make the same thing for others if you need it\nafter that, you need to click on rebuild EP position curve\n doing the same thing for each curves even \nif you do not move controllers')
+        mc.text(l='作成したコントローラを選択し、textFieldに入力します。')
+        mc.text(l='and tweak his position with the slider \n make the same thing for others if you need it \n after that, you need to click on rebuild EP position curve \n doing the same thing for each curves even \n if you do not move controllers')
         mc.separator(style='in')
         mc.setParent('..')
         mc.separator(style='none')
-        mc.text('Select a controller made by this facial and click to "Get All Controller"')
-        mc.button(l='Get All Controller', c=getAllControllersOnCurves)
+        mc.text('フェイシャルで作られたコントローラーを選択し、"Get All Controller"をクリックします。')
+        mc.button(l='Get All Controller', c=get_all_controllers_on_curves)
         mc.separator(style='double')
         mc.rowLayout(nc=2)
         mc.separator(w=20, style='none')
@@ -291,26 +291,25 @@ class FaceRigMainUI:
         mc.setParent('..')
         mc.rowLayout(nc=4)
         mc.separator(w=15, style='none')
-        mc.textScrollList('CtrlOnCurve', h=90, w=150, sc=sendUValueToSliderReplaceController)
+        mc.textScrollList('CtrlOnCurve', h=90, w=150, sc=send_UValue_to_slider_replace_controller)
         mc.separator(w=20, style='none')
         mc.columnLayout()
-        mc.floatSliderGrp('replaceCtrlSys', w=150, min=0.0, max=1, v=0, field=1, cw2=(40,
-                                                                                      300), pre=3, cc=changeUValueOfController, dc=changeUValueOfController)
+        mc.floatSliderGrp('replaceCtrlSys', w=150, min=0.0, max=1, v=0, field=1, cw2=(40, 300), pre=3, cc=change_UValue_of_controller, dc=change_UValue_of_controller)
         mc.rowLayout(nc=2)
-        mc.text(l='Active Symetry:', en=1)
-        mc.checkBox('CheckBoxSymOnRebuildEP', l='', en=1)
+        mc.text(l='Active Symmetry:', en=1)
+        mc.checkBox('CheckBox Symmetry OnRebuildEP', l='', en=1)
         mc.setParent('..')
-        mc.button('rebuildCrvBtn', l='rebuild EP position curve', w=150, c=rebuildEPPosCurve)
-        mc.button('restoreCrvBtn', l='Restore To Original Curve', w=150, en=0, c=restoreToOriginalCurve)
+        mc.button('rebuildCrvBtn', l='rebuild EP position curve', w=150, c=rebuild_EP_position_curve)
+        mc.button('restoreCrvBtn', l='Restore To Original Curve', w=150, en=0, c=restore_to_original_curve)
         mc.setParent('..')
         mc.setParent('..')
         mc.setParent('..')
 
-    def attachNewSystem(self):
+    def attach_new_system(self):
         mc.frameLayout(l='III - Attach the new system on your model', collapsable=1, collapse=1, w=330)
         mc.rowLayout(nc=2)
         mc.separator(w=60, style='none')
-        mc.text(l='Add the different element and click on Execute')
+        mc.text(l='異なる要素を追加して、実行します')
         mc.setParent('..')
         mc.rowLayout(nc=6)
         mc.separator(w=20, style='none')
@@ -318,7 +317,7 @@ class FaceRigMainUI:
         mc.separator(w=15, style='none')
         mc.textScrollList('headSelList', w=150, h=20)
         mc.separator(w=10, style='none')
-        mc.button(l='Add', w=80, c=addHeadJnt)
+        mc.button(l='Add', w=80, c=add_head_joint)
         mc.setParent('..')
         mc.rowLayout(nc=6)
         mc.separator(w=20, style='none')
@@ -326,7 +325,7 @@ class FaceRigMainUI:
         mc.separator(w=21, style='none')
         mc.textScrollList('headCtrlList', w=150, h=20)
         mc.separator(w=10, style='none')
-        mc.button(l='Add', w=80, c=addHeadCtrl)
+        mc.button(l='Add', w=80, c=add_head_controller)
         mc.setParent('..')
         mc.rowLayout(nc=6)
         mc.separator(w=20, style='none')
@@ -335,23 +334,23 @@ class FaceRigMainUI:
         mc.textScrollList('CustomCtrlList', w=150, h=50)
         mc.separator(w=10, style='none')
         mc.columnLayout()
-        mc.button(l='Add', w=80, c=addCtrlList)
-        mc.button(l='Remove', w=80, c=removeCtrlList)
+        mc.button(l='Add', w=80, c=add_control_list)
+        mc.button(l='Remove', w=80, c=remove_control_list)
         mc.setParent('..')
         mc.setParent('..')
         mc.separator(style='double', h=5)
         mc.rowLayout(nc=2)
         mc.separator(w=35, style='none')
-        mc.button(l='Validate The Head Part Settings', w=300, c=executeHead)
+        mc.button(l='Validate The Head Part Settings', w=300, c=execute_head)
         mc.setParent('..')
         mc.setParent('..')
 
-    def addToCurrentSkinUI(version, self):
+    def add_to_current_skin_ui(self, version: int):
         mc.frameLayout(l='Skin method')
         if num == 'yes':
             mc.frameLayout(l='Reminder:', collapsable=1, collapse=1)
             mc.text(l='Reminder:', fn='boldLabelFont')
-            mc.text(l='if you have used Geodesic Voxel method on "Bind Skin",\n you need to delete your skin, click on:')
+            mc.text(l='Bind SkinでGeodesic Voxelを使用した場合、スキンを削除する必要があります。')
             mc.text(l='"Delete And Make a New Skin"', fn='boldLabelFont')
             mc.text(l="or if you haven't choose this option click on:")
             mc.text(l='"ADD TO CURRENT SKIN"', fn='boldLabelFont')
@@ -364,7 +363,7 @@ class FaceRigMainUI:
         mc.separator(w=28, style='none')
         mc.textScrollList('headGeoList', w=150, h=20)
         mc.separator(w=10, style='none')
-        mc.button(l='Add', w=80, c=addHeadGeo)
+        mc.button(l='Add', w=80, c=add_head_geometry)
         mc.setParent('..')
         mc.separator(style='in')
         mc.rowLayout(nc=6)
@@ -373,22 +372,22 @@ class FaceRigMainUI:
         mc.separator(w=28, style='none')
         mc.textScrollList('jntListScript', w=150, h=80)
         mc.separator(w=10, style='none')
-        mc.button(l='Refresh', w=80, c=refreshJnt)
+        mc.button(l='Refresh', w=80, c=refresh_joint)
         mc.setParent('..')
         if num == 'yes':
             mc.rowLayout(nc=4)
             mc.separator(w=15, style='none')
-            mc.button(l='Delete And Make a New Skin', w=160, c=deleteSkinAndMakeSkin)
+            mc.button(l='Delete And Make a New Skin', w=160, c=delete_skin_and_make_skin)
             mc.separator(w=10, style='none')
-            mc.button(l='Add To Current Skin', w=160, c=addToCurrentSkin)
+            mc.button(l='Add To Current Skin', w=160, c=add_to_current_skin)
             mc.setParent('..')
         else:
-            mc.button(l='Add To Current Skin', c=addToCurrentSkin)
+            mc.button(l='Add To Current Skin', c=add_to_current_skin)
 
-    def addNewPartOnYourRig(self):
+    def add_new_part_on_your_rig(self):
         mc.frameLayout(l='Only If you have already use add to current', collapsable=1, collapse=0)
-        mc.text(l='This part is only requiered if you need to add additionnal part')
-        mc.text(l='Reminder: Add your head geo into the head geo field')
+        mc.text(l='追加Partが必要な場合のみ必要です。')
+        mc.text(l='注意事項 Head Geometry FieldにHead Geometry を追加してください。')
         mc.rowLayout(nc=6)
         mc.separator(w=5, style='none')
         mc.text(l='Additionnal Part:', fn='boldLabelFont')
@@ -396,24 +395,24 @@ class FaceRigMainUI:
         mc.textScrollList('addAdditionnalCtrl', w=150, h=60)
         mc.separator(w=5, style='none')
         mc.columnLayout()
-        mc.button(l='Add', w=80, c=addBtnOfAdditionnalPart)
-        mc.button(l='Remove', w=80, c=removeBtnOfAdditionnalPart)
+        mc.button(l='Add', w=80, c=add_button_of_additional_part)
+        mc.button(l='Remove', w=80, c=remove_button_of_additional_part)
         mc.setParent('..')
         mc.setParent('..')
         mc.separator(style='in')
-        mc.button(l='Validate Additionnal Part', c=validateAdditionnalPart)
+        mc.button(l='Validate Additionnal Part', c=validate_additional_part)
         mc.separator(style='double')
         mc.setParent('..')
-        mc.button(l='Skin Tool', c=SkinTool)
+        mc.button(l='Skin Tool', c=skin_tool)
         mc.setParent('..')
 
-    def makeTheFacialControllerUI(self):
+    def make_the_facial_controller_ui(self):
         mc.frameLayout(l='I - Make The Facial Controller', collapsable=1, collapse=0)
         mc.frameLayout(l='How To:', collapsable=1, collapse=1)
-        mc.text(l='In First, you need to have a Facial Controller, \nwho every blendshape were connected')
+        mc.text(l='すべてのブレンドシェイプが接続されたフェイシャル・コントローラーを用意します。')
         mc.separator(style='in')
         mc.text(l='To Do this:', fn='boldLabelFont')
-        mc.text(l='select your head controller and put it into the "Head Ctrl" field\nAfter that click on "Make Facial Controller"\nMove it and click on "Confirm Position"', fn='boldLabelFont')
+        mc.text(l='Head Controllerを選択し、"Head Ctrl "Fieldに入力します。\n その後、"Make Facial Controller "をクリックします。\n それを移動して、"Confirm Position" をクリックします。', fn='boldLabelFont')
         mc.separator(style='in')
         mc.setParent('..')
         mc.rowLayout(nc=6)
@@ -432,20 +431,20 @@ class FaceRigMainUI:
         mc.button(l='Confirm Position', w=150, c=valid_position_of_facial_controller_expression)
         mc.setParent('..')
         mc.separator(style='in')
-        mc.text(l='Becarefull before to use this, \nbe sure to have no value on rotation \nand translation on each controller', fn='boldLabelFont')
-        mc.button(l='Add Scale Constaint Between Each Controller And Joint', c=add_scale_constraint_on_each_controller)
+        mc.text(l='使用する前に、各Ctrlの回転と並進に値がないことを確認してください。', fn='boldLabelFont')
+        mc.button(l='各ControllerとJointの間にScale Constraintを追加します。', c=add_scale_constraint_on_each_controller)
         mc.setParent('..')
 
-    def mouthBlendShapeMenuUI(self):
+    def mouth_blend_shape_menu_ui(self):
         mc.frameLayout(l='II - BlendShape For Improve Mouth Mouvement', collapsable=1, collapse=1)
         mc.separator(h=5, style='none')
-        self.mouthBlendShapeGeneralList()
+        self.mouth_blend_shape_general_list()
         mc.separator(style='double')
-        self.mouthBlendShapeCreationUI()
+        self.mouth_blend_shape_creation_ui()
         mc.setParent('..')
 
-    def mouthBlendShapeGeneralList(self):
-        mc.frameLayout(l='A - List Of Existing BlendShape Mouth and Edit', collapsable=1, collapse=0)
+    def mouth_blend_shape_general_list(self):
+        mc.frameLayout(l='A - List Of Existing Blend Shape Mouth and Edit', collapsable=1, collapse=0)
         mc.rowLayout(nc=2)
         mc.separator(w=75, style='none')
         mc.text('list of Blend Shape Mouth correction:', fn='boldLabelFont')
@@ -462,11 +461,11 @@ class FaceRigMainUI:
         mc.setParent('..')
         mc.setParent('..')
         mc.separator(style='in')
-        mc.text(l='If you need to fix a blendshape orient after the symetry, \nselect it in text scroll list and click "Help To Fix"', fn='boldLabelFont')
+        mc.text(l='If you need to fix a Blend Shape orient after the symmetry, \n select it in text scroll list and click "Help To Fix"', fn='boldLabelFont')
         mc.button(l='Help To Fix', c=help_to_fix_build_Sym_menu_mouth)
         mc.setParent('..')
 
-    def mouthBlendShapeCreationUI(self):
+    def mouth_blend_shape_creation_ui(self):
         mc.text('Add your Jaw joint:', fn='boldLabelFont')
         mc.rowLayout(nc=6)
         mc.separator(w=15, style='none')
@@ -491,7 +490,7 @@ class FaceRigMainUI:
         mc.setParent('..')
         mc.rowLayout(nc=2)
         mc.separator(w=70, style='none')
-        mc.radioButtonGrp('nameAttr', label='', labelArray3=['Open', 'Side', 'Twist'], numberOfRadioButtons=3, cw4=[10, 60, 60, 60], sl=1, cc=HideUIMouthOption)
+        mc.radioButtonGrp('nameAttr', label='', labelArray3=['Open', 'Side', 'Twist'], numberOfRadioButtons=3, cw4=[10, 60, 60, 60], sl=1, cc=hide_ui_mouth_option)
         mc.setParent('..')
         mc.separator(style='in')
         mc.rowLayout(nc=2)
@@ -512,24 +511,24 @@ class FaceRigMainUI:
         mc.checkBox('NegValueMouthCreation', l='Neg Value?')
         mc.setParent('..')
         mc.separator(style='in')
-        mc.button('recordMouthExpUIBtn', l='Record This Mouth Expression', c=launchRecorderMouthUI)
+        mc.button('recordMouthExpUIBtn', l='Record This Mouth Expression', c=launch_recorder_mouth_ui)
 
-    def blendShapeMenuUI(self):
+    def blend_shape_menu_ui(self):
         mc.frameLayout(l='III - Make BlendShape', collapsable=1, collapse=1)
-        self.makeGeneralBlendShapeUI()
+        self.make_general_blend_shape_ui()
         mc.separator(style='double')
-        self.blendShapeGeneralList()
+        self.blend_shape_general_list()
         mc.setParent('..')
 
-    def blendShapeGeneralList(self):
-        mc.frameLayout(l='B - List Of reExisting Blendshape:', collapsable=1, collapse=0)
+    def blend_shape_general_list(self):
+        mc.frameLayout(l='B - List Of ReExisting Blend Shape:', collapsable=1, collapse=0)
         mc.rowLayout(nc=2)
         mc.separator(w=20, style='none')
         mc.text('List of Blend Shape Curve:', fn='boldLabelFont')
         mc.setParent('..')
         mc.rowLayout(nc=4)
         mc.separator(w=5, style='none')
-        mc.textScrollList('listBldCrv', w=165, h=150, ams=True, sc=getBldCrvValue)
+        mc.textScrollList('listBldCrv', w=165, h=150, ams=True, sc=get_blend_curve_value)
         mc.separator(w=5, style='none')
         mc.rowLayout(nc=3)
         mc.columnLayout()
@@ -546,11 +545,11 @@ class FaceRigMainUI:
         mc.separator(w=15, style='none')
         mc.textField('searchByName', w=150, fn='boldLabelFont')
         mc.separator(w=8, style='none')
-        mc.button(l='Search', w=80, c=searchByName)
+        mc.button(l='Search', w=80, c=search_by_name)
         mc.setParent('..')
         mc.rowLayout(nc=2)
         mc.separator(w=5, style='none')
-        mc.text(l='Select your blendshape into the BlendShape List Curve and test it')
+        mc.text(l='Blend ShapeをBlend Shape List Curveで選択し、テストします。')
         mc.setParent('..')
         mc.separator(style='in')
         mc.rowLayout(nc=4)
@@ -560,37 +559,37 @@ class FaceRigMainUI:
         mc.floatSliderGrp('testIt', w=250, min=0.0, max=1, v=0, field=1, cw2=(40, 300), pre=3, cc=test_blend_shape)
         mc.setParent('..')
         mc.separator(style='in')
-        mc.text(l='If you need to fix a blendshape orient after the symetry, \nselect it in text scroll list and click "Help To Fix"', fn='boldLabelFont')
-        mc.button(l='Help To Fix', c=helpToFixBldSymMenu)
+        mc.text(l='If you need to fix a Blend Shape orient after the symmetry, \n select it in text scroll list and click "Help To Fix"', fn='boldLabelFont')
+        mc.button(l='Help To Fix', c=help_to_fix_build_symmetry_menu)
         mc.setParent('..')
 
-    def makeGeneralBlendShapeUI(self):
-        mc.frameLayout(l='A - Make Blendshape (Record Your actual Expression)', collapsable=1, collapse=0)
-        mc.button('recorderBldExp', l='Record This Expression', c=launchRecorderUI)
+    def make_general_blend_shape_ui(self):
+        mc.frameLayout(l='A - Make Blend Shape (Record Your actual Expression)', collapsable=1, collapse=0)
+        mc.button('recorderBldExp', l='Record This Expression', c=launch_recorder_ui)
         mc.separator(style='double')
         mc.button('ValidateExpButton', l='Validate your expression', w=150, en=0, c=validate_recorder)
         mc.separator(style='double')
         mc.setParent('..')
 
-    def attachToFacialController(self):
+    def attach_to_facial_controller(self):
         mc.frameLayout(labelVisible=0)
         mc.separator(style='in')
-        mc.text(l='When you have make some blendShape click on:', fn='boldLabelFont')
+        mc.text(l='When you have make some Blend Shape click on:', fn='boldLabelFont')
         mc.rowLayout(nc=2)
         mc.separator(style='none', w=33)
-        mc.button(l='Connect / Reload Blendshape To Facial Controller', w=300, c=attach_and_organize_cc_facial)
+        mc.button(l='Connect / Reload Blend Shape To Facial Controller', w=300, c=attach_and_organize_cc_facial)
         mc.setParent('..')
         mc.separator(style='none')
         mc.setParent('..')
 
-    def OthersMenuUI(self):
+    def other_menu_ui(self):
         mc.text(l='Eye Section:', fn='boldLabelFont')
-        self.RealisticEyeLidUI()
+        self.realistic_eyelid_ui()
 
-    def RealisticEyeLidUI(self):
+    def realistic_eyelid_ui(self):
         mc.frameLayout(l='Make Realistic Eye Rig', collapsable=1, collapse=0)
         mc.text(l='This part use the script of UKDP based on Marco Giordano tutorial')
-        mc.button(l='Launch The script', c=lauchMarcoUI)
+        mc.button(l='Launch The script', c=launch_marco_ui)
         mc.setParent('..')
 
 class RecordExpressionsUI:
@@ -630,7 +629,7 @@ class RecordExpressionsUI:
         mc.setParent('..')
         mc.showWindow(window)
 
-class recordExpressionsUIMouth():
+class RecordExpressionsUIMouth:
     def __init__(self):
         if mc.window('BlendShapeUIRecorderMouth', exists=True):
             mc.deleteUI('BlendShapeUIRecorderMouth')
@@ -667,23 +666,23 @@ class recordExpressionsUIMouth():
         mc.setParent('..')
         mc.showWindow(window)
 
-class HelpToFixBldUI():
+class HelpToFixBuildUI:
     def __init__(self):
         if mc.window('HelpToFixMouthUI', exists=True):
             mc.deleteUI('HelpToFixMouthUI')
-        window = mc.window('HelpToFixMouthUI', title='Help To Fix your symetrical blendshape on the rotation:', resizeToFitChildren=True, fw=1, mxb=False, w=345, h=200)
+        window = mc.window('HelpToFixMouthUI', title='Help To Fix your Symmetrical Blend Shape on the rotation:', resizeToFitChildren=True, fw=1, mxb=False, w=345, h=200)
         mc.frameLayout(labelVisible=0)
         mc.separator(style='double')
         mc.rowLayout(nc=5)
         mc.separator(w=5, style='none')
         mc.columnLayout()
         mc.text(l='Available Type:')
-        mc.textScrollList('TypeMouth', w=120, h=80, sc=loadMouthBldCrv)
+        mc.textScrollList('TypeMouth', w=120, h=80, sc=load_mouth_build_curve)
         mc.setParent('..')
         mc.separator(w=5, style='none')
         mc.columnLayout()
         mc.text(l='Available Curves:')
-        mc.textScrollList('CrvOfTypeMouth', w=180, h=80, sc=loadLocRecorderSelInHelpToFixMouthUI)
+        mc.textScrollList('CrvOfTypeMouth', w=180, h=80, sc=load_locator_recorder_select_in_help_to_fix_mouth_ui)
         mc.setParent('..')
         mc.separator(w=5, style='none')
         mc.setParent('..')
@@ -711,10 +710,10 @@ class HelpToFixBldUI():
         mc.setParent('..')
         mc.showWindow(window)
 
-def launchRecorderExpressionMouthUI(*args):
-    recordExpressionsUIMouth()
+def launch_recorder_expression_mouth_ui(*args):
+    RecordExpressionsUIMouth()
 
-def getBldCrvValue(*args):
+def get_blend_curve_value(*args):
     crv = mc.textScrollList('listBldCrv', q=1, si=1)
     if len(crv) > 0:
         mc.select(crv, r=True)
@@ -722,11 +721,11 @@ def getBldCrvValue(*args):
         info = crv.split('_')
         bld = '%s_%s_bldExp' % (info[0], info[1])
         if info[2] == 'Open':
-            mc.warning('you cannot test your Open blendshape with Test It slider, please use the open mouth attribute into your head controller')
+            mc.warning('Open Blend ShapeをTestスライダーでテストすることはできませんので、Head ControllerのOpenMouthアトリビュートを使用してください。')
         getValue = mc.getAttr('%s.%s' % (bld, crv))
         mc.floatSliderGrp('testIt', e=1, v=getValue)
 
-def HideUIMouthOption(*args):
+def hide_ui_mouth_option(*args):
     sel = mc.radioButtonGrp('nameAttr', q=1, sl=1)
     if sel == 4:
         mc.radioButtonGrp('axisRot2', e=1, en=0)
@@ -735,7 +734,7 @@ def HideUIMouthOption(*args):
         mc.radioButtonGrp('axisRot2', e=1, en=1)
         mc.floatField('MaxValueActivation', e=1, en=1)
 
-def searchByName(*args):
+def search_by_name(*args):
     mc.textScrollList('listBldCrv', e=True, da=True)
     bldList = mc.textScrollList('listBldCrv', q=True, ai=True)
     searchName = mc.textField('searchByName', q=True, tx=True)
@@ -743,12 +742,11 @@ def searchByName(*args):
     mc.select('*%s*_bld_crv' % searchName, r=True)
     try:
         mc.select('*%s*bldExp*bld_crv' % searchName, d=True)
-    except:
+    except ZeroDivisionError:
         pass
-
     try:
         mc.select('*%s*bld*bld_crv' % searchName, d=True)
-    except:
+    except ZeroDivisionError:
         pass
 
     listCrv = mc.ls(sl=1)
@@ -758,11 +756,11 @@ def searchByName(*args):
                 mc.textScrollList('listBldCrv', e=True, ams=True, si=crv)
                 break
 
-def helpBarAbout(*args):
+def help_bar_about(*args):
     #launchAboutMenu()
     pass
 
-def launchRecorderMouthUI(*args):
+def launch_recorder_mouth_ui(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
     if mc.objExists(ctrlFacial):
         checkMode = mc.getAttr('%s.mode' % ctrlFacial)
@@ -774,12 +772,12 @@ def launchRecorderMouthUI(*args):
             jawCtrl = ''
             try:
                 jawJnt = mc.textScrollList('jawJntList2', q=True, ai=True)[0]
-            except:
+            except ZeroDivisionError:
                 pass
 
             try:
                 jawCtrl = mc.textScrollList('jawCtrlList', q=True, ai=True)[0]
-            except:
+            except ZeroDivisionError:
                 pass
 
             if jawCtrl != '' and jawJnt != '':
@@ -802,7 +800,7 @@ def launchRecorderMouthUI(*args):
                     testExists = []
                     try:
                         testExists = mc.ls('*%s*_bld_crv' % attr)
-                    except:
+                    except ZeroDivisionError:
                         pass
 
                 if len(testExists) == 0:
@@ -810,7 +808,7 @@ def launchRecorderMouthUI(*args):
                     mc.select('*crvShape', d=True)
                     try:
                         mc.select('*_bld_crv', d=True)
-                    except:
+                    except ZeroDivisionError:
                         pass
 
                     crvList = mc.ls(sl=1)
@@ -822,7 +820,7 @@ def launchRecorderMouthUI(*args):
                                     crvListOK.append(crv)
 
                     if len(crvListOK) > 0:
-                        launchRecorderExpressionMouthUI()
+                        launch_recorder_expression_mouth_ui()
                         for crv in crvListOK:
                             side = crv.split('_')[0]
                             if side == 'L':
@@ -834,15 +832,15 @@ def launchRecorderMouthUI(*args):
 
                         return crvListOK
                 else:
-                    mc.error('one or many expression was already recorded for the %s attribute, please delete them before to create a new one' % attr)
+                    mc.error('その属性には、すでに1つまたは複数の式が記録されています。%s, 新しいものを作成する前にそれらを削除してください。' % attr)
             else:
-                mc.error('please add the jaw ctrl and the jawJnt before trying to create a new expression')
+                mc.error('新しいエクスプレッションを作成する前に、jaw CtrlとjawJntを追加してください。')
         else:
-            mc.error('you cannot create a new blendshape expression if you have use the optimize mode')
+            mc.error('最適化モードを使用している場合、新しいブレンドシェイプ・エクスプレッションを作成することはできません。')
     else:
-        mc.error('you need to create the facial controller')
+        mc.error('フェイシャルコントローラーを作成する必要があります。')
 
-def launchRecorderUI(*args):
+def launch_recorder_ui(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
     if mc.objExists(ctrlFacial):
         checkMode = mc.getAttr('%s.mode' % ctrlFacial)
@@ -855,7 +853,7 @@ def launchRecorderUI(*args):
                 mc.select('*crvShape', d=True)
                 try:
                     mc.select('*_bld_crv', d=True)
-                except:
+                except ZeroDivisionError:
                     pass
 
                 crvList = mc.ls(sl=1)
@@ -877,28 +875,28 @@ def launchRecorderUI(*args):
                     else:
                         mc.textScrollList('CenterRecordCrvsList', e=1, a=crv)
                 return crvListOK
-            except:
+            except ZeroDivisionError:
                 raise mc.error('no system found')
         else:
-            mc.error('you cannot create a new blendshape expression if you have use the optimize mode')
+            mc.error('最適化モードを使用している場合、新しいブレンドシェイプ・エクスプレッションを作成することはできません。')
     else:
-        mc.error('you need to create the facial controller')
+        mc.error('フェイシャルコントローラーを作成する必要があります。')
 
-def helpToFixBldSymMenu(*args):
+def help_to_fix_build_symmetry_menu(*args):
     elts = []
     try:
         elts = mc.textScrollList('listBldCrv', q=True, si=True, ams=True)
-    except:
+    except ZeroDivisionError:
         pass
 
     if len(elts) > 0:
-        HelpToFixBldUI()
+        HelpToFixBuildUI()
         listOfType = []
         for sel in elts:
             type = sel.split('_')[2]
             test = 'yes'
-            lenght = len(listOfType)
-            if lenght > 0:
+            length = len(listOfType)
+            if length > 0:
                 for elt in listOfType:
                     if elt == type:
                         test = 'no'
@@ -914,38 +912,37 @@ def helpToFixBldSymMenu(*args):
         for typ in listOfType:
             mc.textScrollList('TypeMouth', e=True, a=typ)
 
-def helpToFixBldSymMenuMouth(*args):
+def help_to_fix_build_symmetry_menu_mouth(*args):
     elts = []
     try:
         elts = mc.textScrollList('listBldCrvMouth', q=True, ams=True, si=True)
-    except:
+    except ZeroDivisionError:
         pass
 
     if len(elts) > 0:
-        HelpToFixBldUI()
+        HelpToFixBuildUI()
         for sel in elts:
             mc.textScrollList('TypeMouth', e=True, a=sel)
 
-def loadMouthBldCrv(*args):
+def load_mouth_build_curve(*args):
     mc.textScrollList('RecLocList', e=True, ra=True)
     type = mc.textScrollList('TypeMouth', q=True, si=True)[0]
     mc.textScrollList('CrvOfTypeMouth', e=True, ra=True)
     mc.select('*%s_bld_crv' % type, r=True)
     try:
         mc.select('*bld_*%s*_bld_crv' % type, d=True)
-    except:
+    except ZeroDivisionError:
         pass
-
     try:
         mc.select('*bldExp_*%s*_bld_crv' % type, d=True)
-    except:
+    except ZeroDivisionError:
         pass
 
     sel = mc.ls(sl=1)
     for elt in sel:
         mc.textScrollList('CrvOfTypeMouth', e=True, a=elt)
 
-def loadLocRecorderSelInHelpToFixMouthUI(*args):
+def load_locator_recorder_select_in_help_to_fix_mouth_ui(*args):
     mc.textScrollList('RecLocList', e=True, ra=True)
     sel = mc.textScrollList('CrvOfTypeMouth', q=True, si=True)[0]
     info = sel.split('_')
@@ -954,8 +951,8 @@ def loadLocRecorderSelInHelpToFixMouthUI(*args):
     for loc in locList:
         mc.textScrollList('RecLocList', e=True, a=loc)
 
-def lauchMarcoUI(*args):
-    UKDP_AER.autoEyelidsRig.UI()
+def launch_marco_ui(*args):
+    UKDP_AER.autoEyelidsRig.show_ui()
 
 """
 face_rig = FaceRigMainUI()

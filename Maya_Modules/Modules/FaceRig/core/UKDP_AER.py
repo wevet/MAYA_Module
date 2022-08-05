@@ -680,114 +680,110 @@ class AER:
 		Called by 'buildRig' function.
 		Call functions: None
 		"""
-		
 		# Organize rig hierarchy
-		hierarchySecondGrp = cmds.group (n = (eyePrefix + "_Eyelids_CTRL_GRP"), em = 1)
-		
+		hierarchySecondGrp = cmds.group(n=(eyePrefix + "_Eyelids_CTRL_GRP"), em=1)
 		hierarchyMainGrp = "Eyelids_CTRL_GRP"
 		
-		if parentCtrl != None :
-			ctrlChildren = cmds.listRelatives (parentCtrl, children = 1)
-			if hierarchyMainGrp in ctrlChildren :
-				cmds.parent (hierarchySecondGrp, (parentCtrl + "|" + hierarchyMainGrp))
-			else :
-				cmds.group (n = hierarchyMainGrp, em = 1, p = parentCtrl)
-				cmds.parent (hierarchySecondGrp, (parentCtrl + "|" + hierarchyMainGrp))
-		else :
-			if cmds.objExists ("|" + hierarchyMainGrp) :
-				cmds.parent (hierarchySecondGrp, ("|" + hierarchyMainGrp))
-			else :
-				cmds.group (n = hierarchyMainGrp, em = 1)
-				cmds.parent (hierarchySecondGrp, ("|" + hierarchyMainGrp))
+		if parentCtrl is None:
+			ctrlChildren = cmds.listRelatives(parentCtrl, children=1)
+			if hierarchyMainGrp in ctrlChildren:
+				cmds.parent(hierarchySecondGrp, (parentCtrl + "|" + hierarchyMainGrp))
+			else:
+				cmds.group(n=hierarchyMainGrp, em=1, p=parentCtrl)
+				cmds.parent(hierarchySecondGrp, (parentCtrl + "|" + hierarchyMainGrp))
+		else:
+			if cmds.objExists("|" + hierarchyMainGrp):
+				cmds.parent(hierarchySecondGrp, ("|" + hierarchyMainGrp))
+			else:
+				cmds.group(n=hierarchyMainGrp, em=1)
+				cmds.parent(hierarchySecondGrp, ("|" + hierarchyMainGrp))
 		
 		# Creates the controller object
-		cmds.select (cl = 1)
-		TEMP_CTRL1 = cmds.circle (r = 0.15) [0]
-		TEMP_CTRL2 = cmds.duplicate () [0]
-		cmds.setAttr (TEMP_CTRL2 + ".rotateY", 90)
+		cmds.select(cl=1)
+		TEMP_CTRL1 = cmds.circle(r=0.15)[0]
+		TEMP_CTRL2 = cmds.duplicate()[0]
+		cmds.setAttr(TEMP_CTRL2 + ".rotateY", 90)
 		TEMP_CTRL3 = cmds.duplicate () [0]
-		cmds.setAttr (TEMP_CTRL3 + ".rotateX", 90)
-		cmds.parent (TEMP_CTRL2, TEMP_CTRL3, TEMP_CTRL1)
-		cmds.makeIdentity (apply = 1, t = 1, r = 1, s = 1, n = 0, pn = 1)
-		cmds.pickWalk (d = "down")
-		cmds.select (TEMP_CTRL1, tgl = 1)
-		cmds.parent (r = 1, s = 1)
-		cmds.delete (TEMP_CTRL2, TEMP_CTRL3)
-		cmds.select (cl = 1)
+		cmds.setAttr(TEMP_CTRL3 + ".rotateX", 90)
+		cmds.parent(TEMP_CTRL2, TEMP_CTRL3, TEMP_CTRL1)
+		cmds.makeIdentity(apply=1, t=1, r=1, s=1, n=0, pn=1)
+		cmds.pickWalk(d="down")
+		cmds.select(TEMP_CTRL1, tgl=1)
+		cmds.parent(r=1, s=1)
+		cmds.delete(TEMP_CTRL2, TEMP_CTRL3)
+		cmds.select(cl=1)
 		
 		# Place the controllers and constrain the joints
 		self.ctrlList = []
 		ctrlOffsetGrpList = []
 		
 		for jnt in ctrlJnts:
-			ctrlName = jnt [:-9]
+			ctrlName = jnt[:-9]
 			ctrlName = "CTRL_" + ctrlName
-			ctrl = cmds.duplicate (TEMP_CTRL1, n = ctrlName) [0]
-			self.ctrlList.append (ctrl)
-			pointC_TEMP = cmds.pointConstraint (jnt, ctrl)
-			cmds.delete (pointC_TEMP)
+			ctrl = cmds.duplicate(TEMP_CTRL1, n=ctrlName)[0]
+			self.ctrlList.append(ctrl)
+			pointC_TEMP = cmds.pointConstraint(jnt, ctrl)
+			cmds.delete(pointC_TEMP)
 			origName = "ORIG_" + ctrlName
-			origGrp = cmds.group (n = origName, em = 1)
-			parentC_TEMP = cmds.parentConstraint (ctrl, origGrp)
-			cmds.delete (parentC_TEMP)
-			if ctrl.find ("_Secondary") != -1 : # If controller is 'secondary'
-				offsetGrpName = origName.replace ("ORIG_", "OFFSET_")
-				offsetGrp = cmds.duplicate (origGrp, n = offsetGrpName)
-				cmds.parent (ctrl, offsetGrp)
-				cmds.parent (offsetGrp, origGrp)
-				ctrlOffsetGrpList.extend (offsetGrp)
+			origGrp = cmds.group(n=origName, em=1)
+			parentC_TEMP = cmds.parentConstraint(ctrl, origGrp)
+			cmds.delete(parentC_TEMP)
+			if ctrl.find("_Secondary") != -1:
+				# If controller is 'secondary'
+				offsetGrpName = origName.replace("ORIG_", "OFFSET_")
+				offsetGrp = cmds.duplicate(origGrp, n=offsetGrpName)
+				cmds.parent(ctrl, offsetGrp)
+				cmds.parent(offsetGrp, origGrp)
+				ctrlOffsetGrpList.extend(offsetGrp)
 			else:
-				cmds.parent (ctrl, origGrp)
-			cmds.parent (origGrp, hierarchySecondGrp)
-			cmds.parentConstraint (ctrl, jnt)
-		
-		cmds.delete (TEMP_CTRL1)
-		cmds.select (cl = 1)
+				cmds.parent(ctrl, origGrp)
+			cmds.parent(origGrp, hierarchySecondGrp)
+			cmds.parentConstraint(ctrl, jnt)
+		cmds.delete(TEMP_CTRL1)
+		cmds.select(cl=1)
 		
 		# Constraints between main controllers and secondary ones
-			# self.ctrlList = same order as 'ctrlJnts' list
-			# [ctrl_CornerA, ctrl_upLidSecA, ctrl_upLidMain, ctrl_upLidSecB, ctrl_CornerB, ctrl_lowLidSecB, ctrl_lowLidMain, ctrl_lowLidSecA]
-			# Index: 0				1				2				3				4				5				6			7
-			# ctrlOffsetGrpList = [OFFSET_Up_secondaryA, OFFSET_Up_secondaryB, OFFSET_Low_secondaryB, OFFSET_Low_secondaryA]
-			# Index: 						0					1						2						3
-		cmds.parentConstraint (self.ctrlList[0], ctrlOffsetGrpList[0], mo = 1)
-		cmds.parentConstraint (self.ctrlList[2], ctrlOffsetGrpList[0], mo = 1)
-		cmds.parentConstraint (self.ctrlList[2], ctrlOffsetGrpList[1], mo = 1)
-		cmds.parentConstraint (self.ctrlList[4], ctrlOffsetGrpList[1], mo = 1)
-		cmds.parentConstraint (self.ctrlList[4], ctrlOffsetGrpList[2], mo = 1)
-		cmds.parentConstraint (self.ctrlList[6], ctrlOffsetGrpList[2], mo = 1)
-		cmds.parentConstraint (self.ctrlList[6], ctrlOffsetGrpList[3], mo = 1)
-		cmds.parentConstraint (self.ctrlList[0], ctrlOffsetGrpList[3], mo = 1)
+		# self.ctrlList = same order as 'ctrlJnts' list
+		# [ctrl_CornerA, ctrl_upLidSecA, ctrl_upLidMain, ctrl_upLidSecB, ctrl_CornerB, ctrl_lowLidSecB, ctrl_lowLidMain, ctrl_lowLidSecA]
+		# Index: 0				1				2				3				4				5				6			7
+		# ctrlOffsetGrpList = [OFFSET_Up_secondaryA, OFFSET_Up_secondaryB, OFFSET_Low_secondaryB, OFFSET_Low_secondaryA]
+		# Index: 						0					1						2						3
+		cmds.parentConstraint(self.ctrlList[0], ctrlOffsetGrpList[0], mo=1)
+		cmds.parentConstraint(self.ctrlList[2], ctrlOffsetGrpList[0], mo=1)
+		cmds.parentConstraint(self.ctrlList[2], ctrlOffsetGrpList[1], mo=1)
+		cmds.parentConstraint(self.ctrlList[4], ctrlOffsetGrpList[1], mo=1)
+		cmds.parentConstraint(self.ctrlList[4], ctrlOffsetGrpList[2], mo=1)
+		cmds.parentConstraint(self.ctrlList[6], ctrlOffsetGrpList[2], mo=1)
+		cmds.parentConstraint(self.ctrlList[6], ctrlOffsetGrpList[3], mo=1)
+		cmds.parentConstraint(self.ctrlList[0], ctrlOffsetGrpList[3], mo=1)
 		
 		# Secondary controllers visibility (drove by main controllers)
-		cmds.select (cl = 1)
-		cmds.select (self.ctrlList[2], self.ctrlList[6])
-		cmds.addAttr (ln = "SecondaryControls", at = "bool", k = 0)
-		cmds.setAttr ((self.ctrlList[2] + ".SecondaryControls"), 1, channelBox = 1)
-		cmds.setAttr ((self.ctrlList[6] + ".SecondaryControls"), 1, channelBox = 1)
+		cmds.select(cl=1)
+		cmds.select(self.ctrlList[2], self.ctrlList[6])
+		cmds.addAttr(ln="SecondaryControls", at="bool", k=0)
+		cmds.setAttr((self.ctrlList[2] + ".SecondaryControls"), 1, channelBox=1)
+		cmds.setAttr((self.ctrlList[6] + ".SecondaryControls"), 1, channelBox=1)
 		# Upper lid
-		cmds.connectAttr ((self.ctrlList[2] + ".SecondaryControls"), (self.ctrlList[1] + ".visibility"), f = 1)
-		cmds.connectAttr ((self.ctrlList[2] + ".SecondaryControls"), (self.ctrlList[3] + ".visibility"), f = 1)
+		cmds.connectAttr((self.ctrlList[2] + ".SecondaryControls"), (self.ctrlList[1] + ".visibility"), f=1)
+		cmds.connectAttr((self.ctrlList[2] + ".SecondaryControls"), (self.ctrlList[3] + ".visibility"), f=1)
 		# Lower lid
-		cmds.connectAttr ((self.ctrlList[6] + ".SecondaryControls"), (self.ctrlList[5] + ".visibility"), f = 1)
-		cmds.connectAttr ((self.ctrlList[6] + ".SecondaryControls"), (self.ctrlList[7] + ".visibility"), f = 1)
+		cmds.connectAttr((self.ctrlList[6] + ".SecondaryControls"), (self.ctrlList[5] + ".visibility"), f=1)
+		cmds.connectAttr((self.ctrlList[6] + ".SecondaryControls"), (self.ctrlList[7] + ".visibility"), f=1)
 		
 		# Lock and hide unused channels
-		for ctrl in self.ctrlList :
-			cmds.setAttr ((ctrl + ".sx"), lock = 1, keyable = 0, channelBox = 0)
-			cmds.setAttr ((ctrl + ".sy"), lock = 1, keyable = 0, channelBox = 0)
-			cmds.setAttr ((ctrl + ".sz"), lock = 1, keyable = 0, channelBox = 0)
-			cmds.setAttr ((ctrl + ".v"), lock = 1, keyable = 0, channelBox = 0)
+		for ctrl in self.ctrlList:
+			cmds.setAttr((ctrl + ".sx"), lock=1, keyable=0, channelBox=0)
+			cmds.setAttr((ctrl + ".sy"), lock=1, keyable=0, channelBox=0)
+			cmds.setAttr((ctrl + ".sz"), lock=1, keyable=0, channelBox=0)
+			cmds.setAttr((ctrl + ".v"), lock=1, keyable=0, channelBox=0)
 
-	def addSmartBlink (self, eyePrefix, upLidBaseCrv, upLidDriverCrv, lowLidBaseCrv, lowLidDriverCrv, ctrlList, rigGrp, upCrvRigGrp, lowCrvRigGrp):
+	def addSmartBlink(self, eyePrefix, upLidBaseCrv, upLidDriverCrv, lowLidBaseCrv, lowLidDriverCrv, ctrlList, rigGrp, upCrvRigGrp, lowCrvRigGrp):
 		"""
 		Add a 'smart blink' feature to the eyelid rig, allowing to blink wherever the controllers are (blendshapes + wire deformers system).
 		Called by 'buildRig' function.
 		Call functions: None
 		"""
-		
 		# Variables names containing 'SB' = smartBlink
-		
 		ctrlUpLidMain = ctrlList[2]
 		ctrlLowLidMain = ctrlList[6]
 		
@@ -826,8 +822,7 @@ class AER:
 		cmds.connectAttr ((ctrlLowLidMain + ".SmartBlink"), (lowLidSB_BlndShp + "." + lowLidSB_Crv), f = 1)
 		cmds.setAttr ((ctrlUpLidMain + ".SmartBlinkHeight"), 0.15)
 	## FUNCTIONS TO BUILD RIG -end ##
-	
-	
+
 	## DO BUILD RIG ##
 	def buildRig (self, *args):
 		"""

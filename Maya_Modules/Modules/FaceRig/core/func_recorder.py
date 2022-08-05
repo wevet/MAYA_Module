@@ -12,7 +12,7 @@ from facial_rig_UI import *
 importlib.reload(dictOrdo)
 importlib.reload(func_animEditMode)
 
-def addHeadControllerToUINlendShape(*args):
+def add_head_controller_to_ui_blend_shape(*args):
     sel = mc.ls(sl=1)
     if len(sel) == 1:
         sel = sel[0]
@@ -21,15 +21,15 @@ def addHeadControllerToUINlendShape(*args):
             if mc.objectType(shape, isType='nurbsCurve') or mc.objectType(shape, isType='nurbsSurface'):
                 mc.textScrollList('headCtrlBlendShape', e=True, ra=True)
                 mc.textScrollList('headCtrlBlendShape', e=True, a=sel)
-        except:
+        except ZeroDivisionError:
             mc.textScrollList('headCtrlBlendShape', e=True, ra=True)
-            raise mc.error('please select a nurbs curve or nurbs object')
+            raise mc.error('nurbsカーブまたはnurbsオブジェクトを選択してください。')
 
     else:
         mc.textScrollList('headCtrlBlendShape', e=True, ra=True)
-        raise mc.error('please select just one element')
+        raise mc.error('一要素だけ選んでください')
 
-def addJawJntLip2(*args):
+def add_jaw_joint_lip2(*args):
     try:
         mc.textScrollList('jawJntList2', e=1, ra=1)
         sel = mc.ls(sl=1)
@@ -38,14 +38,14 @@ def addJawJntLip2(*args):
             sel = sel[0]
             if mc.objectType(sel, isType='joint'):
                 mc.textScrollList('jawJntList2', e=1, append=sel)
-    except:
-        mc.error('You must do select your jaw joint')
+    except ZeroDivisionError:
+        mc.error('顎の関節を選択する必要があります。')
 
-def addJawCtrlForRecord(*args):
+def add_jaw_control_for_record(*args):
     ctrl = ''
     try:
         ctrl = mc.ls(sl=1)[0]
-    except:
+    except ZeroDivisionError:
         pass
 
     if ctrl != '':
@@ -53,41 +53,40 @@ def addJawCtrlForRecord(*args):
             shape = ''
             try:
                 shape = mc.listRelatives(ctrl)[0]
-            except:
+            except ZeroDivisionError:
                 pass
-
             if shape != '':
                 if mc.objectType(shape, isType='nurbsSurface') or mc.objectType(shape, isType='nurbsCurve'):
                     mc.textScrollList('jawCtrlList', e=True, ra=True)
                     mc.textScrollList('jawCtrlList', e=True, a=ctrl)
                 else:
-                    mc.error('Your selected controller is not a nurbs surface')
+                    mc.error('選択したコントローラーがnurbsサーフェスではありません。')
         else:
             mc.error('Please select a nurbs surface')
     else:
         mc.error('no selection found.')
 
-def refreshBldMouthCrvList(*args):
+def refresh_build_mouth_Crv_list(*args):
     mc.textScrollList('listBldCrvMouth', e=1, ra=1)
     mc.select(cl=1)
     try:
         mc.select('*_Open_bld_crv', r=True)
-    except:
+    except ZeroDivisionError:
         pass
 
     try:
         mc.select('*_Twist*_bld_crv', add=True)
-    except:
+    except ZeroDivisionError:
         pass
 
     try:
         mc.select('*_Side*_bld_crv', add=True)
-    except:
+    except ZeroDivisionError:
         pass
 
     try:
         mc.select('*_Jaw*_bld_crv', add=True)
-    except:
+    except ZeroDivisionError:
         pass
 
     typeList = []
@@ -114,9 +113,9 @@ def refreshBldMouthCrvList(*args):
             mc.textScrollList('listBldCrvMouth', e=1, append=elt)
 
     else:
-        raise mc.error('no blend shape correction for mouth was found')
+        raise mc.error('口元のブレンド形状補正は見つかりませんでした')
 
-def deleteBldMouthSelected(*args):
+def delete_build_mouth_selected(*args):
     fCtrl = 'Facial_Rig_ctrl'
     if mc.objExists(fCtrl):
         mode = mc.getAttr('%s.mode' % fCtrl)
@@ -124,7 +123,7 @@ def deleteBldMouthSelected(*args):
             sel = ''
             try:
                 sel = mc.textScrollList('listBldCrvMouth', q=True, ams=False, si=True)[0]
-            except:
+            except ZeroDivisionError:
                 pass
 
             if len(sel) > 0:
@@ -145,12 +144,12 @@ def deleteBldMouthSelected(*args):
                     checkIB = []
                     try:
                         checkIB = mc.ls('*%s*IB*' % sel)
-                    except:
+                    except ZeroDivisionError:
                         checkIB = []
 
                 if len(checkIB) > 0:
                     IBFound = 1
-                    result = mc.confirmDialog(title='Confirm', message='An In Between Expression was found for this curve\n This In Between will be deleted with his blend curve\n Do you want continue ?', button=['Yes', 'No'], defaultButton='Yes', cancelButton='No', dismissString='No')
+                    result = mc.confirmDialog(title='Confirm', message='このカーブでExpressionが見つかりました。ブレンドカーブと共に削除されます。続けますか？', button=['Yes', 'No'], defaultButton='Yes', cancelButton='No', dismissString='No')
                     if result == 'No':
                         testToContinue = 0
                     else:
@@ -161,14 +160,14 @@ def deleteBldMouthSelected(*args):
                         mc.delete(ibList)
                     listCons = mc.listConnections(ctrlFAttr, s=True, scn=True)
                     for con in listCons:
-                        if con.endswith('bld_crv') == False:
+                        if con.endswith('bld_crv') is False:
                             jawCtrl = con
                             break
 
                     mc.select('*%s_bld_crv' % sel, r=True)
                     try:
                         mc.select('*_bld*%s_bld_crv' % sel, d=True)
-                    except:
+                    except ZeroDivisionError:
                         pass
 
                     crvList = mc.ls(sl=1)
@@ -187,7 +186,7 @@ def deleteBldMouthSelected(*args):
                                 try:
                                     mc.setAttr('%s.%s' % (bld, target), 0)
                                     break
-                                except:
+                                except ZeroDivisionError:
                                     connection = mc.listConnections('%s.%s' % (bld, target), p=True)
                                     mc.disconnectAttr(connection[1], '%s.%s' % (bld, target))
 
@@ -201,11 +200,11 @@ def deleteBldMouthSelected(*args):
                         mc.delete(crv)
                         try:
                             mc.delete(name + '_bld_' + crv)
-                        except:
+                        except ZeroDivisionError:
                             pass
 
                         newBlendTargets = mc.listAttr(bld + '.w', m=True)
-                        if newBlendTargets == None:
+                        if newBlendTargets is None:
                             mc.delete(bld)
                         testAttr = mc.ls('*%s*_bld_crv' % nameAttr)
                         lenght = len(testAttr)
@@ -217,10 +216,9 @@ def deleteBldMouthSelected(*args):
                                     for axis in ['X', 'Y', 'Z']:
                                         try:
                                             mc.disconnectAttr('%s.rotate%s' % (jawCtrl, axis), 'Facial_Rig_ctrl.open_mouth')
-                                        except:
+                                        except ZeroDivisionError:
                                             pass
-
-                                except:
+                                except ZeroDivisionError:
                                     pass
 
                             elif nameAttr != 'Jaw':
@@ -233,7 +231,7 @@ def deleteBldMouthSelected(*args):
                                                 for axis in ['X', 'Y', 'Z']:
                                                     try:
                                                         mc.disconnectAttr('%s.rotate%s' % (jawCtrl, axis), 'Facial_Rig_ctrl.side_mouth')
-                                                    except:
+                                                    except ZeroDivisionError:
                                                         pass
 
                                         else:
@@ -242,14 +240,14 @@ def deleteBldMouthSelected(*args):
                                                 for axis in ['X', 'Y', 'Z']:
                                                     try:
                                                         mc.disconnectAttr('%s.rotate%s' % (jawCtrl, axis), 'Facial_Rig_ctrl.twist_mouth')
-                                                    except:
+                                                    except ZeroDivisionError:
                                                         pass
 
                         listToDel = []
                         actuallyOnList = mc.textScrollList('listBldCrvMouth', q=True, ai=True)
                         try:
                             sel = sel.split('*')[0]
-                        except:
+                        except ZeroDivisionError:
                             pass
 
                         for elt in actuallyOnList:
@@ -258,25 +256,24 @@ def deleteBldMouthSelected(*args):
                                 mc.warning('Your expression named : %s is now correctly deleted' % elt)
 
             else:
-                mc.error('No expression was selected into the blendshape mouth list')
+                mc.error('ブレンドシェイプ・マウスリストに表現が選択されていません。')
         else:
-            mc.error('You need to be in Edit Mode for delete an expression')
+            mc.error('式の削除には編集モードが必要です。')
     else:
-        mc.error('the facial rig ctrl was not found.')
+        mc.error('フェイシャルリグのControllerが見つかりませんでした。')
     return
 
-def helpToFixBldSymMenuMouth(*args):
+def help_to_fix_build_Sym_menu_mouth(*args):
     sel = ''
     try:
         crv = mc.textScrollList('listBldCrv', q=True, si=True)
         sel = mc.ls(sl=1)[0]
-    except:
+    except ZeroDivisionError:
         pass
-
     if sel != '':
         try:
             info = sel.split('_')
-        except:
+        except ZeroDivisionError:
             pass
 
         lenght = len(info)
@@ -290,34 +287,34 @@ def helpToFixBldSymMenuMouth(*args):
                 for loc in locList:
                     mc.textScrollList('RecLocList', e=True, a=loc)
 
-def refreshBldCrvList(*args):
+def refresh_build_Crv_list(*args):
     mc.textScrollList('listBldCrv', e=1, ra=1)
     typeList = []
     try:
         mc.select('*_bld_crv', r=True)
         try:
             mc.select('*_Open_bld_crv', d=True)
-        except:
+        except ZeroDivisionError:
             pass
 
         try:
             mc.select('*_Twist*_bld_crv', d=True)
-        except:
+        except ZeroDivisionError:
             pass
 
         try:
             mc.select('*_Side*_bld_crv', d=True)
-        except:
+        except ZeroDivisionError:
             pass
 
         try:
             mc.select('*bldExp*', d=True)
-        except:
+        except ZeroDivisionError:
             pass
 
         try:
             mc.select('*_Jaw*_bld_crv', d=True)
-        except:
+        except ZeroDivisionError:
             pass
 
         for crv in mc.ls(sl=1):
@@ -340,33 +337,32 @@ def refreshBldCrvList(*args):
             mc.select('*%s_bld_crv' % name, r=True)
             try:
                 mc.select('*bldExp*bld_crv', d=True)
-            except:
+            except ZeroDivisionError:
                 pass
 
             for crv in mc.ls(sl=1):
                 mc.textScrollList('listBldCrv', e=1, append=crv)
+    except ZeroDivisionError:
+        raise mc.error('ブレンドカーブは見つかりませんでした')
 
-    except:
-        raise mc.error('no blend curve was found')
-
-def selectBldCrvList(*args):
+def select_build_Crv_list(*args):
     try:
         sel = mc.textScrollList('listBldCrv', q=1, ams=1, si=1)
         mc.select(sel, r=True)
-    except:
-        raise mc.error('please select a curve in the dedicated text field')
+    except ZeroDivisionError:
+        raise mc.error('専用テキストフィールドでカーブを選択してください。')
 
-def deleteSelBldCrvList(*args):
+def delete_select_build_Crv_list(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
     if mc.objExists(ctrlFacial):
         checkMode = mc.getAttr('%s.mode' % ctrlFacial)
         if checkMode != 2:
             if checkMode == 1:
-                goToEditMode()
+                go_to_edit_mode()
             selList = []
             try:
                 selList = mc.textScrollList('listBldCrv', q=1, si=1)
-            except:
+            except ZeroDivisionError:
                 pass
 
             try:
@@ -379,12 +375,12 @@ def deleteSelBldCrvList(*args):
                         checkIB = []
                         try:
                             checkIB = mc.ls('*%s*IB*' % nameExpression)
-                        except:
+                        except ZeroDivisionError:
                             checkIB = []
 
                         if len(checkIB) > 0:
                             IBFound = 1
-                            result = mc.confirmDialog(title='Confirm', message='An In Between Expression was found for this curve\n This In Between will be deleted with his blend curve\n Do you want continue ?', button=['Yes', 'No'], defaultButton='Yes', cancelButton='No', dismissString='No')
+                            result = mc.confirmDialog(title='Confirm', message='このカーブでBetween Expressionが見つかりました。 ブレンドカーブと共に削除されます。 続けますか？', button=['Yes', 'No'], defaultButton='Yes', cancelButton='No', dismissString='No')
                             if result == 'No':
                                 testToContinue = 0
                                 break
@@ -409,55 +405,54 @@ def deleteSelBldCrvList(*args):
                             try:
                                 mc.deleteAttr('Facial_Rig_ctrl', at='%s_%s_%s' % (selInfo[0], selInfo[1], selInfo[2]))
                                 mc.delete('%s_%s_%s' % (selInfo[0], selInfo[1], selInfo[2]))
-                            except:
+                            except ZeroDivisionError:
                                 pass
 
                             mc.delete(sel)
                             try:
                                 try:
                                     mc.delete(selInfo[0] + '_' + selInfo[1] + '_bldExp_' + sel)
-                                except:
+                                except ZeroDivisionError:
                                     pass
 
-                            except:
+                            except ZeroDivisionError:
                                 pass
 
                             newBlendTargets = mc.listAttr(bld + '.w', m=True)
-                            if newBlendTargets == None:
+                            if newBlendTargets is None:
                                 mc.delete(bld)
                             try:
                                 mc.select('*%s_bld_crv' % selInfo[2], r=True)
                                 mc.select('*bldExp_*_*_%s_bld_crv' % selInfo[2], d=True)
                                 test = mc.ls(sl=1)
-                            except:
+                            except ZeroDivisionError:
                                 try:
                                     mc.setAttr('%s.%s' % ('Facial_Rig_ctrl', selInfo[2]), lock=False)
                                     mc.deleteAttr('Facial_Rig_ctrl', at=selInfo[2])
                                     mc.warning('attribute %s was removed on Facial_Rig_ctrl' % selInfo[2])
-                                except:
+                                except ZeroDivisionError:
                                     pass
 
                             try:
                                 mc.delete('%s_%s_*_%s_*_add*' % (selInfo[0], selInfo[1], selInfo[2]), '%s_%s_*_%s_*_min*' % (selInfo[0], selInfo[1], selInfo[2]))
-                            except:
+                            except ZeroDivisionError:
                                 pass
 
                             try:
                                 mc.delete('%s_%s*_%s_bld_recorder' % (selInfo[0], selInfo[1], selInfo[2]))
-                                mc.warning('This element is correctly deleted : %s' % sel)
-                            except:
+                                mc.warning('この要素は正しく削除されます : %s' % sel)
+                            except ZeroDivisionError:
                                 pass
 
                             if IBFound == 1:
                                 ibList = mc.ls('%s_%s*_%s*IB*' % (selInfo[0], selInfo[1], selInfo[2]))
                                 mc.delete(ibList)
 
-            except:
-                mc.error('You must select one or some bld curve into the field before trying to delete.')
-
+            except ZeroDivisionError:
+                mc.error('削除しようとする前に、1つまたはいくつかのブレンドカーブをフィールドに選択する必要があります。')
     return
 
-def selectMirrorBlendShapeUI(*args):
+def select_mirror_blend_shape_UI(*args):
     sel = mc.textScrollList('listBldCrv', q=1, si=1)
     mirrorSelect = []
     if len(sel) > 0:
@@ -480,7 +475,7 @@ def selectMirrorBlendShapeUI(*args):
 
         mc.select(mirrorSelect, r=True)
 
-def testBlendShape(*args):
+def test_blend_shape(*args):
     bldNodeName = ''
     value = mc.floatSliderGrp('testIt', q=1, v=1)
     try:
@@ -489,11 +484,10 @@ def testBlendShape(*args):
             info = crv.split('_')
             bldNodeName = '%s_%s_bldExp' % (info[0], info[1])
             mc.setAttr(bldNodeName + '.' + crv, value)
+    except ZeroDivisionError:
+        raise mc.error('ブレンドシェイプをtextScrollListに選択してください。')
 
-    except:
-        raise mc.error('please select a blendshape into the textScrollList before')
-
-def fixBldLocSelected(*args):
+def fix_build_locator_selected(*args):
     sel = mc.textScrollList('RecLocList', q=True, ams=True, si=True)
     axis = mc.radioButtonGrp('AxisToRepair', q=True, sl=True)
     if axis == 1:
@@ -507,11 +501,10 @@ def fixBldLocSelected(*args):
             initVal = mc.getAttr('%s.rotate%s' % (loc, axis))
             mc.setAttr('%s.rotate%s' % (loc, axis), initVal * -1)
             mc.warning('%s is now fixed on the %s rotation axis' % (loc, axis))
-
     else:
-        raise RuntimeError('Please select a locator into the list before')
+        raise RuntimeError('locatorをリストからお選びください。')
 
-def fixBldLocAll(*args):
+def fix_build_locator_all(*args):
     sel = mc.textScrollList('RecLocList', q=True, ai=True)
     axis = mc.radioButtonGrp('AxisToRepair', q=True, sl=True)
     if axis == 1:
@@ -524,21 +517,21 @@ def fixBldLocAll(*args):
         for loc in sel:
             initVal = mc.getAttr('%s.rotate%s' % (loc, axis))
             mc.setAttr('%s.rotate%s' % (loc, axis), initVal * -1)
-            mc.warning('%s is now fixed on the %s rotation axis' % (loc, axis))
+            mc.warning('%sは現在、%s回転軸に固定されています。' % (loc, axis))
 
-def addScaleConstraintOnEachController(*args):
+def add_scale_constraint_on_each_controller(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
     if mc.objExists(ctrlFacial):
         checkMode = mc.getAttr('%s.mode' % ctrlFacial)
         if checkMode != 2:
             if checkMode == 1:
-                goToEditMode()
+                go_to_edit_mode()
             mc.select('C_facial_ctrlGrp', r=True, hi=True)
             mc.select('C_facial_ctrlGrp', d=True)
             listElement = mc.ls(sl=1)
             listClean = []
             for elt in listElement:
-                if elt.endswith('_ctrl') == True:
+                if elt.endswith('_ctrl') is True:
                     listClean.append(elt)
 
             if len(listClean) > 0:
@@ -565,20 +558,19 @@ def addScaleConstraintOnEachController(*args):
                         mc.scaleConstraint(mo=1)
                     except:
                         pass
-
-                mc.warning('All curve controllers are now constraint in scale on itself joint')
+                mc.warning('すべてのcurve controllerが、joint自体のscaleに拘束されるようになりました。')
         else:
-            mc.error('you cannot create a new blendshape expression if you have use the optimize mode')
+            mc.error('最適化モードを使用している場合、新しいblend shape expressionを作成することはできません。')
     else:
-        mc.error('you need to create the facial controller')
+        mc.error('facial controllerを作成する必要があります。')
 
-def recordWithSelectionMouth(*args):
+def record_with_selection_mouth(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
     if mc.objExists(ctrlFacial):
         checkMode = mc.getAttr('%s.mode' % ctrlFacial)
         if checkMode != 2:
             if checkMode == 1:
-                goToEditMode()
+                go_to_edit_mode()
             crvList = []
             CSel = mc.textScrollList('CenterRecordCrvsList', q=1, si=1)
             RSel = mc.textScrollList('RightRecordCrvsList', q=1, si=1)
@@ -586,43 +578,40 @@ def recordWithSelectionMouth(*args):
             try:
                 for crv in CSel:
                     crvList.append(crv)
-
-            except:
+            except ZeroDivisionError:
                 pass
 
             try:
                 for crv in RSel:
                     crvList.append(crv)
-
-            except:
+            except ZeroDivisionError:
                 pass
 
             try:
                 for crv in LSel:
                     crvList.append(crv)
-
-            except:
+            except ZeroDivisionError:
                 pass
 
-            lenght = len(crvList)
+            length = len(crvList)
             if len(crvList) > 0:
-                TMPBlendShapeCrv(crvList)
-                validateMouthRecorder()
+                tmp_blend_shape_Crv(crvList)
+                validate_mouth_recorder()
                 mc.deleteUI('BlendShapeUIRecorderMouth')
             else:
-                mc.error('You need to select some curve to record this expression')
+                mc.error('式を記録するために、何らかの曲線を選択する必要があります。')
         else:
-            mc.error('you cannot create a new blendshape expression if you have use the optimize mode')
+            mc.error('最適化モードを使用している場合、新しいblend shape expressionを作成することはできません。')
     else:
-        mc.error('you need to create the facial controller')
+        mc.error('facial controllerを作成する必要があります。')
 
-def recordWithAllCurvesMouth(*args):
+def record_with_all_curves_mouth(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
     if mc.objExists(ctrlFacial):
         checkMode = mc.getAttr('%s.mode' % ctrlFacial)
         if checkMode != 2:
             if checkMode == 1:
-                goToEditMode()
+                go_to_edit_mode()
             crvList = []
             CSel = mc.textScrollList('CenterRecordCrvsList', q=1, ai=1)
             RSel = mc.textScrollList('RightRecordCrvsList', q=1, ai=1)
@@ -630,36 +619,33 @@ def recordWithAllCurvesMouth(*args):
             try:
                 for crv in CSel:
                     crvList.append(crv)
-
-            except:
+            except ZeroDivisionError:
                 pass
 
             try:
                 for crv in RSel:
                     crvList.append(crv)
-
-            except:
+            except ZeroDivisionError:
                 pass
 
             try:
                 for crv in LSel:
                     crvList.append(crv)
-
-            except:
+            except ZeroDivisionError:
                 pass
 
             if len(crvList) > 0:
-                TMPBlendShapeCrv(crvList)
-                validateMouthRecorder()
+                tmp_blend_shape_Crv(crvList)
+                validate_mouth_recorder()
                 mc.deleteUI('BlendShapeUIRecorderMouth')
             else:
-                mc.error('No facial has been found to record expression')
+                mc.error('表情を記録するフェイシャルは見つかっていません')
         else:
-            mc.error('you cannot create a new blendshape expression if you have use the optimize mode')
+            mc.error('最適化モードを使用している場合、新しいブレンドシェイプ・エクスプレッションを作成することはできません。')
     else:
-        mc.error('you need to create the facial controller')
+        mc.error('フェイシャルコントローラーを作成する必要があります。')
 
-def validateMouthRecorder(*args):
+def validate_mouth_recorder(*args):
     fCtrl = 'Facial_Rig_ctrl'
     negValueEnable = mc.checkBox('NegValueMouthCreation', q=True, v=True)
     if mc.objExists(fCtrl):
@@ -696,18 +682,18 @@ def validateMouthRecorder(*args):
                     axis = 'Z'
             jawJnt = mc.textScrollList('jawJntList2', q=1, ai=True)[0]
             valueMaxRange = 1
-            if name.startswith('Jaw') == False:
+            if name.startswith('Jaw') is False:
                 if name != 'JawNeg':
                     if name != 'JawDown':
                         valueMaxRange = mc.floatField('MaxValueActivation', q=True, v=True)
-                        if negValueEnable == True:
+                        if negValueEnable is True:
                             valueMaxRange = valueMaxRange * -1
             if len(nodeList) > 0:
                 for crv in nodeList:
                     crvBld = crv.split('_')[0] + '_' + crv.split('_')[1] + '_' + name + '_bld_crv'
                     if mc.objExists(crvBld):
                         mc.warning('A blendshape curve named %s already exists, please change the name of your expression' % crvBld)
-                        validateMouthRecorder()
+                        validate_mouth_recorder()
                         break
                     else:
                         testToContinue = 1
@@ -716,14 +702,12 @@ def validateMouthRecorder(*args):
                 if valueMaxRange >= 1 or valueMaxRange <= -1:
                     if testToContinue == 1:
                         try:
-                            for x in ('open_mouth', 'side_mouth', 'twist_mouth', 'jaw',
-                                      'jawDown'):
+                            for x in ('open_mouth', 'side_mouth', 'twist_mouth', 'jaw', 'jawDown'):
                                 try:
                                     mc.setAttr('cc_facial_expressions.%s' % x, 0)
-                                except:
+                                except ZeroDivisionError:
                                     pass
-
-                        except:
+                        except ZeroDivisionError:
                             pass
 
                         mc.textScrollList('HiddenTMPNodeList', e=1, ra=1)
@@ -766,9 +750,9 @@ def validateMouthRecorder(*args):
                                             mc.rename('%s_1_POC_crv' % crvNameTMP, newName)
 
                                     mc.parent(newName, 'C_faceCurvesBld_grp')
-                                    getBackLocTMPToCrv(crvNameTMP)
+                                    get_back_locator_TMP_to_Crv(crvNameTMP)
                                     mc.select(newName, crvOri, r=True)
-                                    createBldShape()
+                                    create_blend_shape()
                                     mc.warning('%s has been created' % newName)
                                     mc.select(crv.split('crv')[0] + '*ctrl', r=True)
                                     listCtrl = mc.ls(sl=1)
@@ -796,27 +780,23 @@ def validateMouthRecorder(*args):
                                             attr = cons[(nb - 1)]
                                             jnt = '%s_%s_%s_jnt' % (attr.split('_')[0], attr.split('_')[1], attr.split('_')[2])
                                             if name == 'Open':
-                                                mc.setAttr('%s.%s' % ('Facial_Rig_ctrl',
-                                                                      'open_mouth'), valueMaxRange)
+                                                mc.setAttr('%s.%s' % ('Facial_Rig_ctrl', 'open_mouth'), valueMaxRange)
                                             elif name == 'Jaw':
-                                                mc.setAttr('%s.%s' % ('Facial_Rig_ctrl',
-                                                                      'jaw'), 1)
+                                                mc.setAttr('%s.%s' % ('Facial_Rig_ctrl', 'jaw'), 1)
                                             elif name == 'JawNeg':
-                                                mc.setAttr('%s.%s' % ('Facial_Rig_ctrl',
-                                                                      'jaw'), -1)
+                                                mc.setAttr('%s.%s' % ('Facial_Rig_ctrl', 'jaw'), -1)
                                             elif name == 'JawDown':
-                                                mc.setAttr('%s.%s' % ('Facial_Rig_ctrl',
-                                                                      'jawDown'), 1)
+                                                mc.setAttr('%s.%s' % ('Facial_Rig_ctrl', 'jawDown'), 1)
                                             else:
                                                 mc.setAttr(bld, 1)
                                             if a == 'parentConstraint':
                                                 mc.connectAttr(bld, '%s_%s1.%s' % (jnt.split('jnt')[0] + 'ctrl_grpOff', a, attr), f=True)
                                             else:
                                                 mc.connectAttr(bld, '%s_%s1.%s' % (jnt, a, attr), f=True)
-                                            connectMouthOpenTwistSide(jawJnt, valueMaxRange, axis, nameAttr, minMax, name)
+                                            connect_mouth_open_twist_side(jawJnt, valueMaxRange, axis, nameAttr, minMax, name)
 
                                     bldNode = '%s_%s_bld' % (info[0], info[1])
-                                    createNodalLinkConstraint(bldNode, newName)
+                                    create_node_link_constraint(bldNode, newName)
                                     mc.select('%s_%s_*_ctrl' % (info[0], info[1]), r=True)
                                     ctrlList = mc.ls(sl=1)
                                     for ctrl in ctrlList:
@@ -869,7 +849,7 @@ def validateMouthRecorder(*args):
                                     bldnode = '%s_%s_bld' % (crvMin.split('_')[0], crvMin.split('_')[1])
                                     crvOri = '%s_%s_crv' % (crvMin.split('_')[0], crvMin.split('_')[1])
                                     mc.select(crvMin, crvOri, r=True)
-                                    createBldShape()
+                                    create_blend_shape()
 
                                 mc.select('*%sMax%s_bld_recorder' % (name, str(valueMaxRange).split('.')[0]), r=True)
                                 locListRecorderToSym = mc.ls(sl=1)
@@ -910,8 +890,7 @@ def validateMouthRecorder(*args):
                                 for loc2 in locListMin:
                                     jnt = '%s_%s_%s_jnt' % (loc2.split('_')[0], loc2.split('_')[1], loc2.split('_')[2])
                                     bld = '%s_%s_bld.%s_%s_%s_bld_crv' % (loc2.split('_')[0], loc2.split('_')[1], loc2.split('_')[0], loc2.split('_')[1], nameAttr)
-                                    for a in ('scaleConstraint', 'orientConstraint',
-                                              'parentConstraint'):
+                                    for a in ('scaleConstraint', 'orientConstraint', 'parentConstraint'):
                                         constraint = ''
                                         number = 0
                                         if a == 'orientConstraint':
@@ -932,14 +911,13 @@ def validateMouthRecorder(*args):
                                 for crv in crvList2:
                                     info = crv.split('_')
                                     bldNode = '%s_%s_bld' % (info[0], info[1])
-                                    createNodalLinkConstraint(bldNode, crv)
+                                    create_node_link_constraint(bldNode, crv)
                                     mc.select('%s_%s_*_ctrl' % (info[0], info[1]), r=True)
                                     ctrlList = mc.ls(sl=1)
                                     for ctrl in ctrlList:
                                         for x in ('X', 'Y', 'Z'):
                                             mc.setAttr('%s.scale%s' % (ctrl, x), 1)
-
-                                connectMouthOpenTwistSide(jawJnt, valueMaxRange * -1, axis, nameAttr, 'Min', name)
+                                connect_mouth_open_twist_side(jawJnt, valueMaxRange * -1, axis, nameAttr, 'Min', name)
 
             mc.textScrollList('HiddenTMPNodeList', e=1, ra=1)
             jawCtrl = mc.textScrollList('jawCtrlList', q=True, ai=True)[0]
@@ -955,13 +933,12 @@ def validateMouthRecorder(*args):
                         rotAxis = 'Z'
                     try:
                         mc.connectAttr('%s.rotate%s' % (jawCtrl, rotAxis), 'Facial_Rig_ctrl.%s_mouth' % name, f=True)
-                    except:
+                    except ZeroDivisionError:
                         pass
-
         else:
-            mc.error('You need to be in Edit Mode for record a new expression.')
+            mc.error('新しい表現を記録するには、編集モードである必要があります。')
 
-def connectMouthOpenTwistSide(jawJnt, valueMaxRange, axis, nameAttr, minMax, name, *args):
+def connect_mouth_open_twist_side(jawJnt, valueMaxRange, axis, nameAttr, minMax, name, *args):
     ctrl = 'Facial_Rig_ctrl'
     if nameAttr == 'Open' or nameAttr.startswith('Jaw') == True:
         if nameAttr == 'Open':
@@ -991,12 +968,11 @@ def connectMouthOpenTwistSide(jawJnt, valueMaxRange, axis, nameAttr, minMax, nam
                     mc.setAttr(divBld + '.operation', 2)
                 try:
                     mc.connectAttr('%s.rotate%s' % (jawJnt, axis), '%s.input1X' % divBld, f=True)
-                except:
+                except ZeroDivisionError:
                     pass
-
                 try:
                     mc.connectAttr('%s.outputX' % divBld, '%s.valueX' % setRange, f=True)
-                except:
+                except ZeroDivisionError:
                     pass
 
     mc.select('*%s_bld_crv' % nameAttr, r=True)
@@ -1011,10 +987,10 @@ def connectMouthOpenTwistSide(jawJnt, valueMaxRange, axis, nameAttr, minMax, nam
         if nameAttr == 'Open':
             try:
                 mc.connectAttr('%s.outValueX' % setRange, '%s.%s' % (bldNode, crv), f=True)
-            except:
+            except ZeroDivisionError:
                 pass
 
-        elif nameAttr.startswith('Jaw') == True:
+        elif nameAttr.startswith('Jaw') is True:
             axis = mc.radioButtonGrp('axisTrans2', q=True, sl=True)
             if axis == 1:
                 axis = 'x'
@@ -1067,46 +1043,43 @@ def connectMouthOpenTwistSide(jawJnt, valueMaxRange, axis, nameAttr, minMax, nam
             mc.setDrivenKeyframe('%s.%s' % (bldNode, crv), currentDriver='%s.%s_mouth' % (ctrl, attr))
             mc.setAttr('%s.%s_mouth' % (ctrl, attr), 0)
 
-def recordWithSelection(*args):
+def record_with_selection(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
     if mc.objExists(ctrlFacial):
         checkMode = mc.getAttr('%s.mode' % ctrlFacial)
         if checkMode != 2:
             if checkMode == 1:
-                goToEditMode()
+                go_to_edit_mode()
             crvList = []
             CSel = mc.textScrollList('CenterRecordCrvsList', q=1, si=1)
             RSel = mc.textScrollList('RightRecordCrvsList', q=1, si=1)
             LSel = mc.textScrollList('LeftRecordCrvsList', q=1, si=1)
-            if CSel != None:
+            if CSel is not None:
                 for crv in CSel:
                     crvList.append(crv)
-
-            if RSel != None:
+            if RSel is not None:
                 for crv in RSel:
                     crvList.append(crv)
-
-            if LSel != None:
+            if LSel is not None:
                 for crv in LSel:
                     crvList.append(crv)
-
             if len(crvList) > 0:
-                TMPBlendShapeCrv(crvList)
+                tmp_blend_shape_Crv(crvList)
                 mc.button('ValidateExpButton', e=1, en=1)
             mc.deleteUI('BlendShapeUIRecorder')
         else:
-            mc.error('you cannot create a new blendshape expression if you have use the optimize mode')
+            mc.error('最適化モードを使用している場合は、新しいブレンドシェイプ式を作成することはできません。')
     else:
-        mc.error('you need to create the facial controller')
+        mc.error('フェイシャルコントローラーを作成する必要があります。')
     return
 
-def recordWithAllCurves(*args):
+def record_with_all_curves(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
     if mc.objExists(ctrlFacial):
         checkMode = mc.getAttr('%s.mode' % ctrlFacial)
         if checkMode != 2:
             if checkMode == 1:
-                goToEditMode()
+                go_to_edit_mode()
             crvList = []
             CSel = mc.textScrollList('CenterRecordCrvsList', q=1, ai=1)
             RSel = mc.textScrollList('RightRecordCrvsList', q=1, ai=1)
@@ -1114,35 +1087,32 @@ def recordWithAllCurves(*args):
             try:
                 for crv in CSel:
                     crvList.append(crv)
-
-            except:
+            except ZeroDivisionError:
                 pass
 
             try:
                 for crv in RSel:
                     crvList.append(crv)
-
-            except:
+            except ZeroDivisionError:
                 pass
 
             try:
                 for crv in LSel:
                     crvList.append(crv)
-
-            except:
+            except ZeroDivisionError:
                 pass
 
             if len(crvList) > 0:
-                TMPBlendShapeCrv(crvList)
+                tmp_blend_shape_Crv(crvList)
                 mc.button('recorderBldExp', e=True, en=0)
                 mc.button('ValidateExpButton', e=1, en=1)
                 mc.deleteUI('BlendShapeUIRecorder')
         else:
-            mc.error('you cannot create a new blendshape expression if you have use the optimize mode')
+            mc.error('最適化モードを使用している場合、新しいブレンドシェイプ・エクスプレッションを作成することはできません。')
     else:
-        mc.error('you need to create the facial controller')
+        mc.error('フェイシャルコントローラーを作成する必要があります。')
 
-def validateRecorder(*args):
+def validate_recorder(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
     if mc.objExists(ctrlFacial):
         checkMode = mc.getAttr('%s.mode' % ctrlFacial)
@@ -1158,13 +1128,12 @@ def validateRecorder(*args):
                         crvBld = crv.split('_')[0] + '_' + crv.split('_')[1] + '_' + name + '_bld_crv'
                         if mc.objExists(crvBld):
                             mc.warning('A blendshape curve named %s already exists, please change the name of your expression' % crvBld)
-                            validateRecorder()
+                            validate_recorder()
                             break
                         else:
                             testToContinue = 1
-
                 else:
-                    validateRecorder()
+                    validate_recorder()
                 if testToContinue == 1:
                     mc.button('ValidateExpButton', e=1, en=0)
                     mc.button('recorderBldExp', e=1, en=1)
@@ -1191,9 +1160,9 @@ def validateRecorder(*args):
                                 mc.rename('%s_1_POC_crv' % crvNameTMP, newName)
 
                         mc.parent(newName, 'C_faceCurvesBld_grp')
-                        getBackLocTMPToCrv(crvNameTMP)
+                        get_back_locator_TMP_to_Crv(crvNameTMP)
                         mc.select(newName, crvOri, r=True)
-                        createBldShapeExp()
+                        create_blend_shape_expression()
                         mc.select(crv.split('crv')[0] + '*ctrl', r=True)
                         listCtrl = mc.ls(sl=1)
                         nbLoc = len(listCtrl)
@@ -1227,7 +1196,7 @@ def validateRecorder(*args):
 
                         crv = '%s_%s_%s_bld_crv' % (info[0], info[1], name)
                         bldNode = '%s_%s_bldExp' % (info[0], info[1])
-                        createNodalLinkConstraint(bldNode, crv)
+                        create_node_link_constraint(bldNode, crv)
                         mc.select('%s_%s_*_ctrl' % (info[0], info[1]), r=True)
                         ctrlList = mc.ls(sl=1)
                         for ctrl in ctrlList:
@@ -1238,11 +1207,11 @@ def validateRecorder(*args):
                     mc.textScrollList('HiddenTMPNodeList', e=1, ra=1)
                     mc.warning('your expression named : %s is now correctly record' % name)
         else:
-            mc.error('you have change the mode between the recording expression and the step of validation.')
+            mc.error('録音表現と検証のステップの間でモードを変更する必要があります。')
     else:
-        mc.error('you need to create the facial controller')
+        mc.error('フェイシャルコントローラーを作成する必要があります。')
 
-def createBldShapeExp(*args):
+def create_blend_shape_expression(*args):
     eltToBld = mc.ls(sl=1)
     info = eltToBld[0].split('_')
     bld = info[0] + '_' + info[1] + '_bldExp'
@@ -1262,15 +1231,13 @@ def createBldShapeExp(*args):
                 mc.blendShape(bld, e=1, t=(str(eltToBld[1]), numberOfBlendShapes, str(eltToBld[0]), 1.0))
             except RuntimeError:
                 pass
-
             if mc.objExists('%s.%s' % (bld, eltToBld[0])):
                 break
             else:
                 numberOfBlendShapes = numberOfBlendShapes + 1
-
         mc.warning('A new blend Shape was added for ' + eltToBld[1])
 
-def TMPBlendShapeCrv(crvList, *args):
+def tmp_blend_shape_Crv(crvList, *args):
     mc.textScrollList('HiddenTMPNodeList', e=1, ra=True)
     crvTMPNodeList = []
     for crv in crvList:
@@ -1279,33 +1246,29 @@ def TMPBlendShapeCrv(crvList, *args):
         crvMaster = crv
         mc.select('%s_%s_*_ctrl' % (side, name), r=True)
         ctrls = mc.ls(sl=1)
-        ctrlPosList = getRecordPosOfCtrl(ctrls)
-        keepRotAndScaleRecordForBlendShape(ctrlPosList)
-        createCurveWithPosCtrlList(ctrlPosList)
-        replaceEditPointCrv(ctrlPosList)
-        recupValueOfCtrl = testRecordBlendShape(ctrlPosList)
+        ctrlPosList = get_record_position_of_control(ctrls)
+        keep_rotate_and_scale_record_for_blend_shape(ctrlPosList)
+        create_curve_with_position_control_list(ctrlPosList)
+        replace_edit_point_Crv(ctrlPosList)
+        recupValueOfCtrl = test_record_blend_shape(ctrlPosList)
         crvTMPBldNode = '%sTMP_1_POC_crv_bldExp.%sTMP_1_POC_crv' % (crv, crv)
         crvTMPNodeList.append(crvTMPBldNode)
-
     for crvTMPNode in crvTMPNodeList:
         mc.textScrollList('HiddenTMPNodeList', e=1, a=crvTMPNode)
-
     return crvTMPNodeList
 
-def getRecordPosOfCtrl(ctrls, *args):
+def get_record_position_of_control(ctrls, *args):
     eltPosList = DictionnaireOrdonne()
     for elt in ctrls:
         posElt = mc.xform(elt, q=1, ws=1, t=1)
         eltPosList[elt] = posElt
-
     eltPosList.sort()
     for ctrl in eltPosList:
         value = '%s=%s' % (ctrl, eltPosList[ctrl])
         mc.textScrollList('RecordPosCtrl', e=1, a=value)
-
     return eltPosList
 
-def keepRotAndScaleRecordForBlendShape(ctrlPosList, *args):
+def keep_rotate_and_scale_record_for_blend_shape(ctrlPosList, *args):
     if not mc.objExists('xtra_toHide'):
         mc.group(n='xtra_toHide', em=True)
         mc.setAttr('xtra_toHide.visibility', 0)
@@ -1318,14 +1281,13 @@ def keepRotAndScaleRecordForBlendShape(ctrlPosList, *args):
                 piv = mc.xform('cc_head', q=1, ws=1, piv=1)
                 mc.xform('blendShape_Loc_keepRecorder_RotAndScale_grp', ws=1, piv=[piv[0], piv[1], piv[2]])
                 mc.makeIdentity('blendShape_Loc_keepRecorder_RotAndScale_grp', a=1)
-            except:
+            except ZeroDivisionError:
                 pass
 
             if not mc.objExists('blendShape_Loc_keepRecorder_RotAndScale_grp_parentConstraint1'):
                 mc.parentConstraint('cc_head', 'blendShape_Loc_keepRecorder_RotAndScale_grp', mo=0)
-        except:
+        except ZeroDivisionError:
             pass
-
     for ctrl in ctrlPosList:
         loc = mc.spaceLocator(n='%sTMP_Recorder' % ctrl)[0]
         mc.parentConstraint(ctrl, loc, mo=0)
@@ -1333,7 +1295,7 @@ def keepRotAndScaleRecordForBlendShape(ctrlPosList, *args):
         mc.delete('%s_parentConstraint1' % loc, '%s_scaleConstraint1' % loc)
         mc.parent(loc, 'blendShape_Loc_keepRecorder_RotAndScale_grp')
 
-def createCurveWithPosCtrlList(dict, *args):
+def create_curve_with_position_control_list(dict, *args):
     TMPGrp = 'TMP'
     if not mc.objExists(TMPGrp):
         mc.group(n=TMPGrp, em=1)
@@ -1343,7 +1305,6 @@ def createCurveWithPosCtrlList(dict, *args):
     for key in keys:
         pos = dict[key]
         posList.append(pos)
-
     crvName = keys[0].split('_')[0] + '_' + keys[0].split('_')[1] + '_crv'
     crvTMP = mc.duplicateCurve(crvName, ch=False, n=crvName + 'TMP')[0]
     lenSpan = mc.getAttr('%s.spans' % crvTMP) + 1
@@ -1364,17 +1325,15 @@ def createCurveWithPosCtrlList(dict, *args):
         mc.xform(newLoc, ws=1, piv=[pivLoc[0], pivLoc[1], pivLoc[2]])
         for a in ['X', 'Y', 'Z']:
             mc.setAttr('%sShape.localScale%s' % (newLoc, a), 0.2)
-
         mc.delete(loc)
         mc.parentConstraint(key, newLoc, mo=0)
         mc.delete(newLoc + '_parentConstraint1')
         mc.parent(crvDeform, TMPGrp)
         mc.parent(newLoc, TMPGrp)
         i = i + 1
-
     mc.parent(crvTMP, TMPGrp)
 
-def replaceEditPointCrv(dict, *args):
+def replace_edit_point_Crv(dict, *args):
     locPos = []
     keys = dict.keys()
     posList = []
@@ -1386,7 +1345,6 @@ def replaceEditPointCrv(dict, *args):
         mpName = key.split('_ctrl')[0] + '_mp'
         mpValue = mc.getAttr(mpName + '.uValue')
         locList[mpName] = mpValue
-
     locList.sort()
     lenght = dict.__len__()
     testSpan = 0
@@ -1411,14 +1369,13 @@ def replaceEditPointCrv(dict, *args):
                 mc.select(crvTMP + '.ep[' + str(epToChange) + ']', r=True)
                 editPointSel = crvTMP + '.ep[' + str(epToChange) + ']'
                 mc.move(locPosWorld[0], locPosWorld[1], locPosWorld[2], a=True, ws=True)
-
         crvTMP = curveName + 'TMP'
         crvTMPShape = mc.listRelatives(crvTMP)[0]
         for loc in locList:
             mc.disconnectAttr(curveName + 'Shape.worldSpace[0]', loc + '.geometryPath')
             mc.connectAttr(crvTMPShape + '.worldSpace[0]', loc + '.geometryPath', f=True)
 
-def testRecordBlendShape(dict, *args):
+def test_record_blend_shape(dict, *args):
     keys = dict.keys()
     crvToTest = '%s_%s_crvTMP' % (keys[0].split('_')[0], keys[0].split('_')[1])
     crvTMP = crvToTest + '_1_POC_crv'
@@ -1429,18 +1386,17 @@ def testRecordBlendShape(dict, *args):
         for a in ['x', 'y', 'z']:
             mc.setAttr('%s.t%s' % (key, a), 0)
             mc.setAttr('%s.r%s' % (key, a), 0)
-
-    createBldShapeToTestRecorder(crvToTest, crvTMP)
+    create_blend_shape_to_test_recorder(crvToTest, crvTMP)
     return recupValue
 
-def createBldShapeToTestRecorder(crvMaster, crvTMP, *args):
+def create_blend_shape_to_test_recorder(crvMaster, crvTMP, *args):
     mc.select(crvTMP, crvMaster, r=True)
     sel = mc.ls(sl=1)
     bldNameTMP = crvTMP + '_bldExp'
     mc.select(sel, r=True)
     mel.eval('blendShape -frontOfChain -n "' + bldNameTMP + '";')
 
-def createNodalLinkConstraint(bldNode, crv, *args):
+def create_node_link_constraint(bldNode, crv, *args):
     info = crv.split('_')
     side = info[0]
     name = info[1]
@@ -1498,7 +1454,7 @@ def createNodalLinkConstraint(bldNode, crv, *args):
                 mc.connectAttr('%s.%s' % (bldNode, crv), '%s.input1D[%s]' % (minPlus, i))
                 break
 
-def getBackLocTMPToCrv(crvNameTMP, *args):
+def get_back_locator_TMP_to_Crv(crvNameTMP, *args):
     crvNameOri = crvNameTMP.split('TMP')[0]
     info = crvNameTMP.split('_')
     mc.select('%s_%s_*_mp' % (info[0], info[1]), r=True)
@@ -1506,11 +1462,10 @@ def getBackLocTMPToCrv(crvNameTMP, *args):
     for mp in mpList:
         mc.disconnectAttr(crvNameTMP + 'Shape.worldSpace[0]', mp + '.geometryPath')
         mc.connectAttr(crvNameOri + 'Shape.worldSpace[0]', mp + '.geometryPath', f=True)
-
     if mc.objExists(crvNameTMP + '1'):
         mc.delete(crvNameTMP + '1')
 
-def createBldShape(*args):
+def create_blend_shape(*args):
     eltToBld = mc.ls(sl=1)
     mc.select(eltToBld[0], r=True)
     elt = mc.ls(sl=1)[0]
@@ -1535,6 +1490,6 @@ def createBldShape(*args):
                 break
             else:
                 numberOfBlendShapes = numberOfBlendShapes + 1
-
         mc.warning('A new blend Shape was added for ' + eltToBld[1])
+
 

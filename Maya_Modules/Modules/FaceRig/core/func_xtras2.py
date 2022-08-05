@@ -4,7 +4,7 @@ import maya.cmds as mc
 import maya.mel as mel
 from xtrasUI import *
 
-def refreshCtrl(*args):
+def refresh_controller(*args):
     mc.textScrollList('resizeCtrlList', e=1, ra=1)
     if mc.objExists('C_facial_ctrlGrp'):
         mc.select('C_facial_ctrlGrp', hi=True, r=True)
@@ -27,23 +27,23 @@ def refreshCtrl(*args):
     else:
         mc.error('No controllers was found')
 
-def ctrlGrpChildSetToMenu(sel, *args):
+def control_group_child_set_to_menu(sel, *args):
     childrenName = sel.split('_ctrlGrp')[0]
     listOfChild = mc.ls('%s*_ctrl' % childrenName)
     for ctrl in listOfChild:
         mc.textScrollList('indeCtrl', e=True, a=ctrl)
 
-def launchXtrasResizeCtrlUI(*args):
-    replaceController()
+def launch_xtras_resize_control_ui(*args):
+    ReplaceController()
 
-def specificCtrlSel(*args):
+def specific_control_select(*args):
     check = mc.checkBox('independantCtrl', q=True, v=True)
     if check == 1:
         mc.textScrollList('indeCtrl', e=True, en=True, ams=True)
     else:
         mc.textScrollList('indeCtrl', e=True, en=False)
 
-def getSizeValueOfSelectedCtrl(*args):
+def get_size_value_of_selected_control(*args):
     sel = mc.textScrollList('indeCtrl', q=True, si=True)
     if len(sel) == 1:
         sel = sel[0]
@@ -51,9 +51,9 @@ def getSizeValueOfSelectedCtrl(*args):
         mc.floatSliderGrp('resizeCtrl', e=1, v=value)
     elif len(sel) > 1:
         mc.floatSliderGrp('resizeCtrl', e=1, v=1)
-        mc.warning('The resize controller slider will be set at 1 when you have more than one object selected')
+        mc.warning('複数のオブジェクトが選択されている場合、リサイズコントローラーのスライダーは1に設定されます')
 
-def ctrlSelectionWithCheckBox(*args):
+def control_selection_with_checkbox(*args):
     check = mc.checkBox('independantCtrl', q=True, v=True)
     listCtrl = []
     if check is True:
@@ -85,15 +85,15 @@ def ctrlSelectionWithCheckBox(*args):
         newListOfSel = listCtrl
     return newListOfSel
 
-def func_resizeCtrl(*args):
-    newListOfSel = ctrlSelectionWithCheckBox()
+def func_resize_control(*args):
+    newListOfSel = control_selection_with_checkbox()
     value = mc.floatSliderGrp('resizeCtrl', q=True, v=True)
     for axis in ['X', 'Y', 'Z']:
         for elt in newListOfSel:
             mc.setAttr('%s.scale%s' % (elt, axis), value)
 
-def MakeThisXTRAS(*args):
-    ctrlList = ctrlSelectionWithCheckBox()
+def make_this_XTRAS(*args):
+    ctrlList = control_selection_with_checkbox()
     sides = []
     ctrls = mc.textScrollList('resizeCtrlList', q=1, si=1)
     type = mc.textScrollList('type', q=1, si=1)[0]
@@ -147,7 +147,7 @@ def MakeThisXTRAS(*args):
                     pos = mc.xform(ctrlList[i] + '.cv[0]', q=1, ws=1, t=1)
                     mel.eval('rotate -os -fo %s ;' % tValue)
 
-def resizeLoc(*args):
+def resize_locator(*args):
     value = mc.floatSliderGrp('resizeLocator', q=1, v=1)
     elts = mc.ls('*_loc')
     for elt in elts:
@@ -159,11 +159,11 @@ def resizeLoc(*args):
             mc.setAttr('%s.localScaleY' % locShape, value)
             mc.setAttr('%s.localScaleZ' % locShape, value)
 
-def resizeJntDisp(*args):
+def resize_joint_display(*args):
     value = mc.floatSliderGrp('resizeJntDisplay', q=1, v=1)
     mel.eval('jointDisplayScale(%s)' % value)
 
-def freezeTransfCtrlGrp(*args):
+def freeze_transform_control_group(*args):
     ctrlGrp = mc.textScrollList('resizeCtrlList', q=True, si=1)
     if ctrlGrp is None:
         mc.select(ctrlGrp, r=True)
@@ -177,15 +177,14 @@ def freezeTransfCtrlGrp(*args):
                 mc.delete(ch=1)
 
             mc.select(cl=1)
-            mc.warning('all controller inside your : %s are now correctly freeze transform' % ctrlGrp)
+            mc.warning('すべてのコントローラが正しくフリーズ変換されるようになりました。' % ctrlGrp)
         except:
-            mc.error("Problem found between the selection of the %s controller maybe any controllers doesn't exists for this group" % ctrlGrp, n=False)
-
+            mc.error("このグループにはコントローラが存在しないため、%s コントローラの選択に問題があることが判明しました。" % ctrlGrp, n=False)
     else:
-        mc.error('Please select one ctrlGrp into the list before trying to execute this command', n=False)
+        mc.error('このコマンドを実行する前に、ctrlGrpを1つ選択してください。', n=False)
     return
 
-def freezeTransAll(*args):
+def freeze_transform_all(*args):
     listOfCtrlGrp = ''
     try:
         listOfCtrlGrp = mc.ls('*_ctrlGrp')
@@ -206,14 +205,12 @@ def freezeTransAll(*args):
                 for ctrl in listCtrl:
                     mc.makeIdentity(ctrl, a=True)
                     mc.delete(ctrl, ch=True)
-
                 okFreeze.append(ctrlGrp)
-
-        mc.warning('Freeze Transform are okey for : %s' % ctrlGrp)
+        mc.warning('Freeze Transform are ok : %s' % ctrlGrp)
     else:
-        mc.error('No ctrl grp has been found, this action will be aborted', n=False)
+        mc.error('ctrl Grpが見つかりませんでした。', n=False)
 
-def switchCtrlColor(*args):
+def switch_control_color(*args):
     sel = mc.ls(sl=1)
     color = mc.colorIndexSliderGrp('colorChange', q=True, v=True)
     print('color = %s' % color)
@@ -225,14 +222,13 @@ def switchCtrlColor(*args):
             except:
                 pass
 
-def cleanOutliner(*args):
+def clean_out_liner(*args):
     if mc.objExists('C_faceCurvesBld_grp'):
         if mc.objExists('blendShapes'):
             try:
                 mc.parent('C_faceCurvesBld_grp', 'blendShapes')
             except:
                 pass
-
     try:
         mc.select('*_bld_crv', r=True)
         list = mc.ls(sl=1)
@@ -267,5 +263,5 @@ def cleanOutliner(*args):
         mc.parent('C_Head_Facial_Rig_crvGrp', 'xtra_toHide')
     except:
         pass
-    mc.warning('Your Outliner is now Clean')
+    mc.warning('Outliner is clean.')
 

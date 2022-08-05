@@ -10,68 +10,66 @@ class XtrasMenuUI:
     def __init__(self):
         if mc.window('XtrasMenu', exists=True):
             mc.deleteUI('XtrasMenu')
-        window3 = mc.window('XtrasMenu', title='XTRAS OPTIONS (clean outliner, none renderable ctrls...)', resizeToFitChildren=True, fw=1, mxb=False, w=350, h=200, s=False)
+        window3 = mc.window('XtrasMenu', title='XTRAS OPTIONS (clean out liner, none render controls...)', resizeToFitChildren=True, fw=1, mxb=False, w=350, h=200, s=False)
         mc.frameLayout(labelVisible=0)
-        self.ctrlList()
-        self.displayCLJ()
-        self.others()
+        self.control_list()
+        self.display_objects()
+        self.other_control()
         mc.setParent('..')
         mc.showWindow(window3)
 
-    def ctrlList(self):
+    def control_list(self):
         mc.frameLayout(l='Resize your controller and Locator')
         mc.text(l='Before to go, select a controller group in "Ctrl List:"')
         mc.rowLayout(nc=6)
         mc.separator(w=15, style='none')
         mc.text(l='Ctrl List:', fn='boldLabelFont')
         mc.separator(w=18, style='none')
-        mc.textScrollList('resizeCtrlList', w=140, h=80, sc=ctrlResize)
+        mc.textScrollList('resizeCtrlList', w=140, h=80, sc=control_resize)
         mc.separator(w=5, style='none')
         mc.columnLayout()
-        mc.button(l='Refresh', w=100, c=refreshCtrl)
-        mc.button(l='Freeze Trans', w=100, c=freezeTransfCtrlGrp)
-        mc.button(l='Freeze Trans All', w=100, c=freezeTransAll)
+        mc.button(l='Refresh', w=100, c=refresh_controller)
+        mc.button(l='Freeze Trans', w=100, c=freeze_transform_control_group)
+        mc.button(l='Freeze Trans All', w=100, c=freeze_transform_all)
         mc.setParent('..')
         mc.setParent('..')
 
-    def displayCLJ(self):
+    def display_objects(self):
         mc.frameLayout(l='Display of Controller / Locator / Joint')
         mc.rowLayout(nc=4)
         mc.separator(w=10, style='none')
         mc.text(l='Resize Locator:')
         mc.separator(w=17, style='none')
-        mc.floatSliderGrp('resizeLocator', w=150, min=0.001, max=10, v=1, field=1, cw2=(40,
-                                                                                        200), pre=3, cc=resizeLoc)
+        mc.floatSliderGrp('resizeLocator', w=150, min=0.001, max=10, v=1, field=1, cw2=(40, 200), pre=3, cc=resize_locator)
         mc.setParent('..')
         mc.rowLayout(nc=4)
         mc.separator(w=10, style='none')
         mc.text(l='Joint Size Display:')
         mc.separator(w=2, style='none')
-        mc.floatSliderGrp('resizeJntDisplay', w=150, min=0.01, max=10, v=1, field=1, cw2=(40,
-                                                                                          200), pre=2, dc=resizeJntDisp)
+        mc.floatSliderGrp('resizeJntDisplay', w=150, min=0.01, max=10, v=1, field=1, cw2=(40, 200), pre=2, dc=resize_joint_display)
         mc.setParent('..')
         mc.setParent('..')
         mc.setParent('..')
 
-    def others(self):
+    def other_control(self):
         mc.frameLayout(l='Others Options')
         mc.text(l='Select an element (controller / mesh / etc...)', fn='boldLabelFont')
         mc.rowLayout(nc=4)
         mc.separator(w=10, style='none')
         mc.text(l='Color Change:')
         mc.separator(w=17, style='none')
-        mc.colorIndexSliderGrp('colorChange', label='', min=0, max=20, value=10, cw3=[1, 40, 150], cc=switchCtrlColor)
+        mc.colorIndexSliderGrp('colorChange', label='', min=0, max=20, value=10, cw3=[1, 40, 150], cc=switch_control_color)
         mc.setParent('..')
         mc.separator(style='in')
-        mc.button(l='Clean Outliner', c=cleanOutliner)
-        mc.text(l="If you want scale your rig with a controller or something else,\n parent 'C_curves_setup' at your own rig. \n Don't make any constraint at the 'C_facial_jntGrp'")
+        mc.button(l='Clean Out liner', c=clean_out_liner)
+        mc.text(l="コントローラーなどでリグをスケールさせたい場合は、'C_curves_setup' を自分のリグの親にしてください。'C_facial_jntGrp'にはコンストレイントを作らないようにします。")
         mc.separator(h=10, style='none')
         mc.setParent('..')
 
-def launchXtrasMenuUI(*args):
+def launch_XTRAS_menu_ui(*args):
     XtrasMenuUI()
 
-class replaceController:
+class ReplaceController:
     def __init__(self):
         if mc.window('ReplaceCtrl', exists=True):
             mc.deleteUI('ReplaceCtrl')
@@ -95,38 +93,39 @@ class replaceController:
         mc.textScrollList('valueList', w=60, h=60, append=['0.01', '0.1', '1', '5', '10', '15', '30', '45', '90'])
         mc.separator(w=10, style='none')
         mc.columnLayout()
-        mc.button(l='Make this action', w=100, c=MakeThisXTRAS)
+        mc.button(l='Make this action', w=100, c=make_this_XTRAS)
         mc.checkBox('negValue', l='Negative Value ?', v=0)
-        mc.checkBox('independantCtrl', l='Specific Ctrl', v=0, cc=specificCtrlSel)
+        mc.checkBox('independent control', l='Specific Ctrl', v=0, cc=specific_control_select)
         mc.checkBox('mirrorCtrl', l='Mirror')
         mc.setParent('..')
         mc.setParent('..')
         mc.setParent('..')
         mc.rowLayout(nc=2)
         mc.separator(w=10, style='none')
-        mc.textScrollList('indeCtrl', en=0, h=80, w=317, sc=getSizeValueOfSelectedCtrl)
+        mc.textScrollList('independent control', en=0, h=80, w=317, sc=get_size_value_of_selected_control)
         mc.setParent('..')
         mc.rowLayout(nc=7)
         mc.separator(w=10, style='none')
-        mc.text(l='Resize Ctrl:')
+        mc.text(l='resize control:')
         mc.separator(w=15, style='none')
-        mc.floatSliderGrp('resizeCtrl', w=250, min=0.001, max=10, v=1, field=1, cw2=(40,
-                                                                                     200), pre=3, cc=func_resizeCtrl)
+        mc.floatSliderGrp('resize control', w=250, min=0.001, max=10, v=1, field=1, cw2=(40, 200), pre=3, cc=func_resize_control)
         mc.separator(w=5, style='none')
         mc.setParent('..')
         mc.setParent('..')
         mc.setParent('..')
         mc.showWindow(windowReplace)
 
-def launchXtrasResizeCtrlUI(*args):
-    replaceController()
+# no reference
+def launch_XTRAS_resize_control_ui(*args):
+    ReplaceController()
 
-def ctrlResize(*args):
+def control_resize(*args):
     sel = mc.textScrollList('resizeCtrlList', q=1, si=1)[0]
     if mc.window('ReplaceCtrl', exists=True):
-        mc.textScrollList('indeCtrl', e=True, ra=True)
-        ctrlGrpChildSetToMenu(sel)
+        mc.textScrollList('independent control', e=True, ra=True)
+        control_group_child_set_to_menu(sel)
         mc.floatSliderGrp('resizeCtrl', e=1, v=1)
     else:
-        launchXtrasResizeCtrlUI()
-        ctrlGrpChildSetToMenu(sel)
+        launch_xtras_resize_control_ui()
+        control_group_child_set_to_menu(sel)
+

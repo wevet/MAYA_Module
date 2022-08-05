@@ -38,26 +38,23 @@ import cleaner
 import importlib
 import func_creation
 import func_animEditMode
-import about
 import xtrasUI
 import func_recorder
 import UKDP_AER
-from cleaner import correctCustomName
+from cleaner import correct_custom_name
 from func_creation import *
 from func_animEditMode import *
-from about import *
 from xtrasUI import *
 from func_recorder import *
 
 importlib.reload(cleaner)
 importlib.reload(func_creation)
 importlib.reload(func_animEditMode)
-importlib.reload(about)
 importlib.reload(xtrasUI)
 importlib.reload(func_recorder)
 importlib.reload(UKDP_AER)
 
-class UI():
+class FaceRigMainUI:
     def __init__(self):
         if mc.window('RIG', exists=True):
             mc.deleteUI('RIG')
@@ -89,6 +86,8 @@ class UI():
             mc.deleteUI('saveClone')
         if mc.window('ReplaceCtrl', exists=True):
             mc.deleteUI('ReplaceCtrl')
+
+    def show_ui(self):
         window = mc.window('RIG', title='Speed Facial Rig v 2.0 Lite', resizeToFitChildren=False, h=900, sizeable=True, w=395)
         mc.columnLayout(adj=True)
         self.menuBarUI()
@@ -96,7 +95,7 @@ class UI():
         self.tabLayoutUI()
         mc.setParent('..')
         mc.frameLayout(labelVisible=0)
-        mc.button(l='XTRAS Menu \n(help to resize and replace each element, \nwill be used before facial expression)', c=launchXtrasMenuUI)
+        mc.button(l='XTRAS Menu \n(help to resize and replace each element, \nwill be used before facial expression)', c=launch_XTRAS_menu_ui)
         mc.textScrollList('HiddenTMPNodeList', vis=0, h=30)
         mc.textScrollList('RecordPosCtrl', vis=0, h=30)
         mc.setParent('..')
@@ -105,8 +104,8 @@ class UI():
     def menuBarUI(self):
         menuBarLayout = mc.menuBarLayout(menuBarVisible=True, po=True)
         mc.menu(label='File Mode')
-        mc.menuItem(label='Edit Mode', c=goToEditMode)
-        mc.menuItem(label='Anim Mode', c=goToAnimMode)
+        mc.menuItem(label='Edit Mode', c=go_to_edit_mode)
+        mc.menuItem(label='Anim Mode', c=go_to_anim_mode)
         mc.separator(w=5, style='in')
         mc.menu(label='Help')
         mc.menuItem(label='About / Contact', c=helpBarAbout)
@@ -236,7 +235,7 @@ class UI():
         mc.text(l='Custom name:', fn='boldLabelFont')
         mc.separator(w=15, style='none')
         if numNb >= 2016:
-            mc.textField('otherNameList', w=150, h=20, tcc=cleaner.correctCustomName)
+            mc.textField('otherNameList', w=150, h=20, tcc=cleaner.correct_custom_name)
         else:
             mc.textField('otherNameList', w=150, h=20)
         mc.setParent('..')
@@ -423,18 +422,18 @@ class UI():
         mc.separator(style='none', w=10)
         mc.textScrollList('headCtrlBlendShape', w=155, h=20)
         mc.separator(style='none', w=5)
-        mc.button(l='Add', w=80, c=addHeadControllerToUINlendShape)
+        mc.button(l='Add', w=80, c=add_head_controller_to_ui_blend_shape)
         mc.setParent('..')
         mc.separator(style='in')
         mc.rowLayout(nc=4)
         mc.separator(style='none', w=30)
-        mc.button(l='Make Facial Controller', w=150, c=facialControllerExpression)
+        mc.button(l='Make Facial Controller', w=150, c=facial_controller_expression)
         mc.separator(style='none', w=5)
-        mc.button(l='Confirm Position', w=150, c=validPositionOfFacialControllerExpression)
+        mc.button(l='Confirm Position', w=150, c=valid_position_of_facial_controller_expression)
         mc.setParent('..')
         mc.separator(style='in')
         mc.text(l='Becarefull before to use this, \nbe sure to have no value on rotation \nand translation on each controller', fn='boldLabelFont')
-        mc.button(l='Add Scale Constaint Between Each Controller And Joint', c=addScaleConstraintOnEachController)
+        mc.button(l='Add Scale Constaint Between Each Controller And Joint', c=add_scale_constraint_on_each_controller)
         mc.setParent('..')
 
     def mouthBlendShapeMenuUI(self):
@@ -457,14 +456,14 @@ class UI():
         mc.separator(w=5, style='none')
         mc.rowLayout(nc=2)
         mc.columnLayout()
-        mc.button(l='Refresh', w=80, c=refreshBldMouthCrvList)
-        mc.button(l='Delete', w=80, c=deleteBldMouthSelected)
+        mc.button(l='Refresh', w=80, c=refresh_build_mouth_Crv_list)
+        mc.button(l='Delete', w=80, c=delete_build_mouth_selected)
         mc.setParent('..')
         mc.setParent('..')
         mc.setParent('..')
         mc.separator(style='in')
         mc.text(l='If you need to fix a blendshape orient after the symetry, \nselect it in text scroll list and click "Help To Fix"', fn='boldLabelFont')
-        mc.button(l='Help To Fix', c=helpToFixBldSymMenuMouth)
+        mc.button(l='Help To Fix', c=help_to_fix_build_Sym_menu_mouth)
         mc.setParent('..')
 
     def mouthBlendShapeCreationUI(self):
@@ -475,7 +474,7 @@ class UI():
         mc.separator(w=10, style='none')
         mc.textScrollList('jawJntList2', w=170, h=20)
         mc.separator(w=10, style='none')
-        mc.button(l='Add', w=80, c=addJawJntLip2)
+        mc.button(l='Add', w=80, c=add_jaw_joint_lip2)
         mc.setParent('..')
         mc.rowLayout(nc=6)
         mc.separator(w=15, style='none')
@@ -483,7 +482,7 @@ class UI():
         mc.separator(w=17, style='none')
         mc.textScrollList('jawCtrlList', w=170, h=20)
         mc.separator(w=10, style='none')
-        mc.button(l='Add', w=80, c=addJawCtrlForRecord)
+        mc.button(l='Add', w=80, c=add_jaw_control_for_record)
         mc.setParent('..')
         mc.separator(style='in')
         mc.rowLayout(nc=2)
@@ -534,9 +533,9 @@ class UI():
         mc.separator(w=5, style='none')
         mc.rowLayout(nc=3)
         mc.columnLayout()
-        mc.button(l='Refresh', w=80, c=refreshBldCrvList)
-        mc.button(l='Select', w=80, c=selectBldCrvList)
-        mc.button(l='Delete', w=80, c=deleteSelBldCrvList)
+        mc.button(l='Refresh', w=80, c=refresh_build_Crv_list)
+        mc.button(l='Select', w=80, c=select_build_Crv_list)
+        mc.button(l='Delete', w=80, c=delete_select_build_Crv_list)
         mc.setParent('..')
         mc.setParent('..')
         mc.setParent('..')
@@ -558,7 +557,7 @@ class UI():
         mc.separator(w=15, style='none')
         mc.text(l='Test it:', fn='boldLabelFont')
         mc.separator(w=15, style='none')
-        mc.floatSliderGrp('testIt', w=250, min=0.0, max=1, v=0, field=1, cw2=(40, 300), pre=3, cc=testBlendShape)
+        mc.floatSliderGrp('testIt', w=250, min=0.0, max=1, v=0, field=1, cw2=(40, 300), pre=3, cc=test_blend_shape)
         mc.setParent('..')
         mc.separator(style='in')
         mc.text(l='If you need to fix a blendshape orient after the symetry, \nselect it in text scroll list and click "Help To Fix"', fn='boldLabelFont')
@@ -569,7 +568,7 @@ class UI():
         mc.frameLayout(l='A - Make Blendshape (Record Your actual Expression)', collapsable=1, collapse=0)
         mc.button('recorderBldExp', l='Record This Expression', c=launchRecorderUI)
         mc.separator(style='double')
-        mc.button('ValidateExpButton', l='Validate your expression', w=150, en=0, c=validateRecorder)
+        mc.button('ValidateExpButton', l='Validate your expression', w=150, en=0, c=validate_recorder)
         mc.separator(style='double')
         mc.setParent('..')
 
@@ -579,7 +578,7 @@ class UI():
         mc.text(l='When you have make some blendShape click on:', fn='boldLabelFont')
         mc.rowLayout(nc=2)
         mc.separator(style='none', w=33)
-        mc.button(l='Connect / Reload Blendshape To Facial Controller', w=300, c=AttachAndOrganizeCCFacial)
+        mc.button(l='Connect / Reload Blendshape To Facial Controller', w=300, c=attach_and_organize_cc_facial)
         mc.setParent('..')
         mc.separator(style='none')
         mc.setParent('..')
@@ -594,7 +593,7 @@ class UI():
         mc.button(l='Launch The script', c=lauchMarcoUI)
         mc.setParent('..')
 
-class recordExpressionsUI():
+class RecordExpressionsUI:
     def __init__(self):
         if mc.window('BlendShapeUIRecorder', exists=True):
             mc.deleteUI('BlendShapeUIRecorder')
@@ -623,9 +622,9 @@ class recordExpressionsUI():
         mc.separator(style='double')
         mc.rowLayout(nc=5)
         mc.separator(style='none', w=28)
-        mc.button(l='Record with this selection', w=135, c=recordWithSelection)
+        mc.button(l='Record with this selection', w=135, c=record_with_selection)
         mc.separator(w=15, style='none')
-        mc.button(l='Record with all curves', w=135, c=recordWithAllCurves)
+        mc.button(l='Record with all curves', w=135, c=record_with_all_curves)
         mc.separator(w=10, style='none')
         mc.setParent('..')
         mc.setParent('..')
@@ -660,9 +659,9 @@ class recordExpressionsUIMouth():
         mc.separator(style='double')
         mc.rowLayout(nc=5)
         mc.separator(style='none', w=28)
-        mc.button(l='Record with this selection', w=135, c=recordWithSelectionMouth)
+        mc.button(l='Record with this selection', w=135, c=record_with_selection_mouth)
         mc.separator(w=15, style='none')
-        mc.button(l='Record with all curves', w=135, c=recordWithAllCurvesMouth)
+        mc.button(l='Record with all curves', w=135, c=record_with_all_curves_mouth)
         mc.separator(w=10, style='none')
         mc.setParent('..')
         mc.setParent('..')
@@ -704,9 +703,9 @@ class HelpToFixBldUI():
         mc.setParent('..')
         mc.rowLayout(nc=5)
         mc.separator(w=35, style='none')
-        mc.button(l='Fix For Selected', w=120, c=fixBldLocSelected)
+        mc.button(l='Fix For Selected', w=120, c=fix_build_locator_selected)
         mc.separator(w=5, style='none')
-        mc.button(l='Fix For All', w=120, c=fixBldLocAll)
+        mc.button(l='Fix For All', w=120, c=fix_build_locator_all)
         mc.setParent('..')
         mc.separator(h=10, style='none')
         mc.setParent('..')
@@ -760,7 +759,8 @@ def searchByName(*args):
                 break
 
 def helpBarAbout(*args):
-    launchAboutMenu()
+    #launchAboutMenu()
+    pass
 
 def launchRecorderMouthUI(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
@@ -768,7 +768,7 @@ def launchRecorderMouthUI(*args):
         checkMode = mc.getAttr('%s.mode' % ctrlFacial)
         if checkMode != 2:
             if checkMode == 1:
-                goToEditMode()
+                go_to_edit_mode()
             crvListOK = []
             jawJnt = ''
             jawCtrl = ''
@@ -848,7 +848,7 @@ def launchRecorderUI(*args):
         checkMode = mc.getAttr('%s.mode' % ctrlFacial)
         if checkMode != 2:
             if checkMode == 1:
-                goToEditMode()
+                go_to_edit_mode()
             crvListOK = []
             try:
                 mc.select('*crv', r=True)
@@ -866,7 +866,8 @@ def launchRecorderUI(*args):
                             if mc.objExists(name + '1_jnt'):
                                 crvListOK.append(crv)
 
-                recordExpressionsUI()
+                record_expressions = RecordExpressionsUI()
+                print("show record_expressions")
                 for crv in crvListOK:
                     side = crv.split('_')[0]
                     if side == 'L':
@@ -875,11 +876,9 @@ def launchRecorderUI(*args):
                         mc.textScrollList('RightRecordCrvsList', e=1, a=crv)
                     else:
                         mc.textScrollList('CenterRecordCrvsList', e=1, a=crv)
-
                 return crvListOK
             except:
                 raise mc.error('no system found')
-
         else:
             mc.error('you cannot create a new blendshape expression if you have use the optimize mode')
     else:
@@ -958,4 +957,9 @@ def loadLocRecorderSelInHelpToFixMouthUI(*args):
 def lauchMarcoUI(*args):
     UKDP_AER.autoEyelidsRig.UI()
 
-UI()
+"""
+face_rig = FaceRigMainUI()
+face_rig.show_ui()
+"""
+
+

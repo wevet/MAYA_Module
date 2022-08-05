@@ -3,7 +3,7 @@
 import maya.cmds as mc
 import maya.mel as mel
 
-def goToEditMode(*args):
+def go_to_edit_mode(*args):
     headCtrl = ''
     try:
         headCtrl = mc.textScrollList('headCtrlBlendShape', q=True, ai=True)[0]
@@ -14,7 +14,7 @@ def goToEditMode(*args):
         if mc.objExists('Facial_Rig_ctrl'):
             mode = mc.getAttr('Facial_Rig_ctrl.mode')
             if mode == 1:
-                setAllAttributeOfCCFacialAt0()
+                set_all_attribute_of_cc_facial_at0()
                 ctrlList2 = []
                 mc.select('*ctrl', r=True)
                 ctrlList = mc.ls(sl=1)
@@ -91,17 +91,17 @@ def goToEditMode(*args):
                 mc.setAttr('Facial_Rig_ctrl.mode', lock=False)
                 mc.setAttr('Facial_Rig_ctrl.mode', 0)
                 mc.setAttr('Facial_Rig_ctrl.mode', lock=True)
-                mc.warning('You are back in Edit Mode')
+                mc.warning('Edit Modeに戻ります。')
             elif mode == 2:
-                mc.error('You cannot back into the Edit mode if you have launch the Optimize Mode.')
+                mc.error('最適化モードを起動すると、編集モードには戻れません。')
             else:
-                mc.warning('You are already in Edit Mode')
+                mc.warning('すでに編集モードになっています')
         else:
-            mc.error('No Facial Rig Ctrl was found, this action will be aborted')
+            mc.error('フェイシャルリグCtrlが見つからなかったため、このアクションは中断されます。')
     else:
-        raise mc.error('please add your head controller into the "Head Controller" field')
+        raise mc.error('ヘッドコントローラを追加してください。')
 
-def setAllAttributeOfCCFacialAt0(*args):
+def set_all_attribute_of_cc_facial_at0(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
     if mc.objExists(ctrlFacial):
         listAttrCCFacial = ['openMouth', 'sideMouth', 'twistMouth', 'jawAmount', 'jawDown']
@@ -141,7 +141,7 @@ def setAllAttributeOfCCFacialAt0(*args):
     else:
         mc.error('The Facial_Rig_ctrl controller was not found, this operation will be aborted')
 
-def discoAllMpToLoc(*args):
+def disco_all_mp_to_loc(*args):
     ctrlList2 = []
     mc.select('*ctrl', r=True)
     ctrlList = mc.ls(sl=1)
@@ -166,7 +166,7 @@ def discoAllMpToLoc(*args):
         except:
             pass
 
-def goToAnimMode(*args):
+def go_to_anim_mode(*args):
     testConstantScale = ''
     headCtrl = ''
     try:
@@ -184,8 +184,8 @@ def goToAnimMode(*args):
                     for target in blendTargets:
                         mc.setAttr('%s.%s' % (bldNode, target), 0)
 
-                setAllAttributeOfCCFacialAt0()
-                discoAllMpToLoc()
+                set_all_attribute_of_cc_facial_at0()
+                disco_all_mp_to_loc()
                 piv = mc.xform(headCtrl, q=True, ws=True, piv=True)
                 mc.xform('blendShape_Loc_keepRecorder_RotAndScale_grp', ws=True, piv=[piv[0], piv[1], piv[2]])
                 try:
@@ -409,7 +409,7 @@ def goToAnimMode(*args):
                         pass
 
                 listCons = []
-                connectIBInAnimMode()
+                connect_ib_in_anim_mode()
                 try:
                     mc.select('*bld*_bld_crv', r=True)
                 except:
@@ -437,7 +437,7 @@ def goToAnimMode(*args):
     else:
         mc.error('please add your head controller into the "Head Controller" field')
 
-def connectIBInAnimMode(*args):
+def connect_ib_in_anim_mode(*args):
     IBNameLocList = []
     IBNameList = []
     IBListClean = []

@@ -8,8 +8,8 @@ import cleaner
 from controllersCreation import *
 from cleaner import *
 from dictOrdo import DictionnaireOrdonne
-from controllersCreation import ctrlCreation
-from cleaner import groupOutlinerCreation
+from controllersCreation import control_creation
+from cleaner import group_out_liner_creation
 importlib.reload(controllersCreation)
 importlib.reload(cleaner)
 
@@ -210,7 +210,7 @@ def createSystemOnCurveSelected(*args):
                                 locName = loc.split('_loc')[0]
                                 pos = mc.xform(loc, q=1, ws=1, t=1)
                                 mc.select(cl=1)
-                                ctrlCreation(typeCtrl, locName + '_ctrl')
+                                control_creation(typeCtrl, locName + '_ctrl')
                                 ctrl = mc.ls(sl=1)[0]
                                 ctrlShape = mc.listRelatives(ctrl)[0]
                                 for attr in listAttr:
@@ -247,7 +247,7 @@ def createSystemOnCurveSelected(*args):
                                 mc.parent(loc, jntGrp)
 
                             mc.select(cl=1)
-                            groupOutlinerCreation()
+                            group_out_liner_creation()
                             mc.parent(jntGrp, 'C_facial_jntGrp')
                             mc.parent(ctrlGrp, 'C_facial_ctrlGrp')
                             mc.select(cl=1)
@@ -322,7 +322,7 @@ def changeUValueOfController(*args):
         value = mc.floatSliderGrp('replaceCtrlSys', q=1, v=1)
         mp = ctrl.split('ctrl')[0] + 'mp'
         mc.setAttr(mp + '.uValue', value)
-        if check == True:
+        if check is True:
             side = ctrl.split('_')[0]
             otherSide = ''
             if side == 'L':
@@ -498,7 +498,7 @@ def addCtrlList(*args):
                 for type in typeList:
                     if name[1] != type:
                         if mc.objExists(jnt):
-                            if mc.textScrollList('CustomCtrlList', si=ctrlGrp, ex=True) == False:
+                            if mc.textScrollList('CustomCtrlList', si=ctrlGrp, ex=True) is False:
                                 mc.textScrollList('CustomCtrlList', e=True, append=ctrlGrp)
                             else:
                                 try:

@@ -3,7 +3,7 @@
 import maya.cmds as mc
 import maya.mel as mel
 
-def ctrlCreation(type, nameCtrl, *args):
+def control_creation(type, nameCtrl, *args):
     mc.select(cl=1)
     if type == 'rectangle':
         mel.eval('curve -d 1 -p -2 -3 0 -p -2 3 0 -p 2 3 0 -p 2 -3 0 -p -2 -3 0 -k 0 -k 1 -k 2 -k 3 -k 4 ;')
@@ -40,7 +40,7 @@ def ctrlCreation(type, nameCtrl, *args):
         mc.setAttr('%s.overrideColor' % ctrl, 17)
     return ctrl
 
-def addAttrToController(controller, attribute, type):
+def add_attribute_to_controller(controller, attribute, type):
     ctrl = mc.ls(controller)[0]
     if type == 'double':
         mc.addAttr(ctrl, ln=attribute, at=type, dv=0)
@@ -58,7 +58,7 @@ def addAttrToController(controller, attribute, type):
         mc.addAttr(ctrl, ln=attribute, at='long', dv=0, max=2, min=0)
         mc.setAttr('%s.%s' % (ctrl, attribute), e=1, lock=1, k=False, cb=False)
 
-def facialControllerExpression(*args):
+def facial_controller_expression(*args):
     nameObj = 'Facial_Rig_ctrl'
     if not mc.objExists(nameObj):
         mel.eval('circle -c 0 0 0 -nr 0 0 1 -sw 360 -r 1 -d 3 -ut 0 -tol 0.01 -s 8 -ch 1;')
@@ -79,26 +79,25 @@ def facialControllerExpression(*args):
                     mc.select(cl=1)
                 else:
                     mc.select(mc.listRelatives(x)[0], add=True)
-
         mc.select(ctrlMaster, add=True)
         mc.parent(r=True, s=True)
         mc.delete(ctrl1, ctrl2, ctrl3, ctrl4)
         mc.setAttr('%s.ove' % ctrlMaster, 1)
         mc.setAttr('%s.ovc' % ctrlMaster, 21)
-        addAttrToController(ctrlMaster, 'mode', 'int')
-        addAttrToController(ctrlMaster, 'mouthCorrection', 'sep')
-        addAttrToController(ctrlMaster, 'open_mouth', 'double')
-        addAttrToController(ctrlMaster, 'side_mouth', 'double')
-        addAttrToController(ctrlMaster, 'twist_mouth', 'double')
-        addAttrToController(ctrlMaster, 'jaw', 'minMax1')
-        addAttrToController(ctrlMaster, 'jawDown', 'minMax1')
+        add_attribute_to_controller(ctrlMaster, 'mode', 'int')
+        add_attribute_to_controller(ctrlMaster, 'mouthCorrection', 'sep')
+        add_attribute_to_controller(ctrlMaster, 'open_mouth', 'double')
+        add_attribute_to_controller(ctrlMaster, 'side_mouth', 'double')
+        add_attribute_to_controller(ctrlMaster, 'twist_mouth', 'double')
+        add_attribute_to_controller(ctrlMaster, 'jaw', 'minMax1')
+        add_attribute_to_controller(ctrlMaster, 'jawDown', 'minMax1')
         mc.setAttr('%s.mode' % ctrlMaster, e=1, lock=1)
         mc.select(ctrlMaster, r=True)
     else:
-        mc.warning('Facial Rig Controller was already found, this action is aborted')
+        mc.warning('フェイシャルリグコントローラーが既に発見されているため、このアクションは中断されます。')
         mc.select(nameObj, r=True)
 
-def validPositionOfFacialControllerExpression(*args):
+def valid_position_of_facial_controller_expression(*args):
     facialCtrl = 'Facial_Rig_ctrl'
     if mc.objExists(facialCtrl):
         try:
@@ -108,20 +107,17 @@ def validPositionOfFacialControllerExpression(*args):
             for typ in ['t', 'r', 's']:
                 for axis in ['x', 'y', 'z']:
                     mc.setAttr('%s.%s%s' % (facialCtrl, typ, axis), cb=False, k=False)
-
         except:
-            raise mc.error('No controller was found into the Head Controller Field, please add your head controller before to do.')
-
+            raise mc.error('ヘッドコントローラーフィールドにコントローラーが見つからなかったので、ヘッドコントローラーを追加してから行ってください。')
     else:
-        raise mc.error('No Facial_Rig_ctrl was found ! This action is aborted')
+        raise mc.error('Facial_Rig_ctrlが見つかりません ! このアクションは中断されます。')
 
-def AttachAndOrganizeCCFacial(*args):
+def attach_and_organize_cc_facial(*args):
     try:
         mc.select('animCurveU*', r=True)
         mc.delete(mc.ls(sl=1))
     except:
         pass
-
     bldCrvs = []
     try:
         mc.select('*_bld_crv', r=True)
@@ -129,7 +125,6 @@ def AttachAndOrganizeCCFacial(*args):
             mc.select('*_*_bld_*bld_crv', d=True)
         except:
             pass
-
         try:
             mc.select('*_*_bldExp_*bld_crv', d=True)
         except:
@@ -228,11 +223,11 @@ def AttachAndOrganizeCCFacial(*args):
                     bldCrvs.remove(crv)
         except:
             pass
-        supAndAddNewAttributeToFacialController(attrs, bldCrvs)
+        sup_and_add_new_attribute_to_facial_controller(attrs, bldCrvs)
     except:
-        raise mc.error('no blendshape was found, this action will be aborted')
+        raise mc.error('Blend Shapeが見つからない場合、このアクションは中断されます。')
 
-def supAndAddNewAttributeToFacialController(attrs, bldCrvs, *args):
+def sup_and_add_new_attribute_to_facial_controller(attrs, bldCrvs, *args):
     radValue = 1
     attrs = attrs
     partList = []
@@ -314,3 +309,5 @@ def supAndAddNewAttributeToFacialController(attrs, bldCrvs, *args):
                         mc.setDrivenKeyframe('%s.%s' % (bldNodeName, crv), currentDriver='%s.%s' % (ctrl, name))
                         mc.setAttr('%s.%s' % (ctrl, name), 0)
         mc.select(ctrl, r=True)
+
+

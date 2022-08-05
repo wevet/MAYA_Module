@@ -8,7 +8,7 @@ class DictionnaireOrdonne:
         self._cles = []
         self._valeurs = []
         if type(base) not in (dict, DictionnaireOrdonne):
-            raise TypeError('le type attendu est un dictionnaire (usuel ou ordonne)')
+            raise TypeError('期待される型はDictです。')
         for cle in base:
             self[cle] = base[cle]
         for cle in donnees:
@@ -61,17 +61,15 @@ class DictionnaireOrdonne:
     def __iter__(self):
         return iter(self._cles)
 
-    def __add__(self, autre_objet):
-        if type(autre_objet) is not type(self):
-            raise TypeError(('Impossible de concatener {0} et {1}').format(type(self), type(autre_objet)))
+    def __add__(self, auto_objet):
+        if type(auto_objet) is not type(self):
+            raise TypeError('cannot be connected {0} et {1}'.format(type(self), type(auto_objet)))
         else:
             nouveau = DictionnaireOrdonne()
             for cle, valeur in self.items():
                 nouveau[cle] = valeur
-
-            for cle, valeur in autre_objet.items():
+            for cle, valeur in auto_objet.items():
                 nouveau[cle] = valeur
-
             return nouveau
 
     def items(self):

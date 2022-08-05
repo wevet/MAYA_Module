@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 
-import maya.cmds as mc, maya.mel as mel, dictOrdo
-reload(dictOrdo)
-from dictOrdo import DictionnaireOrdonne
+import maya.cmds as mc
+import maya.mel as mel
+import dictOrdo
+import importlib
 import func_animEditMode
-reload(func_animEditMode)
+import facial_rig_UI
+from dictOrdo import DictionnaireOrdonne
 from func_animEditMode import *
+from facial_rig_UI import *
+importlib.reload(dictOrdo)
+importlib.reload(func_animEditMode)
 
 def addHeadControllerToUINlendShape(*args):
     sel = mc.ls(sl=1)
@@ -24,7 +29,6 @@ def addHeadControllerToUINlendShape(*args):
         mc.textScrollList('headCtrlBlendShape', e=True, ra=True)
         raise mc.error('please select just one element')
 
-
 def addJawJntLip2(*args):
     try:
         mc.textScrollList('jawJntList2', e=1, ra=1)
@@ -36,7 +40,6 @@ def addJawJntLip2(*args):
                 mc.textScrollList('jawJntList2', e=1, append=sel)
     except:
         mc.error('You must do select your jaw joint')
-
 
 def addJawCtrlForRecord(*args):
     ctrl = ''
@@ -63,7 +66,6 @@ def addJawCtrlForRecord(*args):
             mc.error('Please select a nurbs surface')
     else:
         mc.error('no selection found.')
-
 
 def refreshBldMouthCrvList(*args):
     mc.textScrollList('listBldCrvMouth', e=1, ra=1)
@@ -113,7 +115,6 @@ def refreshBldMouthCrvList(*args):
 
     else:
         raise mc.error('no blend shape correction for mouth was found')
-
 
 def deleteBldMouthSelected(*args):
     fCtrl = 'Facial_Rig_ctrl'
@@ -264,11 +265,10 @@ def deleteBldMouthSelected(*args):
         mc.error('the facial rig ctrl was not found.')
     return
 
-
 def helpToFixBldSymMenuMouth(*args):
     sel = ''
     try:
-        crv = textScrollList('listBldCrv', q=True, si=True)
+        crv = mc.textScrollList('listBldCrv', q=True, si=True)
         sel = mc.ls(sl=1)[0]
     except:
         pass
@@ -289,7 +289,6 @@ def helpToFixBldSymMenuMouth(*args):
             if len(locList) > 0:
                 for loc in locList:
                     mc.textScrollList('RecLocList', e=True, a=loc)
-
 
 def refreshBldCrvList(*args):
     mc.textScrollList('listBldCrv', e=1, ra=1)
@@ -350,14 +349,12 @@ def refreshBldCrvList(*args):
     except:
         raise mc.error('no blend curve was found')
 
-
 def selectBldCrvList(*args):
     try:
         sel = mc.textScrollList('listBldCrv', q=1, ams=1, si=1)
         mc.select(sel, r=True)
     except:
         raise mc.error('please select a curve in the dedicated text field')
-
 
 def deleteSelBldCrvList(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
@@ -460,7 +457,6 @@ def deleteSelBldCrvList(*args):
 
     return
 
-
 def selectMirrorBlendShapeUI(*args):
     sel = mc.textScrollList('listBldCrv', q=1, si=1)
     mirrorSelect = []
@@ -484,7 +480,6 @@ def selectMirrorBlendShapeUI(*args):
 
         mc.select(mirrorSelect, r=True)
 
-
 def testBlendShape(*args):
     bldNodeName = ''
     value = mc.floatSliderGrp('testIt', q=1, v=1)
@@ -497,7 +492,6 @@ def testBlendShape(*args):
 
     except:
         raise mc.error('please select a blendshape into the textScrollList before')
-
 
 def fixBldLocSelected(*args):
     sel = mc.textScrollList('RecLocList', q=True, ams=True, si=True)
@@ -517,7 +511,6 @@ def fixBldLocSelected(*args):
     else:
         raise RuntimeError('Please select a locator into the list before')
 
-
 def fixBldLocAll(*args):
     sel = mc.textScrollList('RecLocList', q=True, ai=True)
     axis = mc.radioButtonGrp('AxisToRepair', q=True, sl=True)
@@ -532,7 +525,6 @@ def fixBldLocAll(*args):
             initVal = mc.getAttr('%s.rotate%s' % (loc, axis))
             mc.setAttr('%s.rotate%s' % (loc, axis), initVal * -1)
             mc.warning('%s is now fixed on the %s rotation axis' % (loc, axis))
-
 
 def addScaleConstraintOnEachController(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
@@ -580,7 +572,6 @@ def addScaleConstraintOnEachController(*args):
     else:
         mc.error('you need to create the facial controller')
 
-
 def recordWithSelectionMouth(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
     if mc.objExists(ctrlFacial):
@@ -625,7 +616,6 @@ def recordWithSelectionMouth(*args):
     else:
         mc.error('you need to create the facial controller')
 
-
 def recordWithAllCurvesMouth(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
     if mc.objExists(ctrlFacial):
@@ -668,7 +658,6 @@ def recordWithAllCurvesMouth(*args):
             mc.error('you cannot create a new blendshape expression if you have use the optimize mode')
     else:
         mc.error('you need to create the facial controller')
-
 
 def validateMouthRecorder(*args):
     fCtrl = 'Facial_Rig_ctrl'
@@ -972,7 +961,6 @@ def validateMouthRecorder(*args):
         else:
             mc.error('You need to be in Edit Mode for record a new expression.')
 
-
 def connectMouthOpenTwistSide(jawJnt, valueMaxRange, axis, nameAttr, minMax, name, *args):
     ctrl = 'Facial_Rig_ctrl'
     if nameAttr == 'Open' or nameAttr.startswith('Jaw') == True:
@@ -1079,7 +1067,6 @@ def connectMouthOpenTwistSide(jawJnt, valueMaxRange, axis, nameAttr, minMax, nam
             mc.setDrivenKeyframe('%s.%s' % (bldNode, crv), currentDriver='%s.%s_mouth' % (ctrl, attr))
             mc.setAttr('%s.%s_mouth' % (ctrl, attr), 0)
 
-
 def recordWithSelection(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
     if mc.objExists(ctrlFacial):
@@ -1112,7 +1099,6 @@ def recordWithSelection(*args):
     else:
         mc.error('you need to create the facial controller')
     return
-
 
 def recordWithAllCurves(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
@@ -1155,7 +1141,6 @@ def recordWithAllCurves(*args):
             mc.error('you cannot create a new blendshape expression if you have use the optimize mode')
     else:
         mc.error('you need to create the facial controller')
-
 
 def validateRecorder(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
@@ -1257,7 +1242,6 @@ def validateRecorder(*args):
     else:
         mc.error('you need to create the facial controller')
 
-
 def createBldShapeExp(*args):
     eltToBld = mc.ls(sl=1)
     info = eltToBld[0].split('_')
@@ -1286,7 +1270,6 @@ def createBldShapeExp(*args):
 
         mc.warning('A new blend Shape was added for ' + eltToBld[1])
 
-
 def TMPBlendShapeCrv(crvList, *args):
     mc.textScrollList('HiddenTMPNodeList', e=1, ra=True)
     crvTMPNodeList = []
@@ -1309,7 +1292,6 @@ def TMPBlendShapeCrv(crvList, *args):
 
     return crvTMPNodeList
 
-
 def getRecordPosOfCtrl(ctrls, *args):
     eltPosList = DictionnaireOrdonne()
     for elt in ctrls:
@@ -1322,7 +1304,6 @@ def getRecordPosOfCtrl(ctrls, *args):
         mc.textScrollList('RecordPosCtrl', e=1, a=value)
 
     return eltPosList
-
 
 def keepRotAndScaleRecordForBlendShape(ctrlPosList, *args):
     if not mc.objExists('xtra_toHide'):
@@ -1351,7 +1332,6 @@ def keepRotAndScaleRecordForBlendShape(ctrlPosList, *args):
         mc.scaleConstraint(ctrl, loc, mo=0)
         mc.delete('%s_parentConstraint1' % loc, '%s_scaleConstraint1' % loc)
         mc.parent(loc, 'blendShape_Loc_keepRecorder_RotAndScale_grp')
-
 
 def createCurveWithPosCtrlList(dict, *args):
     TMPGrp = 'TMP'
@@ -1393,7 +1373,6 @@ def createCurveWithPosCtrlList(dict, *args):
         i = i + 1
 
     mc.parent(crvTMP, TMPGrp)
-
 
 def replaceEditPointCrv(dict, *args):
     locPos = []
@@ -1439,7 +1418,6 @@ def replaceEditPointCrv(dict, *args):
             mc.disconnectAttr(curveName + 'Shape.worldSpace[0]', loc + '.geometryPath')
             mc.connectAttr(crvTMPShape + '.worldSpace[0]', loc + '.geometryPath', f=True)
 
-
 def testRecordBlendShape(dict, *args):
     keys = dict.keys()
     crvToTest = '%s_%s_crvTMP' % (keys[0].split('_')[0], keys[0].split('_')[1])
@@ -1455,14 +1433,12 @@ def testRecordBlendShape(dict, *args):
     createBldShapeToTestRecorder(crvToTest, crvTMP)
     return recupValue
 
-
 def createBldShapeToTestRecorder(crvMaster, crvTMP, *args):
     mc.select(crvTMP, crvMaster, r=True)
     sel = mc.ls(sl=1)
     bldNameTMP = crvTMP + '_bldExp'
     mc.select(sel, r=True)
     mel.eval('blendShape -frontOfChain -n "' + bldNameTMP + '";')
-
 
 def createNodalLinkConstraint(bldNode, crv, *args):
     info = crv.split('_')
@@ -1522,7 +1498,6 @@ def createNodalLinkConstraint(bldNode, crv, *args):
                 mc.connectAttr('%s.%s' % (bldNode, crv), '%s.input1D[%s]' % (minPlus, i))
                 break
 
-
 def getBackLocTMPToCrv(crvNameTMP, *args):
     crvNameOri = crvNameTMP.split('TMP')[0]
     info = crvNameTMP.split('_')
@@ -1534,7 +1509,6 @@ def getBackLocTMPToCrv(crvNameTMP, *args):
 
     if mc.objExists(crvNameTMP + '1'):
         mc.delete(crvNameTMP + '1')
-
 
 def createBldShape(*args):
     eltToBld = mc.ls(sl=1)
@@ -1563,3 +1537,4 @@ def createBldShape(*args):
                 numberOfBlendShapes = numberOfBlendShapes + 1
 
         mc.warning('A new blend Shape was added for ' + eltToBld[1])
+

@@ -101,7 +101,6 @@ def goToEditMode(*args):
     else:
         raise mc.error('please add your head controller into the "Head Controller" field')
 
-
 def setAllAttributeOfCCFacialAt0(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
     if mc.objExists(ctrlFacial):
@@ -142,7 +141,6 @@ def setAllAttributeOfCCFacialAt0(*args):
     else:
         mc.error('The Facial_Rig_ctrl controller was not found, this operation will be aborted')
 
-
 def discoAllMpToLoc(*args):
     ctrlList2 = []
     mc.select('*ctrl', r=True)
@@ -167,7 +165,6 @@ def discoAllMpToLoc(*args):
             mc.disconnectAttr('%s.zCoordinate' % mp, '%s.translateZ' % loc)
         except:
             pass
-
 
 def goToAnimMode(*args):
     testConstantScale = ''
@@ -440,7 +437,6 @@ def goToAnimMode(*args):
     else:
         mc.error('please add your head controller into the "Head Controller" field')
 
-
 def connectIBInAnimMode(*args):
     IBNameLocList = []
     IBNameList = []
@@ -562,3 +558,4 @@ def connectIBInAnimMode(*args):
                                 mc.connectAttr('%s.output3D' % resultNode, '%s.colorIfTrue' % condNode, f=True)
                             except:
                                 pass
+

@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import maya.cmds as mc, func_xtras2
-reload(func_xtras2)
+import maya.cmds as mc
+import func_xtras2
+import importlib
+importlib.reload(func_xtras2)
 from func_xtras2 import *
 
 class XtrasMenuUI:
-
     def __init__(self):
         if mc.window('XtrasMenu', exists=True):
             mc.deleteUI('XtrasMenu')
@@ -67,13 +68,10 @@ class XtrasMenuUI:
         mc.separator(h=10, style='none')
         mc.setParent('..')
 
-
 def launchXtrasMenuUI(*args):
     XtrasMenuUI()
 
-
 class replaceController:
-
     def __init__(self):
         if mc.window('ReplaceCtrl', exists=True):
             mc.deleteUI('ReplaceCtrl')
@@ -120,10 +118,8 @@ class replaceController:
         mc.setParent('..')
         mc.showWindow(windowReplace)
 
-
 def launchXtrasResizeCtrlUI(*args):
     replaceController()
-
 
 def ctrlResize(*args):
     sel = mc.textScrollList('resizeCtrlList', q=1, si=1)[0]

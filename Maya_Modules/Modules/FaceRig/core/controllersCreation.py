@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import maya.cmds as mc, maya.mel as mel
+import maya.cmds as mc
+import maya.mel as mel
 
 def ctrlCreation(type, nameCtrl, *args):
     mc.select(cl=1)
@@ -107,8 +108,10 @@ def validPositionOfFacialControllerExpression(*args):
             for typ in ['t', 'r', 's']:
                 for axis in ['x', 'y', 'z']:
                     mc.setAttr('%s.%s%s' % (facialCtrl, typ, axis), cb=False, k=False)
+
         except:
             raise mc.error('No controller was found into the Head Controller Field, please add your head controller before to do.')
+
     else:
         raise mc.error('No Facial_Rig_ctrl was found ! This action is aborted')
 
@@ -159,7 +162,6 @@ def AttachAndOrganizeCCFacial(*args):
                 for crv in bldCrvs:
                     if elt == crv:
                         bldCrvs.remove(crv)
-
         except:
             pass
 
@@ -170,7 +172,6 @@ def AttachAndOrganizeCCFacial(*args):
                 for crv in bldCrvs:
                     if elt == crv:
                         bldCrvs.remove(crv)
-
         except:
             pass
 
@@ -181,7 +182,6 @@ def AttachAndOrganizeCCFacial(*args):
                 for crv in bldCrvs:
                     if elt == crv:
                         bldCrvs.remove(crv)
-
         except:
             pass
 
@@ -192,7 +192,6 @@ def AttachAndOrganizeCCFacial(*args):
                 for crv in bldCrvs:
                     if elt == crv:
                         bldCrvs.remove(crv)
-
         except:
             pass
 
@@ -203,7 +202,6 @@ def AttachAndOrganizeCCFacial(*args):
                 for crv in bldCrvs:
                     if elt == crv:
                         bldCrvs.remove(crv)
-
         except:
             pass
 
@@ -214,7 +212,6 @@ def AttachAndOrganizeCCFacial(*args):
                 for crv in bldCrvs:
                     if elt == crv:
                         bldCrvs.remove(crv)
-
         except:
             pass
 
@@ -222,7 +219,6 @@ def AttachAndOrganizeCCFacial(*args):
             for crv in bldCrvs:
                 if crv.split('_')[2] == 'bld':
                     bldCrvs.remove(crv)
-
         except:
             pass
 
@@ -230,10 +226,8 @@ def AttachAndOrganizeCCFacial(*args):
             for crv in bldCrvs:
                 if crv.split('_')[2] == 'bld':
                     bldCrvs.remove(crv)
-
         except:
             pass
-
         supAndAddNewAttributeToFacialController(attrs, bldCrvs)
     except:
         raise mc.error('no blendshape was found, this action will be aborted')
@@ -319,6 +313,4 @@ def supAndAddNewAttributeToFacialController(attrs, bldCrvs, *args):
                         mc.setAttr('%s.%s' % (bldNodeName, crv), 1)
                         mc.setDrivenKeyframe('%s.%s' % (bldNodeName, crv), currentDriver='%s.%s' % (ctrl, name))
                         mc.setAttr('%s.%s' % (ctrl, name), 0)
-
         mc.select(ctrl, r=True)
-

@@ -2,22 +2,16 @@
 
 import maya.cmds as mc
 import maya.mel as mel
-
 import controllersCreation
-reload(controllersCreation)
-from ..utils.controllersCreation import *
-
+import importlib
 import cleaner
-reload(cleaner)
-from ..utils.cleaner import *
-
-import utils
-reload(utils)
-from ..utils import *
-from ..utils.dictOrdo import DictionnaireOrdonne
-from ..utils.controllersCreation import ctrlCreation
-from ..utils.cleaner import groupOutlinerCreation
-
+from controllersCreation import *
+from cleaner import *
+from dictOrdo import DictionnaireOrdonne
+from controllersCreation import ctrlCreation
+from cleaner import groupOutlinerCreation
+importlib.reload(controllersCreation)
+importlib.reload(cleaner)
 
 def addSelCurveCreation(*args):
     curveSel = mc.ls(sl=1)
@@ -38,7 +32,6 @@ def addSelCurveCreation(*args):
     else:
         mc.warning('Select just one element')
         mc.textScrollList('curveSelList', e=True, ra=True)
-
 
 def addCtrlToCurveCreation(*args):
     sel = mc.ls(sl=1)
@@ -64,13 +57,12 @@ def addCtrlToCurveCreation(*args):
         mc.textScrollList('otherCtrlShapeList', e=1, ra=1)
         raise mc.error('Please select just one object')
 
-
 def createSystemOnCurveSelected(*args):
     nbLoc = mc.intField('range', q=True, value=True)
     if nbLoc >= 3:
         custCtrl = mc.textScrollList('otherCtrlShapeList', q=1, ai=1)
         listAttr = ['receiveShadows', 'motionBlur', 'castsShadows', 'primaryVisibility', 'smoothShading',
-                    'visibleInReflections', 'visibleInRefractions']
+         'visibleInReflections', 'visibleInRefractions']
         test = 0
         curveSel = mc.textScrollList('curveSelList', q=True, ai=1)
         typeCtrl = mc.iconTextRadioCollection('ctrlShapeGrp', q=1, select=1)
@@ -131,8 +123,7 @@ def createSystemOnCurveSelected(*args):
                                     else:
                                         mc.delete('R_%s_crv' % type)
                                         mc.duplicate(crv, n='R_%s_crv' % type)
-                                        mc.warning(
-                                            'A curve named R_%s_crv was found and been deleted for create the mirror' % type)
+                                        mc.warning('A curve named R_%s_crv was found and been deleted for create the mirror' % type)
                                         unique = 1
                                 elif side == 'R':
                                     if not mc.objExists('L_%s_crv' % type):
@@ -141,8 +132,7 @@ def createSystemOnCurveSelected(*args):
                                     else:
                                         mc.delete('L_%s_crv' % type)
                                         mc.duplicate(crv, n='L_%s_crv' % type)
-                                        mc.warning(
-                                            'A curve named L_%s_crv was found and been deleted for create the mirror' % type)
+                                        mc.warning('A curve named L_%s_crv was found and been deleted for create the mirror' % type)
                                         unique = 1
                                 if unique == 1:
                                     dupCrv = mc.ls(sl=1)[0]
@@ -165,8 +155,7 @@ def createSystemOnCurveSelected(*args):
                             mc.makeIdentity(a=1)
                             mc.delete(ch=1)
                             nom = crv.split('_crv')[0]
-                            mel.eval('rebuildCurve -ch 1 -rpo 1 -rt 0 -end 1 -kr 2 -kcp 0 -kep 1 -kt 0 -s ' + str(
-                                nbLoc - 1) + ' -d 3 -tol 0.01 "' + crv + '";')
+                            mel.eval('rebuildCurve -ch 1 -rpo 1 -rt 0 -end 1 -kr 2 -kcp 0 -kep 1 -kt 0 -s ' + str(nbLoc - 1) + ' -d 3 -tol 0.01 "' + crv + '";')
                             posLoc = 0.5
                             if nbLoc > 1:
                                 posLoc = 1.0 / (nbLoc - 1)
@@ -182,8 +171,7 @@ def createSystemOnCurveSelected(*args):
                                 mc.select(crv, loc, r=True)
                                 namePath = '%s_%s_mp' % (nom, str(i + 1))
                                 namePath = nom + '_' + str(i + 1) + '_mp'
-                                mc.pathAnimation(fractionMode=True, follow=False, startTimeU=0, endTimeU=100,
-                                                 n=namePath)
+                                mc.pathAnimation(fractionMode=True, follow=False, startTimeU=0, endTimeU=100, n=namePath)
                                 value = namePath + '_uValue'
                                 mc.delete(value)
                                 if nbLoc == 1:
@@ -266,8 +254,7 @@ def createSystemOnCurveSelected(*args):
                             mc.textScrollList('curveSelList', e=True, ra=1)
                             if check == True:
                                 if side == 'C':
-                                    mc.warning(
-                                        'You cannot have a symetrical curve for a central side, the mirror creation was skipped')
+                                    mc.warning('You cannot have a symetrical curve for a central side, the mirror creation was skipped')
 
                     else:
                         raise mc.error('You name curve is not unique ! The process was aborted')
@@ -277,7 +264,6 @@ def createSystemOnCurveSelected(*args):
             raise mc.error('you need to have a custom before')
     else:
         mc.error('You need to specifie 3 or more controllers for your curve')
-
 
 def getAllControllersOnCurves(*args):
     mc.textScrollList('CtrlOnCurve', e=1, ra=1)
@@ -317,14 +303,12 @@ def getAllControllersOnCurves(*args):
     else:
         raise mc.error('please select just one controller')
 
-
 def sendUValueToSliderReplaceController(*args):
     ctrl = mc.textScrollList('CtrlOnCurve', q=1, si=1)[0]
     rangeSliderReplace(ctrl)
     mp = ctrl.split('ctrl')[0] + 'mp'
     getUValue = mc.getAttr(mp + '.uValue')
     mc.floatSliderGrp('replaceCtrlSys', e=1, v=getUValue)
-
 
 def changeUValueOfController(*args):
     check = mc.checkBox('CheckBoxSymOnRebuildEP', q=True, v=True)
@@ -350,7 +334,6 @@ def changeUValueOfController(*args):
                 mp2 = ctrlSym.split('ctrl')[0] + 'mp'
                 mc.setAttr(mp2 + '.uValue', value)
 
-
 def rangeSliderReplace(ctrl, *args):
     info = ctrl.split('_')
     ctrlNb = int(ctrl.split('_')[2])
@@ -375,7 +358,6 @@ def rangeSliderReplace(ctrl, *args):
     else:
         mc.floatSliderGrp('replaceCtrlSys', e=True, max=1)
 
-
 def rebuildEPPosCurve(*args):
     testEmpty = 0
     try:
@@ -389,9 +371,8 @@ def rebuildEPPosCurve(*args):
         sides = []
         side = ctrlName[0].split('_')[0]
         sides.append(side)
-        result = mc.confirmDialog(title='Symetrical Request',
-                                  message='Did you want make the same thing for symetrical curve?', button=[
-                'Yes', 'No'], defaultButton='Yes', cancelButton='No', dismissString='No')
+        result = mc.confirmDialog(title='Symetrical Request', message='Did you want make the same thing for symetrical curve?', button=[
+         'Yes', 'No'], defaultButton='Yes', cancelButton='No', dismissString='No')
         if result == 'Yes':
             if side == 'L':
                 if mc.objExists('R_%s_crv' % ctrlName[0].split('_')[1]):
@@ -413,8 +394,7 @@ def rebuildEPPosCurve(*args):
             if loc1pos == 0:
                 span = span - 1
             crvTMP = mc.duplicate(crv, rr=True, n=crv + 'TMP')[0]
-            mel.eval('rebuildCurve -ch 0 -rpo 1 -rt 0 -end 1 -kr 2 -kcp 0 -kep 1 -kt 0 -s ' + str(
-                span) + ' -d 3 -tol 0.01 "' + crvTMP + '";')
+            mel.eval('rebuildCurve -ch 0 -rpo 1 -rt 0 -end 1 -kr 2 -kcp 0 -kep 1 -kt 0 -s ' + str(span) + ' -d 3 -tol 0.01 "' + crvTMP + '";')
             for loc in ctrlPosList:
                 locPosWorld = mc.xform(loc, q=True, ws=True, t=True)
                 epToChange = int(loc.split('_')[2])
@@ -427,18 +407,18 @@ def rebuildEPPosCurve(*args):
                 mp = loc.split('loc')[0] + 'mp'
                 mc.disconnectAttr(crv + 'Shape.worldSpace[0]', mp + '.geometryPath')
                 mc.connectAttr(crvTMP + 'Shape.worldSpace[0]', mp + '.geometryPath', f=True)
+
             curveOri = mc.rename(crv, crv + 'Original')
             mc.rename(crvTMP, crvTMP.split('TMP')[0])
-
 
 def getRecordPosOfLoc(ctrls, *args):
     eltPosList = DictionnaireOrdonne()
     for elt in ctrls:
         posElt = mc.xform(elt, q=1, ws=1, t=1)
         eltPosList[elt] = posElt
+
     eltPosList.sort()
     return eltPosList
-
 
 def restoreToOriginalCurve(*args):
     ctrlName = mc.textScrollList('CtrlOnCurve', q=1, ai=1)
@@ -463,7 +443,6 @@ def restoreToOriginalCurve(*args):
         else:
             mc.parent(curveOri, w=True)
 
-
 def addHeadJnt(*args):
     headSel = mc.ls(sl=True)
     nbObj = len(headSel)
@@ -479,7 +458,6 @@ def addHeadJnt(*args):
             raise mc.error('This section requiered a joint to work')
     else:
         raise mc.error('Please select just one element')
-
 
 def addHeadCtrl(*args):
     headCtrlSel = mc.ls(sl=1)
@@ -497,7 +475,6 @@ def addHeadCtrl(*args):
             raise mc.error('you must do select a nurbs object')
     else:
         raise mc.error('Please select just one object')
-
 
 def addCtrlList(*args):
     typeList = ['eyeBrow', 'upperLid', 'lowerLid', 'upperCheeks', 'cheeks', 'nose', 'crease', 'upperLip', 'lowerLip']
@@ -534,20 +511,17 @@ def addCtrlList(*args):
                         else:
                             mc.warning('no joint relationship has been found with this selection')
 
-
 def removeCtrlList(*args):
     itemSel = mc.textScrollList('CustomCtrlList', q=1, si=1)
     mc.textScrollList('CustomCtrlList', e=1, ri=itemSel)
 
-
 def executeHead(*args):
     sides = [
-        'L', 'R', 'C']
+     'L', 'R', 'C']
     jntList = []
     typeList = ['crv', 'crvOriginal']
     customList = []
-    scriptNameList = ['eyeBrow', 'upperLid', 'upperLip', 'lowerLid', 'upperCheeks', 'cheeks', 'nose', 'crease',
-                      'lowerLip', 'upperLip']
+    scriptNameList = ['eyeBrow', 'upperLid', 'upperLip', 'lowerLid', 'upperCheeks', 'cheeks', 'nose', 'crease', 'lowerLip', 'upperLip']
     headCtrl = mc.textScrollList('headCtrlList', q=1, ai=1)[0]
     headJnt = mc.textScrollList('headSelList', q=1, ai=1)[0]
     if headCtrl != '':
@@ -574,7 +548,7 @@ def executeHead(*args):
                             if not mc.objExists('C_Head_Facial_Rig_crvGrp'):
                                 mc.group(n='C_Head_Facial_Rig_crvGrp', em=True)
                                 mc.parent('C_Head_Facial_Rig_crvGrp', headCtrl)
-                            print('side{}_elt{}_type{}'.format(side, elt, type))
+                            print('%s_%s_%s' % (side, elt, type))
                             try:
                                 if type == 'crv':
                                     mc.parent('%s_%s_%s' % (side, elt, type), 'C_Head_Facial_Rig_crvGrp')
@@ -624,7 +598,6 @@ def executeHead(*args):
             except:
                 pass
 
-
 def addHeadGeo(*args):
     headSel = mc.ls(sl=True)
     nbObj = len(headSel)
@@ -637,7 +610,6 @@ def addHeadGeo(*args):
         else:
             mc.textScrollList('headGeoList', e=True, ra=True)
             raise mc.error('You need to put a mesh object into this field')
-
 
 def refreshJnt(*args):
     mc.textScrollList('jntListScript', e=1, ra=1)
@@ -654,7 +626,6 @@ def refreshJnt(*args):
         for elt in jnts:
             jntList.append(elt)
             mc.textScrollList('jntListScript', e=1, append=elt)
-
 
 def addToCurrentSkin(*args):
     headGeo = ''
@@ -681,7 +652,6 @@ def addToCurrentSkin(*args):
     else:
         mc.error('please check your head geo field')
 
-
 def SkinTool(*args):
     try:
         headGeo = mc.textScrollList('headGeoList', q=1, ai=1)
@@ -690,7 +660,6 @@ def SkinTool(*args):
         mel.eval('ArtPaintSkinWeightsToolOptions;')
     except:
         raise mc.error('please check if your head geo field is not empty')
-
 
 def deleteSkinAndMakeSkin(*args):
     try:
@@ -717,7 +686,6 @@ def deleteSkinAndMakeSkin(*args):
         mel.eval('SmoothBindSkin;')
     except:
         raise mc.error('please check if your head geo field is not empty')
-
 
 def addBtnOfAdditionnalPart(*args):
     sel = mc.ls(sl=1)
@@ -754,9 +722,7 @@ def addBtnOfAdditionnalPart(*args):
                                 elt = '%s_%s_ctrlGrp' % (info[0], info[1])
                                 test2 = 'ok'
                             else:
-                                mc.error(
-                                    'You need to rebuild this curve : %s_%s_crv before trying to add this curve on your existing system' % (
-                                    info[0], info[1]))
+                                mc.error('You need to rebuild this curve : %s_%s_crv before trying to add this curve on your existing system' % (info[0], info[1]))
                 if test2 == 'ok':
                     try:
                         if len(listToAdd) > 0:
@@ -771,14 +737,13 @@ def addBtnOfAdditionnalPart(*args):
                                 mc.textScrollList('addAdditionnalCtrl', e=True, a=elt)
                     except:
                         mc.textScrollList('addAdditionnalCtrl', e=True, a=elt)
+
     else:
         mc.error('please select one or many controllers to add')
-
 
 def removeBtnOfAdditionnalPart(*args):
     sel = mc.textScrollList('addAdditionnalCtrl', q=1, si=1)
     mc.textScrollList('addAdditionnalCtrl', e=1, ri=sel)
-
 
 def validateAdditionnalPart(*args):
     headGeo = ''
@@ -807,3 +772,5 @@ def validateAdditionnalPart(*args):
                 mel.eval('AddInfluenceOptions;')
     else:
         raise mc.error('Please add your head geometry into the proper field before')
+
+

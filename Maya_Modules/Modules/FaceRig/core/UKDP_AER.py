@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-MadeBy = "Shunji Nagasawa"
+MadeBy = "UKDP"
 Contact = "ukdp.scripts@gmail.com"
 ScriptName = "Auto Eyelids Rig" # AER
 Version = "1.0"
@@ -10,68 +10,63 @@ from maya import cmds, OpenMaya
 import math
 
 
-class AER :
+class AER:
 	"""
 	Automatically rig eyelids (note: works only for ball-typed eyes).
 	"""
-	# print AER.__doc__
-	
-	def __init__ (self):
+
+	def __init__(self):
 		self.parentJnt = None
 		self.parentCtrl = None
 		self.eyeLoc = None
 		self.eyeName = None
 		self.upperLidVtx = None
 		self.lowerLidVtx = None
-	
-	
+
 	## PREREQUISITE FOR RIG ##	
-	def eyeParentJnt (self, *args):
-		'''Organise rig hierarchy - Define a parent joint for the eyelid rig.
-		
+	def eyeParentJnt(self, *args):
+		"""
+		Organise rig hierarchy - Define a parent joint for the eyelid rig.
 		Called by 'UI' function.
-		Call functions: None '''
-
-		parentJointSel = cmds.ls (sl = 1, typ = "joint")
-
+		Call functions: None
+		"""
+		parentJointSel = cmds.ls(sl=1, typ="joint")
 		if len(parentJointSel) != 0:
-			self.parentJnt = parentJointSel [0]
-			cmds.textField (self.txtfJnt, e = 1, tx = self.parentJnt)
-		else :
+			self.parentJnt = parentJointSel[0]
+			cmds.textField (self.txtfJnt, e=1, tx=self.parentJnt)
+		else:
 			self.parentJnt = None
-			cmds.textField (self.txtfJnt, e = 1, tx = "")
-			cmds.error ("Wrong selection, please select a joint.\n")
-	
-	
-	def eyeParentCtrl (self, *args):
-		'''Organise rig hierarchy - Define a parent controller for the eyelid rig.
-		
+			cmds.textField(self.txtfJnt, e=1, tx="")
+			cmds.error("Wrong selection, please select a joint.\n")
+
+	def eyeParentCtrl(self, *args):
+		"""
+		Organise rig hierarchy - Define a parent controller for the eyelid rig.
 		Called by 'UI' function.
-		Call functions: None '''
-
-		parentCtrlSel = cmds.filterExpand (sm = 9)
-
-		if parentCtrlSel != None:
-			parentCtrlShape = parentCtrlSel [0]
-			self.parentCtrl = cmds.listRelatives ((parentCtrlSel [0]), parent = 1) [0]
-			print self.parentCtrl
-			cmds.textField (self.txtfCtrl, e = 1, tx = self.parentCtrl)
+		Call functions: None
+		"""
+		parentCtrlSel = cmds.filterExpand(sm=9)
+		if parentCtrlSel is None:
+			parentCtrlShape = parentCtrlSel[0]
+			self.parentCtrl = cmds.listRelatives((parentCtrlSel[0]), parent=1)[0]
+			print(self.parentCtrl)
+			cmds.textField(self.txtfCtrl, e=1, tx=self.parentCtrl)
 		else:
 			self.parentCtrl = None
-			cmds.textField (self.txtfCtrl, e = 1, tx = "")
-			cmds.error ("Wrong selection, please select a curve controller.\n")
-	
-		
-	def placeEyeCenter (self, *args):
-		'''Place locator in the center of the eyeball.
-		
+			cmds.textField(self.txtfCtrl, e=1, tx="")
+			cmds.error("Wrong selection, please select a curve controller.\n")
+
+	def placeEyeCenter(self, *args):
+		"""
+		Place locator in the center of the eyeball.
 		Called by 'UI' function.
-		Call functions: None '''
+		Call functions: None
+		"""
 		
 		selection = cmds.filterExpand (sm = 12)
 		self.eyeName = cmds.textField (self.txtfEye, q = 1, tx = 1)
 		
-		if selection == None :
+		if selection is None:
 			self.eyeLoc = None
 			self.eyeName = None
 			cmds.error ("Please select the eyeball.\n")
@@ -91,21 +86,18 @@ class AER :
 			# lock locator
 			cmds.setAttr (self.eyeLoc + ".overrideEnabled", 1)
 			cmds.setAttr (self.eyeLoc + ".overrideDisplayType", 2)
-			
 			cmds.select (cl = 1)
-
 			# Update UI
 			cmds.textField (self.txtfLoc, e = 1, tx = self.eyeLoc)
 			cmds.button (self.btnPlaceCenter, e = 1, en = 0)
 			cmds.button (self.btnUndoPlaceCenter, e = 1, en = 1)
-	
-	
-	def placeEyeCenterUndo (self, *args):
-		'''Undo 'placeEyeCenter' function.
-		
+
+	def placeEyeCenterUndo(self, *args):
+		"""
+		Undo 'placeEyeCenter' function.
 		Called by 'UI' function.
-		Call functions: None '''
-		
+		Call functions: None
+		"""
 		try :
 			cmds.delete (self.eyeLoc)
 		except ValueError :
@@ -116,17 +108,15 @@ class AER :
 			cmds.textField (self.txtfLoc, e = 1, tx = "")
 			cmds.button (self.btnPlaceCenter, e = 1, en = 1)
 			cmds.button (self.btnUndoPlaceCenter, e = 1, en = 0)
-	
-	
-	def upLidVtxSet (self, *args):
-		'''List selected vertices as upper lid vertices.
-		
+
+	def upLidVtxSet(self, *args):
+		"""
+		List selected vertices as upper lid vertices.
 		Called by 'UI' function.
-		Call functions: None '''
-		
+		Call functions: None
+		"""
 		self.upperLidVtx = cmds.filterExpand (sm = 31)
-		
-		if self.upperLidVtx == None :
+		if self.upperLidVtx is None:
 			cmds.scrollField (self.scrollfUpLid, e = 1, cl = 1)
 			cmds.error ("Please select vertices of the upper lid.\n")
 		else :
@@ -134,13 +124,13 @@ class AER :
 			for vtx in self.upperLidVtx :
 				vtxNum = vtx.rpartition(".")[2] # <type 'unicode'>
 				cmds.scrollField (self.scrollfUpLid, e = 1, it = (str (vtxNum) + " "))
-	
-	
-	def lowLidVtxSet (self, *args):
-		'''List selected vertices as lower lid vertices.
-		
+
+	def lowLidVtxSet(self, *args):
+		"""
+		List selected vertices as lower lid vertices.
 		Called by 'UI' function.
-		Call functions: None '''
+		Call functions: None
+		"""
 		
 		self.lowerLidVtx = cmds.filterExpand (sm = 31)
 		
@@ -153,16 +143,16 @@ class AER :
 				vtxNum = vtx.rpartition(".")[2] # <type 'unicode'>
 				cmds.scrollField (self.scrollfLowLid, e = 1, it = (str (vtxNum) + " "))
 	## PREREQUISITE FOR RIG -end ##
-	
-	
+
 	## FUNCTIONS TO BUILD RIG ##
-	def vtxToJnt (self, eyeCenter, eyePrefix, upperLidVtx, lowerLidVtx, parentJnt):
-		'''Creates one joint per vertex of the eyelid and parent it to the center of the eye.
-		
+	def vtxToJnt(self, eyeCenter, eyePrefix, upperLidVtx, lowerLidVtx, parentJnt):
+		"""
+		Creates one joint per vertex of the eyelid and parent it to the center of the eye.
 		Called by 'buildRig' function.
-		Call functions: None '''
+		Call functions: None
+		"""
 		
-		cmds.select (cl = 1)
+		cmds.select(cl=1)
 		
 		self.upLidJntList = []
 		self.lowLidJntList = []
@@ -170,12 +160,12 @@ class AER :
 		# Find vertex in common in both lists and remove them to avoid double joint creation
 		commonVtx = set(upperLidVtx) & set(lowerLidVtx)
 		for vtx in commonVtx:
-			lowerLidVtx.remove (vtx)
+			lowerLidVtx.remove(vtx)
 		
 		# Organize rig hierarchy
-		hierarchySecondGrp = cmds.group (n = (eyePrefix + "_Eyelids_JNT_GRP"), em = 1)
-		hierarchyUpGrp = cmds.group (n = (eyePrefix + "_UpEyelid_joints_GRP"), em = 1)
-		hierarchyLowGrp = cmds.group (n = (eyePrefix + "_LowEyelid_joints_GRP"), em = 1)
+		hierarchySecondGrp = cmds.group(n=(eyePrefix + "_Eyelids_JNT_GRP"), em = 1)
+		hierarchyUpGrp = cmds.group(n=(eyePrefix + "_UpEyelid_joints_GRP"), em = 1)
+		hierarchyLowGrp = cmds.group(n=(eyePrefix + "_LowEyelid_joints_GRP"), em = 1)
 		
 		cmds.parent (hierarchyUpGrp, hierarchySecondGrp)
 		cmds.parent (hierarchyLowGrp, hierarchySecondGrp)
@@ -237,22 +227,19 @@ class AER :
 		setSkinJnts = cmds.sets (em = 1, n = (eyePrefix + "_jointsForSkin"))
 		for jnt in jntsForSkin:
 			cmds.sets (jnt, e = 1, forceElement = setSkinJnts)
-	
-	
+
 	def placeRigLoc (self, eyePrefix, upLidJntList, lowLidJntList):
-		'''Creates one locator per eyelid vertex and constrain each joint to it (aim).
-		
+		"""
+		Creates one locator per eyelid vertex and constrain each joint to it (aim).
 		Called by 'buildRig' function.
-		Call functions: None '''
-		
+		Call functions: None
+		"""
 		self.upLidLocList = []
 		self.lowLidLocList = []
-		
 		# Organize rig hierarchy
 		hierarchyThirdGrp = cmds.group (n = (eyePrefix + "_Eyelids_locator_GRP"), em = 1)
 		hierarchyUpGrp = cmds.group (n = (eyePrefix + "_UpEyelid_locator_GRP"), em = 1)
 		hierarchyLowGrp = cmds.group (n = (eyePrefix + "_LowEyelid_locator_GRP"), em = 1)
-		
 		cmds.parent (hierarchyUpGrp, hierarchyThirdGrp)
 		cmds.parent (hierarchyLowGrp, hierarchyThirdGrp)
 		
@@ -262,7 +249,7 @@ class AER :
 		else:
 			self.grpTheseEyelidsRig = cmds.group (n = (eyePrefix + "_Eyelids_RIG_GRP"), em = 1)
 			cmds.parent (hierarchyThirdGrp, self.grpTheseEyelidsRig)
-		
+
 		grpAllEyelidsRig = "Eyelids_RIG_GRP"
 		if cmds.objExists ("Eyelids_RIG_GRP"):
 			cmds.parent (self.grpTheseEyelidsRig, grpAllEyelidsRig)
@@ -299,12 +286,12 @@ class AER :
 			cmds.aimConstraint (loc, parentJnt, weight = 1, aimVector = (1,0,0), upVector = (0,1,0), worldUpType = "vector", worldUpVector = (0,1,0))
 			cmds.parent (loc, hierarchyLowGrp)
 	
-	
 	def createEyelidsCrv (self, eyePrefix, upperLidVtx, lowerLidVtx, rigGrp):
-		'''Creates nurbsCurve out of each lid vertices.
-		
+		"""
+		Creates nurbsCurve out of each lid vertices.
 		Called by 'buildRig' function.
-		Call functions: None '''
+		Call functions: None
+		"""
 		
 		cmds.select (cl = 1)
 		
@@ -338,15 +325,14 @@ class AER :
 		lowLidCrvName = eyePrefix + "_LowEyelid_BASE_curve"
 		self.lowLidCrv = cmds.rename (tempCrvLow, lowLidCrvName)
 		cmds.parent (self.lowLidCrv, self.hierarchyLowCrvGrp)
-	
-	
+
 	def getDagPath (self, objectName):
-		'''MARCO GIORDANO'S CODE (http://www.marcogiordanotd.com/)
-		
+		"""
+		MARCO GIORDANO'S CODE (http://www.marcogiordanotd.com/)
 		Called by 'getUParam' function.
-		Call functions: None '''
-	
-		if isinstance(objectName, list)==True:
+		Call functions: None
+		"""
+		if isinstance(objectName, list) is True:
 			oNodeList=[]
 			for o in objectName:
 				selectionList = OpenMaya.MSelectionList()
@@ -361,20 +347,20 @@ class AER :
 			oNode = OpenMaya.MDagPath()
 			selectionList.getDagPath(0, oNode)
 			return oNode
-	
-	
+
 	def getUParam (self, pnt = [], crv = None, *args):
-		'''MARCO GIORDANO'S CODE (http://www.marcogiordanotd.com/) - Function called by 
-		
+		"""
+		MARCO GIORDANO'S CODE (http://www.marcogiordanotd.com/) - Function called by
 		Called by 'connectLocToCrv' function.
-		Call functions: 'getDagPath' '''
+		Call functions: 'getDagPath'
+		"""
 		
 		point = OpenMaya.MPoint(pnt[0],pnt[1],pnt[2])
 		curveFn = OpenMaya.MFnNurbsCurve(self.getDagPath(crv))
 		paramUtill=OpenMaya.MScriptUtil()
 		paramPtr=paramUtill.asDoublePtr()
 		isOnCurve = curveFn.isPointOnCurve(point)
-		if isOnCurve == True:
+		if isOnCurve is True:
 			curveFn.getParamAtPoint(point , paramPtr,0.001,OpenMaya.MSpace.kObject )
 		else :
 			point = curveFn.closestPoint(point,paramPtr,0.001,OpenMaya.MSpace.kObject)
@@ -382,13 +368,13 @@ class AER :
 		
 		param = paramUtill.getDouble(paramPtr)  
 		return param
-	
-	
+
 	def connectLocToCrv (self, upLidLocList, upLidCrv, lowLidLocList, lowLidCrv):
-		'''Connect locators to lid curves via pointOnCurveInfo nodes.
-		
+		"""
+		Connect locators to lid curves via pointOnCurveInfo nodes.
 		Called by 'buildRig' function.
-		Call functions: None '''
+		Call functions: None
+		"""
 		
 		# Upper eyelid
 		for upLidLoc in upLidLocList :
@@ -409,13 +395,13 @@ class AER :
 			cmds.connectAttr (lowLidCrv + ".worldSpace", ptOnCrvInfo + ".inputCurve")
 			cmds.setAttr (ptOnCrvInfo + ".parameter", u)
 			cmds.connectAttr (ptOnCrvInfo + ".position", lowLidLoc + ".t")
-	
-	
+
 	def eyelidsCorners (self, upLidEpCrvPos, upLidCrv, lowLidEpCrvPos, lowLidCrv):
-		'''Define eye corners position (for example if upper lid and lower lid curves are not 'closed').
-		
+		"""
+		Define eye corners position (for example if upper lid and lower lid curves are not 'closed').
 		Called by 'createDriverCrv' function.
-		Call functions: None '''
+		Call functions: None
+		"""
 		
 		cornerUp1 = upLidEpCrvPos [0]
 		cornerUp2 = upLidEpCrvPos [4]
@@ -475,26 +461,22 @@ class AER :
 			cmds.delete (locTEMP2)
 		
 		return self.cornerAPos, self.cornerBPos
-	
-	
-	def eyeLidsLeftAndRight (): # Unused function
-		'''With the position of each eye corner and the upper and lower lids, find out where is the left and the right of the eye.
-		
+
+	def eyeLidsLeftAndRight (self):
+		print("eyeLidsLeftAndRight")
+		"""
+		With the position of each eye corner and the upper and lower lids, find out where is the left and the right of the eye.
 		Called by 'createDriverCrv' function.
-		Call functions: [...] '''
-		
-		# For controllers naming (instead of A and B)
-		
-		# ????????
-		# Maybe API / vectors
+		Call functions: [...]
+		"""
 		pass
-	
-	
+
 	def eyelidsCrvCVs (self, upLidCrv, lowLidCrv):
-		'''List CVs of each guide curve.
-		
+		"""
+		List CVs of each guide curve.
 		Called by 'createDriverCrv' function.
-		Call functions: None '''
+		Call functions: None
+		"""
 		
 		upLidCVs = []
 		x = 0
@@ -512,12 +494,12 @@ class AER :
 		
 		return upLidCVs, lowLidCVs
 	
-	
 	def eyelidsMatchTopology (self, cornerAPos, cornerBPos, upLidCVsPos, lowLidCVsPos):
-		'''Reorganise the CVs of each curve so they have the same topology.
-		
+		"""
+		Reorganise the CVs of each curve so they have the same topology.
 		Called by 'createDriverCrv' function.
-		Call functions: None '''
+		Call functions: None
+		"""
 		
 		# Order of CVs in base lists:			Order of CVs in ordered lists:
 		# (upLidCVsPos, lowLidCVsPos)			(upLidCVsOrdered, lowLidCVsOrdered)
@@ -553,15 +535,14 @@ class AER :
 			lowLidCVsOrdered = lowLidCVsPos
 		else:
 			lowLidCVsOrdered = lowLidCVsPos[::-1] # reversed 'lowLidCVsPos'
-			
 		return upLidCVsOrdered, lowLidCVsOrdered
-	
-	
+
 	def createDriverCrv (self, upLidBaseCrv, upRigGrp, lowLidBaseCrv, lowRigGrp):
-		'''Create a driver curve for each lid curve and connect it to the base curve with a wire deformer.
-		
+		"""
+		Create a driver curve for each lid curve and connect it to the base curve with a wire deformer.
 		Called by 'buildRig' function.
-		Call functions: 'eyelidsCorners', 'eyeLidsLeftAndRight' (unused), 'eyelidsCrvCVs', 'eyelidsMatchTopology' '''
+		Call functions: 'eyelidsCorners', 'eyeLidsLeftAndRight' (unused), 'eyelidsCrvCVs', 'eyelidsMatchTopology'
+		"""
 		
 		## Upper eyelid ##
 		upLidDriverCrvTEMP = cmds.duplicate (upLidBaseCrv) [0]
@@ -638,13 +619,13 @@ class AER :
 		cmds.select (cl = 1)
 		wireNodeLowLidName = lowLidBaseCrv.replace ("_BASE_curve", "_controlCurve_wire")
 		wireUpLid = cmds.wire (lowLidBaseCrv, n = wireNodeLowLidName, w = self.lowLidDriverCrv, gw = 0, en = 1, ce = 0, li = 0)
-	
-	
+
 	def createJntCtrls (self, eyePrefix, cornerAPos, cornerBPos, upLidDriverCrv, lowLidDriverCrv, rigGrp): # MODIFIER
-		'''Creates controller joints for each point of the eyelids driver curves.
-		
+		"""
+		Creates controller joints for each point of the eyelids driver curves.
 		Called by 'buildRig' function.
-		Call functions: None '''
+		Call functions: None
+		"""
 		
 		# Find position of EPs of each driver curve for joint placement
 		upLidEpDriverCrvPos = []
@@ -692,13 +673,13 @@ class AER :
 		cmds.select (self.ctrlJnts[4:], tgl = 1)
 		cmds.select (lowLidDriverCrv, tgl = 1)
 		cmds.skinCluster ()
-	
-	
+
 	def createCrvCtrls (self, eyePrefix, parentCtrl, ctrlJnts):
-		'''Creates controller curve for each controller joint.
-		
+		"""
+		Creates controller curve for each controller joint.
 		Called by 'buildRig' function.
-		Call functions: None '''
+		Call functions: None
+		"""
 		
 		# Organize rig hierarchy
 		hierarchySecondGrp = cmds.group (n = (eyePrefix + "_Eyelids_CTRL_GRP"), em = 1)
@@ -797,13 +778,13 @@ class AER :
 			cmds.setAttr ((ctrl + ".sy"), lock = 1, keyable = 0, channelBox = 0)
 			cmds.setAttr ((ctrl + ".sz"), lock = 1, keyable = 0, channelBox = 0)
 			cmds.setAttr ((ctrl + ".v"), lock = 1, keyable = 0, channelBox = 0)
-	
-	
+
 	def addSmartBlink (self, eyePrefix, upLidBaseCrv, upLidDriverCrv, lowLidBaseCrv, lowLidDriverCrv, ctrlList, rigGrp, upCrvRigGrp, lowCrvRigGrp):
-		'''Add a 'smart blink' feature to the eyelid rig, allowing to blink wherever the controllers are (blendshapes + wire deformers system).
-		
+		"""
+		Add a 'smart blink' feature to the eyelid rig, allowing to blink wherever the controllers are (blendshapes + wire deformers system).
 		Called by 'buildRig' function.
-		Call functions: None '''
+		Call functions: None
+		"""
 		
 		# Variables names containing 'SB' = smartBlink
 		
@@ -849,36 +830,38 @@ class AER :
 	
 	## DO BUILD RIG ##
 	def buildRig (self, *args):
-		'''Build eyelids rig.
-		
+		"""
+		Build eyelids rig.
 		Called by 'UI' function.
-		Call functions: 'vtxToJnt', 'placeRigLoc', 'createEyelidsCrv', 'connectLocToCrv', 
-						'createDriverCrv', 'createJntCtrls', 'createCrvCtrls', 'addSmartBlink' '''
+		Call functions: 'vtxToJnt', 'placeRigLoc', 'createEyelidsCrv', 'connectLocToCrv',
+						'createDriverCrv', 'createJntCtrls', 'createCrvCtrls', 'addSmartBlink'
+		"""
 		
-		if self.eyeLoc == None or self.eyeName == None or self.upperLidVtx == None or self.lowerLidVtx == None :
-			cmds.error ("Please define eye center and eyelids vertices.")
-		else : # Call functions to build rig #
-			# Step 1: places one joint per eyelid vertex
-			self.vtxToJnt (self.eyeLoc, self.eyeName, self.upperLidVtx, self.lowerLidVtx, self.parentJnt)
-			# Step 2: places one locator per eyelid vertex and constrain-aim each joint to it (so as it acts like an IK)
-			self.placeRigLoc (self.eyeName, self.upLidJntList, self.lowLidJntList)
-			# Step 3: creates a "high-res" curve for each lid (each vertex is a point of the curve)
-			self.createEyelidsCrv (self.eyeName, self.upperLidVtx, self.lowerLidVtx, self.grpTheseEyelidsRig)
-			# Step 4: connects each locator to the curve with a pointOnCurve node, so when the CVs of the curve move, the corresponding locator follows (and so does the joint)
-			self.connectLocToCrv (self.upLidLocList, self.upLidCrv, self.lowLidLocList, self.lowLidCrv)
-			# Step 5: creates a "low-res" curve with only 5 control points and makes it drive the high-res curve with a wire deformer
-			self.createDriverCrv (self.upLidCrv, self.hierarchyUpCrvGrp, self.lowLidCrv, self.hierarchyLowCrvGrp)
-			# Step 6: creates controller joints to drive the 'driver curve'
-			self.createJntCtrls (self.eyeName, self.cornerAPos, self.cornerBPos, self.upLidDriverCrv, self.lowLidDriverCrv, self.grpTheseEyelidsRig)
-			# Step 7: creates curve controllers, and attached the corresponding joints to them
-			self.createCrvCtrls (self.eyeName, self.parentCtrl, self.ctrlJnts)
-			# Step 8: if smart blink check box is checked, add smart blink feature
-			if cmds.checkBox (self.isSmartBlink, q = 1, v = 1) == 1 :
-				self.addSmartBlink (self.eyeName, self.upLidCrv, self.upLidDriverCrv, self.lowLidCrv, self.lowLidDriverCrv, self.ctrlList, self.hierarchyCrvGrp, self.hierarchyUpCrvGrp, self.hierarchyLowCrvGrp)
+		if self.eyeLoc is None or self.eyeName is None or self.upperLidVtx is None or self.lowerLidVtx is None :
+			cmds.error("目の中心、まぶたの頂点を定義してください.")
+		else:
+			# Call functions to build rig #
+			# Step 1: まぶたの頂点ごとにジョイントを1つずつ配置する
+			self.vtxToJnt(self.eyeLoc, self.eyeName, self.upperLidVtx, self.lowerLidVtx, self.parentJnt)
+			# Step 2: まぶたの頂点ごとにロケータを配置し、各ジョイントをそれに拘束する（IKのように動作するように）。
+			self.placeRigLoc(self.eyeName, self.upLidJntList, self.lowLidJntList)
+			# Step 3: それぞれのまぶたに「高解像度」のカーブを作成します（各頂点はカーブのポイントになります）。
+			self.createEyelidsCrv(self.eyeName, self.upperLidVtx, self.lowerLidVtx, self.grpTheseEyelidsRig)
+			# Step 4: 各ロケータを point On Curve ノードでカーブに接続し、カーブの CV が動くと、対応するロケータが追従します(ジョイントも同様) # Step 5: 「低解像度」カーブを作成し、各ジョイントを拘束します。
+			self.connectLocToCrv(self.upLidLocList, self.upLidCrv, self.lowLidLocList, self.lowLidCrv)
+			# Step 5: 制御点が5つだけの「低解像度」カーブを作成し、それをワイヤーデフォーマで高解像度カーブを駆動するようにする
+			self.createDriverCrv(self.upLidCrv, self.hierarchyUpCrvGrp, self.lowLidCrv, self.hierarchyLowCrvGrp)
+			# Step 6: 「ドライバーカーブ」を駆動するためのコントローラージョイントを作成する
+			self.createJntCtrls(self.eyeName, self.cornerAPos, self.cornerBPos, self.upLidDriverCrv, self.lowLidDriverCrv, self.grpTheseEyelidsRig)
+			# Step 7: カーブ・コントローラを作成し、それに対応するジョイントを取り付ける
+			self.createCrvCtrls(self.eyeName, self.parentCtrl, self.ctrlJnts)
+			# Step 8: スマートブリンクのチェックボックスがチェックされていれば、スマートブリンクの機能を追加する。
+			if cmds.checkBox(self.isSmartBlink, q=1, v=1) == 1:
+				self.addSmartBlink(self.eyeName, self.upLidCrv, self.upLidDriverCrv, self.lowLidCrv, self.lowLidDriverCrv, self.ctrlList, self.hierarchyCrvGrp, self.hierarchyUpCrvGrp, self.hierarchyLowCrvGrp)
 			
 			# Clear scene & script variables #
-			cmds.delete (self.eyeLoc)
-			cmds.select (cl = 1)
+			cmds.delete(self.eyeLoc)
+			cmds.select(cl = 1)
 			
 			self.parentJnt = None
 			self.parentCtrl = None
@@ -888,113 +871,97 @@ class AER :
 			self.lowerLidVtx = None
 			
 			# Update UI #
-			cmds.textField (self.txtfEye, e = 1, tx = "")
-			cmds.textField (self.txtfJnt, e = 1, tx ="")
-			cmds.textField (self.txtfCtrl, e = 1, tx ="")
-			cmds.textField (self.txtfLoc, e = 1, tx = "")
-			cmds.button (self.btnPlaceCenter, e = 1, en = 1)
-			cmds.button (self.btnUndoPlaceCenter, e = 1, en = 0)
-			cmds.scrollField (self.scrollfUpLid, e = 1, cl = 1)
-			cmds.scrollField (self.scrollfLowLid, e = 1, cl = 1)
-			cmds.checkBox (self.isSmartBlink, e = 1, v = 1)
+			cmds.textField(self.txtfEye, e=1, tx="")
+			cmds.textField(self.txtfJnt, e=1, tx="")
+			cmds.textField(self.txtfCtrl, e=1, tx="")
+			cmds.textField(self.txtfLoc, e=1, tx="")
+			cmds.button(self.btnPlaceCenter, e=1, en=1)
+			cmds.button(self.btnUndoPlaceCenter, e=1, en=0)
+			cmds.scrollField(self.scrollfUpLid, e=1, cl=1)
+			cmds.scrollField(self.scrollfLowLid, e=1, cl=1)
+			cmds.checkBox(self.isSmartBlink, e=1, v=1)
 			
 			# End message
-			if cmds.about (q = 1, version = 1) >= 2014 : # If Maya version is 2014 or more
-				cmds.inViewMessage(amg = "<hl>Eyelids have been successfully rigged.</hl> UKDP", pos = "midCenterTop", fade = True)
-				print("Eyelids have been successfully rigged.")
-			else:
-				print("Eyelids have been successfully rigged.\n",)
+			cmds.inViewMessage(amg="<hl>Eyelids have been successfully rigged.</hl> UKDP", pos="midCenterTop",
+							   fade=True)
+			print("Eyelids have been successfully rigged.")
+
 	
-	## UI ##
 	def UI (self):
-		'''Creates UI - Main function
-		
-		Call functions: 'eyeParentJnt', 'eyeParentCtrl', 'placeEyeCenter', 'placeEyeCenterUndo', 
-						'upLidVtxSet', 'lowLidVtxSet', 'buildRig' '''
+		"""
+		Creates UI - Main function
+		Call functions: 'eyeParentJnt', 'eyeParentCtrl', 'placeEyeCenter', 'placeEyeCenterUndo',
+						'upLidVtxSet', 'lowLidVtxSet', 'buildRig'
+		"""
 
 		# Main window
-		
 		winWidth = 290
-		
 		UKDP_mainWin = "UKDP_WIN_AUTO_EYELIDS_RIG"
-
-		if cmds.window ("UKDP_WIN_AUTO_EYELIDS_RIG", exists = 1):
-			cmds.deleteUI ("UKDP_WIN_AUTO_EYELIDS_RIG", window = 1)
-
-		cmds.window ("UKDP_WIN_AUTO_EYELIDS_RIG", title = "UKDP - Auto Eyelids Rig", s = 0, mxb = 0)
-
+		if cmds.window("UKDP_WIN_AUTO_EYELIDS_RIG", exists=1):
+			cmds.deleteUI("UKDP_WIN_AUTO_EYELIDS_RIG", window=1)
+		cmds.window("UKDP_WIN_AUTO_EYELIDS_RIG", title="UKDP - Auto Eyelids Rig", s=0, mxb=0)
 		# Main layout
-		cmds.columnLayout (co = ("both", 5))
+		cmds.columnLayout(co=("both", 5))
 		
 		# Define eye name
-		cmds.text (h = 5, l = "")
-		cmds.rowLayout (numberOfColumns = 2)
-		cmds.text (w = 120, l = "Eye name (ex.: L_Eye)")
-		self.txtfEye = cmds.textField (w = 166)
-		cmds.setParent ("..")
-
-		cmds.text (h = 10, l = "")
-		
-		cmds.frameLayout (w = winWidth, collapsable = 1, collapse = 1, marginWidth = 5, l = "Define rig hierarchy (optional)")
+		cmds.text(h=5, l="")
+		cmds.rowLayout(numberOfColumns=2)
+		cmds.text(w=120, l="Eye name (ex.: L_Eye)")
+		self.txtfEye = cmds.textField(w=166)
+		cmds.setParent("..")
+		cmds.text(h=10, l="")
+		cmds.frameLayout(w=winWidth, collapsable=1, collapse=1, marginWidth=5, l="Define rig hierarchy (optional)")
 		
 		# Define parent joint
-		cmds.text (h = 10, l = "")
-		cmds.text (l = "Select eyelids parent joint (would be the head joint)")
-		self.btnEyeParentJnt = cmds.button (l = "Set", c = self.eyeParentJnt)
-		self.txtfJnt = cmds.textField (ed = 0)
-		
-		cmds.text (h = 10, l = "")
+		cmds.text(h=10, l="")
+		cmds.text(l="Select eyelids parent joint (would be the head joint)")
+		self.btnEyeParentJnt = cmds.button(l="Set", c=self.eyeParentJnt)
+		self.txtfJnt = cmds.textField(ed=0)
+		cmds.text(h=10, l="")
 		
 		# Define parent control
-		cmds.text (l = "Select eyelids parent control (would be the head control)")
-		self.btnEyeParentCtrl = cmds.button (w = (winWidth - 50), l = "Set", c = self.eyeParentCtrl)
-		self.txtfCtrl = cmds.textField (w = (winWidth - 50), ed = 0)
-		
-		cmds.text (h = 5, l = "")
-		cmds.setParent ("..")
-		
-		cmds.separator (h = 15, w = winWidth, style = "in")
+		cmds.text(l="Select eyelids parent control (would be the head control)")
+		self.btnEyeParentCtrl = cmds.button(w=(winWidth - 50), l="Set", c=self.eyeParentCtrl)
+		self.txtfCtrl = cmds.textField(w=(winWidth - 50), ed=0)
+		cmds.text(h=5, l="")
+		cmds.setParent("..")
+		cmds.separator(h=15, w=winWidth, style="in")
 		
 		# Define eyeball center
-		cmds.text (h = 30, l = "Select eyeball, then click 'Place center'.")
-		cmds.rowLayout (numberOfColumns = 2)
-		self.btnPlaceCenter = cmds.button (w = ((winWidth / 2) - 2), l = "Place center", c = self.placeEyeCenter)
-		self.btnUndoPlaceCenter = cmds.button (w = ((winWidth / 2) - 2), l = "Undo", c = self.placeEyeCenterUndo, en = 0)
-		cmds.setParent ("..")
-		cmds.text (h = 5, l = "")
-		self.txtfLoc = cmds.textField (w = winWidth, ed = 0)
-		
-		cmds.separator (h = 15, w = winWidth, style = "in")
+		cmds.text(h=30, l="Select eyeball, then click 'Place center'.")
+		cmds.rowLayout(numberOfColumns=2)
+		self.btnPlaceCenter = cmds.button(w=((winWidth / 2) - 2), l="Place center", c=self.placeEyeCenter)
+		self.btnUndoPlaceCenter = cmds.button(w=((winWidth / 2) - 2), l="Undo", c=self.placeEyeCenterUndo, en=0)
+		cmds.setParent("..")
+		cmds.text(h=5, l="")
+		self.txtfLoc = cmds.textField(w=winWidth, ed=0)
+		cmds.separator(h=15, w=winWidth, style="in")
 
 		# List upper lid vertices
-		cmds.text (h = 30, l = "Select vertices of upper eyelid, then click 'Set'.")
-		self.btnUpLid = cmds.button (w = winWidth, l = "Set", c = self.upLidVtxSet)
-		self.scrollfUpLid = cmds.scrollField (w = winWidth, h = 35, wordWrap = 1, ed = 0, en = 0)
-		
-		cmds.separator (h = 15, w = winWidth, style = "in")
+		cmds.text(h=30, l="Select vertices of upper eyelid, then click 'Set'.")
+		self.btnUpLid = cmds.button(w=winWidth, l="Set", c=self.upLidVtxSet)
+		self.scrollfUpLid = cmds.scrollField(w=winWidth, h=35, wordWrap=1, ed=0, en=0)
+		cmds.separator(h=15, w=winWidth, style="in")
 
 		# List lower lid vertices
-		cmds.text (h = 30, l = "Select vertices of lower eyelid, then click 'Set'.")
-		self.btnLowLid = cmds.button (w = winWidth, l = "Set", c = self.lowLidVtxSet)
-		self.scrollfLowLid = cmds.scrollField (w = winWidth, h = 35, wordWrap = 1, ed = 0, en = 0)
-		
-		cmds.separator (h = 15, w = winWidth, style = "in")
+		cmds.text(h=30, l="Select vertices of lower eyelid, then click 'Set'.")
+		self.btnLowLid = cmds.button(w=winWidth, l="Set", c=self.lowLidVtxSet)
+		self.scrollfLowLid = cmds.scrollField(w = winWidth, h=35, wordWrap=1, ed=0, en=0)
+		cmds.separator(h=15, w=winWidth, style="in")
 		
 		# Allow/disallow smart blink
-		self.isSmartBlink =  cmds.checkBox (h = 30, l = "Add smart blink?", v = 1)
+		self.isSmartBlink = cmds.checkBox(h=30, l="Add smart blink?", v=1)
 		
 		# Build final rig
-		self.btnBuild = cmds.button (w = winWidth, h = 60, l = "BUILD RIG", c = self.buildRig, bgc = (0.1,0.7,0.7))
+		self.btnBuild = cmds.button(w=winWidth, h=60, l="BUILD RIG", c=self.buildRig, bgc=(0.1, 0.7, 0.7))
+		cmds.text(h=5, l="")
 		
-		cmds.text (h = 5, l = "")
-		
-		# Script infos
-		cmds.text (en = 0, w = winWidth, l = MadeBy + " " + ScriptName + " " + Version)
-		cmds.text (en = 0, w = winWidth, l = "Based on Marco Giordano's tutorials")
-		cmds.text (h = 5, l = "")
-		cmds.setParent ("..")
-
-		cmds.showWindow ("UKDP_WIN_AUTO_EYELIDS_RIG")
+		# Script info
+		cmds.text(en=0, w=winWidth, l=MadeBy + " " + ScriptName + " " + Version)
+		cmds.text(en=0, w=winWidth, l="Based on Marco Giordano's tutorials")
+		cmds.text(h=5, l="")
+		cmds.setParent("..")
+		cmds.showWindow("UKDP_WIN_AUTO_EYELIDS_RIG")
 
 
-autoEyelidsRig = AER ()
+autoEyelidsRig = AER()

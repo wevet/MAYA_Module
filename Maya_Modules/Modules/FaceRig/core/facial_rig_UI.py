@@ -5,31 +5,6 @@ import os
 import maya.cmds as mc
 import maya.mel as mel
 from pymel import versions
-import importlib
-
-import cleaner
-import func_creation
-import func_animEditMode
-from func_creation import *
-from func_animEditMode import *
-
-import about
-from about import *
-import xtrasUI
-from xtrasUI import *
-import func_recorder
-from func_recorder import *
-import UKDP_AER
-
-importlib.reload(cleaner)
-importlib.reload(func_creation)
-importlib.reload(func_animEditMode)
-importlib.reload(about)
-importlib.reload(xtrasUI)
-importlib.reload(func_recorder)
-importlib.reload(UKDP_AER)
-
-
 version = versions.current()
 version = str(version)
 num = ''
@@ -37,12 +12,11 @@ for i in range(4):
     if version[i].isdigit():
         num = num + version[i]
 
-mayaVersion = [
- '2015', '2016', '2017']
+mayaVersion = ['2017', '2018', '2019', '2020', '2022', '2023']
 num = int(num)
 numNb = num
 for v in mayaVersion:
-    if num >= 2015:
+    if num >= 2017:
         num = 'yes'
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -57,12 +31,33 @@ for fold in folderList:
             break
         else:
             result = 'yes'
-
     if result == 'yes':
         sys.path.append(os.path.join(PROJECT_DIR, fold))
 
+import cleaner
+import importlib
+import func_creation
+import func_animEditMode
+import about
+import xtrasUI
+import func_recorder
+import UKDP_AER
+from cleaner import correctCustomName
+from func_creation import *
+from func_animEditMode import *
+from about import *
+from xtrasUI import *
+from func_recorder import *
 
-class UI:
+importlib.reload(cleaner)
+importlib.reload(func_creation)
+importlib.reload(func_animEditMode)
+importlib.reload(about)
+importlib.reload(xtrasUI)
+importlib.reload(func_recorder)
+importlib.reload(UKDP_AER)
+
+class UI():
     def __init__(self):
         if mc.window('RIG', exists=True):
             mc.deleteUI('RIG')
@@ -599,11 +594,10 @@ class UI:
         mc.button(l='Launch The script', c=lauchMarcoUI)
         mc.setParent('..')
 
-class recordExpressionsUI:
-
+class recordExpressionsUI():
     def __init__(self):
         if mc.window('BlendShapeUIRecorder', exists=True):
-            deleteUI('BlendShapeUIRecorder')
+            mc.deleteUI('BlendShapeUIRecorder')
         window = mc.window('BlendShapeUIRecorder', title='Record BlendShape Position for:', resizeToFitChildren=True, fw=1, mxb=False, w=345, h=200)
         mc.frameLayout(labelVisible=0)
         mc.text(l='Select each curve you want to record', fn='boldLabelFont')
@@ -637,9 +631,7 @@ class recordExpressionsUI:
         mc.setParent('..')
         mc.showWindow(window)
 
-
-class recordExpressionsUIMouth:
-
+class recordExpressionsUIMouth():
     def __init__(self):
         if mc.window('BlendShapeUIRecorderMouth', exists=True):
             mc.deleteUI('BlendShapeUIRecorderMouth')
@@ -676,9 +668,7 @@ class recordExpressionsUIMouth:
         mc.setParent('..')
         mc.showWindow(window)
 
-
 class HelpToFixBldUI():
-
     def __init__(self):
         if mc.window('HelpToFixMouthUI', exists=True):
             mc.deleteUI('HelpToFixMouthUI')
@@ -722,10 +712,8 @@ class HelpToFixBldUI():
         mc.setParent('..')
         mc.showWindow(window)
 
-
 def launchRecorderExpressionMouthUI(*args):
     recordExpressionsUIMouth()
-
 
 def getBldCrvValue(*args):
     crv = mc.textScrollList('listBldCrv', q=1, si=1)
@@ -735,10 +723,9 @@ def getBldCrvValue(*args):
         info = crv.split('_')
         bld = '%s_%s_bldExp' % (info[0], info[1])
         if info[2] == 'Open':
-            warning('you cannot test your Open blendshape with Test It slider, please use the open mouth attribute into your head controller')
+            mc.warning('you cannot test your Open blendshape with Test It slider, please use the open mouth attribute into your head controller')
         getValue = mc.getAttr('%s.%s' % (bld, crv))
         mc.floatSliderGrp('testIt', e=1, v=getValue)
-
 
 def HideUIMouthOption(*args):
     sel = mc.radioButtonGrp('nameAttr', q=1, sl=1)
@@ -748,7 +735,6 @@ def HideUIMouthOption(*args):
     else:
         mc.radioButtonGrp('axisRot2', e=1, en=1)
         mc.floatField('MaxValueActivation', e=1, en=1)
-
 
 def searchByName(*args):
     mc.textScrollList('listBldCrv', e=True, da=True)
@@ -773,10 +759,8 @@ def searchByName(*args):
                 mc.textScrollList('listBldCrv', e=True, ams=True, si=crv)
                 break
 
-
 def helpBarAbout(*args):
     launchAboutMenu()
-
 
 def launchRecorderMouthUI(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
@@ -858,7 +842,6 @@ def launchRecorderMouthUI(*args):
     else:
         mc.error('you need to create the facial controller')
 
-
 def launchRecorderUI(*args):
     ctrlFacial = 'Facial_Rig_ctrl'
     if mc.objExists(ctrlFacial):
@@ -902,7 +885,6 @@ def launchRecorderUI(*args):
     else:
         mc.error('you need to create the facial controller')
 
-
 def helpToFixBldSymMenu(*args):
     elts = []
     try:
@@ -933,7 +915,6 @@ def helpToFixBldSymMenu(*args):
         for typ in listOfType:
             mc.textScrollList('TypeMouth', e=True, a=typ)
 
-
 def helpToFixBldSymMenuMouth(*args):
     elts = []
     try:
@@ -945,7 +926,6 @@ def helpToFixBldSymMenuMouth(*args):
         HelpToFixBldUI()
         for sel in elts:
             mc.textScrollList('TypeMouth', e=True, a=sel)
-
 
 def loadMouthBldCrv(*args):
     mc.textScrollList('RecLocList', e=True, ra=True)
@@ -966,7 +946,6 @@ def loadMouthBldCrv(*args):
     for elt in sel:
         mc.textScrollList('CrvOfTypeMouth', e=True, a=elt)
 
-
 def loadLocRecorderSelInHelpToFixMouthUI(*args):
     mc.textScrollList('RecLocList', e=True, ra=True)
     sel = mc.textScrollList('CrvOfTypeMouth', q=True, si=True)[0]
@@ -976,9 +955,7 @@ def loadLocRecorderSelInHelpToFixMouthUI(*args):
     for loc in locList:
         mc.textScrollList('RecLocList', e=True, a=loc)
 
-
 def lauchMarcoUI(*args):
     UKDP_AER.autoEyelidsRig.UI()
-
 
 UI()

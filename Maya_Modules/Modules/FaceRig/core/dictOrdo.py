@@ -2,14 +2,15 @@
 
 class DictionnaireOrdonne:
 
-    def __init__(self, base={}, **donnees):
+    def __init__(self, base=None, **donnees):
+        if base is None:
+            base = {}
         self._cles = []
         self._valeurs = []
         if type(base) not in (dict, DictionnaireOrdonne):
             raise TypeError('le type attendu est un dictionnaire (usuel ou ordonne)')
         for cle in base:
             self[cle] = base[cle]
-
         for cle in donnees:
             self[cle] = donnees[cle]
 
@@ -22,7 +23,6 @@ class DictionnaireOrdonne:
             else:
                 premier_passage = False
             chaine += repr(cle) + ': ' + repr(valeur)
-
         chaine += '}'
         return chaine
 

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import maya.cmds as mc, maya.mel as mel
+import maya.cmds as mc
+import maya.mel as mel
+from xtrasUI import *
 
 def refreshCtrl(*args):
     mc.textScrollList('resizeCtrlList', e=1, ra=1)
@@ -14,7 +16,7 @@ def refreshCtrl(*args):
         list = mc.ls(sl=1)
         listClean = []
         for elt in list:
-            if elt.endswith('ctrlGrp') == True:
+            if elt.endswith('ctrlGrp') is True:
                 listClean.append(elt)
 
         for ctrl in listClean:
@@ -25,17 +27,14 @@ def refreshCtrl(*args):
     else:
         mc.error('No controllers was found')
 
-
 def ctrlGrpChildSetToMenu(sel, *args):
     childrenName = sel.split('_ctrlGrp')[0]
     listOfChild = mc.ls('%s*_ctrl' % childrenName)
     for ctrl in listOfChild:
         mc.textScrollList('indeCtrl', e=True, a=ctrl)
 
-
 def launchXtrasResizeCtrlUI(*args):
     replaceController()
-
 
 def specificCtrlSel(*args):
     check = mc.checkBox('independantCtrl', q=True, v=True)
@@ -43,7 +42,6 @@ def specificCtrlSel(*args):
         mc.textScrollList('indeCtrl', e=True, en=True, ams=True)
     else:
         mc.textScrollList('indeCtrl', e=True, en=False)
-
 
 def getSizeValueOfSelectedCtrl(*args):
     sel = mc.textScrollList('indeCtrl', q=True, si=True)
@@ -55,11 +53,10 @@ def getSizeValueOfSelectedCtrl(*args):
         mc.floatSliderGrp('resizeCtrl', e=1, v=1)
         mc.warning('The resize controller slider will be set at 1 when you have more than one object selected')
 
-
 def ctrlSelectionWithCheckBox(*args):
     check = mc.checkBox('independantCtrl', q=True, v=True)
     listCtrl = []
-    if check == True:
+    if check is True:
         listCtrl = mc.textScrollList('indeCtrl', q=True, si=True)
     else:
         master = mc.textScrollList('resizeCtrlList', q=True, si=1)[0]
@@ -67,7 +64,7 @@ def ctrlSelectionWithCheckBox(*args):
         listCtrl = mc.ls('%s_%s_*_ctrl' % (info[0], info[1]))
     mirror = mc.checkBox('mirrorCtrl', q=1, v=1)
     newListOfSel = []
-    if mirror == True:
+    if mirror is True:
         for elt in listCtrl:
             side = elt.split('_')[0]
             name = elt.split(side + '_')[1]
@@ -88,14 +85,12 @@ def ctrlSelectionWithCheckBox(*args):
         newListOfSel = listCtrl
     return newListOfSel
 
-
 def func_resizeCtrl(*args):
     newListOfSel = ctrlSelectionWithCheckBox()
     value = mc.floatSliderGrp('resizeCtrl', q=True, v=True)
     for axis in ['X', 'Y', 'Z']:
         for elt in newListOfSel:
             mc.setAttr('%s.scale%s' % (elt, axis), value)
-
 
 def MakeThisXTRAS(*args):
     ctrlList = ctrlSelectionWithCheckBox()
@@ -107,8 +102,7 @@ def MakeThisXTRAS(*args):
     value = mc.textScrollList('valueList', q=1, si=1)
     value = float(value[0])
     mirror = mc.checkBox('mirrorCtrl', q=1, v=1)
-    tValue = [
-     0, 0, 0]
+    tValue = [0, 0, 0]
     if negVal == 1:
         value = value * -1
     if axis == 'X':
@@ -123,12 +117,12 @@ def MakeThisXTRAS(*args):
             mirrorVal = '%s 0 0' % (value * -1)
         lenght = len(ctrlList)
         for i in range(lenght):
-            if mirror == True:
+            if mirror is True:
                 for i in range(lenght):
                     if i < lenght / 2:
                         mc.select(ctrlList[i] + '.cv[*]', r=True)
-                        print 'inv side ctrl = %s' % ctrlList[i]
-                        print 'type = %s / mirrorVal = %s' % (type, mirrorVal)
+                        print('inv side ctrl = %s' % ctrlList[i])
+                        print('type = %s / mirrorVal = %s' % (type, mirrorVal))
                         if type == 'translate':
                             mel.eval('move -r %s;' % mirrorVal)
                         else:
@@ -136,8 +130,8 @@ def MakeThisXTRAS(*args):
                             mel.eval('rotate -os -fo %s ;' % mirrorVal)
                     else:
                         mc.select(ctrlList[i] + '.cv[*]', r=True)
-                        print 'good side ctrl = %s' % ctrlList[i]
-                        print 'type = %s / mirrorVal = %s' % (type, tValue)
+                        print('good side ctrl = %s' % ctrlList[i])
+                        print('type = %s / mirrorVal = %s' % (type, tValue))
                         if type == 'translate':
                             mel.eval('move -r %s;' % tValue)
                         else:
@@ -153,7 +147,6 @@ def MakeThisXTRAS(*args):
                     pos = mc.xform(ctrlList[i] + '.cv[0]', q=1, ws=1, t=1)
                     mel.eval('rotate -os -fo %s ;' % tValue)
 
-
 def resizeLoc(*args):
     value = mc.floatSliderGrp('resizeLocator', q=1, v=1)
     elts = mc.ls('*_loc')
@@ -166,15 +159,13 @@ def resizeLoc(*args):
             mc.setAttr('%s.localScaleY' % locShape, value)
             mc.setAttr('%s.localScaleZ' % locShape, value)
 
-
 def resizeJntDisp(*args):
     value = mc.floatSliderGrp('resizeJntDisplay', q=1, v=1)
     mel.eval('jointDisplayScale(%s)' % value)
 
-
 def freezeTransfCtrlGrp(*args):
     ctrlGrp = mc.textScrollList('resizeCtrlList', q=True, si=1)
-    if ctrlGrp != None:
+    if ctrlGrp is None:
         mc.select(ctrlGrp, r=True)
         grp = mc.ls(sl=1)[0]
         info = grp.split('_')
@@ -193,7 +184,6 @@ def freezeTransfCtrlGrp(*args):
     else:
         mc.error('Please select one ctrlGrp into the list before trying to execute this command', n=False)
     return
-
 
 def freezeTransAll(*args):
     listOfCtrlGrp = ''
@@ -223,11 +213,10 @@ def freezeTransAll(*args):
     else:
         mc.error('No ctrl grp has been found, this action will be aborted', n=False)
 
-
 def switchCtrlColor(*args):
     sel = mc.ls(sl=1)
     color = mc.colorIndexSliderGrp('colorChange', q=True, v=True)
-    print 'color = %s' % color
+    print('color = %s' % color)
     if len(sel) > 0:
         for elt in sel:
             try:
@@ -235,7 +224,6 @@ def switchCtrlColor(*args):
                 mc.setAttr('%s.ovc' % elt, color - 1)
             except:
                 pass
-
 
 def cleanOutliner(*args):
     if mc.objExists('C_faceCurvesBld_grp'):
@@ -249,8 +237,7 @@ def cleanOutliner(*args):
         mc.select('*_bld_crv', r=True)
         list = mc.ls(sl=1)
         for elt in list:
-            parent(elt, 'C_faceCurvesBld_grp')
-
+            mc.parent(elt, 'C_faceCurvesBld_grp')
     except:
         pass
 
@@ -268,7 +255,6 @@ def cleanOutliner(*args):
         if len(list) > 0:
             for elt in list:
                 mc.parent(elt, 'C_Facial_Pin_Controller_grp')
-
     except:
         pass
 
@@ -277,10 +263,9 @@ def cleanOutliner(*args):
             mc.delete('*%s' % x)
         except:
             pass
-
     try:
         mc.parent('C_Head_Facial_Rig_crvGrp', 'xtra_toHide')
     except:
         pass
-
     mc.warning('Your Outliner is now Clean')
+

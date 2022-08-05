@@ -39,7 +39,6 @@ def ctrlCreation(type, nameCtrl, *args):
         mc.setAttr('%s.overrideColor' % ctrl, 17)
     return ctrl
 
-
 def addAttrToController(controller, attribute, type):
     ctrl = mc.ls(controller)[0]
     if type == 'double':
@@ -57,7 +56,6 @@ def addAttrToController(controller, attribute, type):
     elif type == 'int':
         mc.addAttr(ctrl, ln=attribute, at='long', dv=0, max=2, min=0)
         mc.setAttr('%s.%s' % (ctrl, attribute), e=1, lock=1, k=False, cb=False)
-
 
 def facialControllerExpression(*args):
     nameObj = 'Facial_Rig_ctrl'
@@ -99,7 +97,6 @@ def facialControllerExpression(*args):
         mc.warning('Facial Rig Controller was already found, this action is aborted')
         mc.select(nameObj, r=True)
 
-
 def validPositionOfFacialControllerExpression(*args):
     facialCtrl = 'Facial_Rig_ctrl'
     if mc.objExists(facialCtrl):
@@ -110,13 +107,10 @@ def validPositionOfFacialControllerExpression(*args):
             for typ in ['t', 'r', 's']:
                 for axis in ['x', 'y', 'z']:
                     mc.setAttr('%s.%s%s' % (facialCtrl, typ, axis), cb=False, k=False)
-
         except:
             raise mc.error('No controller was found into the Head Controller Field, please add your head controller before to do.')
-
     else:
         raise mc.error('No Facial_Rig_ctrl was found ! This action is aborted')
-
 
 def AttachAndOrganizeCCFacial(*args):
     try:
@@ -244,7 +238,6 @@ def AttachAndOrganizeCCFacial(*args):
     except:
         raise mc.error('no blendshape was found, this action will be aborted')
 
-
 def supAndAddNewAttributeToFacialController(attrs, bldCrvs, *args):
     radValue = 1
     attrs = attrs
@@ -328,3 +321,4 @@ def supAndAddNewAttributeToFacialController(attrs, bldCrvs, *args):
                         mc.setAttr('%s.%s' % (ctrl, name), 0)
 
         mc.select(ctrl, r=True)
+

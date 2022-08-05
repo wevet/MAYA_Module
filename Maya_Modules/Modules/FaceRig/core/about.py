@@ -45,6 +45,6 @@ class AboutMenu:
         mc.setParent('..')
         mc.showWindow(windowAbout)
 
-
 def launchAboutMenu(*args):
     AboutMenu()
+    pass

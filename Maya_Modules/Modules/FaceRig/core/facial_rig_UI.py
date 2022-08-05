@@ -1,7 +1,35 @@
 # -*- coding: utf-8 -*-
 
-import sys, os, maya.cmds as mc, maya.mel as mel
+import sys
+import os
+import maya.cmds as mc
+import maya.mel as mel
 from pymel import versions
+import importlib
+
+import cleaner
+import func_creation
+import func_animEditMode
+from func_creation import *
+from func_animEditMode import *
+
+import about
+from about import *
+import xtrasUI
+from xtrasUI import *
+import func_recorder
+from func_recorder import *
+import UKDP_AER
+
+importlib.reload(cleaner)
+importlib.reload(func_creation)
+importlib.reload(func_animEditMode)
+importlib.reload(about)
+importlib.reload(xtrasUI)
+importlib.reload(func_recorder)
+importlib.reload(UKDP_AER)
+
+
 version = versions.current()
 version = str(version)
 num = ''
@@ -33,29 +61,8 @@ for fold in folderList:
     if result == 'yes':
         sys.path.append(os.path.join(PROJECT_DIR, fold))
 
-import cleaner
-reload(cleaner)
-from cleaner import correctCustomName
-import func_creation
-reload(func_creation)
-from func_creation import *
-import func_animEditMode
-reload(func_animEditMode)
-from func_animEditMode import *
-import about
-reload(about)
-from about import *
-import xtrasUI
-reload(xtrasUI)
-from xtrasUI import *
-import func_recorder
-reload(func_recorder)
-from func_recorder import *
-import UKDP_AER
-reload(UKDP_AER)
 
-class UI():
-
+class UI:
     def __init__(self):
         if mc.window('RIG', exists=True):
             mc.deleteUI('RIG')
@@ -592,8 +599,7 @@ class UI():
         mc.button(l='Launch The script', c=lauchMarcoUI)
         mc.setParent('..')
 
-
-class recordExpressionsUI():
+class recordExpressionsUI:
 
     def __init__(self):
         if mc.window('BlendShapeUIRecorder', exists=True):
@@ -632,7 +638,7 @@ class recordExpressionsUI():
         mc.showWindow(window)
 
 
-class recordExpressionsUIMouth():
+class recordExpressionsUIMouth:
 
     def __init__(self):
         if mc.window('BlendShapeUIRecorderMouth', exists=True):

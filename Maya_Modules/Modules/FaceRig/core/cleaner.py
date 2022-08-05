@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import maya.cmds as mc, maya.mel as mel, re
+import maya.cmds as mc
+import maya.mel as mel
+import re
 
 def correctCustomName(*args):
     r = re.compile('([^a-zA-Z])')
@@ -18,7 +20,6 @@ def groupOutlinerCreation(*args):
             mc.parent('C_facial_jntGrp', 'C_SKELETON_grp')
         except:
             pass
-
         mc.select(cl=1)
     if not mc.objExists('C_facial_ctrlGrp'):
         mc.group(n='C_facial_ctrlGrp', em=True)

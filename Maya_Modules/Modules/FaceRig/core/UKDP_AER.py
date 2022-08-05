@@ -900,11 +900,10 @@ class AER :
 			
 			# End message
 			if cmds.about (q = 1, version = 1) >= 2014 : # If Maya version is 2014 or more
-				cmds.inViewMessage(amg = "<hl>Eyelids have been successfully rigged.</hl> �UKDP", pos = "midCenterTop", fade = True)
-				print "Eyelids have been successfully rigged."
+				cmds.inViewMessage(amg = "<hl>Eyelids have been successfully rigged.</hl> UKDP", pos = "midCenterTop", fade = True)
+				print("Eyelids have been successfully rigged.")
 			else:
-				print "Eyelids have been successfully rigged.\n",
-	
+				print("Eyelids have been successfully rigged.\n",)
 	
 	## UI ##
 	def UI (self):

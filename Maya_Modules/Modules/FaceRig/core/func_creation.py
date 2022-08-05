@@ -1,17 +1,23 @@
 # -*- coding: utf-8 -*-
 
-import maya.cmds as mc, maya.mel as mel, controllersCreation
+import maya.cmds as mc
+import maya.mel as mel
+
+import controllersCreation
 reload(controllersCreation)
-from controllersCreation import *
+from ..utils.controllersCreation import *
+
 import cleaner
 reload(cleaner)
-from cleaner import *
+from ..utils.cleaner import *
+
 import utils
 reload(utils)
-from utils import *
-from dictOrdo import DictionnaireOrdonne
-from controllersCreation import ctrlCreation
-from cleaner import groupOutlinerCreation
+from ..utils import *
+from ..utils.dictOrdo import DictionnaireOrdonne
+from ..utils.controllersCreation import ctrlCreation
+from ..utils.cleaner import groupOutlinerCreation
+
 
 def addSelCurveCreation(*args):
     curveSel = mc.ls(sl=1)
@@ -64,7 +70,7 @@ def createSystemOnCurveSelected(*args):
     if nbLoc >= 3:
         custCtrl = mc.textScrollList('otherCtrlShapeList', q=1, ai=1)
         listAttr = ['receiveShadows', 'motionBlur', 'castsShadows', 'primaryVisibility', 'smoothShading',
-         'visibleInReflections', 'visibleInRefractions']
+                    'visibleInReflections', 'visibleInRefractions']
         test = 0
         curveSel = mc.textScrollList('curveSelList', q=True, ai=1)
         typeCtrl = mc.iconTextRadioCollection('ctrlShapeGrp', q=1, select=1)
@@ -125,7 +131,8 @@ def createSystemOnCurveSelected(*args):
                                     else:
                                         mc.delete('R_%s_crv' % type)
                                         mc.duplicate(crv, n='R_%s_crv' % type)
-                                        mc.warning('A curve named R_%s_crv was found and been deleted for create the mirror' % type)
+                                        mc.warning(
+                                            'A curve named R_%s_crv was found and been deleted for create the mirror' % type)
                                         unique = 1
                                 elif side == 'R':
                                     if not mc.objExists('L_%s_crv' % type):
@@ -134,7 +141,8 @@ def createSystemOnCurveSelected(*args):
                                     else:
                                         mc.delete('L_%s_crv' % type)
                                         mc.duplicate(crv, n='L_%s_crv' % type)
-                                        mc.warning('A curve named L_%s_crv was found and been deleted for create the mirror' % type)
+                                        mc.warning(
+                                            'A curve named L_%s_crv was found and been deleted for create the mirror' % type)
                                         unique = 1
                                 if unique == 1:
                                     dupCrv = mc.ls(sl=1)[0]
@@ -157,7 +165,8 @@ def createSystemOnCurveSelected(*args):
                             mc.makeIdentity(a=1)
                             mc.delete(ch=1)
                             nom = crv.split('_crv')[0]
-                            mel.eval('rebuildCurve -ch 1 -rpo 1 -rt 0 -end 1 -kr 2 -kcp 0 -kep 1 -kt 0 -s ' + str(nbLoc - 1) + ' -d 3 -tol 0.01 "' + crv + '";')
+                            mel.eval('rebuildCurve -ch 1 -rpo 1 -rt 0 -end 1 -kr 2 -kcp 0 -kep 1 -kt 0 -s ' + str(
+                                nbLoc - 1) + ' -d 3 -tol 0.01 "' + crv + '";')
                             posLoc = 0.5
                             if nbLoc > 1:
                                 posLoc = 1.0 / (nbLoc - 1)
@@ -173,7 +182,8 @@ def createSystemOnCurveSelected(*args):
                                 mc.select(crv, loc, r=True)
                                 namePath = '%s_%s_mp' % (nom, str(i + 1))
                                 namePath = nom + '_' + str(i + 1) + '_mp'
-                                mc.pathAnimation(fractionMode=True, follow=False, startTimeU=0, endTimeU=100, n=namePath)
+                                mc.pathAnimation(fractionMode=True, follow=False, startTimeU=0, endTimeU=100,
+                                                 n=namePath)
                                 value = namePath + '_uValue'
                                 mc.delete(value)
                                 if nbLoc == 1:
@@ -256,7 +266,8 @@ def createSystemOnCurveSelected(*args):
                             mc.textScrollList('curveSelList', e=True, ra=1)
                             if check == True:
                                 if side == 'C':
-                                    mc.warning('You cannot have a symetrical curve for a central side, the mirror creation was skipped')
+                                    mc.warning(
+                                        'You cannot have a symetrical curve for a central side, the mirror creation was skipped')
 
                     else:
                         raise mc.error('You name curve is not unique ! The process was aborted')
@@ -373,13 +384,14 @@ def rebuildEPPosCurve(*args):
     except:
         pass
 
-    print testEmpty
+    print(testEmpty)
     if testEmpty > 0:
         sides = []
         side = ctrlName[0].split('_')[0]
         sides.append(side)
-        result = mc.confirmDialog(title='Symetrical Request', message='Did you want make the same thing for symetrical curve?', button=[
-         'Yes', 'No'], defaultButton='Yes', cancelButton='No', dismissString='No')
+        result = mc.confirmDialog(title='Symetrical Request',
+                                  message='Did you want make the same thing for symetrical curve?', button=[
+                'Yes', 'No'], defaultButton='Yes', cancelButton='No', dismissString='No')
         if result == 'Yes':
             if side == 'L':
                 if mc.objExists('R_%s_crv' % ctrlName[0].split('_')[1]):
@@ -401,7 +413,8 @@ def rebuildEPPosCurve(*args):
             if loc1pos == 0:
                 span = span - 1
             crvTMP = mc.duplicate(crv, rr=True, n=crv + 'TMP')[0]
-            mel.eval('rebuildCurve -ch 0 -rpo 1 -rt 0 -end 1 -kr 2 -kcp 0 -kep 1 -kt 0 -s ' + str(span) + ' -d 3 -tol 0.01 "' + crvTMP + '";')
+            mel.eval('rebuildCurve -ch 0 -rpo 1 -rt 0 -end 1 -kr 2 -kcp 0 -kep 1 -kt 0 -s ' + str(
+                span) + ' -d 3 -tol 0.01 "' + crvTMP + '";')
             for loc in ctrlPosList:
                 locPosWorld = mc.xform(loc, q=True, ws=True, t=True)
                 epToChange = int(loc.split('_')[2])
@@ -414,7 +427,6 @@ def rebuildEPPosCurve(*args):
                 mp = loc.split('loc')[0] + 'mp'
                 mc.disconnectAttr(crv + 'Shape.worldSpace[0]', mp + '.geometryPath')
                 mc.connectAttr(crvTMP + 'Shape.worldSpace[0]', mp + '.geometryPath', f=True)
-
             curveOri = mc.rename(crv, crv + 'Original')
             mc.rename(crvTMP, crvTMP.split('TMP')[0])
 
@@ -424,7 +436,6 @@ def getRecordPosOfLoc(ctrls, *args):
     for elt in ctrls:
         posElt = mc.xform(elt, q=1, ws=1, t=1)
         eltPosList[elt] = posElt
-
     eltPosList.sort()
     return eltPosList
 
@@ -531,11 +542,12 @@ def removeCtrlList(*args):
 
 def executeHead(*args):
     sides = [
-     'L', 'R', 'C']
+        'L', 'R', 'C']
     jntList = []
     typeList = ['crv', 'crvOriginal']
     customList = []
-    scriptNameList = ['eyeBrow', 'upperLid', 'upperLip', 'lowerLid', 'upperCheeks', 'cheeks', 'nose', 'crease', 'lowerLip', 'upperLip']
+    scriptNameList = ['eyeBrow', 'upperLid', 'upperLip', 'lowerLid', 'upperCheeks', 'cheeks', 'nose', 'crease',
+                      'lowerLip', 'upperLip']
     headCtrl = mc.textScrollList('headCtrlList', q=1, ai=1)[0]
     headJnt = mc.textScrollList('headSelList', q=1, ai=1)[0]
     if headCtrl != '':
@@ -562,7 +574,7 @@ def executeHead(*args):
                             if not mc.objExists('C_Head_Facial_Rig_crvGrp'):
                                 mc.group(n='C_Head_Facial_Rig_crvGrp', em=True)
                                 mc.parent('C_Head_Facial_Rig_crvGrp', headCtrl)
-                            print '%s_%s_%s' % (side, elt, type)
+                            print('side{}_elt{}_type{}'.format(side, elt, type))
                             try:
                                 if type == 'crv':
                                     mc.parent('%s_%s_%s' % (side, elt, type), 'C_Head_Facial_Rig_crvGrp')
@@ -633,7 +645,7 @@ def refreshJnt(*args):
     mc.select('*_ctrl_grpOff', d=True)
     list = mc.ls(sl=1)
     jntList = []
-    print 'list = %s' % list
+    print('list = %s' % list)
     for jnt in list:
         jnt = mc.ls(jnt)[0]
         name = jnt.split('grpOff')[0]
@@ -742,7 +754,9 @@ def addBtnOfAdditionnalPart(*args):
                                 elt = '%s_%s_ctrlGrp' % (info[0], info[1])
                                 test2 = 'ok'
                             else:
-                                mc.error('You need to rebuild this curve : %s_%s_crv before trying to add this curve on your existing system' % (info[0], info[1]))
+                                mc.error(
+                                    'You need to rebuild this curve : %s_%s_crv before trying to add this curve on your existing system' % (
+                                    info[0], info[1]))
                 if test2 == 'ok':
                     try:
                         if len(listToAdd) > 0:
@@ -757,7 +771,6 @@ def addBtnOfAdditionnalPart(*args):
                                 mc.textScrollList('addAdditionnalCtrl', e=True, a=elt)
                     except:
                         mc.textScrollList('addAdditionnalCtrl', e=True, a=elt)
-
     else:
         mc.error('please select one or many controllers to add')
 

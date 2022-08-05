@@ -19,6 +19,7 @@ for v in mayaVersion:
     if num >= 2018:
         num = 'yes'
 
+"""
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 paths = sys.path
 folderList = ['utils', 'proc', 'icons', 'ui']
@@ -33,6 +34,7 @@ for fold in folderList:
             result = 'yes'
     if result == 'yes':
         sys.path.append(os.path.join(PROJECT_DIR, fold))
+"""
 
 import cleaner
 import importlib
@@ -53,6 +55,15 @@ importlib.reload(func_animEditMode)
 importlib.reload(xtrasUI)
 importlib.reload(func_recorder)
 importlib.reload(UKDP_AER)
+
+"""
+usage
+import facial_rig_ui as rig
+import importlib
+importlib.reload(rig)
+face_rig = rig.FaceRigMainUI()
+face_rig.show_ui()
+"""
 
 class FaceRigMainUI:
     def __init__(self):
@@ -954,9 +965,5 @@ def load_locator_recorder_select_in_help_to_fix_mouth_ui(*args):
 def launch_marco_ui(*args):
     UKDP_AER.autoEyelidsRig.show_ui()
 
-"""
-face_rig = FaceRigMainUI()
-face_rig.show_ui()
-"""
 
 

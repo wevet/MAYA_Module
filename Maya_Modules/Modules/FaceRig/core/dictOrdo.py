@@ -8,23 +8,23 @@ class DictionnaireOrdonne:
         self._cles = []
         self._valeurs = []
         if type(base) not in (dict, DictionnaireOrdonne):
-            raise TypeError('期待される型はDictです。')
+            raise TypeError('The expected type is Dict.')
         for cle in base:
             self[cle] = base[cle]
         for cle in donnees:
             self[cle] = donnees[cle]
 
     def __repr__(self):
-        chaine = '{'
+        str_value = '{'
         premier_passage = True
         for cle, valeur in self.items():
             if not premier_passage:
-                chaine += ', '
+                str_value += ', '
             else:
                 premier_passage = False
-            chaine += repr(cle) + ': ' + repr(valeur)
-        chaine += '}'
-        return chaine
+            str_value += repr(cle) + ': ' + repr(valeur)
+        str_value += '}'
+        return str_value
 
     def __str__(self):
         return repr(self)
@@ -37,7 +37,7 @@ class DictionnaireOrdonne:
 
     def __getitem__(self, cle):
         if cle not in self._cles:
-            raise KeyError(('La cle {0} ne se trouve pas dans le dictionnaire').format(cle))
+            raise KeyError(('The key {0} is not in the dictionary').format(cle))
         else:
             indice = self._cles.index(cle)
             return self._valeurs[indice]
@@ -52,7 +52,7 @@ class DictionnaireOrdonne:
 
     def __delitem__(self, cle):
         if cle not in self._cles:
-            raise KeyError(('La cle {0} ne se trouve pas dans le dictionnaire').format(cle))
+            raise KeyError(('The key {0} is not in the dictionary').format(cle))
         else:
             indice = self._cles.index(cle)
             del self._cles[indice]

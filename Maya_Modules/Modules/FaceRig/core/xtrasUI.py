@@ -20,7 +20,7 @@ class XtrasMenuUI:
 
     def control_list(self):
         mc.frameLayout(l='Resize your controller and Locator')
-        mc.text(l='その前に、"Ctrl List:" でコントローラグループを選択します。')
+        mc.text(l='"Ctrl List:" でコントローラグループを選択します。')
         mc.rowLayout(nc=6)
         mc.separator(w=15, style='none')
         mc.text(l='Ctrl List:', fn='boldLabelFont')

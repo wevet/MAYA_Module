@@ -11,16 +11,15 @@ import math
 
 class AER:
 	"""
-	Automatically rig eyelids (note: works only for ball-typed eyes).
+	まぶたの自動リグ（注：ボール入力の目のみ有効）
 	"""
-
 	def __init__(self):
-		self.parentJnt = None
-		self.parentCtrl = None
-		self.eyeLoc = None
-		self.eyeName = None
-		self.upperLidVtx = None
-		self.lowerLidVtx = None
+		self.parent_joint = None
+		self.parent_control = None
+		self.eye_locator = None
+		self.eye_name = None
+		self.upper_lid_vertex = None
+		self.lower_lid_vertex = None
 
 	## PREREQUISITE FOR RIG ##	
 	def eye_parent_joint(self, *args):
@@ -31,12 +30,12 @@ class AER:
 		"""
 		parentJointSel = cmds.ls(sl=1, typ="joint")
 		if len(parentJointSel) != 0:
-			self.parentJnt = parentJointSel[0]
-			cmds.textField(self.txtfJnt, e=1, tx=self.parentJnt)
+			self.parent_joint = parentJointSel[0]
+			cmds.textField(self.txtfJnt, e=1, tx=self.parent_joint)
 		else:
-			self.parentJnt = None
+			self.parent_joint = None
 			cmds.textField(self.txtfJnt, e=1, tx="")
-			cmds.error("Wrong selection, please select a joint.\n")
+			cmds.error("選択ミスです。ジョイントを選択してください。")
 
 	def eye_parent_control(self, *args):
 		"""
@@ -44,16 +43,17 @@ class AER:
 		Called by 'UI' function.
 		Call functions: None
 		"""
+		# selectionMask Nurbs カーブ
 		parentCtrlSel = cmds.filterExpand(sm=9)
 		if parentCtrlSel is None:
 			parentCtrlShape = parentCtrlSel[0]
-			self.parentCtrl = cmds.listRelatives((parentCtrlSel[0]), parent=1)[0]
-			print(self.parentCtrl)
-			cmds.textField(self.txtfCtrl, e=1, tx=self.parentCtrl)
+			self.parent_control = cmds.listRelatives((parentCtrlSel[0]), parent=1)[0]
+			print(self.parent_control)
+			cmds.textField(self.txtfCtrl, e=1, tx=self.parent_control)
 		else:
-			self.parentCtrl = None
+			self.parent_control = None
 			cmds.textField(self.txtfCtrl, e=1, tx="")
-			cmds.error("カーブコントローラを選択してください。")
+			cmds.error("Curve Controllerを選択してください。")
 
 	def place_eye_center(self, *args):
 		"""
@@ -62,31 +62,31 @@ class AER:
 		Call functions: None
 		"""
 		selection = cmds.filterExpand(sm=12)
-		self.eyeName = cmds.textField(self.txtfEye, q=1, tx=1)
+		self.eye_name = cmds.textField(self.txtfEye, q=1, tx=1)
 		
 		if selection is None:
-			self.eyeLoc = None
-			self.eyeName = None
+			self.eye_locator = None
+			self.eye_name = None
 			cmds.error("Please select the eyeball.")
 		else:
 			eyeball = selection[0]
-			if not self.eyeName:
-				self.eyeName = name = "DefaultEye"
+			if not self.eye_name:
+				self.eye_name = name = "DefaultEye"
 			else:
-				name = self.eyeName
+				name = self.eye_name
 			
 			eyeTemp = cmds.duplicate(eyeball)[0]
 			cmds.xform(eyeTemp, cp=1)
-			self.eyeLoc = cmds.spaceLocator(n=(name + "_eyeCenter_locator"))[0]
-			cnstrTemp = cmds.pointConstraint(eyeTemp, self.eyeLoc)
+			self.eye_locator = cmds.spaceLocator(n=(name + "_eyeCenter_locator"))[0]
+			cnstrTemp = cmds.pointConstraint(eyeTemp, self.eye_locator)
 			cmds.delete(cnstrTemp)
 			cmds.delete(eyeTemp)
 			# lock locator
-			cmds.setAttr(self.eyeLoc + ".overrideEnabled", 1)
-			cmds.setAttr(self.eyeLoc + ".overrideDisplayType", 2)
+			cmds.setAttr(self.eye_locator + ".overrideEnabled", 1)
+			cmds.setAttr(self.eye_locator + ".overrideDisplayType", 2)
 			cmds.select(cl=1)
 			# Update UI
-			cmds.textField(self.txtfLoc, e=1, tx=self.eyeLoc)
+			cmds.textField(self.txtfLoc, e=1, tx=self.eye_locator)
 			cmds.button(self.btnPlaceCenter, e=1, en=0)
 			cmds.button(self.btnUndoPlaceCenter, e=1, en=1)
 
@@ -97,12 +97,12 @@ class AER:
 		Call functions: None
 		"""
 		try:
-			cmds.delete(self.eyeLoc)
+			cmds.delete(self.eye_locator)
 		except ValueError:
-			cmds.warning("'" + self.eyeLoc + "'" + " doesn't exists.\n")
+			cmds.warning("'" + self.eye_locator + "'" + " doesn't exists.\n")
 		finally:
-			self.eyeLoc = None
-			self.eyeName = None
+			self.eye_locator = None
+			self.eye_name = None
 			cmds.textField(self.txtfLoc, e=1, tx="")
 			cmds.button(self.btnPlaceCenter, e=1, en=1)
 			cmds.button(self.btnUndoPlaceCenter, e=1, en=0)
@@ -113,13 +113,13 @@ class AER:
 		Called by 'UI' function.
 		Call functions: None
 		"""
-		self.upperLidVtx = cmds.filterExpand(sm=31)
-		if self.upperLidVtx is None:
+		self.upper_lid_vertex = cmds.filterExpand(sm=31)
+		if self.upper_lid_vertex is None:
 			cmds.scrollField(self.scrollfUpLid, e=1, cl=1)
 			cmds.error("Please select vertices of the upper eye lid.\n")
 		else:
 			cmds.scrollField(self.scrollfUpLid, e=1, cl=1)
-			for vtx in self.upperLidVtx:
+			for vtx in self.upper_lid_vertex:
 				vtxNum = vtx.rpartition(".")[2]
 				cmds.scrollField(self.scrollfUpLid, e=1, it=(str(vtxNum) + " "))
 
@@ -129,14 +129,14 @@ class AER:
 		Called by 'UI' function.
 		Call functions: None
 		"""
-		self.lowerLidVtx = cmds.filterExpand(sm=31)
+		self.lower_lid_vertex = cmds.filterExpand(sm=31)
 		
-		if self.lowerLidVtx is None:
+		if self.lower_lid_vertex is None:
 			cmds.scrollField(self.scrollfLowLid, e=1, cl=1)
 			cmds.error("Please select vertices of the lower lid.\n")
 		else:
 			cmds.scrollField(self.scrollfLowLid, e=1, cl=1)
-			for vtx in self.lowerLidVtx:
+			for vtx in self.lower_lid_vertex:
 				vtxNum = vtx.rpartition(".")[2]
 				cmds.scrollField(self.scrollfLowLid, e=1, it=(str(vtxNum) + " "))
 	## PREREQUISITE FOR RIG -end ##
@@ -398,12 +398,11 @@ class AER:
 		# distance formula is: d = sqrt((Ax-Bx)**2 + (Ay-By)**2 + (Az-Bz)**2)
 		distTEMP1 = math.sqrt((cornerUp1[0] - cornerLow1[0])**2 + (cornerUp1[1] - cornerLow1[1])**2 + (cornerUp1[2] - cornerLow1[2])**2)
 		distTEMP2 = math.sqrt((cornerUp1[0] - cornerLow2[0])**2 + (cornerUp1[1] - cornerLow2[1])**2 + (cornerUp1[2] - cornerLow2[2])**2)
-		
-		# If cornerUp1 is closer to cornerLow2 than cornerLow1,
-		# then the center of the distance between cornerUp1 and cornerLow2
-		# will be the "CornerA" and "CornerB" will be defined by
-		# the other two points.
-		
+
+		# cornerUp1 が cornerLow2 に cornerLow1 よりも近い場合。
+		# cornerUp1 と cornerLow2 の間の距離の中心が、"CornerA" と "CornerB" になります。
+		# コーナーA, コーナーB となります.
+		# 他の2点によって定義されます.
 		if distTEMP1 > distTEMP2:
 			# CornerA
 			cmds.select(cl=1)
@@ -497,10 +496,10 @@ class AER:
 		# 	5	| 				|				|	5	| 				|
 		# 	6	| other corner  |				|	6	| corner B		|
 		# -----------------------				-------------------------
-		# - measure dist between first_CV of baseList and cornerAPos
-		# - measure dist between first_CV of baseList and cornerBPos
-		# - if CV is closer to cornerA append baseList to orderedList from beginning to end
-		# - else (CV closer to cornerB) append baseList to orderedList from end to beginning
+		# - baseList の first_CV と cornerAPos の間の距離を計測します．
+		# - baseList の first_CV と cornerBPos との距離を計測します．
+		# - CV が cornerA に近い場合， baseList を orderedList の先頭から末尾に追加します．
+		# - else (CV が cornerB に近い場合) append baseList to orderedList from end to beginning (ベースリストをorderedListの最後に追加する)
 		# return orderedLists
 		# distance formula is: d = sqrt((Ax-Bx)**2 + (Ay-By)**2 + (Az-Bz)**2)
 		distTEMP1 = math.sqrt((((upLidCVsPos[0])[0]) - cornerAPos[0])**2 + (((upLidCVsPos[0])[1]) - cornerAPos[1])**2 + (((upLidCVsPos [0])[2]) - cornerAPos[2])**2)
@@ -532,8 +531,8 @@ class AER:
 		# delete history
 		cmds.delete(upLidDriverCrvTEMP, ch=1)
 		cmds.rebuildCurve(upLidDriverCrvTEMP, rpo=1, end=1, kr=2, kcp=0, kep=1, kt=0, s=4, d=7, tol=0.01)
-		
-		# list the position of the EPs of the upper lid driver curve
+
+		# 上まぶたのドライバーカーブのEPの位置をリストアップする
 		upLidEpPosTEMP = []
 		x = 0
 		while x < 5:
@@ -541,8 +540,8 @@ class AER:
 			upLidEpPosTEMP.append(posEp)
 			x += 1
 		cmds.delete(upLidDriverCrvTEMP)
-		
-		# Create the upLid 'guide' curve for corner placement and query CVs positions and indexes
+
+		# コーナー配置のためのアップリッド「ガイド」カーブを作成し、CVsの位置とインデックスを問い合わせる。
 		upLidGuideCrv = cmds.curve(d=3, ep=(upLidEpPosTEMP[0], upLidEpPosTEMP[1], upLidEpPosTEMP[2], upLidEpPosTEMP[3], upLidEpPosTEMP[4]))
 		
 		## Lower eyelid ##
@@ -550,8 +549,8 @@ class AER:
 		# delete history
 		cmds.delete(lowLidDriverCrvTEMP, ch=1)
 		cmds.rebuildCurve(lowLidDriverCrvTEMP, rpo=1, end=1, kr=2, kcp=0, kep=1, kt=0, s=4, d=7, tol=0.01)
-		
-		# list the position of the EPs of the lower lid driver curve
+
+		# 下まぶたのドライバーカーブのEPの位置をリストアップする
 		lowLidEpPosTEMP = []
 		x = 0
 		while x < 5:
@@ -559,24 +558,21 @@ class AER:
 			lowLidEpPosTEMP.append(posEp)
 			x += 1
 		cmds.delete(lowLidDriverCrvTEMP)
-		
-		# Create the lowLid 'guide' curve for corner placement and query CVs positions and indexes
+
+		# コーナー配置のためのlowLidの「ガイド」カーブを作成し、CVsの位置とインデックスを問い合わせる。
 		lowLidGuideCrv = cmds.curve(d=3, ep=(lowLidEpPosTEMP[0], lowLidEpPosTEMP[1], lowLidEpPosTEMP[2], lowLidEpPosTEMP[3], lowLidEpPosTEMP[4]))
 
 		# Find position of eye corners
 		self.cornerAPos, self.cornerBPos = self.eyelids_corners(upLidEpPosTEMP, upLidGuideCrv, lowLidEpPosTEMP, lowLidGuideCrv)
-		
-		# Define "CornerA" and "CornerB" as "leftCorner" and "rightCorner"
+
+		# "CornerA" と "CornerB" は "leftCorner" と "rightCorner" として定義される。
 		# ADD FUNC WHEN OK - self.eyeLidsLeftAndRight (self.cornerAPos, self.cornerBPos)
-		
 		# List CVs positions of upLidGuideCrv and lowLidGuideCrv
-		upLidCVsPos, lowLidCVsPos = self.eyelids_curve_CVS (upLidGuideCrv, lowLidGuideCrv)
+		upLidCVsPos, lowLidCVsPos = self.eyelids_curve_CVS(upLidGuideCrv, lowLidGuideCrv)
 		
 		# List CVs positions in the right order (to match topology)
 		upLidCVsOrdered, lowLidCVsOrdered = self.eyelids_match_topology(self.cornerAPos, self.cornerBPos, upLidCVsPos, lowLidCVsPos)
-		
-		##
-		
+
 		# Create upper driver curve
 		self.upLidDriverCrv = cmds.curve(d=3, p=(upLidCVsOrdered[0], upLidCVsOrdered[1], upLidCVsOrdered[2], upLidCVsOrdered[3], upLidCVsOrdered[4], upLidCVsOrdered[5], upLidCVsOrdered[6]))
 		upLidDriverCrvName = upLidBaseCrv.replace("_BASE_", "_DRIVER_")
@@ -586,8 +582,8 @@ class AER:
 		
 		# Create lower driver curve
 		lowCrvTEMP = cmds.curve(d=3, p=(lowLidCVsOrdered[0], lowLidCVsOrdered[1], lowLidCVsOrdered[2], lowLidCVsOrdered[3], lowLidCVsOrdered[4], lowLidCVsOrdered[5], lowLidCVsOrdered[6]))
-		lowLidDriverCrvName = lowLidBaseCrv.replace ("_BASE_", "_DRIVER_")
-		self.lowLidDriverCrv = cmds.rename (lowCrvTEMP, lowLidDriverCrvName)
+		lowLidDriverCrvName = lowLidBaseCrv.replace("_BASE_", "_DRIVER_")
+		self.lowLidDriverCrv = cmds.rename(lowCrvTEMP, lowLidDriverCrvName)
 		cmds.parent(self.lowLidDriverCrv, lowRigGrp)
 		cmds.delete(lowLidGuideCrv)
 		
@@ -654,7 +650,7 @@ class AER:
 		cmds.select(lowLidDriverCrv, tgl=1)
 		cmds.skinCluster()
 
-	def create_curve_controls(self, eyePrefix, parentCtrl, ctrlJnts):
+	def create_curve_controls(self, eyePrefix, parentCtrl, control_joints):
 		"""
 		Creates controller curve for each controller joint.
 		Called by 'buildRig' function.
@@ -697,7 +693,7 @@ class AER:
 		self.ctrlList = []
 		ctrlOffsetGrpList = []
 		
-		for jnt in ctrlJnts:
+		for jnt in control_joints:
 			ctrlName = jnt[:-9]
 			ctrlName = "CTRL_" + ctrlName
 			ctrl = cmds.duplicate(TEMP_CTRL1, n=ctrlName)[0]
@@ -723,7 +719,7 @@ class AER:
 		cmds.select(cl=1)
 		
 		# Constraints between main controllers and secondary ones
-		# self.ctrlList = same order as 'ctrlJnts' list
+		# self.ctrlList = same order as 'control_joints' list
 		# [ctrl_CornerA, ctrl_upLidSecA, ctrl_upLidMain, ctrl_upLidSecB, ctrl_CornerB, ctrl_lowLidSecB, ctrl_lowLidMain, ctrl_lowLidSecA]
 		# Index: 0				1				2				3				4				5				6			7
 		# ctrlOffsetGrpList = [OFFSET_Up_secondaryA, OFFSET_Up_secondaryB, OFFSET_Low_secondaryB, OFFSET_Low_secondaryA]
@@ -749,7 +745,6 @@ class AER:
 		# Lower lid
 		cmds.connectAttr((self.ctrlList[6] + ".SecondaryControls"), (self.ctrlList[5] + ".visibility"), f=1)
 		cmds.connectAttr((self.ctrlList[6] + ".SecondaryControls"), (self.ctrlList[7] + ".visibility"), f=1)
-		
 		# Lock and hide unused channels
 		for ctrl in self.ctrlList:
 			cmds.setAttr((ctrl + ".sx"), lock=1, keyable=0, channelBox=0)
@@ -767,17 +762,17 @@ class AER:
 		ctrlUpLidMain = ctrlList[2]
 		ctrlLowLidMain = ctrlList[6]
 		
-		# - STEP 1:
+		# STEP 1:
 		bothLidsSB_Crv = cmds.duplicate(upLidDriverCrv, n=(eyePrefix + "_Eyelids_smartBlink_curve"))[0]
 		cmds.parent(bothLidsSB_Crv, rigGrp)
-		bothLidsSB_BlndShp = cmds.blendShape(upLidDriverCrv, lowLidDriverCrv, bothLidsSB_Crv, n=(eyePrefix + "_Eyelids_smartBlink_BLENDSHAPE"))[0]
+		both_lids_smart_blink_blend_shape = cmds.blendShape(upLidDriverCrv, lowLidDriverCrv, bothLidsSB_Crv, n=(eyePrefix + "_Eyelids_smartBlink_BLENDSHAPE"))[0]
 		cmds.select(cl=1)
 		cmds.select(ctrlUpLidMain)
 		cmds.addAttr(ln="SmartBlinkHeight", at="float", min=0, max=1, k=1)
-		cmds.connectAttr((ctrlUpLidMain + ".SmartBlinkHeight"), (bothLidsSB_BlndShp + "." + upLidDriverCrv), f=1)
+		cmds.connectAttr((ctrlUpLidMain + ".SmartBlinkHeight"), (both_lids_smart_blink_blend_shape + "." + upLidDriverCrv), f=1)
 		SBReverse = cmds.shadingNode("reverse", asUtility=1, n=(eyePrefix + "_Eyelids_smartBlink_reverse"))
 		cmds.connectAttr((ctrlUpLidMain + ".SmartBlinkHeight"), (SBReverse + ".inputX"), f=1)
-		cmds.connectAttr((SBReverse + ".outputX"), (bothLidsSB_BlndShp + "." + lowLidDriverCrv), f=1)
+		cmds.connectAttr((SBReverse + ".outputX"), (both_lids_smart_blink_blend_shape + "." + lowLidDriverCrv), f=1)
 		
 		# STEP 2:
 		upLidSB_Crv = cmds.duplicate(self.upLidCrv, n=(eyePrefix + "_UpEyelid_smartBlink_curve"))[0]
@@ -792,18 +787,17 @@ class AER:
 		cmds.setAttr((wireLowLid[0] + ".scale[0]"), 0)
 		
 		# STEP 3:
-		upLidSB_BlndShp = cmds.blendShape(upLidSB_Crv, self.upLidCrv, n=(eyePrefix + "_UpEyelid_smartBlink_BLENDSHAPE"))[0]
-		lowLidSB_BlndShp = cmds.blendShape(lowLidSB_Crv, self.lowLidCrv, n=(eyePrefix + "_LowEyelid_smartBlink_BLENDSHAPE"))[0]
+		up_lid_smart_blink_blend_shape = cmds.blendShape(upLidSB_Crv, self.upLidCrv, n=(eyePrefix + "_UpEyelid_smartBlink_BLENDSHAPE"))[0]
+		low_lid_smart_blink_blend_shape = cmds.blendShape(lowLidSB_Crv, self.lowLidCrv, n=(eyePrefix + "_LowEyelid_smartBlink_BLENDSHAPE"))[0]
 		
 		# FINAL STEP:
 		cmds.select(ctrlUpLidMain, ctrlLowLidMain)
 		cmds.addAttr(ln="SmartBlink", at="float", min=0, max=1, k=1)
-		cmds.connectAttr((ctrlUpLidMain + ".SmartBlink"), (upLidSB_BlndShp + "." + upLidSB_Crv), f=1)
-		cmds.connectAttr((ctrlLowLidMain + ".SmartBlink"), (lowLidSB_BlndShp + "." + lowLidSB_Crv), f=1)
+		cmds.connectAttr((ctrlUpLidMain + ".SmartBlink"), (up_lid_smart_blink_blend_shape + "." + upLidSB_Crv), f=1)
+		cmds.connectAttr((ctrlLowLidMain + ".SmartBlink"), (low_lid_smart_blink_blend_shape + "." + lowLidSB_Crv), f=1)
 		cmds.setAttr((ctrlUpLidMain + ".SmartBlinkHeight"), 0.15)
 	## FUNCTIONS TO BUILD RIG -end ##
 
-	## DO BUILD RIG ##
 	def build_rigging(self, *args):
 		"""
 		Build eyelids rig.
@@ -811,36 +805,36 @@ class AER:
 		Call functions: 'vtxToJnt', 'placeRigLoc', 'createEyelidsCrv', 'connectLocToCrv', 'createDriverCrv', 'createJntCtrls', 'createCrvCtrls', 'addSmartBlink'
 		"""
 		
-		if self.eyeLoc is None or self.eyeName is None or self.upperLidVtx is None or self.lowerLidVtx is None :
+		if self.eye_locator is None or self.eye_name is None or self.upper_lid_vertex is None or self.lower_lid_vertex is None :
 			cmds.error("目の中心、まぶたの頂点を定義してください.")
 		else:
 			# Step 1: まぶたの頂点ごとにジョイントを1つずつ配置する
-			self.vertex_to_joint(self.eyeLoc, self.eyeName, self.upperLidVtx, self.lowerLidVtx, self.parentJnt)
+			self.vertex_to_joint(self.eye_locator, self.eye_name, self.upper_lid_vertex, self.lower_lid_vertex, self.parent_joint)
 			# Step 2: まぶたの頂点ごとにロケータを配置し、各ジョイントをそれに拘束する（IKのように動作するように）。
-			self.place_rig_locator(self.eyeName, self.upLidJntList, self.lowLidJntList)
+			self.place_rig_locator(self.eye_name, self.upLidJntList, self.lowLidJntList)
 			# Step 3: それぞれのまぶたに「高解像度」のカーブを作成します（各頂点はカーブのポイントになります）。
-			self.create_eyelids_curve(self.eyeName, self.upperLidVtx, self.lowerLidVtx, self.grpTheseEyelidsRig)
-			# Step 4: 各ロケータを point On Curve ノードでカーブに接続し、カーブの CV が動くと、対応するロケータが追従します(ジョイントも同様) # Step 5: 「低解像度」カーブを作成し、各ジョイントを拘束します。
+			self.create_eyelids_curve(self.eye_name, self.upper_lid_vertex, self.lower_lid_vertex, self.grpTheseEyelidsRig)
+			# Step 4: 各ロケータを point On Curve ノードでカーブに接続し、カーブの CV が動くと、対応するロケータが追従します(ジョイントも同様)
 			self.connect_locator_to_curve(self.upLidLocList, self.upLidCrv, self.lowLidLocList, self.lowLidCrv)
 			# Step 5: 制御点が5つだけの「低解像度」カーブを作成し、それをワイヤーデフォーマで高解像度カーブを駆動するようにする
 			self.create_driver_curve(self.upLidCrv, self.hierarchyUpCrvGrp, self.lowLidCrv, self.hierarchyLowCrvGrp)
 			# Step 6: 「ドライバーカーブ」を駆動するためのコントローラージョイントを作成する
-			self.create_joint_controls(self.eyeName, self.cornerAPos, self.cornerBPos, self.upLidDriverCrv, self.lowLidDriverCrv, self.grpTheseEyelidsRig)
+			self.create_joint_controls(self.eye_name, self.cornerAPos, self.cornerBPos, self.upLidDriverCrv, self.lowLidDriverCrv, self.grpTheseEyelidsRig)
 			# Step 7: カーブ・コントローラを作成し、それに対応するジョイントを取り付ける
-			self.create_curve_controls(self.eyeName, self.parentCtrl, self.ctrlJnts)
+			self.create_curve_controls(self.eye_name, self.parent_control, self.ctrlJnts)
 			# Step 8: スマートブリンクのチェックボックスがチェックされていれば、スマートブリンクの機能を追加する。
 			if cmds.checkBox(self.isSmartBlink, q=1, v=1) == 1:
-				self.add_smart_blink(self.eyeName, self.upLidCrv, self.upLidDriverCrv, self.lowLidCrv, self.lowLidDriverCrv, self.ctrlList, self.hierarchyCrvGrp, self.hierarchyUpCrvGrp, self.hierarchyLowCrvGrp)
+				self.add_smart_blink(self.eye_name, self.upLidCrv, self.upLidDriverCrv, self.lowLidCrv, self.lowLidDriverCrv, self.ctrlList, self.hierarchyCrvGrp, self.hierarchyUpCrvGrp, self.hierarchyLowCrvGrp)
 			
 			# Clear scene & script variables #
-			cmds.delete(self.eyeLoc)
+			cmds.delete(self.eye_locator)
 			cmds.select(cl=1)
-			self.parentJnt = None
-			self.parentCtrl = None
-			self.eyeLoc = None
-			self.eyeName = None
-			self.upperLidVtx = None
-			self.lowerLidVtx = None
+			self.parent_joint = None
+			self.parent_control = None
+			self.eye_locator = None
+			self.eye_name = None
+			self.upper_lid_vertex = None
+			self.lower_lid_vertex = None
 			
 			# Update UI #
 			cmds.textField(self.txtfEye, e=1, tx="")
@@ -855,7 +849,7 @@ class AER:
 			
 			# End message
 			cmds.inViewMessage(amg="<hl>Eyelids have been successfully rigged.</hl>", pos="midCenterTop", fade=True)
-			print("Eyelids have been successfully rigged.")
+			#print("Eyelids have been successfully rigged.")
 
 	def show_ui(self):
 		"""

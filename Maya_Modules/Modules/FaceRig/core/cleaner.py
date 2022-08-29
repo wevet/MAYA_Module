@@ -18,7 +18,7 @@ def group_out_liner_creation(*args):
         mc.group(n='C_facial_jntGrp', em=True)
         try:
             mc.parent('C_facial_jntGrp', 'C_SKELETON_grp')
-        except:
+        except ZeroDivisionError:
             pass
         mc.select(cl=1)
     if not mc.objExists('C_facial_ctrlGrp'):

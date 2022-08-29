@@ -36,25 +36,22 @@ for fold in folderList:
         sys.path.append(os.path.join(PROJECT_DIR, fold))
 """
 
-import cleaner
 import importlib
 import func_creation
 import func_animEditMode
 import xtrasUI
 import func_recorder
-import UKDP_AER
-from cleaner import correct_custom_name
+import auto_eye_rig
 from func_creation import *
 from func_animEditMode import *
 from xtrasUI import *
 from func_recorder import *
 
-importlib.reload(cleaner)
 importlib.reload(func_creation)
 importlib.reload(func_animEditMode)
 importlib.reload(xtrasUI)
 importlib.reload(func_recorder)
-importlib.reload(UKDP_AER)
+importlib.reload(auto_eye_rig)
 
 """
 usage
@@ -246,7 +243,7 @@ class FaceRigMainUI:
         mc.text(l='Custom name:', fn='boldLabelFont')
         mc.separator(w=15, style='none')
         if numNb >= 2016:
-            mc.textField('otherNameList', w=150, h=20, tcc=cleaner.correct_custom_name)
+            mc.textField('otherNameList', w=150, h=20, tcc=func_creation.correct_custom_name)
         else:
             mc.textField('otherNameList', w=150, h=20)
         mc.setParent('..')
@@ -963,7 +960,7 @@ def load_locator_recorder_select_in_help_to_fix_mouth_ui(*args):
         mc.textScrollList('RecLocList', e=True, a=loc)
 
 def launch_marco_ui(*args):
-    UKDP_AER.autoEyelidsRig.show_ui()
+    auto_eye_rig.autoEyelidsRig.show_ui()
 
 
 

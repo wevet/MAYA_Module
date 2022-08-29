@@ -2,16 +2,13 @@
 
 import maya.cmds as mc
 import maya.mel as mel
+import re
 import controllersCreation
 import importlib
-import cleaner
 from controllersCreation import *
-from cleaner import *
 from dictOrdo import DictionnaireOrdonne
 from controllersCreation import control_creation
-from cleaner import group_out_liner_creation
 importlib.reload(controllersCreation)
-importlib.reload(cleaner)
 
 def add_sel_curve_creation(*args):
     curveSel = mc.ls(sl=1)
@@ -764,5 +761,26 @@ def validate_additional_part(*args):
                 mel.eval('AddInfluenceOptions;')
     else:
         raise mc.error('Please add your head geometry into the proper field before')
+
+def correct_custom_name(*args):
+    r = re.compile('([^a-zA-Z])')
+    txt = mc.textField('otherNameList', q=True, tx=True)
+    txtOk = r.sub('', txt)
+    mc.textField('otherNameList', e=True, tx=txtOk)
+
+def group_out_liner_creation(*args):
+    if not mc.objExists('C_SKELETON_grp'):
+        mc.group(n='C_SKELETON_grp', em=True)
+        mc.select(cl=1)
+    if not mc.objExists('C_facial_jntGrp'):
+        mc.group(n='C_facial_jntGrp', em=True)
+        try:
+            mc.parent('C_facial_jntGrp', 'C_SKELETON_grp')
+        except ZeroDivisionError:
+            pass
+        mc.select(cl=1)
+    if not mc.objExists('C_facial_ctrlGrp'):
+        mc.group(n='C_facial_ctrlGrp', em=True)
+        mc.select(cl=1)
 
 

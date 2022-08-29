@@ -9,7 +9,7 @@ from maya import cmds, OpenMaya
 import math
 
 
-class AER:
+class AutoEyeRig:
 	"""
 	まぶたの自動リグ（注：ボール入力の目のみ有効）
 	"""
@@ -925,4 +925,4 @@ class AER:
 		cmds.showWindow(WIN_NAME)
 
 
-autoEyelidsRig = AER()
+autoEyelidsRig = AutoEyeRig()

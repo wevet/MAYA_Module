@@ -62,12 +62,10 @@ def constrain(source, destination, translate=True, rotate=True, scale=False, mai
             transSkip.append(axis)
         if rotAttr and not 'rotate' + axis.upper() in rotAttr:
             rotSkip.append(axis)
-
     if not transSkip:
         transSkip = 'none'
     if not rotSkip:
         rotSkip = 'none'
-
     constraints = list()
     if rotAttr and transAttr and rotSkip == 'none' and transSkip == 'none':
         constraints.append(mc.parentConstraint(source, destination, maintainOffset=maintainOffset))
@@ -76,7 +74,6 @@ def constrain(source, destination, translate=True, rotate=True, scale=False, mai
             constraints.append(mc.pointConstraint(source, destination, skip=transSkip, maintainOffset=maintainOffset))
         if rotAttr:
             constraints.append(mc.orientConstraint(source, destination, skip=rotSkip, maintainOffset=maintainOffset))
-
     return constraints
 
 

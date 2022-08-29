@@ -38,18 +38,18 @@ for fold in folderList:
 
 import importlib
 import func_creation
-import func_animEditMode
-import xtrasUI
+import animation_edit_mode
+import xtras_ui
 import func_recorder
 import auto_eye_rig
 from func_creation import *
-from func_animEditMode import *
-from xtrasUI import *
+from animation_edit_mode import *
+from xtras_ui import *
 from func_recorder import *
 
 importlib.reload(func_creation)
-importlib.reload(func_animEditMode)
-importlib.reload(xtrasUI)
+importlib.reload(animation_edit_mode)
+importlib.reload(xtras_ui)
 importlib.reload(func_recorder)
 importlib.reload(auto_eye_rig)
 
@@ -61,6 +61,9 @@ importlib.reload(rig)
 face_rig = rig.FaceRigMainUI()
 face_rig.show_ui()
 """
+
+BLEND_SHAPE_RECORDER_UI = "BlendShapeUIRecorder"
+BLEND_SHAPE_RECORDER_MOUTH_UI = "BlendShapeUIRecorderMouth"
 
 class FaceRigMainUI:
     def __init__(self):
@@ -78,18 +81,18 @@ class FaceRigMainUI:
             mc.deleteUI('NewExpUI')
         if mc.window('BlendShapeUICCFacial', exists=True):
             mc.deleteUI('BlendShapeUICCFacial')
-        if mc.window('BlendShapeUIRecorder', exists=True):
-            mc.deleteUI('BlendShapeUIRecorder')
-        if mc.window('BlendShapeUIRecorderMouth', exists=True):
-            mc.deleteUI('BlendShapeUIRecorderMouth')
+        if mc.window(BLEND_SHAPE_RECORDER_UI, exists=True):
+            mc.deleteUI(BLEND_SHAPE_RECORDER_UI)
+        if mc.window(BLEND_SHAPE_RECORDER_MOUTH_UI, exists=True):
+            mc.deleteUI(BLEND_SHAPE_RECORDER_MOUTH_UI)
         if mc.window('HelpToFixUI', exists=True):
             mc.deleteUI('HelpToFixUI')
         if mc.window('ComeBackToEditUI', exists=True):
             mc.deleteUI('ComeBackToEditUI')
         if mc.window('ComeBackToEditMouthUI', exists=True):
             mc.deleteUI('ComeBackToEditMouthUI')
-        if mc.window('HelpToFixUIMouth', exists=True):
-            mc.deleteUI('HelpToFixUIMouth')
+        if mc.window('HelpToFixMouthUI', exists=True):
+            mc.deleteUI('HelpToFixMouthUI')
         if mc.window('saveClone', exists=True):
             mc.deleteUI('saveClone')
         if mc.window('ReplaceCtrl', exists=True):
@@ -444,7 +447,7 @@ class FaceRigMainUI:
         mc.setParent('..')
 
     def mouth_blend_shape_menu_ui(self):
-        mc.frameLayout(l='II - BlendShape For Improve Mouth Mouvement', collapsable=1, collapse=1)
+        mc.frameLayout(l='II - BlendShape For Improve Mouth Movement', collapsable=1, collapse=1)
         mc.separator(h=5, style='none')
         self.mouth_blend_shape_general_list()
         mc.separator(style='double')
@@ -602,9 +605,9 @@ class FaceRigMainUI:
 
 class RecordExpressionsUI:
     def __init__(self):
-        if mc.window('BlendShapeUIRecorder', exists=True):
-            mc.deleteUI('BlendShapeUIRecorder')
-        window = mc.window('BlendShapeUIRecorder', title='Record BlendShape Position for:', resizeToFitChildren=True, fw=1, mxb=False, w=345, h=200)
+        if mc.window(BLEND_SHAPE_RECORDER_UI, exists=True):
+            mc.deleteUI(BLEND_SHAPE_RECORDER_UI)
+        window = mc.window(BLEND_SHAPE_RECORDER_UI, title='Record BlendShape Position for:', resizeToFitChildren=True, fw=1, mxb=False, w=345, h=200)
         mc.frameLayout(labelVisible=0)
         mc.text(l='Select each curve you want to record', fn='boldLabelFont')
         mc.text(l='Available curves to Record')
@@ -612,17 +615,17 @@ class RecordExpressionsUI:
         mc.separator(w=10, style='none')
         mc.columnLayout()
         mc.text(l='Left Side:', fn='boldLabelFont')
-        mc.textScrollList('LeftRecordCrvsList', ams=True, w=100, h=70)
+        mc.textScrollList('LeftRecordCurvesList', ams=True, w=100, h=70)
         mc.setParent('..')
         mc.separator(w=5, style='none')
         mc.columnLayout()
         mc.text(l='Center Side:', fn='boldLabelFont')
-        mc.textScrollList('CenterRecordCrvsList', ams=True, w=100, h=70)
+        mc.textScrollList('CenterRecordCurvesList', ams=True, w=100, h=70)
         mc.setParent('..')
         mc.separator(w=5, style='none')
         mc.columnLayout()
         mc.text(l='Right Side:', fn='boldLabelFont')
-        mc.textScrollList('RightRecordCrvsList', ams=True, w=100, h=70)
+        mc.textScrollList('RightRecordCurvesList', ams=True, w=100, h=70)
         mc.setParent('..')
         mc.separator(w=10, style='none')
         mc.setParent('..')
@@ -639,9 +642,9 @@ class RecordExpressionsUI:
 
 class RecordExpressionsUIMouth:
     def __init__(self):
-        if mc.window('BlendShapeUIRecorderMouth', exists=True):
-            mc.deleteUI('BlendShapeUIRecorderMouth')
-        window = mc.window('BlendShapeUIRecorderMouth', title='Record BlendShape Mouth Position for:', resizeToFitChildren=True, fw=1, mxb=False, w=345, h=200)
+        if mc.window(BLEND_SHAPE_RECORDER_MOUTH_UI, exists=True):
+            mc.deleteUI(BLEND_SHAPE_RECORDER_MOUTH_UI)
+        window = mc.window(BLEND_SHAPE_RECORDER_MOUTH_UI, title='Record BlendShape Mouth Position for:', resizeToFitChildren=True, fw=1, mxb=False, w=345, h=200)
         mc.frameLayout(labelVisible=0)
         mc.text(l='Select each curve you want to record', fn='boldLabelFont')
         mc.text(l='Available curves to Record')
@@ -649,17 +652,17 @@ class RecordExpressionsUIMouth:
         mc.separator(w=10, style='none')
         mc.columnLayout()
         mc.text(l='Left Side:', fn='boldLabelFont')
-        mc.textScrollList('LeftRecordCrvsList', ams=True, w=100, h=70)
+        mc.textScrollList('LeftRecordCurvesList', ams=True, w=100, h=70)
         mc.setParent('..')
         mc.separator(w=5, style='none')
         mc.columnLayout()
         mc.text(l='Center Side:', fn='boldLabelFont')
-        mc.textScrollList('CenterRecordCrvsList', ams=True, w=100, h=70)
+        mc.textScrollList('CenterRecordCurvesList', ams=True, w=100, h=70)
         mc.setParent('..')
         mc.separator(w=5, style='none')
         mc.columnLayout()
         mc.text(l='Right Side:', fn='boldLabelFont')
-        mc.textScrollList('RightRecordCrvsList', ams=True, w=100, h=70)
+        mc.textScrollList('RightRecordCurvesList', ams=True, w=100, h=70)
         mc.setParent('..')
         mc.separator(w=10, style='none')
         mc.setParent('..')

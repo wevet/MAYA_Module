@@ -2,15 +2,15 @@
 
 import maya.cmds as mc
 import maya.mel as mel
-import dictOrdo
+import dictionnaire_ordonne
 import importlib
-import func_animEditMode
-import facial_rig_UI
-from dictOrdo import DictionnaireOrdonne
-from func_animEditMode import *
-from facial_rig_UI import *
-importlib.reload(dictOrdo)
-importlib.reload(func_animEditMode)
+import animation_edit_mode
+import facial_rig_ui
+from dictionnaire_ordonne import DictionnaireOrdonne
+from animation_edit_mode import *
+from facial_rig_ui import *
+importlib.reload(dictionnaire_ordonne)
+importlib.reload(animation_edit_mode)
 
 def add_head_controller_to_ui_blend_shape(*args):
     sel = mc.ls(sl=1)

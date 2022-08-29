@@ -102,3 +102,4 @@ class DictionnaireOrdonne:
 
         self._cles = cles_triees
         self._valeurs = valeurs
+

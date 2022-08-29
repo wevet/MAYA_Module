@@ -2,7 +2,7 @@
 
 import maya.cmds as mc
 import maya.mel as mel
-from xtrasUI import *
+from xtras_ui import *
 
 def refresh_controller(*args):
     mc.textScrollList('resizeCtrlList', e=1, ra=1)

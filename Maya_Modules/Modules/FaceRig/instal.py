@@ -32,6 +32,6 @@ if result == 'yes':
 
 print(sys.path)
 
-from core.facial_rig_UI import *
+from core.facial_rig_ui import *
 face_rig = FaceRigMainUI()
 face_rig.show_ui()

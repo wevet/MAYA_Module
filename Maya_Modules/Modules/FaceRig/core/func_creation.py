@@ -3,12 +3,12 @@
 import maya.cmds as mc
 import maya.mel as mel
 import re
-import controllersCreation
+import controllers_creation
 import importlib
-from controllersCreation import *
-from dictOrdo import DictionnaireOrdonne
-from controllersCreation import control_creation
-importlib.reload(controllersCreation)
+from controllers_creation import *
+from dictionnaire_ordonne import DictionnaireOrdonne
+from controllers_creation import control_creation
+importlib.reload(controllers_creation)
 
 def add_sel_curve_creation(*args):
     curveSel = mc.ls(sl=1)

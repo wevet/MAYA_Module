@@ -1,27 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#
-# Installation
-# Copy this file into your maya scripts directory, for example:
-# Run the tool in a python shell or shelf button by importing the module,
-# and then calling the primary function:
-#
-#     import animation_utilities
-#     animation._showHelpCommand()
-#
-#
-# Description
-# A collection of support functions that are required by several of the tools in
-# this library. The individual tools will tell you if this script is required.
-#
-# Usage
-# ml_utilities isn't a stand alone tool, and so it isn't meant to be used
-# directly. However, you can certainly call these functions if they seem useful in
-# your own scripts.
-#
-#
 
-__revision__ = 35
+__revision__ = 1
 
 import maya.cmds as mc
 import maya.mel as mm
@@ -34,16 +14,15 @@ TOOL_URL = 'tool/'
 ICON_URL = 'icons/'
 GITHUB_ROOT_URL = ''
 
-# try to add to the iconpath if there is an icons folder in this directory
+# try to add to the icon path if there is an icons folder in this directory
 THIS_DIR = os.path.dirname(__file__)
 ICON_PATH = os.path.join(THIS_DIR, 'icons').replace('\\', '/')
 if os.path.isdir(ICON_PATH) and ICON_PATH not in os.environ['XBMLANGPATH']:
     os.environ['XBMLANGPATH'] = os.pathsep.join((os.environ['XBMLANGPATH'], ICON_PATH))
-
 MAYA_VERSION = mm.eval('getApplicationVersionAsFloat')
 
 
-def _showHelpCommand(url):
+def _show_help_command(url):
     """
     This just returns the maya command for launching a web page, since that gets called a few times
     """
@@ -101,7 +80,7 @@ def constrain(source, destination, translate=True, rotate=True, scale=False, mai
     return constraints
 
 
-def createAnimLayer(nodes=None, name=None, namePrefix='', override=True):
+def create_animation_layer(nodes=None, name=None, namePrefix='', override=True):
     """
     Create an animation layer, add nodes, and select it.
     """
@@ -118,7 +97,7 @@ def createAnimLayer(nodes=None, name=None, namePrefix='', override=True):
                 name = namePrefix + shortNodes[0]
             else:
                 # try to find the longest common substring
-                commonString = longestCommonSubstring(shortNodes)
+                commonString = longest_common_substring(shortNodes)
                 if commonString:
                     name = commonString
                 elif ':' in nodes[0]:
@@ -142,11 +121,11 @@ def createAnimLayer(nodes=None, name=None, namePrefix='', override=True):
             mc.select(clear=True)
 
     # select the layer
-    selectAnimLayer(layer)
+    select_animation_layer(layer)
     return layer
 
 
-def selectAnimLayer(animLayer=None):
+def select_animation_layer(animLayer=None):
     """
     Select only the specified animation layer
     """
@@ -157,7 +136,7 @@ def selectAnimLayer(animLayer=None):
         mc.animLayer(animLayer, edit=True, selected=True, preferred=True)
 
 
-def getSelectedAnimLayers():
+def get_selected_animation_layers():
     """
     Return the names of the layers which are selected
     """
@@ -488,7 +467,7 @@ def getModelPanels():
     return panels
 
 
-def getNamespace(node):
+def get_name_space(node):
     """
     Returns the namespace of a node with simple string parsing.
     """
@@ -509,13 +488,13 @@ def getNucleusHistory(node):
     return None
 
 
-def getRoots(nodes):
+def get_roots(nodes):
     objs = mc.ls(nodes, long=True)
     tops = []
     namespaces = []
     parent = None
     for obj in objs:
-        namespace = getNamespace(obj)
+        namespace = get_name_space(obj)
         if namespace in namespaces:
             # we've already done this one
             continue
@@ -525,15 +504,12 @@ def getRoots(nodes):
             while parent:
                 top = parent[0]
                 parent = mc.listRelatives(top, parent=True, pa=True)
-
             tops.append(top)
-
         else:
             namespaces.append(namespace)
             while parent and parent[0].rsplit('|', 1)[-1].startswith(namespace):
                 top = parent[0]
                 parent = mc.listRelatives(top, parent=True, pa=True)
-
             tops.append(top)
     return tops
 
@@ -561,7 +537,7 @@ def getSelectedChannels():
     return channels
 
 
-def getSkinCluster(mesh):
+def get_skin_cluster(mesh):
     """
     Return the first skinCluster affecting this mesh.
     """
@@ -581,7 +557,7 @@ def getSkinCluster(mesh):
     return None
 
 
-def listAnimCurves(objOrAttr):
+def list_animation_curve(objOrAttr):
     """
     This lists connections to all types of animNodes
     """
@@ -602,7 +578,7 @@ def listAnimCurves(objOrAttr):
     return animNodes
 
 
-def longestCommonSubstring(data):
+def longest_common_substring(data):
     """
     Returns the longest string that is present in the list of strings.
     """
@@ -622,14 +598,12 @@ def longestCommonSubstring(data):
                         substr = data[0][i:i + j]
     return substr
 
-
 def message(msg, position='midCenterTop'):
     OpenMaya.MGlobal.displayWarning(msg)
     fadeTime = min(len(msg) * 100, 2000)
     mc.inViewMessage(amg=msg, pos=position, fade=True, fadeStayTime=fadeTime, dragKill=True)
 
-
-def minimizeRotationCurves(obj):
+def minimize_rotation_curves(obj):
     """
     Sets rotation animation to the value closest to zero.
     """
@@ -650,51 +624,6 @@ def minimizeRotationCurves(obj):
 
     # delete temp key
     mc.cutKey(rotateCurves, time=(tempFrame,))
-
-
-def renderShelfIcon(name='tmp', width=32, height=32):
-    """
-    This renders a shelf-sized icon and hopefully places it in your icon directory
-    """
-    imageName = name
-
-    # getCamera
-    cam = getCurrentCamera()
-
-    # save these values for resetting
-    currentRenderer = mc.getAttr('defaultRenderGlobals.currentRenderer')
-    imageFormat = mc.getAttr('defaultRenderGlobals.imageFormat')
-
-    mc.setAttr('defaultRenderGlobals.currentRenderer', 'mayaSoftware', type='string')
-
-    imageFormat = 50  # XPM
-    if MAYA_VERSION >= 2011:
-        imageFormat = 32  # PNG
-
-    mc.setAttr('defaultRenderGlobals.imageFormat', imageFormat)
-    mc.setAttr('defaultRenderGlobals.imfkey', 'xpm', type='string')
-    # here's the imageName
-    mc.setAttr('defaultRenderGlobals.imageFilePrefix', imageName, type='string')
-
-    mc.setAttr(cam + '.backgroundColor', 0.8, 0.8, 0.8, type='double3')
-    # need to reset this afterward
-
-    image = mc.render(cam, xresolution=width, yresolution=height)
-    base = os.path.basename(image)
-
-    # here we attempt to move the rendered icon to a more generalized icon location
-    newPath = getIconPath()
-    if newPath:
-        newPath = os.path.join(newPath, base)
-        shutil.move(image, newPath)
-        image = newPath
-
-    # reset
-    mc.setAttr('defaultRenderGlobals.currentRenderer', currentRenderer, type='string')
-    mc.setAttr('defaultRenderGlobals.imageFormat', imageFormat)
-
-    return image
-
 
 class MlUi(object):
     """
@@ -799,7 +728,7 @@ class MlUi(object):
         mc.menu(label='Tools')
         mc.menuItem(label='Add to shelf', command='import animation_utilities;animation_utilities.createShelfButton("import ' + module + ';' + module + '.ui()", name="' + self.name + '", description="Open the UI for ' + self.name + '."' + argString + ')')
         if not self.icon:
-            mc.menuItem(label='Get Icon', command=(_showHelpCommand(ICON_URL + self.name + '.png')))
+            mc.menuItem(label='Get Icon', command=(_show_help_command(ICON_URL + self.name + '.png')))
         #mc.menuItem(label='Get More Tools!', command=(_showHelpCommand(WEBSITE_URL + '/tools/')))
         mc.setParent('..', menu=True)
 
@@ -807,7 +736,7 @@ class MlUi(object):
         mc.menuItem(label='About', command=self.about)
         #mc.menuItem(label='Documentation', command=(_showHelpCommand(TOOL_URL + self.name + '/')))
         #mc.menuItem(label='Python Command Documentation', command=(_showHelpCommand(TOOL_URL + '#\%5B\%5B' + self.name + '\%20Python\%20Documentation\%5D\%5D')))
-        mc.menuItem(label='Submit a Bug or Request', command=(_showHelpCommand(WEBSITE_URL + '/about/')))
+        #mc.menuItem(label='Submit a Bug or Request', command=(_showHelpCommand(WEBSITE_URL + '/about/')))
         mc.setParent('..', menu=True)
 
     def about(self, *args):
@@ -1046,7 +975,6 @@ class MlUi(object):
             self.readUI()
             pythonCommand = self.stringCommand()
             createHotkey(pythonCommand, self.name, description=self.annotation)
-
 
 class Vector:
 

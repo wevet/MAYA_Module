@@ -168,13 +168,13 @@ def disco_all_mp_to_loc(*args):
 
 def go_to_anim_mode(*args):
     testConstantScale = ''
-    headCtrl = ''
+    headCtrl = None
     try:
         headCtrl = mc.textScrollList('headCtrlBlendShape', q=True, ai=True)[0]
     except ZeroDivisionError:
         pass
 
-    if headCtrl != '':
+    if headCtrl is not None:
         if mc.objExists('Facial_Rig_ctrl'):
             mode = mc.getAttr('Facial_Rig_ctrl.mode')
             if mode == 0:

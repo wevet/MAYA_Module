@@ -26,18 +26,17 @@ num = ''
 for i in range(4):
     if version[i].isdigit():
         num = num + version[i]
-
-mayaVersion = ['2018', '2019', '2020', '2022', '2023']
+#mayaVersion = ['2018', '2019', '2020', '2022', '2023']
 num = int(num)
 numNb = num
 
 """
 usage
-import FaceRig.core.facial_rig_ui as rig
-import importlib
-importlib.reload(rig)
-face_rig = rig.FaceRigMainUI()
-face_rig.show_ui()
+Create a module file.
+Add Path.
+Example
+scripts/FaceRig
+Call Window from menu.
 """
 
 BLEND_SHAPE_RECORDER_UI = "BlendShapeUIRecorder"
@@ -96,9 +95,6 @@ class FaceRigMainUI:
         mc.menu(label='File Mode')
         mc.menuItem(label='Edit Mode', c=go_to_edit_mode)
         mc.menuItem(label='Anim Mode', c=go_to_anim_mode)
-        mc.separator(w=5, style='in')
-        mc.menu(label='Help')
-        mc.menuItem(label='About / Contact', c=help_bar_about)
 
     def entry(self):
         mc.columnLayout()
@@ -237,13 +233,13 @@ class FaceRigMainUI:
         mc.iconTextRadioCollection('ctrlShapeGrp')
         mc.rowLayout(nc=8)
         mc.separator(w=20, style='none')
-        rbc1 = mc.iconTextRadioButton('sphere', l='Sphere', i='../icons/sphereF.png', st='iconAndTextHorizontal')
+        rbc1 = mc.iconTextRadioButton('sphere', l='Sphere', i='./icons/sphereF.png', st='iconAndTextHorizontal')
         mc.separator(w=5, style='none')
-        rbc2 = mc.iconTextRadioButton('circle', l='Circle', i='../icons/circleF.png', st='iconAndTextHorizontal')
+        rbc2 = mc.iconTextRadioButton('circle', l='Circle', i='./icons/circleF.png', st='iconAndTextHorizontal')
         mc.separator(w=5, style='none')
-        rbc3 = mc.iconTextRadioButton('triangle', l='Triangle', i='../icons/triangleF.png', st='iconAndTextHorizontal')
+        rbc3 = mc.iconTextRadioButton('triangle', l='Triangle', i='./icons/triangleF.png', st='iconAndTextHorizontal')
         mc.separator(w=5, style='none')
-        rbc4 = mc.iconTextRadioButton('custom', l='Custom', i='../icons/interrogationPoint.png', st='iconAndTextHorizontal')
+        rbc4 = mc.iconTextRadioButton('custom', l='Custom', i='./icons/interrogationPoint.png', st='iconAndTextHorizontal')
         mc.setParent('..')
         mc.iconTextRadioCollection('ctrlShapeGrp', edit=True, select=rbc1)
         mc.rowLayout(nc=6)

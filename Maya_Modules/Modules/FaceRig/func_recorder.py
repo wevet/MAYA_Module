@@ -739,7 +739,7 @@ def validate_mouth_recorder(*args):
                                             mc.rename('%s_1_POC_crv' % crvNameTMP, newName)
 
                                     mc.parent(newName, 'C_faceCurvesBld_grp')
-                                    get_back_locator_TMP_to_Crv(crvNameTMP)
+                                    get_back_locator_temp_to_curve(crvNameTMP)
                                     mc.select(newName, crvOri, r=True)
                                     create_blend_shape()
                                     mc.warning('%s has been created' % newName)
@@ -1149,7 +1149,7 @@ def validate_recorder(*args):
                                 mc.rename('%s_1_POC_crv' % crvNameTMP, newName)
 
                         mc.parent(newName, 'C_faceCurvesBld_grp')
-                        get_back_locator_TMP_to_Crv(crvNameTMP)
+                        get_back_locator_temp_to_curve(crvNameTMP)
                         mc.select(newName, crvOri, r=True)
                         create_blend_shape_expression()
                         mc.select(crv.split('crv')[0] + '*ctrl', r=True)
@@ -1238,7 +1238,7 @@ def tmp_blend_shape_Crv(crvList, *args):
         ctrlPosList = get_record_position_of_control(ctrls)
         keep_rotate_and_scale_record_for_blend_shape(ctrlPosList)
         create_curve_with_position_control_list(ctrlPosList)
-        replace_edit_point_Crv(ctrlPosList)
+        replace_edit_point_curve(ctrlPosList)
         recupValueOfCtrl = test_record_blend_shape(ctrlPosList)
         crvTMPBldNode = '%sTMP_1_POC_crv_bldExp.%sTMP_1_POC_crv' % (crv, crv)
         crvTMPNodeList.append(crvTMPBldNode)
@@ -1322,7 +1322,7 @@ def create_curve_with_position_control_list(dict, *args):
         i = i + 1
     mc.parent(crvTMP, TMPGrp)
 
-def replace_edit_point_Crv(dict, *args):
+def replace_edit_point_curve(dict, *args):
     locPos = []
     keys = dict.keys()
     posList = []
@@ -1443,7 +1443,7 @@ def create_node_link_constraint(bldNode, crv, *args):
                 mc.connectAttr('%s.%s' % (bldNode, crv), '%s.input1D[%s]' % (minPlus, i))
                 break
 
-def get_back_locator_TMP_to_Crv(crvNameTMP, *args):
+def get_back_locator_temp_to_curve(crvNameTMP, *args):
     crvNameOri = crvNameTMP.split('TMP')[0]
     info = crvNameTMP.split('_')
     mc.select('%s_%s_*_mp' % (info[0], info[1]), r=True)

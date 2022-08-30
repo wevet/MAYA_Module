@@ -4,7 +4,22 @@ import sys
 import os
 import maya.cmds as mc
 import maya.mel as mel
+import importlib
+import func_creation as creation
+import animation_edit_mode
+import xtras_ui
+import func_recorder as recorder
+import auto_eye_rig
 from pymel import versions
+from animation_edit_mode import *
+from xtras_ui import *
+
+importlib.reload(creation)
+importlib.reload(animation_edit_mode)
+importlib.reload(xtras_ui)
+importlib.reload(recorder)
+importlib.reload(auto_eye_rig)
+
 version = versions.current()
 version = str(version)
 num = ''
@@ -15,47 +30,10 @@ for i in range(4):
 mayaVersion = ['2018', '2019', '2020', '2022', '2023']
 num = int(num)
 numNb = num
-for v in mayaVersion:
-    if num >= 2018:
-        num = 'yes'
-
-"""
-PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-paths = sys.path
-folderList = ['utils', 'proc', 'icons', 'ui']
-for fold in folderList:
-    newPath = '%s\\%s' % (PROJECT_DIR, fold)
-    result = 'no'
-    for path in paths:
-        if path == newPath:
-            result = 'no'
-            break
-        else:
-            result = 'yes'
-    if result == 'yes':
-        sys.path.append(os.path.join(PROJECT_DIR, fold))
-"""
-
-import importlib
-import func_creation
-import animation_edit_mode
-import xtras_ui
-import func_recorder
-import auto_eye_rig
-from func_creation import *
-from animation_edit_mode import *
-from xtras_ui import *
-from func_recorder import *
-
-importlib.reload(func_creation)
-importlib.reload(animation_edit_mode)
-importlib.reload(xtras_ui)
-importlib.reload(func_recorder)
-importlib.reload(auto_eye_rig)
 
 """
 usage
-import facial_rig_ui as rig
+import FaceRig.core.facial_rig_ui as rig
 import importlib
 importlib.reload(rig)
 face_rig = rig.FaceRigMainUI()
@@ -177,7 +155,7 @@ class FaceRigMainUI:
         mc.separator(w=25, style='none')
         mc.textScrollList('curveSelList', w=170, h=20)
         mc.separator(w=5, style='none')
-        mc.button(l='Add', w=80, c=func_creation.add_sel_curve_creation)
+        mc.button(l='Add', w=80, c=creation.add_sel_curve_creation)
         mc.setParent('..')
         mc.separator(style='double')
 
@@ -247,7 +225,7 @@ class FaceRigMainUI:
         mc.text(l='Custom name:', fn='boldLabelFont')
         mc.separator(w=15, style='none')
         if numNb >= 2016:
-            mc.textField('otherNameList', w=150, h=20, tcc=func_creation.correct_custom_name)
+            mc.textField('otherNameList', w=150, h=20, tcc=creation.correct_custom_name)
         else:
             mc.textField('otherNameList', w=150, h=20)
         mc.setParent('..')
@@ -274,7 +252,7 @@ class FaceRigMainUI:
         mc.separator(w=10, style='none')
         mc.textScrollList('otherCtrlShapeList', w=150, h=20)
         mc.separator(w=5, style='none')
-        mc.button(l='Add', w=80, c=func_creation.add_control_to_curve_creation)
+        mc.button(l='Add', w=80, c=creation.add_control_to_curve_creation)
         mc.setParent('..')
         mc.rowLayout(nc=6)
         mc.separator(w=15, style='none')
@@ -282,7 +260,7 @@ class FaceRigMainUI:
         mc.separator(w=20, style='none')
         mc.intField('range', min=3, max=99, v=3, w=30)
         mc.separator(w=18, style='none')
-        mc.button(l='Create system', w=100, c=func_creation.create_system_on_curve_selected)
+        mc.button(l='Create system', w=100, c=creation.create_system_on_curve_selected)
         mc.setParent('..')
         mc.setParent('..')
 
@@ -295,7 +273,7 @@ class FaceRigMainUI:
         mc.setParent('..')
         mc.separator(style='none')
         mc.text('フェイシャルで作られたコントローラーを選択し、"Get All Controller"をクリックします。')
-        mc.button(l='Get All Controller', c=get_all_controllers_on_curves)
+        mc.button(l='Get All Controller', c=creation.get_all_controllers_on_curves)
         mc.separator(style='double')
         mc.rowLayout(nc=2)
         mc.separator(w=20, style='none')
@@ -303,16 +281,16 @@ class FaceRigMainUI:
         mc.setParent('..')
         mc.rowLayout(nc=4)
         mc.separator(w=15, style='none')
-        mc.textScrollList('CtrlOnCurve', h=90, w=150, sc=send_UValue_to_slider_replace_controller)
+        mc.textScrollList('CtrlOnCurve', h=90, w=150, sc=creation.send_UValue_to_slider_replace_controller)
         mc.separator(w=20, style='none')
         mc.columnLayout()
-        mc.floatSliderGrp('replaceCtrlSys', w=150, min=0.0, max=1, v=0, field=1, cw2=(40, 300), pre=3, cc=change_UValue_of_controller, dc=change_UValue_of_controller)
+        mc.floatSliderGrp('replaceCtrlSys', w=150, min=0.0, max=1, v=0, field=1, cw2=(40, 300), pre=3, cc=creation.change_UValue_of_controller, dc=creation.change_UValue_of_controller)
         mc.rowLayout(nc=2)
         mc.text(l='Active Symmetry:', en=1)
         mc.checkBox('CheckBox Symmetry OnRebuildEP', l='', en=1)
         mc.setParent('..')
-        mc.button('rebuildCrvBtn', l='rebuild EP position curve', w=150, c=rebuild_EP_position_curve)
-        mc.button('restoreCrvBtn', l='Restore To Original Curve', w=150, en=0, c=restore_to_original_curve)
+        mc.button('rebuildCrvBtn', l='rebuild EP position curve', w=150, c=creation.rebuild_EP_position_curve)
+        mc.button('restoreCrvBtn', l='Restore To Original Curve', w=150, en=0, c=creation.restore_to_original_curve)
         mc.setParent('..')
         mc.setParent('..')
         mc.setParent('..')
@@ -329,7 +307,7 @@ class FaceRigMainUI:
         mc.separator(w=15, style='none')
         mc.textScrollList('headSelList', w=150, h=20)
         mc.separator(w=10, style='none')
-        mc.button(l='Add', w=80, c=add_head_joint)
+        mc.button(l='Add', w=80, c=creation.add_head_joint)
         mc.setParent('..')
         mc.rowLayout(nc=6)
         mc.separator(w=20, style='none')
@@ -337,7 +315,7 @@ class FaceRigMainUI:
         mc.separator(w=21, style='none')
         mc.textScrollList('headCtrlList', w=150, h=20)
         mc.separator(w=10, style='none')
-        mc.button(l='Add', w=80, c=add_head_controller)
+        mc.button(l='Add', w=80, c=creation.add_head_controller)
         mc.setParent('..')
         mc.rowLayout(nc=6)
         mc.separator(w=20, style='none')
@@ -346,14 +324,14 @@ class FaceRigMainUI:
         mc.textScrollList('CustomCtrlList', w=150, h=50)
         mc.separator(w=10, style='none')
         mc.columnLayout()
-        mc.button(l='Add', w=80, c=add_control_list)
-        mc.button(l='Remove', w=80, c=remove_control_list)
+        mc.button(l='Add', w=80, c=creation.add_control_list)
+        mc.button(l='Remove', w=80, c=creation.remove_control_list)
         mc.setParent('..')
         mc.setParent('..')
         mc.separator(style='double', h=5)
         mc.rowLayout(nc=2)
         mc.separator(w=35, style='none')
-        mc.button(l='Validate The Head Part Settings', w=300, c=execute_head)
+        mc.button(l='Validate The Head Part Settings', w=300, c=creation.execute_head)
         mc.setParent('..')
         mc.setParent('..')
 
@@ -375,7 +353,7 @@ class FaceRigMainUI:
         mc.separator(w=28, style='none')
         mc.textScrollList('headGeoList', w=150, h=20)
         mc.separator(w=10, style='none')
-        mc.button(l='Add', w=80, c=add_head_geometry)
+        mc.button(l='Add', w=80, c=creation.add_head_geometry)
         mc.setParent('..')
         mc.separator(style='in')
         mc.rowLayout(nc=6)
@@ -384,17 +362,17 @@ class FaceRigMainUI:
         mc.separator(w=28, style='none')
         mc.textScrollList('jntListScript', w=150, h=80)
         mc.separator(w=10, style='none')
-        mc.button(l='Refresh', w=80, c=refresh_joint)
+        mc.button(l='Refresh', w=80, c=creation.refresh_joint)
         mc.setParent('..')
         if num == 'yes':
             mc.rowLayout(nc=4)
             mc.separator(w=15, style='none')
-            mc.button(l='Delete And Make a New Skin', w=160, c=delete_skin_and_make_skin)
+            mc.button(l='Delete And Make a New Skin', w=160, c=creation.delete_skin_and_make_skin)
             mc.separator(w=10, style='none')
-            mc.button(l='Add To Current Skin', w=160, c=add_to_current_skin)
+            mc.button(l='Add To Current Skin', w=160, c=creation.add_to_current_skin)
             mc.setParent('..')
         else:
-            mc.button(l='Add To Current Skin', c=add_to_current_skin)
+            mc.button(l='Add To Current Skin', c=creation.add_to_current_skin)
 
     def add_new_part_on_your_rig(self):
         mc.frameLayout(l='Only If you have already use add to current', collapsable=1, collapse=0)
@@ -407,15 +385,15 @@ class FaceRigMainUI:
         mc.textScrollList('addAdditionnalCtrl', w=150, h=60)
         mc.separator(w=5, style='none')
         mc.columnLayout()
-        mc.button(l='Add', w=80, c=add_button_of_additional_part)
-        mc.button(l='Remove', w=80, c=remove_button_of_additional_part)
+        mc.button(l='Add', w=80, c=creation.add_button_of_additional_part)
+        mc.button(l='Remove', w=80, c=creation.remove_button_of_additional_part)
         mc.setParent('..')
         mc.setParent('..')
         mc.separator(style='in')
-        mc.button(l='Validate Additionnal Part', c=validate_additional_part)
+        mc.button(l='Validate Additionnal Part', c=creation.validate_additional_part)
         mc.separator(style='double')
         mc.setParent('..')
-        mc.button(l='Skin Tool', c=skin_tool)
+        mc.button(l='Skin Tool', c=creation.skin_tool)
         mc.setParent('..')
 
     def make_the_facial_controller_ui(self):
@@ -433,18 +411,18 @@ class FaceRigMainUI:
         mc.separator(style='none', w=10)
         mc.textScrollList('headCtrlBlendShape', w=155, h=20)
         mc.separator(style='none', w=5)
-        mc.button(l='Add', w=80, c=add_head_controller_to_ui_blend_shape)
+        mc.button(l='Add', w=80, c=recorder.add_head_controller_to_ui_blend_shape)
         mc.setParent('..')
         mc.separator(style='in')
         mc.rowLayout(nc=4)
         mc.separator(style='none', w=30)
-        mc.button(l='Make Facial Controller', w=150, c=facial_controller_expression)
+        mc.button(l='Make Facial Controller', w=150, c=creation.facial_controller_expression)
         mc.separator(style='none', w=5)
-        mc.button(l='Confirm Position', w=150, c=valid_position_of_facial_controller_expression)
+        mc.button(l='Confirm Position', w=150, c=creation.valid_position_of_facial_controller_expression)
         mc.setParent('..')
         mc.separator(style='in')
         mc.text(l='使用する前に、各Ctrlの回転と並進に値がないことを確認してください。', fn='boldLabelFont')
-        mc.button(l='各ControllerとJointの間にScale Constraintを追加します。', c=add_scale_constraint_on_each_controller)
+        mc.button(l='各ControllerとJointの間にScale Constraintを追加します。', c=recorder.add_scale_constraint_on_each_controller)
         mc.setParent('..')
 
     def mouth_blend_shape_menu_ui(self):
@@ -467,14 +445,14 @@ class FaceRigMainUI:
         mc.separator(w=5, style='none')
         mc.rowLayout(nc=2)
         mc.columnLayout()
-        mc.button(l='Refresh', w=80, c=refresh_build_mouth_Crv_list)
-        mc.button(l='Delete', w=80, c=delete_build_mouth_selected)
+        mc.button(l='Refresh', w=80, c=recorder.refresh_build_mouth_Crv_list)
+        mc.button(l='Delete', w=80, c=recorder.delete_build_mouth_selected)
         mc.setParent('..')
         mc.setParent('..')
         mc.setParent('..')
         mc.separator(style='in')
         mc.text(l='If you need to fix a Blend Shape orient after the symmetry, \n select it in text scroll list and click "Help To Fix"', fn='boldLabelFont')
-        mc.button(l='Help To Fix', c=help_to_fix_build_Sym_menu_mouth)
+        mc.button(l='Help To Fix', c=recorder.help_to_fix_build_Sym_menu_mouth)
         mc.setParent('..')
 
     def mouth_blend_shape_creation_ui(self):
@@ -485,7 +463,7 @@ class FaceRigMainUI:
         mc.separator(w=10, style='none')
         mc.textScrollList('jawJntList2', w=170, h=20)
         mc.separator(w=10, style='none')
-        mc.button(l='Add', w=80, c=add_jaw_joint_lip2)
+        mc.button(l='Add', w=80, c=recorder.add_jaw_joint_lip2)
         mc.setParent('..')
         mc.rowLayout(nc=6)
         mc.separator(w=15, style='none')
@@ -493,7 +471,7 @@ class FaceRigMainUI:
         mc.separator(w=17, style='none')
         mc.textScrollList('jawCtrlList', w=170, h=20)
         mc.separator(w=10, style='none')
-        mc.button(l='Add', w=80, c=add_jaw_control_for_record)
+        mc.button(l='Add', w=80, c=recorder.add_jaw_control_for_record)
         mc.setParent('..')
         mc.separator(style='in')
         mc.rowLayout(nc=2)
@@ -544,9 +522,9 @@ class FaceRigMainUI:
         mc.separator(w=5, style='none')
         mc.rowLayout(nc=3)
         mc.columnLayout()
-        mc.button(l='Refresh', w=80, c=refresh_build_Crv_list)
-        mc.button(l='Select', w=80, c=select_build_Crv_list)
-        mc.button(l='Delete', w=80, c=delete_select_build_Crv_list)
+        mc.button(l='Refresh', w=80, c=recorder.refresh_build_Crv_list)
+        mc.button(l='Select', w=80, c=recorder.select_build_Crv_list)
+        mc.button(l='Delete', w=80, c=recorder.delete_select_build_Crv_list)
         mc.setParent('..')
         mc.setParent('..')
         mc.setParent('..')
@@ -568,7 +546,7 @@ class FaceRigMainUI:
         mc.separator(w=15, style='none')
         mc.text(l='Test it:', fn='boldLabelFont')
         mc.separator(w=15, style='none')
-        mc.floatSliderGrp('testIt', w=250, min=0.0, max=1, v=0, field=1, cw2=(40, 300), pre=3, cc=test_blend_shape)
+        mc.floatSliderGrp('testIt', w=250, min=0.0, max=1, v=0, field=1, cw2=(40, 300), pre=3, cc=recorder.test_blend_shape)
         mc.setParent('..')
         mc.separator(style='in')
         mc.text(l='If you need to fix a Blend Shape orient after the symmetry, \n select it in text scroll list and click "Help To Fix"', fn='boldLabelFont')
@@ -579,7 +557,7 @@ class FaceRigMainUI:
         mc.frameLayout(l='A - Make Blend Shape (Record Your actual Expression)', collapsable=1, collapse=0)
         mc.button('recorderBldExp', l='Record This Expression', c=launch_recorder_ui)
         mc.separator(style='double')
-        mc.button('ValidateExpButton', l='Validate your expression', w=150, en=0, c=validate_recorder)
+        mc.button('ValidateExpButton', l='Validate your expression', w=150, en=0, c=recorder.validate_recorder)
         mc.separator(style='double')
         mc.setParent('..')
 
@@ -589,7 +567,7 @@ class FaceRigMainUI:
         mc.text(l='When you have make some Blend Shape click on:', fn='boldLabelFont')
         mc.rowLayout(nc=2)
         mc.separator(style='none', w=33)
-        mc.button(l='Connect / Reload Blend Shape To Facial Controller', w=300, c=attach_and_organize_cc_facial)
+        mc.button(l='Connect / Reload Blend Shape To Facial Controller', w=300, c=creation.attach_and_organize_cc_facial)
         mc.setParent('..')
         mc.separator(style='none')
         mc.setParent('..')
@@ -633,9 +611,9 @@ class RecordExpressionsUI:
         mc.separator(style='double')
         mc.rowLayout(nc=5)
         mc.separator(style='none', w=28)
-        mc.button(l='Record with this selection', w=135, c=record_with_selection)
+        mc.button(l='Record with this selection', w=135, c=recorder.record_with_selection)
         mc.separator(w=15, style='none')
-        mc.button(l='Record with all curves', w=135, c=record_with_all_curves)
+        mc.button(l='Record with all curves', w=135, c=recorder.record_with_all_curves)
         mc.separator(w=10, style='none')
         mc.setParent('..')
         mc.setParent('..')
@@ -670,9 +648,9 @@ class RecordExpressionsUIMouth:
         mc.separator(style='double')
         mc.rowLayout(nc=5)
         mc.separator(style='none', w=28)
-        mc.button(l='Record with this selection', w=135, c=record_with_selection_mouth)
+        mc.button(l='Record with this selection', w=135, c=recorder.record_with_selection_mouth)
         mc.separator(w=15, style='none')
-        mc.button(l='Record with all curves', w=135, c=record_with_all_curves_mouth)
+        mc.button(l='Record with all curves', w=135, c=recorder.record_with_all_curves_mouth)
         mc.separator(w=10, style='none')
         mc.setParent('..')
         mc.setParent('..')
@@ -714,9 +692,9 @@ class HelpToFixBuildUI:
         mc.setParent('..')
         mc.rowLayout(nc=5)
         mc.separator(w=35, style='none')
-        mc.button(l='Fix For Selected', w=120, c=fix_build_locator_selected)
+        mc.button(l='Fix For Selected', w=120, c=recorder.fix_build_locator_selected)
         mc.separator(w=5, style='none')
-        mc.button(l='Fix For All', w=120, c=fix_build_locator_all)
+        mc.button(l='Fix For All', w=120, c=recorder.fix_build_locator_all)
         mc.setParent('..')
         mc.separator(h=10, style='none')
         mc.setParent('..')

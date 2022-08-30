@@ -64,6 +64,7 @@ face_rig.show_ui()
 
 BLEND_SHAPE_RECORDER_UI = "BlendShapeUIRecorder"
 BLEND_SHAPE_RECORDER_MOUTH_UI = "BlendShapeUIRecorderMouth"
+HELP_TO_FIX_MOUTH_UI = "HelpToFixMouthUI"
 
 class FaceRigMainUI:
     def __init__(self):
@@ -91,8 +92,8 @@ class FaceRigMainUI:
             mc.deleteUI('ComeBackToEditUI')
         if mc.window('ComeBackToEditMouthUI', exists=True):
             mc.deleteUI('ComeBackToEditMouthUI')
-        if mc.window('HelpToFixMouthUI', exists=True):
-            mc.deleteUI('HelpToFixMouthUI')
+        if mc.window(HELP_TO_FIX_MOUTH_UI, exists=True):
+            mc.deleteUI(HELP_TO_FIX_MOUTH_UI)
         if mc.window('saveClone', exists=True):
             mc.deleteUI('saveClone')
         if mc.window('ReplaceCtrl', exists=True):
@@ -679,9 +680,9 @@ class RecordExpressionsUIMouth:
 
 class HelpToFixBuildUI:
     def __init__(self):
-        if mc.window('HelpToFixMouthUI', exists=True):
-            mc.deleteUI('HelpToFixMouthUI')
-        window = mc.window('HelpToFixMouthUI', title='Help To Fix your Symmetrical Blend Shape on the rotation:', resizeToFitChildren=True, fw=1, mxb=False, w=345, h=200)
+        if mc.window(HELP_TO_FIX_MOUTH_UI, exists=True):
+            mc.deleteUI(HELP_TO_FIX_MOUTH_UI)
+        window = mc.window(HELP_TO_FIX_MOUTH_UI, title='Help To Fix your Symmetrical Blend Shape on the rotation:', resizeToFitChildren=True, fw=1, mxb=False, w=345, h=200)
         mc.frameLayout(labelVisible=0)
         mc.separator(style='double')
         mc.rowLayout(nc=5)

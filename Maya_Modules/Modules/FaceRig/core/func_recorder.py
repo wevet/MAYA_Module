@@ -24,7 +24,6 @@ def add_head_controller_to_ui_blend_shape(*args):
         except ZeroDivisionError:
             mc.textScrollList('headCtrlBlendShape', e=True, ra=True)
             raise mc.error('nurbsカーブまたはnurbsオブジェクトを選択してください。')
-
     else:
         mc.textScrollList('headCtrlBlendShape', e=True, ra=True)
         raise mc.error('一要素だけ選んでください')
@@ -103,15 +102,12 @@ def refresh_build_mouth_Crv_list(*args):
                             break
                         else:
                             test = 1
-
                     if test != 0:
                         typeList.append(type)
                 else:
                     typeList.append(type)
-
         for elt in typeList:
             mc.textScrollList('listBldCrvMouth', e=1, append=elt)
-
     else:
         raise mc.error('口元のブレンド形状補正は見つかりませんでした')
 
@@ -129,6 +125,11 @@ def delete_build_mouth_selected(*args):
             if len(sel) > 0:
                 jawCtrl = ''
                 ctrlFAttr = ''
+                checkIB = []
+                testToContinue = 1
+                IBFound = 0
+                selInfo = sel.split('_')
+
                 if sel.startswith('Open'):
                     ctrlFAttr = 'Facial_Rig_ctrl.open_mouth'
                 else:
@@ -138,10 +139,6 @@ def delete_build_mouth_selected(*args):
                     elif sel.startswith('Twist'):
                         ctrlFAttr = 'Facial_Rig_ctrl.twist_mouth'
                         sel = 'Twist*'
-                    testToContinue = 1
-                    IBFound = 0
-                    selInfo = sel.split('_')
-                    checkIB = []
                     try:
                         checkIB = mc.ls('*%s*IB*' % sel)
                     except ZeroDivisionError:
@@ -207,8 +204,8 @@ def delete_build_mouth_selected(*args):
                         if newBlendTargets is None:
                             mc.delete(bld)
                         testAttr = mc.ls('*%s*_bld_crv' % nameAttr)
-                        lenght = len(testAttr)
-                        if lenght == 0:
+                        length = len(testAttr)
+                        if length == 0:
                             if nameAttr == 'Open':
                                 try:
                                     mc.select('openMouth_DivideRot*', 'openMouth_setRange', r=True)
@@ -226,8 +223,8 @@ def delete_build_mouth_selected(*args):
                                     if nameAttr != 'JawNeg':
                                         nameAttr = nameAttr.split('M')[0]
                                         if nameAttr == 'Side':
-                                            lenght2 = len(mc.ls('*%sM*bld_crv' % nameAttr))
-                                            if lenght2 == 0:
+                                            length2 = len(mc.ls('*%sM*bld_crv' % nameAttr))
+                                            if length2 == 0:
                                                 for axis in ['X', 'Y', 'Z']:
                                                     try:
                                                         mc.disconnectAttr('%s.rotate%s' % (jawCtrl, axis), 'Facial_Rig_ctrl.side_mouth')
@@ -235,8 +232,8 @@ def delete_build_mouth_selected(*args):
                                                         pass
 
                                         else:
-                                            lenght3 = len(mc.ls('*%sM*bld_crv' % nameAttr))
-                                            if lenght3 == 0:
+                                            length3 = len(mc.ls('*%sM*bld_crv' % nameAttr))
+                                            if length3 == 0:
                                                 for axis in ['X', 'Y', 'Z']:
                                                     try:
                                                         mc.disconnectAttr('%s.rotate%s' % (jawCtrl, axis), 'Facial_Rig_ctrl.twist_mouth')
@@ -276,8 +273,8 @@ def help_to_fix_build_Sym_menu_mouth(*args):
         except ZeroDivisionError:
             pass
 
-        lenght = len(info)
-        if info[(lenght - 1)] == 'crv' and info[(lenght - 2)] == 'bld':
+        length = len(info)
+        if info[(length - 1)] == 'crv' and info[(length - 2)] == 'bld':
             HelpToFixBuildUI()
             mc.textField('bldShapeToRepair', e=True, tx=sel)
             locList = []
@@ -296,22 +293,18 @@ def refresh_build_Crv_list(*args):
             mc.select('*_Open_bld_crv', d=True)
         except ZeroDivisionError:
             pass
-
         try:
             mc.select('*_Twist*_bld_crv', d=True)
         except ZeroDivisionError:
             pass
-
         try:
             mc.select('*_Side*_bld_crv', d=True)
         except ZeroDivisionError:
             pass
-
         try:
             mc.select('*bldExp*', d=True)
         except ZeroDivisionError:
             pass
-
         try:
             mc.select('*_Jaw*_bld_crv', d=True)
         except ZeroDivisionError:
@@ -327,7 +320,6 @@ def refresh_build_Crv_list(*args):
                         break
                     else:
                         test = 1
-
                 if test != 0:
                     typeList.append(type)
             else:
@@ -339,7 +331,6 @@ def refresh_build_Crv_list(*args):
                 mc.select('*bldExp*bld_crv', d=True)
             except ZeroDivisionError:
                 pass
-
             for crv in mc.ls(sl=1):
                 mc.textScrollList('listBldCrv', e=1, append=crv)
     except ZeroDivisionError:
@@ -468,22 +459,20 @@ def select_mirror_blend_shape_UI(*args):
             else:
                 mirrorSelect.append(elt)
             mc.textScrollList('listBldCrv', e=1, di=elt)
-
     if len(mirrorSelect) > 0:
         for elt in mirrorSelect:
             mc.textScrollList('listBldCrv', e=1, si=elt)
-
         mc.select(mirrorSelect, r=True)
 
 def test_blend_shape(*args):
-    bldNodeName = ''
+    blend_node_name = ''
     value = mc.floatSliderGrp('testIt', q=1, v=1)
     try:
-        crvs = mc.textScrollList('listBldCrv', q=1, ams=True, si=1)
-        for crv in crvs:
+        curves = mc.textScrollList('listBldCrv', q=1, ams=True, si=1)
+        for crv in curves:
             info = crv.split('_')
-            bldNodeName = '%s_%s_bldExp' % (info[0], info[1])
-            mc.setAttr(bldNodeName + '.' + crv, value)
+            blend_node_name = '%s_%s_bldExp' % (info[0], info[1])
+            mc.setAttr(blend_node_name + '.' + crv, value)
     except ZeroDivisionError:
         raise mc.error('ブレンドシェイプをtextScrollListに選択してください。')
 

@@ -1,0 +1,2265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>705</width>
+    <height>608</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(44, 44, 44);</string>
+   </property>
+   <widget class="QGroupBox" name="BtnGrp">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>110</y>
+      <width>400</width>
+      <height>431</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="title">
+     <string/>
+    </property>
+    <widget class="QPushButton" name="P_L_brow_02_Btn">
+     <property name="geometry">
+      <rect>
+       <x>265</x>
+       <y>95</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_brow_03_Btn">
+     <property name="geometry">
+      <rect>
+       <x>298</x>
+       <y>95</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_brow_Btn">
+     <property name="geometry">
+      <rect>
+       <x>229</x>
+       <y>100</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::ActionsContextMenu</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_brow_Btn">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>100</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_brow_02_Btn">
+     <property name="geometry">
+      <rect>
+       <x>122</x>
+       <y>95</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_brow_03_Btn">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>95</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_eye_double_Btn">
+     <property name="geometry">
+      <rect>
+       <x>256</x>
+       <y>112</y>
+       <width>15</width>
+       <height>7</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_eye_double_Btn">
+     <property name="geometry">
+      <rect>
+       <x>131</x>
+       <y>112</y>
+       <width>15</width>
+       <height>7</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_eye_blink_Btn">
+     <property name="geometry">
+      <rect>
+       <x>256</x>
+       <y>120</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_eye_blink_Btn">
+     <property name="geometry">
+      <rect>
+       <x>131</x>
+       <y>120</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_eye_back_Btn">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>130</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_eye_back_Btn">
+     <property name="geometry">
+      <rect>
+       <x>108</x>
+       <y>130</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_eye_lacrimal_Btn">
+     <property name="geometry">
+      <rect>
+       <x>229</x>
+       <y>130</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_eye_lacrimal_Btn">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>130</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_eye_lower_Btn">
+     <property name="geometry">
+      <rect>
+       <x>256</x>
+       <y>140</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_eye_lower_Btn">
+     <property name="geometry">
+      <rect>
+       <x>131</x>
+       <y>140</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_upper_cheek_Btn">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>170</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_upper_cheek_Btn">
+     <property name="geometry">
+      <rect>
+       <x>108</x>
+       <y>170</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_cheek_Btn">
+     <property name="geometry">
+      <rect>
+       <x>256</x>
+       <y>210</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_cheek_Btn">
+     <property name="geometry">
+      <rect>
+       <x>131</x>
+       <y>210</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_nose_Btn">
+     <property name="geometry">
+      <rect>
+       <x>225</x>
+       <y>230</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_nose_Btn">
+     <property name="geometry">
+      <rect>
+       <x>165</x>
+       <y>230</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Nose_Btn">
+     <property name="geometry">
+      <rect>
+       <x>194</x>
+       <y>230</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_lower_cheek_Btn">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>250</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_lower_cheek_Btn">
+     <property name="geometry">
+      <rect>
+       <x>108</x>
+       <y>250</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_lip_corner_up_Btn">
+     <property name="geometry">
+      <rect>
+       <x>245</x>
+       <y>267</y>
+       <width>16</width>
+       <height>7</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_lip_corner_down_Btn">
+     <property name="geometry">
+      <rect>
+       <x>245</x>
+       <y>282</y>
+       <width>16</width>
+       <height>7</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_lip_corner_up_Btn">
+     <property name="geometry">
+      <rect>
+       <x>142</x>
+       <y>267</y>
+       <width>16</width>
+       <height>7</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_lip_corner_down_Btn">
+     <property name="geometry">
+      <rect>
+       <x>142</x>
+       <y>282</y>
+       <width>16</width>
+       <height>7</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Lower_nose_Btn">
+     <property name="geometry">
+      <rect>
+       <x>194</x>
+       <y>251</y>
+       <width>15</width>
+       <height>7</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_lip_upper_side_Btn">
+     <property name="geometry">
+      <rect>
+       <x>226</x>
+       <y>265</y>
+       <width>12</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_lip_lower_side_Btn">
+     <property name="geometry">
+      <rect>
+       <x>226</x>
+       <y>280</y>
+       <width>12</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_lip_upper_side_Btn">
+     <property name="geometry">
+      <rect>
+       <x>166</x>
+       <y>265</y>
+       <width>12</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_lip_lower_side_Btn">
+     <property name="geometry">
+      <rect>
+       <x>166</x>
+       <y>280</y>
+       <width>12</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Upper_lip_Btn">
+     <property name="geometry">
+      <rect>
+       <x>194</x>
+       <y>264</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Lower_lip_Btn">
+     <property name="geometry">
+      <rect>
+       <x>194</x>
+       <y>281</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_lower_liplid_Btn">
+     <property name="geometry">
+      <rect>
+       <x>270</x>
+       <y>290</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_lower_liplid_Btn">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>290</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Jaw_Master_Btn">
+     <property name="geometry">
+      <rect>
+       <x>194</x>
+       <y>335</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_eye_target_Btn">
+     <property name="geometry">
+      <rect>
+       <x>345</x>
+       <y>354</y>
+       <width>20</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_eye_target_Btn">
+     <property name="geometry">
+      <rect>
+       <x>294</x>
+       <y>354</y>
+       <width>20</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Tongue_Btn">
+     <property name="geometry">
+      <rect>
+       <x>25</x>
+       <y>370</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Upper_teeth_Btn">
+     <property name="geometry">
+      <rect>
+       <x>73</x>
+       <y>340</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Lower_teeth_Btn">
+     <property name="geometry">
+      <rect>
+       <x>73</x>
+       <y>365</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="Label_image">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>400</width>
+       <height>400</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth">
+      <number>1</number>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;img src=&quot;:/Facial_image/Facial_image.png&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="scaledContents">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Center_brow_Btn">
+     <property name="geometry">
+      <rect>
+       <x>194</x>
+       <y>100</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_brow_master_Btn">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>71</y>
+       <width>61</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::ActionsContextMenu</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_brow_master_Btn">
+     <property name="geometry">
+      <rect>
+       <x>105</x>
+       <y>71</y>
+       <width>61</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::ActionsContextMenu</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_lip_corner_Btn">
+     <property name="geometry">
+      <rect>
+       <x>245</x>
+       <y>273</y>
+       <width>16</width>
+       <height>10</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_lip_corner_Btn">
+     <property name="geometry">
+      <rect>
+       <x>142</x>
+       <y>273</y>
+       <width>16</width>
+       <height>10</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Upper_lip_Master_Btn">
+     <property name="geometry">
+      <rect>
+       <x>185</x>
+       <y>265</y>
+       <width>34</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Lower_lip_Master_Btn">
+     <property name="geometry">
+      <rect>
+       <x>185</x>
+       <y>280</y>
+       <width>34</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Lip_Master_Btn">
+     <property name="geometry">
+      <rect>
+       <x>185</x>
+       <y>300</y>
+       <width>34</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Eye_target_Master_Btn">
+     <property name="geometry">
+      <rect>
+       <x>299</x>
+       <y>340</y>
+       <width>61</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::ActionsContextMenu</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Eye_World_point_Btn">
+     <property name="geometry">
+      <rect>
+       <x>321</x>
+       <y>355</y>
+       <width>16</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Facial_Master_Btn">
+     <property name="geometry">
+      <rect>
+       <x>153</x>
+       <y>368</y>
+       <width>100</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::ActionsContextMenu</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string>Facial Master</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_Eye_World_point_Btn">
+     <property name="geometry">
+      <rect>
+       <x>299</x>
+       <y>359</y>
+       <width>11</width>
+       <height>11</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_Eye_World_point_Btn">
+     <property name="geometry">
+      <rect>
+       <x>349</x>
+       <y>359</y>
+       <width>11</width>
+       <height>11</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_lip_corner_up_FK_Btn">
+     <property name="geometry">
+      <rect>
+       <x>249</x>
+       <y>260</y>
+       <width>8</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_lip_corner_down_FK_Btn">
+     <property name="geometry">
+      <rect>
+       <x>249</x>
+       <y>288</y>
+       <width>8</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_lip_upper_side_FK_Btn">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>258</y>
+       <width>8</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_lip_upper_side_02_FK_Btn">
+     <property name="geometry">
+      <rect>
+       <x>236</x>
+       <y>260</y>
+       <width>8</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_lip_lower_side_FK_Btn">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>290</y>
+       <width>8</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_lip_lower_side_02_FK_Btn">
+     <property name="geometry">
+      <rect>
+       <x>236</x>
+       <y>288</y>
+       <width>8</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_lip_corner_up_FK_Btn">
+     <property name="geometry">
+      <rect>
+       <x>146</x>
+       <y>260</y>
+       <width>8</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_lip_corner_down_FK_Btn">
+     <property name="geometry">
+      <rect>
+       <x>146</x>
+       <y>288</y>
+       <width>8</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_lip_upper_side_FK_Btn">
+     <property name="geometry">
+      <rect>
+       <x>176</x>
+       <y>258</y>
+       <width>8</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_lip_upper_side_02_FK_Btn">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>260</y>
+       <width>8</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_lip_lower_side_FK_Btn">
+     <property name="geometry">
+      <rect>
+       <x>176</x>
+       <y>290</y>
+       <width>8</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_lip_lower_side_02_FK_Btn">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>288</y>
+       <width>8</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Upper_lip_FK_Btn">
+     <property name="geometry">
+      <rect>
+       <x>197</x>
+       <y>257</y>
+       <width>9</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Lower_lip_FK_Btn">
+     <property name="geometry">
+      <rect>
+       <x>197</x>
+       <y>292</y>
+       <width>9</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_lip_upper_outer_Btn">
+     <property name="geometry">
+      <rect>
+       <x>226</x>
+       <y>251</y>
+       <width>11</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_lip_upper_outer_Btn">
+     <property name="geometry">
+      <rect>
+       <x>169</x>
+       <y>251</y>
+       <width>11</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_lip_lower_outer_Btn">
+     <property name="geometry">
+      <rect>
+       <x>226</x>
+       <y>300</y>
+       <width>11</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_lip_lower_outer_Btn">
+     <property name="geometry">
+      <rect>
+       <x>169</x>
+       <y>300</y>
+       <width>11</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Lower_lip_outer_Btn">
+     <property name="geometry">
+      <rect>
+       <x>194</x>
+       <y>307</y>
+       <width>15</width>
+       <height>10</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Tongue_02_Btn">
+     <property name="geometry">
+      <rect>
+       <x>25</x>
+       <y>353</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Tongue_03_Btn">
+     <property name="geometry">
+      <rect>
+       <x>25</x>
+       <y>336</y>
+       <width>15</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_eye_lacrimal_upper_Btn">
+     <property name="geometry">
+      <rect>
+       <x>242</x>
+       <y>121</y>
+       <width>12</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_eye_lacrimal_lower_Btn">
+     <property name="geometry">
+      <rect>
+       <x>242</x>
+       <y>143</y>
+       <width>12</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_eye_lacrimal_lower_Btn">
+     <property name="geometry">
+      <rect>
+       <x>148</x>
+       <y>143</y>
+       <width>12</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_eye_lacrimal_upper_Btn">
+     <property name="geometry">
+      <rect>
+       <x>148</x>
+       <y>121</y>
+       <width>12</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_eye_back_upper_Btn">
+     <property name="geometry">
+      <rect>
+       <x>273</x>
+       <y>121</y>
+       <width>12</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_eye_back_lower_Btn">
+     <property name="geometry">
+      <rect>
+       <x>273</x>
+       <y>143</y>
+       <width>12</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_eye_back_upper_Btn">
+     <property name="geometry">
+      <rect>
+       <x>117</x>
+       <y>121</y>
+       <width>12</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_eye_back_lower_Btn">
+     <property name="geometry">
+      <rect>
+       <x>117</x>
+       <y>143</y>
+       <width>12</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_outer_orbicularis_cheek_Btn">
+     <property name="geometry">
+      <rect>
+       <x>277</x>
+       <y>156</y>
+       <width>12</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_inner_orbicularis_cheek_Btn">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>156</y>
+       <width>12</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_inner_orbicularis_cheek_Btn">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>156</y>
+       <width>12</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_outer_orbicularis_cheek_Btn">
+     <property name="geometry">
+      <rect>
+       <x>113</x>
+       <y>156</y>
+       <width>12</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_nasalis_transverse_nose_Btn">
+     <property name="geometry">
+      <rect>
+       <x>223</x>
+       <y>213</y>
+       <width>11</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_nasalis_transverse_nose_Btn">
+     <property name="geometry">
+      <rect>
+       <x>171</x>
+       <y>213</y>
+       <width>11</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_procerus_nose_Btn">
+     <property name="geometry">
+      <rect>
+       <x>215</x>
+       <y>155</y>
+       <width>11</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_procerus_nose_Btn">
+     <property name="geometry">
+      <rect>
+       <x>177</x>
+       <y>155</y>
+       <width>11</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_nasolabial_fold_nose_Btn">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>245</y>
+       <width>8</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_nasolabial_fold_nose_Btn">
+     <property name="geometry">
+      <rect>
+       <x>158</x>
+       <y>245</y>
+       <width>8</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_depressor_septi_nose_Btn">
+     <property name="geometry">
+      <rect>
+       <x>196</x>
+       <y>243</y>
+       <width>11</width>
+       <height>7</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_medial_fibers_brow_Btn">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>80</y>
+       <width>13</width>
+       <height>10</height>
+      </rect>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::ActionsContextMenu</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_medial_fibers_brow_Btn">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>80</y>
+       <width>13</width>
+       <height>10</height>
+      </rect>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::ActionsContextMenu</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_lateral_fibers_brow_Btn">
+     <property name="geometry">
+      <rect>
+       <x>260</x>
+       <y>82</y>
+       <width>12</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::ActionsContextMenu</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_lateral_fibers_brow_Btn">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>82</y>
+       <width>12</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::ActionsContextMenu</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_L_procerus_brow_Btn">
+     <property name="geometry">
+      <rect>
+       <x>207</x>
+       <y>70</y>
+       <width>10</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::ActionsContextMenu</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_R_procerus_brow_Btn">
+     <property name="geometry">
+      <rect>
+       <x>185</x>
+       <y>70</y>
+       <width>10</width>
+       <height>8</height>
+      </rect>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::ActionsContextMenu</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Lip_FACS_Btn">
+     <property name="geometry">
+      <rect>
+       <x>309</x>
+       <y>382</y>
+       <width>40</width>
+       <height>40</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Lip_FACS_bar_Btn">
+     <property name="geometry">
+      <rect>
+       <x>314</x>
+       <y>387</y>
+       <width>30</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Lip_FACS_L_bar_Btn">
+     <property name="geometry">
+      <rect>
+       <x>334</x>
+       <y>397</y>
+       <width>10</width>
+       <height>10</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Lip_FACS_R_bar_Btn">
+     <property name="geometry">
+      <rect>
+       <x>314</x>
+       <y>397</y>
+       <width>10</width>
+       <height>10</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Lip_FACS_upper_bar_Btn">
+     <property name="geometry">
+      <rect>
+       <x>324</x>
+       <y>387</y>
+       <width>10</width>
+       <height>10</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="P_Lip_FACS_lower_bar_Btn">
+     <property name="geometry">
+      <rect>
+       <x>324</x>
+       <y>407</y>
+       <width>10</width>
+       <height>10</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <zorder>Label_image</zorder>
+    <zorder>P_Lower_teeth_Btn</zorder>
+    <zorder>P_L_eye_lower_Btn</zorder>
+    <zorder>P_Lower_nose_Btn</zorder>
+    <zorder>P_L_eye_back_Btn</zorder>
+    <zorder>P_L_lower_liplid_Btn</zorder>
+    <zorder>P_L_eye_double_Btn</zorder>
+    <zorder>P_L_brow_Btn</zorder>
+    <zorder>P_R_lip_corner_down_Btn</zorder>
+    <zorder>P_L_lower_cheek_Btn</zorder>
+    <zorder>P_Nose_Btn</zorder>
+    <zorder>P_L_cheek_Btn</zorder>
+    <zorder>P_Lip_Master_Btn</zorder>
+    <zorder>P_Lower_lip_Master_Btn</zorder>
+    <zorder>P_Tongue_Btn</zorder>
+    <zorder>P_Eye_World_point_Btn</zorder>
+    <zorder>P_R_brow_03_Btn</zorder>
+    <zorder>P_R_lip_corner_Btn</zorder>
+    <zorder>P_Facial_Master_Btn</zorder>
+    <zorder>P_R_lip_corner_up_Btn</zorder>
+    <zorder>P_R_lower_liplid_Btn</zorder>
+    <zorder>P_L_eye_lacrimal_Btn</zorder>
+    <zorder>P_R_upper_cheek_Btn</zorder>
+    <zorder>P_R_eye_lacrimal_Btn</zorder>
+    <zorder>P_L_brow_master_Btn</zorder>
+    <zorder>P_R_lower_cheek_Btn</zorder>
+    <zorder>P_L_lip_corner_Btn</zorder>
+    <zorder>P_L_upper_cheek_Btn</zorder>
+    <zorder>P_L_brow_03_Btn</zorder>
+    <zorder>P_Lower_lip_Btn</zorder>
+    <zorder>P_R_eye_double_Btn</zorder>
+    <zorder>P_R_eye_lower_Btn</zorder>
+    <zorder>P_R_lip_upper_side_Btn</zorder>
+    <zorder>P_R_eye_target_Btn</zorder>
+    <zorder>P_Upper_teeth_Btn</zorder>
+    <zorder>P_R_eye_blink_Btn</zorder>
+    <zorder>P_L_lip_corner_up_Btn</zorder>
+    <zorder>P_L_lip_upper_side_Btn</zorder>
+    <zorder>P_R_eye_back_Btn</zorder>
+    <zorder>P_Center_brow_Btn</zorder>
+    <zorder>P_L_lip_lower_side_Btn</zorder>
+    <zorder>P_R_brow_master_Btn</zorder>
+    <zorder>P_R_brow_Btn</zorder>
+    <zorder>P_R_cheek_Btn</zorder>
+    <zorder>P_R_brow_02_Btn</zorder>
+    <zorder>P_R_lip_lower_side_Btn</zorder>
+    <zorder>P_L_brow_02_Btn</zorder>
+    <zorder>P_L_eye_target_Btn</zorder>
+    <zorder>P_L_lip_corner_down_Btn</zorder>
+    <zorder>P_Jaw_Master_Btn</zorder>
+    <zorder>P_L_nose_Btn</zorder>
+    <zorder>P_Eye_target_Master_Btn</zorder>
+    <zorder>P_R_nose_Btn</zorder>
+    <zorder>P_L_eye_blink_Btn</zorder>
+    <zorder>P_Upper_lip_Master_Btn</zorder>
+    <zorder>P_R_Eye_World_point_Btn</zorder>
+    <zorder>P_L_Eye_World_point_Btn</zorder>
+    <zorder>P_Upper_lip_Btn</zorder>
+    <zorder>P_L_lip_corner_up_FK_Btn</zorder>
+    <zorder>P_L_lip_corner_down_FK_Btn</zorder>
+    <zorder>P_L_lip_upper_side_FK_Btn</zorder>
+    <zorder>P_L_lip_upper_side_02_FK_Btn</zorder>
+    <zorder>P_L_lip_lower_side_FK_Btn</zorder>
+    <zorder>P_L_lip_lower_side_02_FK_Btn</zorder>
+    <zorder>P_R_lip_corner_up_FK_Btn</zorder>
+    <zorder>P_R_lip_corner_down_FK_Btn</zorder>
+    <zorder>P_R_lip_upper_side_FK_Btn</zorder>
+    <zorder>P_R_lip_upper_side_02_FK_Btn</zorder>
+    <zorder>P_R_lip_lower_side_FK_Btn</zorder>
+    <zorder>P_R_lip_lower_side_02_FK_Btn</zorder>
+    <zorder>P_Upper_lip_FK_Btn</zorder>
+    <zorder>P_Lower_lip_FK_Btn</zorder>
+    <zorder>P_L_lip_upper_outer_Btn</zorder>
+    <zorder>P_R_lip_upper_outer_Btn</zorder>
+    <zorder>P_L_lip_lower_outer_Btn</zorder>
+    <zorder>P_R_lip_lower_outer_Btn</zorder>
+    <zorder>P_Lower_lip_outer_Btn</zorder>
+    <zorder>P_Tongue_02_Btn</zorder>
+    <zorder>P_Tongue_03_Btn</zorder>
+    <zorder>P_L_eye_lacrimal_upper_Btn</zorder>
+    <zorder>P_L_eye_lacrimal_lower_Btn</zorder>
+    <zorder>P_R_eye_lacrimal_lower_Btn</zorder>
+    <zorder>P_R_eye_lacrimal_upper_Btn</zorder>
+    <zorder>P_L_eye_back_upper_Btn</zorder>
+    <zorder>P_L_eye_back_lower_Btn</zorder>
+    <zorder>P_R_eye_back_upper_Btn</zorder>
+    <zorder>P_R_eye_back_lower_Btn</zorder>
+    <zorder>P_L_outer_orbicularis_cheek_Btn</zorder>
+    <zorder>P_L_inner_orbicularis_cheek_Btn</zorder>
+    <zorder>P_R_inner_orbicularis_cheek_Btn</zorder>
+    <zorder>P_R_outer_orbicularis_cheek_Btn</zorder>
+    <zorder>P_L_nasalis_transverse_nose_Btn</zorder>
+    <zorder>P_R_nasalis_transverse_nose_Btn</zorder>
+    <zorder>P_L_procerus_nose_Btn</zorder>
+    <zorder>P_R_procerus_nose_Btn</zorder>
+    <zorder>P_L_nasolabial_fold_nose_Btn</zorder>
+    <zorder>P_R_nasolabial_fold_nose_Btn</zorder>
+    <zorder>P_depressor_septi_nose_Btn</zorder>
+    <zorder>P_L_medial_fibers_brow_Btn</zorder>
+    <zorder>P_R_medial_fibers_brow_Btn</zorder>
+    <zorder>P_L_lateral_fibers_brow_Btn</zorder>
+    <zorder>P_R_lateral_fibers_brow_Btn</zorder>
+    <zorder>P_L_procerus_brow_Btn</zorder>
+    <zorder>P_R_procerus_brow_Btn</zorder>
+    <zorder>P_Lip_FACS_Btn</zorder>
+    <zorder>P_Lip_FACS_bar_Btn</zorder>
+    <zorder>P_Lip_FACS_L_bar_Btn</zorder>
+    <zorder>P_Lip_FACS_R_bar_Btn</zorder>
+    <zorder>P_Lip_FACS_upper_bar_Btn</zorder>
+    <zorder>P_Lip_FACS_lower_bar_Btn</zorder>
+   </widget>
+   <widget class="QPushButton" name="UpdateCVBtn">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>10</y>
+      <width>121</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(0, 170, 127);</string>
+    </property>
+    <property name="text">
+     <string>Update Scene</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>50</y>
+      <width>283</width>
+      <height>528</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_5">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QPushButton" name="Reset_CtrlBtn">
+           <property name="text">
+            <string>Reset All Ctrl</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Reset_BrowBtn">
+           <property name="text">
+            <string>Reset Brow</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Reset_EyeBtn">
+           <property name="text">
+            <string>Reset Eye</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Reset_EyeTargetBtn">
+           <property name="text">
+            <string>Reset EyeTarget</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Reset_NoseBtn">
+           <property name="text">
+            <string>Reset Nose</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Reset_CheekBtn">
+           <property name="text">
+            <string>Reset Cheek</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Reset_LipBtn">
+           <property name="text">
+            <string>Reset Lip</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Reset_OralBtn">
+           <property name="text">
+            <string>Reset Oral</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QPushButton" name="SelAll_CtrlBtn">
+           <property name="text">
+            <string>Select All Ctrl</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Select_BrowBtn">
+           <property name="text">
+            <string>Select Brow</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Select_EyeBtn">
+           <property name="text">
+            <string>Select Eye</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Select_EyeTargetBtn">
+           <property name="text">
+            <string>Select EyeTarget</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Select_NoseBtn">
+           <property name="text">
+            <string>Select Nose</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Select_CheekBtn">
+           <property name="text">
+            <string>Select Cheek</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Select_LipBtn">
+           <property name="text">
+            <string>Select Lip</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Select_OralBtn">
+           <property name="text">
+            <string>Select Oral</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <widget class="QPushButton" name="Reset_Lip_FACSBtn">
+           <property name="text">
+            <string>Reset Lip FACS</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Reset_LipFollowBtn">
+           <property name="text">
+            <string>Reset Lip Follow</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Reset_NoseFollowBtn">
+           <property name="text">
+            <string>Reset Nose Follow</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Reset_CheekFollowBtn">
+           <property name="text">
+            <string>Reset Cheek Follow</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Reset_EyeLowerFollowBtn">
+           <property name="text">
+            <string>Reset Eye Lower Follow</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Reset_BrowFollowBtn">
+           <property name="text">
+            <string>Reset Brow Follow</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Reset_EyeFollowBtn">
+           <property name="text">
+            <string>Reset Eye Follow</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QCheckBox" name="PrimaryCheckBox">
+           <property name="text">
+            <string>Primary</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="SecondaryCheckBox">
+           <property name="text">
+            <string>Secondary</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="MasterCheckBox">
+           <property name="text">
+            <string>Master</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="FKCheckBox">
+           <property name="text">
+            <string>FK</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="OralCavityCheckBox">
+           <property name="text">
+            <string>Oral Cavity</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>20</y>
+      <width>371</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="NameSpace_Text">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(0, 170, 127);</string>
+       </property>
+       <property name="text">
+        <string>NameSpace :</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="NameSpace_Combo">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>705</width>
+     <height>26</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <resources>
+  <include location="icon/facial_image_picker.qrc"/>
+ </resources>
+ <connections/>
+</ui>

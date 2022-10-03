@@ -1,0 +1,96 @@
+
+global proc installFacial()
+{
+	global string $gShelfTopLevel;
+	string $currentShelf = `tabLayout -query -selectTab $gShelfTopLevel`;
+	setParent $currentShelf;
+	string $iconExt="png";
+	string $asInstallScriptLocation=`asInstallScriptLocation`;
+
+	string $scriptName2="Facial_RIG";
+	string $sourceFile2=$asInstallScriptLocation+$scriptName2+".py";
+	string $command2="import os\nimport sys\nsys.path.append('"+$asInstallScriptLocation+"')\nimport Facial_RIG as NFacialRIG\nimport importlib\nimportlib.reload(NFacialRIG)\nfrom Facial_RIG import *\nif __name__ == '__main__':\n  GamjaWnd.main()";
+
+	//string $scriptName="Facial_Picker";
+	//string $sourceFile3=$asInstallScriptLocation+$scriptName+".py";
+	//string $command="import os\nimport sys\nsys.path.append('"+$asInstallScriptLocation+"')\nimport Facial_Picker as FPicker\nimport importlib\nimportlib.reload(FPicker)\nfrom Facial_Picker import Facial_Picker_window\nif __name__ == '__main__':\n  Facial_Picker_window.main()";
+
+	//string $icon=$asInstallScriptLocation+"/icon/Facial_Picker_icon."+$iconExt;
+	string $icon2=$asInstallScriptLocation+"/icon/Facial_RIG_icon."+$iconExt;
+
+	if (!`file -q -ex $sourceFile2`)
+	{
+		error ("Something went wrong, can not find: \""+$sourceFile2+"\"");
+	}
+
+	shelfButton
+		-command $command2
+		-annotation $scriptName2
+		-label $scriptName2
+		-image $icon2
+		-image1 $icon2
+		-sourceType "python";
+
+	/*
+	if (!`file -q -ex $sourceFile3`)
+	{
+		error ("Something went wrong, can not find: \""+$sourceFile3+"\"");
+	}
+
+	shelfButton
+		-command $command
+		-annotation $scriptName
+		-label $scriptName
+		-image $icon
+		-image1 $icon
+		-sourceType "python";
+	*/
+
+	string $osTypeFile;
+	string $operatingSystem = `about -os`;
+	if ($operatingSystem=="win64") 
+	{
+		$osTypeFile="py";		
+	}
+
+
+	string $srcWindows=$asInstallScriptLocation;
+	string $version = `about -environmentFile`;
+	string $verPath =`substring $version 1 (size($version)-8)`;
+	string $destWindows=$verPath;
+	sysFile -makeDir ($verPath);
+	sysFile -copy $destWindows $srcWindows;
+
+    print("""
+	_____________________________________
+	  ______              _____  _       
+	 |  ____/\           |  __ \(_)      
+	 | |__ /  \   ___ ___| |__) |_  __ _ 
+	 |  __/ /\ \ / __/ _ \  _  /| |/ _` |
+	 | | / ____ \ (_|  __/ | \ \| | (_| |
+	 |_|/_/    \_\___\___|_|  \_\_|\__, |
+	                                __/ |
+	                               |___/ 
+	_____________________________________
+    """)	
+}
+
+
+global proc asInstallScriptLocator ()
+{
+}
+
+
+global proc string asInstallScriptLocation ()
+{
+	string $whatIs=`whatIs asInstallScriptLocator`;
+	string $fullPath=`substring $whatIs 25 999`;
+	string $buffer[];
+	int $numTok=`tokenize $fullPath "/" $buffer`;
+	int $numLetters=size($fullPath);
+	int $numLettersLastFolder=size($buffer[$numTok-1]);
+	string $scriptLocation=`substring $fullPath 1 ($numLetters-$numLettersLastFolder)`;
+	return $scriptLocation;
+}
+installFacial;
+

@@ -38,13 +38,13 @@ class Facial_Window_Manager(QtWidgets.QDialog):
     @classmethod
     def main(cls):
         global g_ver
-        global Gamja_ui
+        global Facial_Window_Manager_UI
         try:
-            Gamja_ui.close()
-            Gamja_ui.deleteLater()
+            Facial_Window_Manager_UI.close()
+            Facial_Window_Manager_UI.deleteLater()
         except:
             g_ver = 1
-        Gamja_ui = Facial_Window_Manager()
+        Facial_Window_Manager_UI = Facial_Window_Manager()
 
     def my_exception_hook(exctype, value, traceback, another):
         print('errorLog : ')
@@ -59,12 +59,9 @@ class Facial_Window_Manager(QtWidgets.QDialog):
     def __init__(self, parent=maya_main_window()):
         global macAddr
         self.g_pass = True
-        self.g_trial = False
         super(Facial_Window_Manager, self).__init__(parent)
         self.current_dir = os.path.dirname(__file__)
         sys.excepthook = self.my_exception_hook
-        self.init_ui()
-        self.create_connections()
         self.create_instance()
         print("maya_main_window __Init__")
 
@@ -75,20 +72,17 @@ class Facial_Window_Manager(QtWidgets.QDialog):
         self.ui = loader.load(f, parentWidget=self)
         f.close()
 
-    def create_instance(self):
-        Facial_Auto_Rig_Window.main()
-        self.close()
-        self.deleteLater()
-
-    def create_layout(self):
-        pass
-
     def create_connections(self):
         self.ui.okBtn.clicked.connect(self.activate)
 
     def activate(self):
         self.ui.okBtn.hide()
         pass
+
+    def create_instance(self):
+        Facial_Auto_Rig_Window.main()
+        self.close()
+        self.deleteLater()
 
 
 class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
@@ -289,19 +283,32 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.ui.LipTopolUpBtn.setStyle(QtWidgets.QStyleFactory.create('plastique'))
         self.ui.LipTopolDownBtn.setStyle(QtWidgets.QStyleFactory.create('plastique'))
         self.ui.JawTopolBtn.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.LipCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.CheekCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.NoseCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.BrowCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.EyeCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.EyeTargetCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.OralCavityCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.BrowTopolCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.EyeTopolCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.NoseTopolCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.CheekTopolCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.LipTopolCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.JawTopolCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
+        self.ui.LipCheckBox.setStyleSheet(
+            'QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
+        self.ui.CheekCheckBox.setStyleSheet(
+            'QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
+        self.ui.NoseCheckBox.setStyleSheet(
+            'QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
+        self.ui.BrowCheckBox.setStyleSheet(
+            'QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
+        self.ui.EyeCheckBox.setStyleSheet(
+            'QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
+        self.ui.EyeTargetCheckBox.setStyleSheet(
+            'QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
+        self.ui.OralCavityCheckBox.setStyleSheet(
+            'QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
+        self.ui.BrowTopolCheckBox.setStyleSheet(
+            'QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
+        self.ui.EyeTopolCheckBox.setStyleSheet(
+            'QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
+        self.ui.NoseTopolCheckBox.setStyleSheet(
+            'QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
+        self.ui.CheekTopolCheckBox.setStyleSheet(
+            'QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
+        self.ui.LipTopolCheckBox.setStyleSheet(
+            'QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
+        self.ui.JawTopolCheckBox.setStyleSheet(
+            'QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
         self.ui.UnrealCheckBox.setVisible(False)
 
     def returnNeck(self):
@@ -455,6 +462,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             self.ui.BrowTopolCheckBox.setChecked(False)
             self.ui.BrowTopolCheckBox.setEnabled(True)
+
         if len(self.EyeLVetex) != 0 and len(self.EyeRVetex) != 0:
             if self.Skin_Eye_vetex_Check == 1:
                 self.ui.EyeTopolCheckBox.setChecked(True)
@@ -465,6 +473,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             self.ui.EyeTopolCheckBox.setChecked(False)
             self.ui.EyeTopolCheckBox.setEnabled(False)
+
         if len(self.NoseVetex) != 0:
             if self.Skin_Nose_vetex_Check == 1:
                 self.ui.NoseTopolCheckBox.setChecked(True)
@@ -475,6 +484,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             self.ui.NoseTopolCheckBox.setChecked(False)
             self.ui.NoseTopolCheckBox.setEnabled(False)
+
         if len(self.CheekLVetex) != 0 and len(self.CheekRVetex) != 0:
             if self.Skin_Cheek_vetex_Check == 1:
                 self.ui.CheekTopolCheckBox.setChecked(True)
@@ -485,6 +495,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             self.ui.CheekTopolCheckBox.setChecked(False)
             self.ui.CheekTopolCheckBox.setEnabled(False)
+
         if len(self.LipUpVetex) != 0 and len(self.LipDownVetex) != 0:
             if self.Skin_Lip_vetex_Check == 1:
                 self.ui.LipTopolCheckBox.setChecked(True)
@@ -495,6 +506,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             self.ui.LipTopolCheckBox.setChecked(False)
             self.ui.LipTopolCheckBox.setEnabled(False)
+
         if len(self.JawVetex) != 0 and len(self.LipUpVetex) != 0 and len(self.LipDownVetex) != 0:
             if self.Skin_Jaw_vetex_Check == 1:
                 self.ui.JawTopolCheckBox.setChecked(True)
@@ -505,6 +517,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             self.ui.JawTopolCheckBox.setChecked(False)
             self.ui.JawTopolCheckBox.setEnabled(False)
+
         self.LockParts()
         print('Auto Skinning prograss reset')
         if cmds.objExists('FitScale_ctrl_grp'):
@@ -577,147 +590,146 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 mel.eval('$fileData_LipCorner_L_Vetex += "' + self.LipCorner_L_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_LipCorner_L_Vetex += "\\n' + self.LipCorner_L_Vetex[i] + '"')
-
         mel.eval('$fileData_LipCorner_lower_L_Vetex += "--LipCorner_lower_L_Vetex--\\n"')
+
         for i in range(len(self.LipCorner_lower_L_Vetex)):
             if i == 0:
                 mel.eval('$fileData_LipCorner_lower_L_Vetex += "' + self.LipCorner_lower_L_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_LipCorner_lower_L_Vetex += "\\n' + self.LipCorner_lower_L_Vetex[i] + '"')
-
         mel.eval('$fileData_LipCorner_R_Vetex += "--LipCorner_R_Vetex--\\n"')
+
         for i in range(len(self.LipCorner_R_Vetex)):
             if i == 0:
                 mel.eval('$fileData_LipCorner_R_Vetex += "' + self.LipCorner_R_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_LipCorner_R_Vetex += "\\n' + self.LipCorner_R_Vetex[i] + '"')
-
         mel.eval('$fileData_LipCorner_lower_R_Vetex += "--LipCorner_lower_R_Vetex--\\n"')
+
         for i in range(len(self.LipCorner_lower_R_Vetex)):
             if i == 0:
                 mel.eval('$fileData_LipCorner_lower_R_Vetex += "' + self.LipCorner_lower_R_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_LipCorner_lower_R_Vetex += "\\n' + self.LipCorner_lower_R_Vetex[i] + '"')
-
         mel.eval('$fileData_LipUpper_Vetex += "--LipUpper_Vetex--\\n"')
+
         for i in range(len(self.LipUpper_Vetex)):
             if i == 0:
                 mel.eval('$fileData_LipUpper_Vetex += "' + self.LipUpper_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_LipUpper_Vetex += "\\n' + self.LipUpper_Vetex[i] + '"')
-
         mel.eval('$fileData_LipLower_Vetex += "--LipLower_Vetex--\\n"')
+
         for i in range(len(self.LipLower_Vetex)):
             if i == 0:
                 mel.eval('$fileData_LipLower_Vetex += "' + self.LipLower_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_LipLower_Vetex += "\\n' + self.LipLower_Vetex[i] + '"')
-
         mel.eval('$fileData_LipLower_Outer_Vetex += "--LipLower_Outer_Vetex--\\n"')
+
         for i in range(len(self.LipLower_Outer_Vetex)):
             if i == 0:
                 mel.eval('$fileData_LipLower_Outer_Vetex += "' + self.LipLower_Outer_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_LipLower_Outer_Vetex += "\\n' + self.LipLower_Outer_Vetex[i] + '"')
-
         mel.eval('$fileData_Lip_L_UpperSide_Vetex += "--Lip_L_UpperSide_Vetex--\\n"')
+
         for i in range(len(self.Lip_L_UpperSide_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Lip_L_UpperSide_Vetex += "' + self.Lip_L_UpperSide_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Lip_L_UpperSide_Vetex += "\\n' + self.Lip_L_UpperSide_Vetex[i] + '"')
-
         mel.eval('$fileData_Lip_L_UpperSide_02_Vetex += "--Lip_L_UpperSide_02_Vetex--\\n"')
+
         for i in range(len(self.Lip_L_UpperSide_02_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Lip_L_UpperSide_02_Vetex += "' + self.Lip_L_UpperSide_02_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Lip_L_UpperSide_02_Vetex += "\\n' + self.Lip_L_UpperSide_02_Vetex[i] + '"')
-
         mel.eval('$fileData_Lip_L_UpperOuter_Vetex += "--Lip_L_UpperOuter_Vetex--\\n"')
+
         for i in range(len(self.Lip_L_UpperOuter_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Lip_L_UpperOuter_Vetex += "' + self.Lip_L_UpperOuter_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Lip_L_UpperOuter_Vetex += "\\n' + self.Lip_L_UpperOuter_Vetex[i] + '"')
-
         mel.eval('$fileData_Lip_L_LowerSide_Vetex += "--Lip_L_LowerSide_Vetex--\\n"')
+
         for i in range(len(self.Lip_L_LowerSide_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Lip_L_LowerSide_Vetex += "' + self.Lip_L_LowerSide_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Lip_L_LowerSide_Vetex += "\\n' + self.Lip_L_LowerSide_Vetex[i] + '"')
-
         mel.eval('$fileData_Lip_L_LowerSide_02_Vetex += "--Lip_L_LowerSide_02_Vetex--\\n"')
+
         for i in range(len(self.Lip_L_LowerSide_02_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Lip_L_LowerSide_02_Vetex += "' + self.Lip_L_LowerSide_02_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Lip_L_LowerSide_02_Vetex += "\\n' + self.Lip_L_LowerSide_02_Vetex[i] + '"')
-
         mel.eval('$fileData_Lip_L_LowerOuter_Vetex += "--Lip_L_LowerOuter_Vetex--\\n"')
+
         for i in range(len(self.Lip_L_LowerOuter_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Lip_L_LowerOuter_Vetex += "' + self.Lip_L_LowerOuter_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Lip_L_LowerOuter_Vetex += "\\n' + self.Lip_L_LowerOuter_Vetex[i] + '"')
-
         mel.eval('$fileData_Lip_R_UpperSide_Vetex += "--Lip_R_UpperSide_Vetex--\\n"')
+
         for i in range(len(self.Lip_R_UpperSide_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Lip_R_UpperSide_Vetex += "' + self.Lip_R_UpperSide_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Lip_R_UpperSide_Vetex += "\\n' + self.Lip_R_UpperSide_Vetex[i] + '"')
-
         mel.eval('$fileData_Lip_R_UpperSide_02_Vetex += "--Lip_R_UpperSide_02_Vetex--\\n"')
+
         for i in range(len(self.Lip_R_UpperSide_02_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Lip_R_UpperSide_02_Vetex += "' + self.Lip_R_UpperSide_02_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Lip_R_UpperSide_02_Vetex += "\\n' + self.Lip_R_UpperSide_02_Vetex[i] + '"')
-
         mel.eval('$fileData_Lip_R_UpperOuter_Vetex += "--Lip_R_UpperOuter_Vetex--\\n"')
+
         for i in range(len(self.Lip_R_UpperOuter_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Lip_R_UpperOuter_Vetex += "' + self.Lip_R_UpperOuter_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Lip_R_UpperOuter_Vetex += "\\n' + self.Lip_R_UpperOuter_Vetex[i] + '"')
-
         mel.eval('$fileData_Lip_R_LowerSide_Vetex += "--Lip_R_LowerSide_Vetex--\\n"')
+
         for i in range(len(self.Lip_R_LowerSide_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Lip_R_LowerSide_Vetex += "' + self.Lip_R_LowerSide_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Lip_R_LowerSide_Vetex += "\\n' + self.Lip_R_LowerSide_Vetex[i] + '"')
-
         mel.eval('$fileData_Lip_R_LowerSide_02_Vetex += "--Lip_R_LowerSide_02_Vetex--\\n"')
+
         for i in range(len(self.Lip_R_LowerSide_02_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Lip_R_LowerSide_02_Vetex += "' + self.Lip_R_LowerSide_02_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Lip_R_LowerSide_02_Vetex += "\\n' + self.Lip_R_LowerSide_02_Vetex[i] + '"')
-
         mel.eval('$fileData_Lip_R_LowerOuter_Vetex += "--Lip_R_LowerOuter_Vetex--\\n"')
+
         for i in range(len(self.Lip_R_LowerOuter_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Lip_R_LowerOuter_Vetex += "' + self.Lip_R_LowerOuter_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Lip_R_LowerOuter_Vetex += "\\n' + self.Lip_R_LowerOuter_Vetex[i] + '"')
-
         mel.eval('$fileData_LipUpVetex += "--LipUpVetex--\\n"')
+
         for i in range(len(self.LipUpVetex)):
             if i == 0:
                 mel.eval('$fileData_LipUpVetex += "' + self.LipUpVetex[i] + '"')
             else:
                 mel.eval('$fileData_LipUpVetex += "\\n' + self.LipUpVetex[i] + '"')
-
         mel.eval('$fileData_LipDownVetex += "--LipDownVetex--\\n"')
+
         for i in range(len(self.LipDownVetex)):
             if i == 0:
                 mel.eval('$fileData_LipDownVetex += "' + self.LipDownVetex[i] + '"')
             else:
                 mel.eval('$fileData_LipDownVetex += "\\n' + self.LipDownVetex[i] + '"')
-
         mel.eval('fprint $fileId $fileData_LipCorner_L_Vetex')
         mel.eval('fprint $fileId "\\n\\n"')
         mel.eval('fprint $fileId $fileData_LipCorner_lower_L_Vetex')
@@ -763,19 +775,19 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('string $fileData_Lip_Jaw_Vetex = ""')
         mel.eval('string $fileData_JawVetex = ""')
         mel.eval('$fileData_Lip_Jaw_Vetex += "--Lip_Jaw_Vetex--\\n"')
+
         for i in range(len(self.Lip_Jaw_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Lip_Jaw_Vetex += "' + self.Lip_Jaw_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Lip_Jaw_Vetex += "\\n' + self.Lip_Jaw_Vetex[i] + '"')
-
         mel.eval('$fileData_JawVetex += "--JawVetex--\\n"')
+
         for i in range(len(self.JawVetex)):
             if i == 0:
                 mel.eval('$fileData_JawVetex += "' + self.JawVetex[i] + '"')
             else:
                 mel.eval('$fileData_JawVetex += "\\n' + self.JawVetex[i] + '"')
-
         mel.eval('fprint $fileId $fileData_Lip_Jaw_Vetex')
         mel.eval('fprint $fileId "\\n\\n"')
         mel.eval('fprint $fileId $fileData_JawVetex')
@@ -806,140 +818,139 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 mel.eval('$fileData_Eye_L_blink_Vetex += "' + self.Eye_L_blink_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Eye_L_blink_Vetex += "\\n' + self.Eye_L_blink_Vetex[i] + '"')
-
         mel.eval('$fileData_Eye_R_blink_Vetex += "--Eye_R_blink_Vetex--\\n"')
+
         for i in range(len(self.Eye_R_blink_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Eye_R_blink_Vetex += "' + self.Eye_R_blink_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Eye_R_blink_Vetex += "\\n' + self.Eye_R_blink_Vetex[i] + '"')
-
         mel.eval('$fileData_Eye_L_lower_Vetex += "--Eye_L_lower_Vetex--\\n"')
+
         for i in range(len(self.Eye_L_lower_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Eye_L_lower_Vetex += "' + self.Eye_L_lower_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Eye_L_lower_Vetex += "\\n' + self.Eye_L_lower_Vetex[i] + '"')
-
         mel.eval('$fileData_Eye_R_lower_Vetex += "--Eye_R_lower_Vetex--\\n"')
+
         for i in range(len(self.Eye_R_lower_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Eye_R_lower_Vetex += "' + self.Eye_R_lower_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Eye_R_lower_Vetex += "\\n' + self.Eye_R_lower_Vetex[i] + '"')
-
         mel.eval('$fileData_Eye_L_lacrimal_Vetex += "--Eye_L_lacrimal_Vetex--\\n"')
+
         for i in range(len(self.Eye_L_lacrimal_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Eye_L_lacrimal_Vetex += "' + self.Eye_L_lacrimal_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Eye_L_lacrimal_Vetex += "\\n' + self.Eye_L_lacrimal_Vetex[i] + '"')
-
         mel.eval('$fileData_Eye_L_lacrimal_upper_Vetex += "--Eye_L_lacrimal_upper_Vetex--\\n"')
+
         for i in range(len(self.Eye_L_lacrimal_upper_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Eye_L_lacrimal_upper_Vetex += "' + self.Eye_L_lacrimal_upper_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Eye_L_lacrimal_upper_Vetex += "\\n' + self.Eye_L_lacrimal_upper_Vetex[i] + '"')
-
         mel.eval('$fileData_Eye_L_lacrimal_lower_Vetex += "--Eye_L_lacrimal_lower_Vetex--\\n"')
+
         for i in range(len(self.Eye_L_lacrimal_lower_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Eye_L_lacrimal_lower_Vetex += "' + self.Eye_L_lacrimal_lower_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Eye_L_lacrimal_lower_Vetex += "\\n' + self.Eye_L_lacrimal_lower_Vetex[i] + '"')
-
         mel.eval('$fileData_Eye_R_lacrimal_Vetex += "--Eye_R_lacrimal_Vetex--\\n"')
+
         for i in range(len(self.Eye_R_lacrimal_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Eye_R_lacrimal_Vetex += "' + self.Eye_R_lacrimal_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Eye_R_lacrimal_Vetex += "\\n' + self.Eye_R_lacrimal_Vetex[i] + '"')
-
         mel.eval('$fileData_Eye_R_lacrimal_upper_Vetex += "--Eye_R_lacrimal_upper_Vetex--\\n"')
+
         for i in range(len(self.Eye_R_lacrimal_upper_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Eye_R_lacrimal_upper_Vetex += "' + self.Eye_R_lacrimal_upper_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Eye_R_lacrimal_upper_Vetex += "\\n' + self.Eye_R_lacrimal_upper_Vetex[i] + '"')
-
         mel.eval('$fileData_Eye_R_lacrimal_lower_Vetex += "--Eye_R_lacrimal_lower_Vetex--\\n"')
+
         for i in range(len(self.Eye_R_lacrimal_lower_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Eye_R_lacrimal_lower_Vetex += "' + self.Eye_R_lacrimal_lower_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Eye_R_lacrimal_lower_Vetex += "\\n' + self.Eye_R_lacrimal_lower_Vetex[i] + '"')
-
         mel.eval('$fileData_Eye_L_back_Vetex += "--Eye_L_back_Vetex--\\n"')
+
         for i in range(len(self.Eye_L_back_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Eye_L_back_Vetex += "' + self.Eye_L_back_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Eye_L_back_Vetex += "\\n' + self.Eye_L_back_Vetex[i] + '"')
-
         mel.eval('$fileData_Eye_L_back_upper_Vetex += "--Eye_L_back_upper_Vetex--\\n"')
+
         for i in range(len(self.Eye_L_back_upper_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Eye_L_back_upper_Vetex += "' + self.Eye_L_back_upper_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Eye_L_back_upper_Vetex += "\\n' + self.Eye_L_back_upper_Vetex[i] + '"')
-
         mel.eval('$fileData_Eye_L_back_lower_Vetex += "--Eye_L_back_lower_Vetex--\\n"')
+
         for i in range(len(self.Eye_L_back_lower_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Eye_L_back_lower_Vetex += "' + self.Eye_L_back_lower_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Eye_L_back_lower_Vetex += "\\n' + self.Eye_L_back_lower_Vetex[i] + '"')
-
         mel.eval('$fileData_Eye_L_double_Vetex += "--Eye_L_double_Vetex--\\n"')
+
         for i in range(len(self.Eye_L_double_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Eye_L_double_Vetex += "' + self.Eye_L_double_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Eye_L_double_Vetex += "\\n' + self.Eye_L_double_Vetex[i] + '"')
-
         mel.eval('$fileData_Eye_R_back_Vetex += "--Eye_R_back_Vetex--\\n"')
+
         for i in range(len(self.Eye_R_back_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Eye_R_back_Vetex += "' + self.Eye_R_back_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Eye_R_back_Vetex += "\\n' + self.Eye_R_back_Vetex[i] + '"')
-
         mel.eval('$fileData_Eye_R_back_upper_Vetex += "--Eye_R_back_upper_Vetex--\\n"')
+
         for i in range(len(self.Eye_R_back_upper_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Eye_R_back_upper_Vetex += "' + self.Eye_R_back_upper_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Eye_R_back_upper_Vetex += "\\n' + self.Eye_R_back_upper_Vetex[i] + '"')
-
         mel.eval('$fileData_Eye_R_back_lower_Vetex += "--Eye_R_back_lower_Vetex--\\n"')
+
         for i in range(len(self.Eye_R_back_lower_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Eye_R_back_lower_Vetex += "' + self.Eye_R_back_lower_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Eye_R_back_lower_Vetex += "\\n' + self.Eye_R_back_lower_Vetex[i] + '"')
-
         mel.eval('$fileData_Eye_R_double_Vetex += "--Eye_R_double_Vetex--\\n"')
+
         for i in range(len(self.Eye_R_double_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Eye_R_double_Vetex += "' + self.Eye_R_double_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Eye_R_double_Vetex += "\\n' + self.Eye_R_double_Vetex[i] + '"')
-
         mel.eval('$fileData_EyeLVetex += "--EyeLVetex--\\n"')
+
         for i in range(len(self.EyeLVetex)):
             if i == 0:
                 mel.eval('$fileData_EyeLVetex += "' + self.EyeLVetex[i] + '"')
             else:
                 mel.eval('$fileData_EyeLVetex += "\\n' + self.EyeLVetex[i] + '"')
-
         mel.eval('$fileData_EyeRVetex += "--EyeRVetex--\\n"')
+
         for i in range(len(self.EyeRVetex)):
             if i == 0:
                 mel.eval('$fileData_EyeRVetex += "' + self.EyeRVetex[i] + '"')
             else:
                 mel.eval('$fileData_EyeRVetex += "\\n' + self.EyeRVetex[i] + '"')
-
         mel.eval('fprint $fileId $fileData_Eye_L_blink_Vetex')
         mel.eval('fprint $fileId "\\n\\n"')
         mel.eval('fprint $fileId $fileData_Eye_R_blink_Vetex')
@@ -995,20 +1006,21 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('string $fileData_CheekLVetex = ""')
         mel.eval('string $fileData_CheekRVetex = ""')
         mel.eval('$fileData_Cheek_L_Vetex += "--Cheek_L_Vetex--\\n"')
+
         for i in range(len(self.Cheek_L_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Cheek_L_Vetex += "' + self.Cheek_L_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Cheek_L_Vetex += "\\n' + self.Cheek_L_Vetex[i] + '"')
-
         mel.eval('$fileData_Cheek_L_upper_Vetex += "--Cheek_L_upper_Vetex--\\n"')
+
         for i in range(len(self.Cheek_L_upper_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Cheek_L_upper_Vetex += "' + self.Cheek_L_upper_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Cheek_L_upper_Vetex += "\\n' + self.Cheek_L_upper_Vetex[i] + '"')
-
         mel.eval('$fileData_Cheek_L_outer_orbicularis_Vetex += "--Cheek_L_outer_orbicularis_Vetex--\\n"')
+
         for i in range(len(self.Cheek_L_outer_orbicularis_Vetex)):
             if i == 0:
                 mel.eval(
@@ -1016,8 +1028,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             else:
                 mel.eval(
                     '$fileData_Cheek_L_outer_orbicularis_Vetex += "\\n' + self.Cheek_L_outer_orbicularis_Vetex[i] + '"')
-
         mel.eval('$fileData_Cheek_L_inner_orbicularis_Vetex += "--Cheek_L_inner_orbicularis_Vetex--\\n"')
+
         for i in range(len(self.Cheek_L_inner_orbicularis_Vetex)):
             if i == 0:
                 mel.eval(
@@ -1025,36 +1037,36 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             else:
                 mel.eval(
                     '$fileData_Cheek_L_inner_orbicularis_Vetex += "\\n' + self.Cheek_L_inner_orbicularis_Vetex[i] + '"')
-
         mel.eval('$fileData_Cheek_L_lower_Vetex += "--Cheek_L_lower_Vetex--\\n"')
+
         for i in range(len(self.Cheek_L_lower_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Cheek_L_lower_Vetex += "' + self.Cheek_L_lower_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Cheek_L_lower_Vetex += "\\n' + self.Cheek_L_lower_Vetex[i] + '"')
-
         mel.eval('$fileData_Cheek_L_lip_lid_Vetex += "--Cheek_L_lip_lid_Vetex--\\n"')
+
         for i in range(len(self.Cheek_L_lip_lid_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Cheek_L_lip_lid_Vetex += "' + self.Cheek_L_lip_lid_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Cheek_L_lip_lid_Vetex += "\\n' + self.Cheek_L_lip_lid_Vetex[i] + '"')
-
         mel.eval('$fileData_Cheek_R_Vetex += "--Cheek_R_Vetex--\\n"')
+
         for i in range(len(self.Cheek_R_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Cheek_R_Vetex += "' + self.Cheek_R_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Cheek_R_Vetex += "\\n' + self.Cheek_R_Vetex[i] + '"')
-
         mel.eval('$fileData_Cheek_R_upper_Vetex += "--Cheek_R_upper_Vetex--\\n"')
+
         for i in range(len(self.Cheek_R_upper_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Cheek_R_upper_Vetex += "' + self.Cheek_R_upper_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Cheek_R_upper_Vetex += "\\n' + self.Cheek_R_upper_Vetex[i] + '"')
-
         mel.eval('$fileData_Cheek_R_outer_orbicularis_Vetex += "--Cheek_R_outer_orbicularis_Vetex--\\n"')
+
         for i in range(len(self.Cheek_R_outer_orbicularis_Vetex)):
             if i == 0:
                 mel.eval(
@@ -1062,8 +1074,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             else:
                 mel.eval(
                     '$fileData_Cheek_R_outer_orbicularis_Vetex += "\\n' + self.Cheek_R_outer_orbicularis_Vetex[i] + '"')
-
         mel.eval('$fileData_Cheek_R_inner_orbicularis_Vetex += "--Cheek_R_inner_orbicularis_Vetex--\\n"')
+
         for i in range(len(self.Cheek_R_inner_orbicularis_Vetex)):
             if i == 0:
                 mel.eval(
@@ -1071,35 +1083,34 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             else:
                 mel.eval(
                     '$fileData_Cheek_R_inner_orbicularis_Vetex += "\\n' + self.Cheek_R_inner_orbicularis_Vetex[i] + '"')
-
         mel.eval('$fileData_Cheek_R_lower_Vetex += "--Cheek_R_lower_Vetex--\\n"')
+
         for i in range(len(self.Cheek_R_lower_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Cheek_R_lower_Vetex += "' + self.Cheek_R_lower_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Cheek_R_lower_Vetex += "\\n' + self.Cheek_R_lower_Vetex[i] + '"')
-
         mel.eval('$fileData_Cheek_R_lip_lid_Vetex += "--Cheek_R_lip_lid_Vetex--\\n"')
+
         for i in range(len(self.Cheek_R_lip_lid_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Cheek_R_lip_lid_Vetex += "' + self.Cheek_R_lip_lid_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Cheek_R_lip_lid_Vetex += "\\n' + self.Cheek_R_lip_lid_Vetex[i] + '"')
-
         mel.eval('$fileData_CheekLVetex += "--CheekLVetex--\\n"')
+
         for i in range(len(self.CheekLVetex)):
             if i == 0:
                 mel.eval('$fileData_CheekLVetex += "' + self.CheekLVetex[i] + '"')
             else:
                 mel.eval('$fileData_CheekLVetex += "\\n' + self.CheekLVetex[i] + '"')
-
         mel.eval('$fileData_CheekRVetex += "--CheekRVetex--\\n"')
+
         for i in range(len(self.CheekRVetex)):
             if i == 0:
                 mel.eval('$fileData_CheekRVetex += "' + self.CheekRVetex[i] + '"')
             else:
                 mel.eval('$fileData_CheekRVetex += "\\n' + self.CheekRVetex[i] + '"')
-
         mel.eval('fprint $fileId $fileData_Cheek_L_Vetex')
         mel.eval('fprint $fileId "\\n\\n"')
         mel.eval('fprint $fileId $fileData_Cheek_L_upper_Vetex')
@@ -1146,8 +1157,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 mel.eval('$fileData_Nose_L_Vetex += "' + self.Nose_L_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Nose_L_Vetex += "\\n' + self.Nose_L_Vetex[i] + '"')
-
         mel.eval('$fileData_Nose_L_nasalis_transverse_Vetex += "--Nose_L_nasalis_transverse_Vetex--\\n"')
+
         for i in range(len(self.Nose_L_nasalis_transverse_Vetex)):
             if i == 0:
                 mel.eval(
@@ -1155,29 +1166,29 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             else:
                 mel.eval(
                     '$fileData_Nose_L_nasalis_transverse_Vetex += "\\n' + self.Nose_L_nasalis_transverse_Vetex[i] + '"')
-
         mel.eval('$fileData_Nose_L_procerus_Vetex += "--Nose_L_procerus_Vetex--\\n"')
+
         for i in range(len(self.Nose_L_procerus_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Nose_L_procerus_Vetex += "' + self.Nose_L_procerus_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Nose_L_procerus_Vetex += "\\n' + self.Nose_L_procerus_Vetex[i] + '"')
-
         mel.eval('$fileData_Nose_L_nasolabial_fold_Vetex += "--Nose_L_nasolabial_fold_Vetex--\\n"')
+
         for i in range(len(self.Nose_L_nasolabial_fold_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Nose_L_nasolabial_fold_Vetex += "' + self.Nose_L_nasolabial_fold_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Nose_L_nasolabial_fold_Vetex += "\\n' + self.Nose_L_nasolabial_fold_Vetex[i] + '"')
-
         mel.eval('$fileData_Nose_R_Vetex += "--Nose_R_Vetex--\\n"')
+
         for i in range(len(self.Nose_R_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Nose_R_Vetex += "' + self.Nose_R_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Nose_R_Vetex += "\\n' + self.Nose_R_Vetex[i] + '"')
-
         mel.eval('$fileData_Nose_R_nasalis_transverse_Vetex += "--Nose_R_nasalis_transverse_Vetex--\\n"')
+
         for i in range(len(self.Nose_R_nasalis_transverse_Vetex)):
             if i == 0:
                 mel.eval(
@@ -1185,49 +1196,48 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             else:
                 mel.eval(
                     '$fileData_Nose_R_nasalis_transverse_Vetex += "\\n' + self.Nose_R_nasalis_transverse_Vetex[i] + '"')
-
         mel.eval('$fileData_Nose_R_procerus_Vetex += "--Nose_R_procerus_Vetex--\\n"')
+
         for i in range(len(self.Nose_R_procerus_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Nose_R_procerus_Vetex += "' + self.Nose_R_procerus_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Nose_R_procerus_Vetex += "\\n' + self.Nose_R_procerus_Vetex[i] + '"')
-
         mel.eval('$fileData_Nose_R_nasolabial_fold_Vetex += "--Nose_R_nasolabial_fold_Vetex--\\n"')
+
         for i in range(len(self.Nose_R_nasolabial_fold_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Nose_R_nasolabial_fold_Vetex += "' + self.Nose_R_nasolabial_fold_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Nose_R_nasolabial_fold_Vetex += "\\n' + self.Nose_R_nasolabial_fold_Vetex[i] + '"')
-
         mel.eval('$fileData_Nose_Center_Vetex += "--Nose_Center_Vetex--\\n"')
+
         for i in range(len(self.Nose_Center_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Nose_Center_Vetex += "' + self.Nose_Center_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Nose_Center_Vetex += "\\n' + self.Nose_Center_Vetex[i] + '"')
-
         mel.eval('$fileData_Nose_Lower_Vetex += "--Nose_Lower_Vetex--\\n"')
+
         for i in range(len(self.Nose_Lower_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Nose_Lower_Vetex += "' + self.Nose_Lower_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Nose_Lower_Vetex += "\\n' + self.Nose_Lower_Vetex[i] + '"')
-
         mel.eval('$fileData_Nose_depressor_septi_Vetex += "--Nose_depressor_septi_Vetex--\\n"')
+
         for i in range(len(self.Nose_depressor_septi_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Nose_depressor_septi_Vetex += "' + self.Nose_depressor_septi_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Nose_depressor_septi_Vetex += "\\n' + self.Nose_depressor_septi_Vetex[i] + '"')
-
         mel.eval('$fileData_NoseVetex += "--NoseVetex--\\n"')
+
         for i in range(len(self.NoseVetex)):
             if i == 0:
                 mel.eval('$fileData_NoseVetex += "' + self.NoseVetex[i] + '"')
             else:
                 mel.eval('$fileData_NoseVetex += "\\n' + self.NoseVetex[i] + '"')
-
         mel.eval('fprint $fileId $fileData_Nose_L_Vetex')
         mel.eval('fprint $fileId "\\n\\n"')
         mel.eval('fprint $fileId $fileData_Nose_L_nasalis_transverse_Vetex')
@@ -1268,110 +1278,110 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('string $fileData_BrowLVetex = ""')
         mel.eval('string $fileData_BrowRVetex = ""')
         mel.eval('$fileData_Brow_L_Vetex += "--Brow_L_Vetex--\\n"')
+
         for i in range(len(self.Brow_L_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Brow_L_Vetex += "' + self.Brow_L_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Brow_L_Vetex += "\\n' + self.Brow_L_Vetex[i] + '"')
-
         mel.eval('$fileData_Brow_L_medial_fibers_Vetex += "--Brow_L_medial_fibers_Vetex--\\n"')
+
         for i in range(len(self.Brow_L_medial_fibers_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Brow_L_medial_fibers_Vetex += "' + self.Brow_L_medial_fibers_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Brow_L_medial_fibers_Vetex += "\\n' + self.Brow_L_medial_fibers_Vetex[i] + '"')
-
         mel.eval('$fileData_Brow_L_lateral_fibers_Vetex += "--Brow_L_lateral_fibers_Vetex--\\n"')
+
         for i in range(len(self.Brow_L_lateral_fibers_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Brow_L_lateral_fibers_Vetex += "' + self.Brow_L_lateral_fibers_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Brow_L_lateral_fibers_Vetex += "\\n' + self.Brow_L_lateral_fibers_Vetex[i] + '"')
-
         mel.eval('$fileData_Brow_L_procerus_Vetex += "--Brow_L_procerus_Vetex--\\n"')
+
         for i in range(len(self.Brow_L_procerus_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Brow_L_procerus_Vetex += "' + self.Brow_L_procerus_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Brow_L_procerus_Vetex += "\\n' + self.Brow_L_procerus_Vetex[i] + '"')
-
         mel.eval('$fileData_Brow_R_Vetex += "--Brow_R_Vetex--\\n"')
+
         for i in range(len(self.Brow_R_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Brow_R_Vetex += "' + self.Brow_R_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Brow_R_Vetex += "\\n' + self.Brow_R_Vetex[i] + '"')
-
         mel.eval('$fileData_Brow_R_medial_fibers_Vetex += "--Brow_R_medial_fibers_Vetex--\\n"')
+
         for i in range(len(self.Brow_R_medial_fibers_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Brow_R_medial_fibers_Vetex += "' + self.Brow_R_medial_fibers_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Brow_R_medial_fibers_Vetex += "\\n' + self.Brow_R_medial_fibers_Vetex[i] + '"')
-
         mel.eval('$fileData_Brow_R_lateral_fibers_Vetex += "--Brow_R_lateral_fibers_Vetex--\\n"')
+
         for i in range(len(self.Brow_R_lateral_fibers_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Brow_R_lateral_fibers_Vetex += "' + self.Brow_R_lateral_fibers_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Brow_R_lateral_fibers_Vetex += "\\n' + self.Brow_R_lateral_fibers_Vetex[i] + '"')
-
         mel.eval('$fileData_Brow_R_procerus_Vetex += "--Brow_R_procerus_Vetex--\\n"')
+
         for i in range(len(self.Brow_R_procerus_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Brow_R_procerus_Vetex += "' + self.Brow_R_procerus_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Brow_R_procerus_Vetex += "\\n' + self.Brow_R_procerus_Vetex[i] + '"')
-
         mel.eval('$fileData_Brow_L_02_Vetex += "--Brow_L_02_Vetex--\\n"')
+
         for i in range(len(self.Brow_L_02_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Brow_L_02_Vetex += "' + self.Brow_L_02_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Brow_L_02_Vetex += "\\n' + self.Brow_L_02_Vetex[i] + '"')
-
         mel.eval('$fileData_Brow_R_02_Vetex += "--Brow_R_02_Vetex--\\n"')
+
         for i in range(len(self.Brow_R_02_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Brow_R_02_Vetex += "' + self.Brow_R_02_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Brow_R_02_Vetex += "\\n' + self.Brow_R_02_Vetex[i] + '"')
-
         mel.eval('$fileData_Brow_L_03_Vetex += "--Brow_L_03_Vetex--\\n"')
+
         for i in range(len(self.Brow_L_03_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Brow_L_03_Vetex += "' + self.Brow_L_03_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Brow_L_03_Vetex += "\\n' + self.Brow_L_03_Vetex[i] + '"')
-
         mel.eval('$fileData_Brow_R_03_Vetex += "--Brow_R_03_Vetex--\\n"')
+
         for i in range(len(self.Brow_R_03_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Brow_R_03_Vetex += "' + self.Brow_R_03_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Brow_R_03_Vetex += "\\n' + self.Brow_R_03_Vetex[i] + '"')
-
         mel.eval('$fileData_Brow_Center_Vetex += "--Brow_Center_Vetex--\\n"')
+
         for i in range(len(self.Brow_Center_Vetex)):
             if i == 0:
                 mel.eval('$fileData_Brow_Center_Vetex += "' + self.Brow_Center_Vetex[i] + '"')
             else:
                 mel.eval('$fileData_Brow_Center_Vetex += "\\n' + self.Brow_Center_Vetex[i] + '"')
-
         mel.eval('$fileData_BrowLVetex += "--BrowLVetex--\\n"')
+
         for i in range(len(self.BrowLVetex)):
             if i == 0:
                 mel.eval('$fileData_BrowLVetex += "' + self.BrowLVetex[i] + '"')
             else:
                 mel.eval('$fileData_BrowLVetex += "\\n' + self.BrowLVetex[i] + '"')
-
         mel.eval('$fileData_BrowRVetex += "--BrowRVetex--\\n"')
+
         for i in range(len(self.BrowRVetex)):
             if i == 0:
                 mel.eval('$fileData_BrowRVetex += "' + self.BrowRVetex[i] + '"')
             else:
                 mel.eval('$fileData_BrowRVetex += "\\n' + self.BrowRVetex[i] + '"')
-
         mel.eval('fprint $fileId $fileData_Brow_L_Vetex')
         mel.eval('fprint $fileId "\\n\\n"')
         mel.eval('fprint $fileId $fileData_Brow_L_medial_fibers_Vetex')
@@ -2505,8 +2515,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             TimeEnd_pathTemp = self.ui.TimeEnd_pathText.text()
             Export_Sel = cmds.ls(sl=True)
             if 0 < len(Export_Sel) < 2:
-                if Export_Sel[0] == 'Root_Skin_Neck_Bone' or cmds.ls('*:Root_Skin_Neck_Bone', sl=True) or Export_Sel[
-                    0] == 'Facial_Master_Ctrl_grp' or cmds.ls('*:Facial_Master_Ctrl_grp', sl=True):
+                if Export_Sel[0] == 'Root_Skin_Neck_Bone' or cmds.ls('*:Root_Skin_Neck_Bone', sl=True) or Export_Sel[0] == 'Facial_Master_Ctrl_grp' or cmds.ls('*:Facial_Master_Ctrl_grp', sl=True):
                     cmds.currentTime(TimeStart_pathTemp, edit=True)
                     if cmds.objExists('Facial_Set_Ctrl'):
                         cmds.setAttr('Facial_Set_Ctrl.Joint_Visible', 1)
@@ -2635,7 +2644,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                         cmds.parent('Skin_Head_master_jnt', 'Root_Skin_Neck_Bone')
                     else:
                         head_parent = cmds.listRelatives('Facial_Master_Ctrl_grp', p=True)
-                        if head_parent != None:
+                        if head_parent is not None:
                             cmds.parent('Skin_Head_master_jnt', head_parent[0])
                             child_parent = cmds.listRelatives('Skin_Head_master_jnt', p=True)
                             if child_parent[0] != head_parent[0]:
@@ -2667,17 +2676,14 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                         if cmds.objExists('Neck_Bone'):
                             cmds.rename('Neck_Bone', 'neck_01')
                 else:
-                    QtWidgets.QMessageBox.warning(None, 'Warning',
-                                                  "Please select the 'Root_Skin_Neck_Bone' Object! not the other one")
+                    QtWidgets.QMessageBox.warning(None, 'Warning', "Please select the 'Root_Skin_Neck_Bone' Object! not the other one")
                     cmds.error("Please select the 'Root_Skin_Neck_Bone' Object! not the other one")
             elif 1 < len(Export_Sel):
                 QtWidgets.QMessageBox.warning(None, 'Warning', 'Please Select Only One Object!')
                 cmds.error('Please Select Only One Object!')
             elif len(Export_Sel) < 1:
-                QtWidgets.QMessageBox.warning(None, 'Warning',
-                                              "Please Select 'Root_Skin_Neck_Bone' or NameSpace:'Root_Skin_Neck_Bone'. You can choose one and select the 'Root_Skin_Neck_Bone' or 'Facial_Master_Ctrl_grp' object and click the button")
-                cmds.error(
-                    "Please Select 'Root_Skin_Neck_Bone' or NameSpace:'Root_Skin_Neck_Bone'. You can choose one and select the 'Root_Skin_Neck_Bone' or 'Facial_Master_Ctrl_grp' object and click the button")
+                QtWidgets.QMessageBox.warning(None, 'Warning', "Please Select 'Root_Skin_Neck_Bone' or NameSpace:'Root_Skin_Neck_Bone'. You can choose one and select the 'Root_Skin_Neck_Bone' or 'Facial_Master_Ctrl_grp' object and click the button")
+                cmds.error("Please Select 'Root_Skin_Neck_Bone' or NameSpace:'Root_Skin_Neck_Bone'. You can choose one and select the 'Root_Skin_Neck_Bone' or 'Facial_Master_Ctrl_grp' object and click the button")
         return
 
     def findMultMatixDelete(self, *args):
@@ -4459,15 +4465,15 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
 
     def Nose_Center_First_PopupCmd(self, *args):
         if self.Nose_Center_Vetex == '':
-            QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Nose_Center_Vertex is not define!')
-            cmds.error('self.Nose_Center_Vertex is not define!')
+            QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Nose_Center_Vetex is not define!')
+            cmds.error('self.Nose_Center_Vetex is not define!')
         cmds.select(self.Nose_Center_Vetex[0])
         return
 
     def Nose_Center_All_PopupCmd(self, *args):
         if self.Nose_Center_Vetex == '':
-            QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Nose_Center_Vertex is not define!')
-            cmds.error('self.Nose_Center_Vertex is not define!')
+            QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Nose_Center_Vetex is not define!')
+            cmds.error('self.Nose_Center_Vetex is not define!')
         user_sel = cmds.ls(os=True, fl=True)
         cmds.select(self.Nose_Center_Vetex)
         cmds.select(self.Nose_Center_Vetex[0], d=True)
@@ -4519,15 +4525,15 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
 
     def Nose_depressor_septi_First_PopupCmd(self, *args):
         if self.Nose_depressor_septi_Vetex == '':
-            QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Nose_depressor_septi_Vertex is not define!')
-            cmds.error('self.Nose_depressor_septi_Vertex is not define!')
+            QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Nose_depressor_septi_Vetex is not define!')
+            cmds.error('self.Nose_depressor_septi_Vetex is not define!')
         cmds.select(self.Nose_depressor_septi_Vetex[0])
         return
 
     def Nose_depressor_septi_All_PopupCmd(self, *args):
         if self.Nose_depressor_septi_Vetex == '':
-            QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Nose_depressor_septi_Vertex is not define!')
-            cmds.error('self.Nose_depressor_septi_Vertex is not define!')
+            QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Nose_depressor_septi_Vetex is not define!')
+            cmds.error('self.Nose_depressor_septi_Vetex is not define!')
         user_sel = cmds.ls(os=True, fl=True)
         cmds.select(self.Nose_depressor_septi_Vetex)
         cmds.select(self.Nose_depressor_septi_Vetex[0], d=True)

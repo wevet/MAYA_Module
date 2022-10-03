@@ -273,7 +273,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
                 cmds.setAttr(self.np + 'Facial_Master_Ctrl.scaleX', 1)
                 cmds.setAttr(self.np + 'Facial_Master_Ctrl.scaleY', 1)
                 cmds.setAttr(self.np + 'Facial_Master_Ctrl.scaleZ', 1)
-            print( 'All ctrl reset')
+            print('All ctrl reset')
 
     def SelAll_CtrlBtnCmd(self, *args):
         with UndoContext():
@@ -296,7 +296,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
     def Reset_BrowBtnCmd(self, *args):
         if cmds.objExists(self.np + 'Brow_All_Ctrl_grp'):
             self.Brow_All_Ctrl_reset()
-            print( 'Brow ctrl reset')
+            print('Brow ctrl reset')
 
     def Select_BrowBtnCmd(self, *args):
         with UndoContext():
@@ -310,7 +310,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
     def Reset_EyeBtnCmd(self, *args):
         if cmds.objExists(self.np + 'Eye_All_Ctrl_grp'):
             self.Eye_All_Ctrl_reset()
-            print( 'Eye ctrl reset')
+            print('Eye ctrl reset')
 
     def Select_EyeBtnCmd(self, *args):
         with UndoContext():
@@ -336,7 +336,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
     def Reset_EyeTargetBtnCmd(self, *args):
         if cmds.objExists(self.np + 'Eye_target_All_Ctrl_grp'):
             self.Eye_Target_All_Ctrl_reset()
-            print( 'EyeTarget ctrl reset')
+            print('EyeTarget ctrl reset')
 
     def Select_EyeTargetBtnCmd(self, *args):
         with UndoContext():
@@ -356,7 +356,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
     def Reset_NoseBtnCmd(self, *args):
         if cmds.objExists(self.np + 'Nose_All_Ctrl_grp'):
             self.Nose_All_Ctrl_reset()
-            print( 'Nose ctrl reset')
+            print('Nose ctrl reset')
 
     def Select_NoseBtnCmd(self, *args):
         with UndoContext():
@@ -376,7 +376,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
     def Reset_CheekBtnCmd(self, *args):
         if cmds.objExists(self.np + 'Cheek_All_Ctrl_grp'):
             self.Cheek_All_Ctrl_reset()
-            print( 'Cheek ctrl reset')
+            print('Cheek ctrl reset')
 
     def Select_CheekBtnCmd(self, *args):
         with UndoContext():
@@ -394,7 +394,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
     def Reset_LipBtnCmd(self, *args):
         if cmds.objExists(self.np + 'Lip_All_Ctrl_grp'):
             self.Lip_All_Ctrl_reset()
-            print( 'Lip ctrl reset')
+            print('Lip ctrl reset')
 
     def Select_LipBtnCmd(self, *args):
         with UndoContext():

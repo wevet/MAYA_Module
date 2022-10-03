@@ -9,13 +9,7 @@ global proc installFacial()
 
 	string $scriptName2="Facial_RIG";
 	string $sourceFile2=$asInstallScriptLocation+$scriptName2+".py";
-	string $command2="import os\nimport sys\nsys.path.append('"+$asInstallScriptLocation+"')\nimport Facial_RIG as NFacialRIG\nimport importlib\nimportlib.reload(NFacialRIG)\nfrom Facial_RIG import *\nif __name__ == '__main__':\n  GamjaWnd.main()";
-
-	//string $scriptName="Facial_Picker";
-	//string $sourceFile3=$asInstallScriptLocation+$scriptName+".py";
-	//string $command="import os\nimport sys\nsys.path.append('"+$asInstallScriptLocation+"')\nimport Facial_Picker as FPicker\nimport importlib\nimportlib.reload(FPicker)\nfrom Facial_Picker import Facial_Picker_window\nif __name__ == '__main__':\n  Facial_Picker_window.main()";
-
-	//string $icon=$asInstallScriptLocation+"/icon/Facial_Picker_icon."+$iconExt;
+	string $command2="import os\nimport sys\nsys.path.append('"+$asInstallScriptLocation+"')\nimport Facial_RIG as NFacialRIG\nimport importlib\nimportlib.reload(NFacialRIG)\nfrom Facial_RIG import *\nif __name__ == '__main__':\n  Facial_Window_Manager.main()";
 	string $icon2=$asInstallScriptLocation+"/icon/Facial_RIG_icon."+$iconExt;
 
 	if (!`file -q -ex $sourceFile2`)
@@ -31,21 +25,6 @@ global proc installFacial()
 		-image1 $icon2
 		-sourceType "python";
 
-	/*
-	if (!`file -q -ex $sourceFile3`)
-	{
-		error ("Something went wrong, can not find: \""+$sourceFile3+"\"");
-	}
-
-	shelfButton
-		-command $command
-		-annotation $scriptName
-		-label $scriptName
-		-image $icon
-		-image1 $icon
-		-sourceType "python";
-	*/
-
 	string $osTypeFile;
 	string $operatingSystem = `about -os`;
 	if ($operatingSystem=="win64") 
@@ -60,7 +39,7 @@ global proc installFacial()
 	string $destWindows=$verPath;
 	sysFile -makeDir ($verPath);
 	sysFile -copy $destWindows $srcWindows;
-	//print ("\n// "+$scriptName2+" has been added to current shelf.\n");
+	print ("\n// "+$scriptName2+" has been added to current shelf.\n");
 }
 
 

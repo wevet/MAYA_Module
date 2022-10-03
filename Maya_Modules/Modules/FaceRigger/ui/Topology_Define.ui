@@ -35,34 +35,6 @@
   <property name="sizeGripEnabled">
    <bool>true</bool>
   </property>
-  <widget class="QLabel" name="Warn_Text">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>0</y>
-     <width>371</width>
-     <height>51</height>
-    </rect>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::NoFrame</enum>
-   </property>
-   <property name="lineWidth">
-    <number>1</number>
-   </property>
-   <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#ffffff;&quot;&gt;Please select the vertex on your Character and click each button It will define Facial Topology and help to Auto Skin progress&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
-   <property name="wordWrap">
-    <bool>true</bool>
-   </property>
-   <property name="margin">
-    <number>1</number>
-   </property>
-   <property name="indent">
-    <number>0</number>
-   </property>
-  </widget>
   <widget class="QGroupBox" name="BtnGrp">
    <property name="geometry">
     <rect>
@@ -1449,6 +1421,34 @@ selection-background-color: rgb(0, 170, 127);</string>
      <string/>
     </property>
    </widget>
+   <widget class="QLabel" name="Warn_Text">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>381</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="lineWidth">
+     <number>1</number>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#ffffff;&quot;&gt;Please select the vertex on your Character and click each button It will define Facial Topology and help to Auto Skin progress&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
+    <property name="margin">
+     <number>1</number>
+    </property>
+    <property name="indent">
+     <number>0</number>
+    </property>
+   </widget>
    <zorder>Label_image</zorder>
    <zorder>Brow_L_03_Btn</zorder>
    <zorder>Brow_L_Btn</zorder>
@@ -1526,19 +1526,17 @@ selection-background-color: rgb(0, 170, 127);</string>
    <zorder>Nose_R_nasalis_transverse_Btn</zorder>
    <zorder>Nose_R_nasolabial_fold_Btn</zorder>
    <zorder>Brow_L_medial_fibers_Btn</zorder>
-   <zorder>Match_joint_Btn</zorder>
    <zorder>Brow_L_lateral_fibers_Btn</zorder>
    <zorder>Match_joint_Btn</zorder>
    <zorder>Brow_L_procerus_Btn</zorder>
    <zorder>Brow_R_medial_fibers_Btn</zorder>
    <zorder>Brow_R_lateral_fibers_Btn</zorder>
    <zorder>Brow_R_procerus_Btn</zorder>
+   <zorder>Warn_Text</zorder>
   </widget>
-  <zorder>BtnGrp</zorder>
-  <zorder>Warn_Text</zorder>
  </widget>
  <resources>
-  <include location="icon/facial_image.qrc"/>
+  <include location="../icon/facial_image.qrc"/>
  </resources>
  <connections/>
 </ui>

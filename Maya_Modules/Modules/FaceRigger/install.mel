@@ -60,19 +60,7 @@ global proc installFacial()
 	string $destWindows=$verPath;
 	sysFile -makeDir ($verPath);
 	sysFile -copy $destWindows $srcWindows;
-
-    print("""
-	_____________________________________
-	  ______              _____  _       
-	 |  ____/\           |  __ \(_)      
-	 | |__ /  \   ___ ___| |__) |_  __ _ 
-	 |  __/ /\ \ / __/ _ \  _  /| |/ _` |
-	 | | / ____ \ (_|  __/ | \ \| | (_| |
-	 |_|/_/    \_\___\___|_|  \_\_|\__, |
-	                                __/ |
-	                               |___/ 
-	_____________________________________
-    """)	
+	//print ("\n// "+$scriptName2+" has been added to current shelf.\n");
 }
 
 

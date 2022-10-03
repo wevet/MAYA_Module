@@ -1961,13 +1961,13 @@
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: rgb(0, 170, 127);</string>
+     <string notr="true">color:rgb(0, 170, 255);</string>
     </property>
     <property name="text">
      <string>Update Scene</string>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>420</x>
@@ -2214,7 +2214,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -2227,7 +2227,7 @@
      <item>
       <widget class="QLabel" name="NameSpace_Text">
        <property name="styleSheet">
-        <string notr="true">color: rgb(0, 170, 127);</string>
+        <string notr="true">color:rgb(0, 170, 255);</string>
        </property>
        <property name="text">
         <string>NameSpace :</string>
@@ -2253,13 +2253,13 @@
      <x>0</x>
      <y>0</y>
      <width>705</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
  </widget>
  <resources>
-  <include location="icon/facial_image_picker.qrc"/>
+  <include location="../icon/facial_image_picker.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -20,9 +20,6 @@ class UndoContext(object):
 
 
 def maya_main_window():
-    """
-    Return the Maya main window widget as a Python object
-    """
     main_window_ptr = omui.MQtUtil.mainWindow()
     return wrapInstance(int(main_window_ptr), QtWidgets.QWidget)
 
@@ -443,7 +440,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
     def Reset_OralBtnCmd(self, *args):
         if cmds.objExists(self.np + 'Oral_Cavity_All_Ctrl_grp'):
             self.Oral_Cavity_All_Ctrl_reset()
-            print( 'Oral Cavity ctrl reset')
+            print('Oral Cavity ctrl reset')
 
     def Select_OralBtnCmd(self, *args):
         with UndoContext():
@@ -520,6 +517,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_brow_Btn.setEnabled(False)
             self.ui.P_L_brow_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_brow_02_ctrl'):
             if cmds.objExists(self.np + 'L_lateral_fibers_brow_ctrl') is False:
                 self.ui.P_L_brow_02_Btn.setStyleSheet(self.green)
@@ -542,6 +540,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_brow_02_Btn.setEnabled(False)
             self.ui.P_L_brow_02_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_brow_03_ctrl'):
             if cmds.objExists(self.np + 'L_medial_fibers_brow_ctrl') is False and cmds.objExists(self.np + 'L_lateral_fibers_brow_ctrl') is False:
                 self.ui.P_L_brow_03_Btn.setStyleSheet(self.green)
@@ -564,6 +563,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_brow_03_Btn.setEnabled(False)
             self.ui.P_L_brow_03_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_medial_fibers_brow_ctrl'):
             self.ui.P_L_medial_fibers_brow_Btn.setStyleSheet(self.green)
             self.ui.P_L_medial_fibers_brow_Btn.setEnabled(True)
@@ -576,6 +576,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_medial_fibers_brow_Btn.setEnabled(False)
             self.ui.P_L_medial_fibers_brow_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_lateral_fibers_brow_ctrl'):
             self.ui.P_L_lateral_fibers_brow_Btn.setStyleSheet(self.green)
             self.ui.P_L_lateral_fibers_brow_Btn.setEnabled(True)
@@ -588,6 +589,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_lateral_fibers_brow_Btn.setEnabled(False)
             self.ui.P_L_lateral_fibers_brow_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_procerus_brow_FK_ctrl'):
             self.ui.P_L_procerus_brow_Btn.setStyleSheet(self.white)
             self.ui.P_L_procerus_brow_Btn.setEnabled(True)
@@ -600,6 +602,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_procerus_brow_Btn.setEnabled(False)
             self.ui.P_L_procerus_brow_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_brow_ctrl'):
             if cmds.objExists(self.np + 'R_medial_fibers_brow_ctrl') is False:
                 self.ui.P_R_brow_Btn.setStyleSheet(self.blue)
@@ -622,6 +625,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_brow_Btn.setEnabled(False)
             self.ui.P_R_brow_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_brow_02_ctrl'):
             if cmds.objExists(self.np + 'R_lateral_fibers_brow_ctrl') is False:
                 self.ui.P_R_brow_02_Btn.setStyleSheet(self.blue)
@@ -644,6 +648,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_brow_02_Btn.setEnabled(False)
             self.ui.P_R_brow_02_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_brow_03_ctrl'):
             if cmds.objExists(self.np + 'R_medial_fibers_brow_ctrl') is False and cmds.objExists(self.np + 'R_lateral_fibers_brow_ctrl') is False:
                 self.ui.P_R_brow_03_Btn.setStyleSheet(self.blue)
@@ -666,6 +671,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_brow_03_Btn.setEnabled(False)
             self.ui.P_R_brow_03_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_medial_fibers_brow_ctrl'):
             self.ui.P_R_medial_fibers_brow_Btn.setStyleSheet(self.blue)
             self.ui.P_R_medial_fibers_brow_Btn.setEnabled(True)
@@ -678,6 +684,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_medial_fibers_brow_Btn.setEnabled(False)
             self.ui.P_R_medial_fibers_brow_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_lateral_fibers_brow_ctrl'):
             self.ui.P_R_lateral_fibers_brow_Btn.setStyleSheet(self.blue)
             self.ui.P_R_lateral_fibers_brow_Btn.setEnabled(True)
@@ -690,6 +697,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_lateral_fibers_brow_Btn.setEnabled(False)
             self.ui.P_R_lateral_fibers_brow_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_procerus_brow_FK_ctrl'):
             self.ui.P_R_procerus_brow_Btn.setStyleSheet(self.white)
             self.ui.P_R_procerus_brow_Btn.setEnabled(True)
@@ -702,6 +710,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_procerus_brow_Btn.setEnabled(False)
             self.ui.P_R_procerus_brow_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Center_brow_ctrl'):
             if cmds.objExists(self.np + 'L_brow_ctrl') is True or cmds.objExists(self.np + 'R_brow_ctrl') is True:
                 self.ui.P_Center_brow_Btn.setStyleSheet(self.red)
@@ -724,6 +733,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_Center_brow_Btn.setEnabled(False)
             self.ui.P_Center_brow_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_brow_master_ctrl'):
             self.ui.P_L_brow_master_Btn.setStyleSheet(self.magenta)
             self.ui.P_L_brow_master_Btn.setEnabled(True)
@@ -736,6 +746,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_brow_master_Btn.setEnabled(False)
             self.ui.P_L_brow_master_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_brow_master_ctrl'):
             self.ui.P_R_brow_master_Btn.setStyleSheet(self.magenta)
             self.ui.P_R_brow_master_Btn.setEnabled(True)
@@ -748,6 +759,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_brow_master_Btn.setEnabled(False)
             self.ui.P_R_brow_master_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_eye_blink_ctrl'):
             self.ui.P_L_eye_blink_Btn.setStyleSheet(self.green)
             self.ui.P_L_eye_blink_Btn.setEnabled(True)
@@ -760,6 +772,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_eye_blink_Btn.setEnabled(False)
             self.ui.P_L_eye_blink_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_eye_blink_ctrl'):
             self.ui.P_R_eye_blink_Btn.setStyleSheet(self.blue)
             self.ui.P_R_eye_blink_Btn.setEnabled(True)
@@ -772,6 +785,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_eye_blink_Btn.setEnabled(False)
             self.ui.P_R_eye_blink_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_eye_lower_ctrl'):
             self.ui.P_L_eye_lower_Btn.setStyleSheet(self.green)
             self.ui.P_L_eye_lower_Btn.setEnabled(True)
@@ -784,6 +798,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_eye_lower_Btn.setEnabled(False)
             self.ui.P_L_eye_lower_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_eye_lower_ctrl'):
             self.ui.P_R_eye_lower_Btn.setStyleSheet(self.blue)
             self.ui.P_R_eye_lower_Btn.setEnabled(True)
@@ -796,6 +811,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_eye_lower_Btn.setEnabled(False)
             self.ui.P_R_eye_lower_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_eye_lacrimal_ctrl'):
             self.ui.P_L_eye_lacrimal_Btn.setStyleSheet(self.red)
             self.ui.P_L_eye_lacrimal_Btn.setEnabled(True)
@@ -808,6 +824,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_eye_lacrimal_Btn.setEnabled(False)
             self.ui.P_L_eye_lacrimal_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_eye_lacrimal_upper_FK_ctrl'):
             self.ui.P_L_eye_lacrimal_upper_Btn.setStyleSheet(self.white)
             self.ui.P_L_eye_lacrimal_upper_Btn.setEnabled(True)
@@ -820,6 +837,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_eye_lacrimal_upper_Btn.setEnabled(False)
             self.ui.P_L_eye_lacrimal_upper_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_eye_lacrimal_lower_FK_ctrl'):
             self.ui.P_L_eye_lacrimal_lower_Btn.setStyleSheet(self.white)
             self.ui.P_L_eye_lacrimal_lower_Btn.setEnabled(True)
@@ -832,6 +850,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_eye_lacrimal_lower_Btn.setEnabled(False)
             self.ui.P_L_eye_lacrimal_lower_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_eye_back_ctrl'):
             self.ui.P_L_eye_back_Btn.setStyleSheet(self.red)
             self.ui.P_L_eye_back_Btn.setEnabled(True)
@@ -844,6 +863,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_eye_back_Btn.setEnabled(False)
             self.ui.P_L_eye_back_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_eye_back_upper_FK_ctrl'):
             self.ui.P_L_eye_back_upper_Btn.setStyleSheet(self.white)
             self.ui.P_L_eye_back_upper_Btn.setEnabled(True)
@@ -856,6 +876,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_eye_back_upper_Btn.setEnabled(False)
             self.ui.P_L_eye_back_upper_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_eye_back_lower_FK_ctrl'):
             self.ui.P_L_eye_back_lower_Btn.setStyleSheet(self.white)
             self.ui.P_L_eye_back_lower_Btn.setEnabled(True)
@@ -868,6 +889,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_eye_back_lower_Btn.setEnabled(False)
             self.ui.P_L_eye_back_lower_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_eye_double_ctrl'):
             self.ui.P_L_eye_double_Btn.setStyleSheet(self.red)
             self.ui.P_L_eye_double_Btn.setEnabled(True)
@@ -880,6 +902,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_eye_double_Btn.setEnabled(False)
             self.ui.P_L_eye_double_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_eye_lacrimal_ctrl'):
             self.ui.P_R_eye_lacrimal_Btn.setStyleSheet(self.red)
             self.ui.P_R_eye_lacrimal_Btn.setEnabled(True)
@@ -892,6 +915,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_eye_lacrimal_Btn.setEnabled(False)
             self.ui.P_R_eye_lacrimal_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_eye_lacrimal_upper_FK_ctrl'):
             self.ui.P_R_eye_lacrimal_upper_Btn.setStyleSheet(self.white)
             self.ui.P_R_eye_lacrimal_upper_Btn.setEnabled(True)
@@ -904,6 +928,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_eye_lacrimal_upper_Btn.setEnabled(False)
             self.ui.P_R_eye_lacrimal_upper_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_eye_lacrimal_lower_FK_ctrl'):
             self.ui.P_R_eye_lacrimal_lower_Btn.setStyleSheet(self.white)
             self.ui.P_R_eye_lacrimal_lower_Btn.setEnabled(True)
@@ -916,6 +941,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_eye_lacrimal_lower_Btn.setEnabled(False)
             self.ui.P_R_eye_lacrimal_lower_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_eye_back_ctrl'):
             self.ui.P_R_eye_back_Btn.setStyleSheet(self.red)
             self.ui.P_R_eye_back_Btn.setEnabled(True)
@@ -928,6 +954,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_eye_back_Btn.setEnabled(False)
             self.ui.P_R_eye_back_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_eye_back_upper_FK_ctrl'):
             self.ui.P_R_eye_back_upper_Btn.setStyleSheet(self.white)
             self.ui.P_R_eye_back_upper_Btn.setEnabled(True)
@@ -940,6 +967,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_eye_back_upper_Btn.setEnabled(False)
             self.ui.P_R_eye_back_upper_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_eye_back_lower_FK_ctrl'):
             self.ui.P_R_eye_back_lower_Btn.setStyleSheet(self.white)
             self.ui.P_R_eye_back_lower_Btn.setEnabled(True)
@@ -952,6 +980,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_eye_back_lower_Btn.setEnabled(False)
             self.ui.P_R_eye_back_lower_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_eye_double_ctrl'):
             self.ui.P_R_eye_double_Btn.setStyleSheet(self.red)
             self.ui.P_R_eye_double_Btn.setEnabled(True)
@@ -964,42 +993,49 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_eye_double_Btn.setEnabled(False)
             self.ui.P_R_eye_double_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_eye_target_ctrl'):
             self.ui.P_L_eye_target_Btn.setStyleSheet(self.green)
             self.ui.P_L_eye_target_Btn.setEnabled(True)
         else:
             self.ui.P_L_eye_target_Btn.setEnabled(False)
             self.ui.P_L_eye_target_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_eye_target_ctrl'):
             self.ui.P_R_eye_target_Btn.setStyleSheet(self.blue)
             self.ui.P_R_eye_target_Btn.setEnabled(True)
         else:
             self.ui.P_R_eye_target_Btn.setEnabled(False)
             self.ui.P_R_eye_target_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Eye_target_Master_ctrl'):
             self.ui.P_Eye_target_Master_Btn.setStyleSheet(self.magenta)
             self.ui.P_Eye_target_Master_Btn.setEnabled(True)
         else:
             self.ui.P_Eye_target_Master_Btn.setEnabled(False)
             self.ui.P_Eye_target_Master_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Eye_World_point_loc'):
             self.ui.P_Eye_World_point_Btn.setStyleSheet(self.yellow)
             self.ui.P_Eye_World_point_Btn.setEnabled(True)
         else:
             self.ui.P_Eye_World_point_Btn.setEnabled(False)
             self.ui.P_Eye_World_point_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_Eye_World_point_ctrl'):
             self.ui.P_L_Eye_World_point_Btn.setStyleSheet(self.yellow)
             self.ui.P_L_Eye_World_point_Btn.setEnabled(True)
         else:
             self.ui.P_L_Eye_World_point_Btn.setEnabled(False)
             self.ui.P_L_Eye_World_point_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_Eye_World_point_ctrl'):
             self.ui.P_R_Eye_World_point_Btn.setStyleSheet(self.yellow)
             self.ui.P_R_Eye_World_point_Btn.setEnabled(True)
         else:
             self.ui.P_R_Eye_World_point_Btn.setEnabled(False)
             self.ui.P_R_Eye_World_point_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_nose_ctrl'):
             self.ui.P_L_nose_Btn.setStyleSheet(self.green)
             self.ui.P_L_nose_Btn.setEnabled(True)
@@ -1012,6 +1048,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_nose_Btn.setEnabled(False)
             self.ui.P_L_nose_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_nasalis_transverse_nose_FK_ctrl'):
             self.ui.P_L_nasalis_transverse_nose_Btn.setStyleSheet(self.white)
             self.ui.P_L_nasalis_transverse_nose_Btn.setEnabled(True)
@@ -1024,6 +1061,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_nasalis_transverse_nose_Btn.setEnabled(False)
             self.ui.P_L_nasalis_transverse_nose_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_procerus_nose_FK_ctrl'):
             self.ui.P_L_procerus_nose_Btn.setStyleSheet(self.white)
             self.ui.P_L_procerus_nose_Btn.setEnabled(True)
@@ -1036,6 +1074,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_procerus_nose_Btn.setEnabled(False)
             self.ui.P_L_procerus_nose_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_nasolabial_fold_nose_FK_ctrl'):
             self.ui.P_L_nasolabial_fold_nose_Btn.setStyleSheet(self.white)
             self.ui.P_L_nasolabial_fold_nose_Btn.setEnabled(True)
@@ -1048,6 +1087,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_nasolabial_fold_nose_Btn.setEnabled(False)
             self.ui.P_L_nasolabial_fold_nose_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_nose_ctrl'):
             self.ui.P_R_nose_Btn.setStyleSheet(self.blue)
             self.ui.P_R_nose_Btn.setEnabled(True)
@@ -1060,6 +1100,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_nose_Btn.setEnabled(False)
             self.ui.P_R_nose_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_nasalis_transverse_nose_FK_ctrl'):
             self.ui.P_R_nasalis_transverse_nose_Btn.setStyleSheet(self.white)
             self.ui.P_R_nasalis_transverse_nose_Btn.setEnabled(True)
@@ -1072,6 +1113,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_nasalis_transverse_nose_Btn.setEnabled(False)
             self.ui.P_R_nasalis_transverse_nose_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_procerus_nose_FK_ctrl'):
             self.ui.P_R_procerus_nose_Btn.setStyleSheet(self.white)
             self.ui.P_R_procerus_nose_Btn.setEnabled(True)
@@ -1084,6 +1126,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_procerus_nose_Btn.setEnabled(False)
             self.ui.P_R_procerus_nose_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_nasolabial_fold_nose_FK_ctrl'):
             self.ui.P_R_nasolabial_fold_nose_Btn.setStyleSheet(self.white)
             self.ui.P_R_nasolabial_fold_nose_Btn.setEnabled(True)
@@ -1096,6 +1139,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_nasolabial_fold_nose_Btn.setEnabled(False)
             self.ui.P_R_nasolabial_fold_nose_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Nose_ctrl'):
             self.ui.P_Nose_Btn.setStyleSheet(self.red)
             self.ui.P_Nose_Btn.setEnabled(True)
@@ -1108,6 +1152,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_Nose_Btn.setEnabled(False)
             self.ui.P_Nose_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Lower_nose_ctrl'):
             self.ui.P_Lower_nose_Btn.setStyleSheet(self.red)
             self.ui.P_Lower_nose_Btn.setEnabled(True)
@@ -1120,6 +1165,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_Lower_nose_Btn.setEnabled(False)
             self.ui.P_Lower_nose_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'depressor_septi_nose_FK_ctrl'):
             self.ui.P_depressor_septi_nose_Btn.setStyleSheet(self.white)
             self.ui.P_depressor_septi_nose_Btn.setEnabled(True)
@@ -1132,6 +1178,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_depressor_septi_nose_Btn.setEnabled(False)
             self.ui.P_depressor_septi_nose_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_cheek_ctrl'):
             self.ui.P_L_cheek_Btn.setStyleSheet(self.green)
             self.ui.P_L_cheek_Btn.setEnabled(True)
@@ -1144,6 +1191,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_cheek_Btn.setEnabled(False)
             self.ui.P_L_cheek_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_cheek_ctrl'):
             self.ui.P_R_cheek_Btn.setStyleSheet(self.blue)
             self.ui.P_R_cheek_Btn.setEnabled(True)
@@ -1156,6 +1204,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_cheek_Btn.setEnabled(False)
             self.ui.P_R_cheek_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_upper_cheek_ctrl'):
             self.ui.P_L_upper_cheek_Btn.setStyleSheet(self.red)
             self.ui.P_L_upper_cheek_Btn.setEnabled(True)
@@ -1168,6 +1217,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_upper_cheek_Btn.setEnabled(False)
             self.ui.P_L_upper_cheek_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_outer_orbicularis_cheek_FK_ctrl'):
             self.ui.P_L_outer_orbicularis_cheek_Btn.setStyleSheet(self.white)
             self.ui.P_L_outer_orbicularis_cheek_Btn.setEnabled(True)
@@ -1180,6 +1230,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_outer_orbicularis_cheek_Btn.setEnabled(False)
             self.ui.P_L_outer_orbicularis_cheek_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_inner_orbicularis_cheek_FK_ctrl'):
             self.ui.P_L_inner_orbicularis_cheek_Btn.setStyleSheet(self.white)
             self.ui.P_L_inner_orbicularis_cheek_Btn.setEnabled(True)
@@ -1192,6 +1243,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_inner_orbicularis_cheek_Btn.setEnabled(False)
             self.ui.P_L_inner_orbicularis_cheek_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_upper_cheek_ctrl'):
             self.ui.P_R_upper_cheek_Btn.setStyleSheet(self.red)
             self.ui.P_R_upper_cheek_Btn.setEnabled(True)
@@ -1204,6 +1256,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_upper_cheek_Btn.setEnabled(False)
             self.ui.P_R_upper_cheek_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_outer_orbicularis_cheek_FK_ctrl'):
             self.ui.P_R_outer_orbicularis_cheek_Btn.setStyleSheet(self.white)
             self.ui.P_R_outer_orbicularis_cheek_Btn.setEnabled(True)
@@ -1216,6 +1269,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_outer_orbicularis_cheek_Btn.setEnabled(False)
             self.ui.P_R_outer_orbicularis_cheek_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_inner_orbicularis_cheek_FK_ctrl'):
             self.ui.P_R_inner_orbicularis_cheek_Btn.setStyleSheet(self.white)
             self.ui.P_R_inner_orbicularis_cheek_Btn.setEnabled(True)
@@ -1228,6 +1282,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_inner_orbicularis_cheek_Btn.setEnabled(False)
             self.ui.P_R_inner_orbicularis_cheek_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_lower_cheek_ctrl'):
             self.ui.P_L_lower_cheek_Btn.setStyleSheet(self.red)
             self.ui.P_L_lower_cheek_Btn.setEnabled(True)
@@ -1240,6 +1295,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_lower_cheek_Btn.setEnabled(False)
             self.ui.P_L_lower_cheek_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_lower_cheek_ctrl'):
             self.ui.P_R_lower_cheek_Btn.setStyleSheet(self.red)
             self.ui.P_R_lower_cheek_Btn.setEnabled(True)
@@ -1252,6 +1308,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_lower_cheek_Btn.setEnabled(False)
             self.ui.P_R_lower_cheek_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_lower_liplid_ctrl'):
             self.ui.P_L_lower_liplid_Btn.setStyleSheet(self.red)
             self.ui.P_L_lower_liplid_Btn.setEnabled(True)
@@ -1264,6 +1321,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_lower_liplid_Btn.setEnabled(False)
             self.ui.P_L_lower_liplid_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_lower_liplid_ctrl'):
             self.ui.P_R_lower_liplid_Btn.setStyleSheet(self.red)
             self.ui.P_R_lower_liplid_Btn.setEnabled(True)
@@ -1276,6 +1334,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_lower_liplid_Btn.setEnabled(False)
             self.ui.P_R_lower_liplid_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_lip_corner_Ctrl'):
             self.ui.P_L_lip_corner_Btn.setStyleSheet(self.green)
             self.ui.P_L_lip_corner_Btn.setEnabled(True)
@@ -1288,6 +1347,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_lip_corner_Btn.setEnabled(False)
             self.ui.P_L_lip_corner_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_lip_corner_Ctrl'):
             self.ui.P_R_lip_corner_Btn.setStyleSheet(self.blue)
             self.ui.P_R_lip_corner_Btn.setEnabled(True)
@@ -1300,6 +1360,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_lip_corner_Btn.setEnabled(False)
             self.ui.P_R_lip_corner_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_lip_corner_up_Ctrl'):
             self.ui.P_L_lip_corner_up_Btn.setStyleSheet(self.red)
             self.ui.P_L_lip_corner_up_Btn.setEnabled(True)
@@ -1312,6 +1373,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_lip_corner_up_Btn.setEnabled(False)
             self.ui.P_L_lip_corner_up_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_lip_corner_up_FK_Ctrl'):
             self.ui.P_L_lip_corner_up_FK_Btn.setStyleSheet(self.white)
             self.ui.P_L_lip_corner_up_FK_Btn.setEnabled(True)
@@ -1324,6 +1386,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_lip_corner_up_FK_Btn.setEnabled(False)
             self.ui.P_L_lip_corner_up_FK_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_lip_corner_up_Ctrl'):
             self.ui.P_R_lip_corner_up_Btn.setStyleSheet(self.red)
             self.ui.P_R_lip_corner_up_Btn.setEnabled(True)
@@ -1336,6 +1399,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_lip_corner_up_Btn.setEnabled(False)
             self.ui.P_R_lip_corner_up_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_lip_corner_up_FK_Ctrl'):
             self.ui.P_R_lip_corner_up_FK_Btn.setStyleSheet(self.white)
             self.ui.P_R_lip_corner_up_FK_Btn.setEnabled(True)
@@ -1348,6 +1412,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_lip_corner_up_FK_Btn.setEnabled(False)
             self.ui.P_R_lip_corner_up_FK_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_lip_corner_down_Ctrl'):
             self.ui.P_L_lip_corner_down_Btn.setStyleSheet(self.red)
             self.ui.P_L_lip_corner_down_Btn.setEnabled(True)
@@ -1360,6 +1425,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_lip_corner_down_Btn.setEnabled(False)
             self.ui.P_L_lip_corner_down_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_lip_corner_down_FK_Ctrl'):
             self.ui.P_L_lip_corner_down_FK_Btn.setStyleSheet(self.white)
             self.ui.P_L_lip_corner_down_FK_Btn.setEnabled(True)
@@ -1372,6 +1438,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_lip_corner_down_FK_Btn.setEnabled(False)
             self.ui.P_L_lip_corner_down_FK_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_lip_corner_down_Ctrl'):
             self.ui.P_R_lip_corner_down_Btn.setStyleSheet(self.red)
             self.ui.P_R_lip_corner_down_Btn.setEnabled(True)
@@ -1384,6 +1451,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_lip_corner_down_Btn.setEnabled(False)
             self.ui.P_R_lip_corner_down_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_lip_corner_down_FK_Ctrl'):
             self.ui.P_R_lip_corner_down_FK_Btn.setStyleSheet(self.white)
             self.ui.P_R_lip_corner_down_FK_Btn.setEnabled(True)
@@ -1396,6 +1464,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_lip_corner_down_FK_Btn.setEnabled(False)
             self.ui.P_R_lip_corner_down_FK_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Upper_lip_Master_ctrl'):
             self.ui.P_Upper_lip_Master_Btn.setStyleSheet(self.magenta)
             self.ui.P_Upper_lip_Master_Btn.setEnabled(True)
@@ -1408,6 +1477,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_Upper_lip_Master_Btn.setEnabled(False)
             self.ui.P_Upper_lip_Master_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Lower_lip_Master_ctrl'):
             self.ui.P_Lower_lip_Master_Btn.setStyleSheet(self.magenta)
             self.ui.P_Lower_lip_Master_Btn.setEnabled(True)
@@ -1420,6 +1490,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_Lower_lip_Master_Btn.setEnabled(False)
             self.ui.P_Lower_lip_Master_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Upper_lip_ctrl'):
             self.ui.P_Upper_lip_Btn.setStyleSheet(self.yellow)
             self.ui.P_Upper_lip_Btn.setEnabled(True)
@@ -1432,6 +1503,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_Upper_lip_Btn.setEnabled(False)
             self.ui.P_Upper_lip_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Upper_lip_FK_ctrl'):
             self.ui.P_Upper_lip_FK_Btn.setStyleSheet(self.white)
             self.ui.P_Upper_lip_FK_Btn.setEnabled(True)
@@ -1444,6 +1516,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_Upper_lip_FK_Btn.setEnabled(False)
             self.ui.P_Upper_lip_FK_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Lower_lip_ctrl'):
             self.ui.P_Lower_lip_Btn.setStyleSheet(self.yellow)
             self.ui.P_Lower_lip_Btn.setEnabled(True)
@@ -1456,6 +1529,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_Lower_lip_Btn.setEnabled(False)
             self.ui.P_Lower_lip_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Lower_lip_FK_ctrl'):
             self.ui.P_Lower_lip_FK_Btn.setStyleSheet(self.white)
             self.ui.P_Lower_lip_FK_Btn.setEnabled(True)
@@ -1468,6 +1542,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_Lower_lip_FK_Btn.setEnabled(False)
             self.ui.P_Lower_lip_FK_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Lower_lip_outer_ctrl'):
             self.ui.P_Lower_lip_outer_Btn.setStyleSheet(self.red)
             self.ui.P_Lower_lip_outer_Btn.setEnabled(True)
@@ -1480,6 +1555,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_Lower_lip_outer_Btn.setEnabled(False)
             self.ui.P_Lower_lip_outer_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_lip_upper_side_ctrl'):
             self.ui.P_L_lip_upper_side_Btn.setStyleSheet(self.red)
             self.ui.P_L_lip_upper_side_Btn.setEnabled(True)
@@ -1492,6 +1568,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_lip_upper_side_Btn.setEnabled(False)
             self.ui.P_L_lip_upper_side_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_lip_upper_side_FK_ctrl'):
             self.ui.P_L_lip_upper_side_FK_Btn.setStyleSheet(self.white)
             self.ui.P_L_lip_upper_side_FK_Btn.setEnabled(True)
@@ -1504,6 +1581,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_lip_upper_side_FK_Btn.setEnabled(False)
             self.ui.P_L_lip_upper_side_FK_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_lip_upper_side_02_FK_ctrl'):
             self.ui.P_L_lip_upper_side_02_FK_Btn.setStyleSheet(self.white)
             self.ui.P_L_lip_upper_side_02_FK_Btn.setEnabled(True)
@@ -1516,6 +1594,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_lip_upper_side_02_FK_Btn.setEnabled(False)
             self.ui.P_L_lip_upper_side_02_FK_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_lip_upper_outer_ctrl'):
             self.ui.P_L_lip_upper_outer_Btn.setStyleSheet(self.red)
             self.ui.P_L_lip_upper_outer_Btn.setEnabled(True)
@@ -1528,6 +1607,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_lip_upper_outer_Btn.setEnabled(False)
             self.ui.P_L_lip_upper_outer_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_lip_upper_side_ctrl'):
             self.ui.P_R_lip_upper_side_Btn.setStyleSheet(self.red)
             self.ui.P_R_lip_upper_side_Btn.setEnabled(True)
@@ -1540,6 +1620,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_lip_upper_side_Btn.setEnabled(False)
             self.ui.P_R_lip_upper_side_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_lip_upper_side_FK_ctrl'):
             self.ui.P_R_lip_upper_side_FK_Btn.setStyleSheet(self.white)
             self.ui.P_R_lip_upper_side_FK_Btn.setEnabled(True)
@@ -1552,6 +1633,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_lip_upper_side_FK_Btn.setEnabled(False)
             self.ui.P_R_lip_upper_side_FK_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_lip_upper_side_02_FK_ctrl'):
             self.ui.P_R_lip_upper_side_02_FK_Btn.setStyleSheet(self.white)
             self.ui.P_R_lip_upper_side_02_FK_Btn.setEnabled(True)
@@ -1564,6 +1646,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_lip_upper_side_02_FK_Btn.setEnabled(False)
             self.ui.P_R_lip_upper_side_02_FK_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_lip_upper_outer_ctrl'):
             self.ui.P_R_lip_upper_outer_Btn.setStyleSheet(self.red)
             self.ui.P_R_lip_upper_outer_Btn.setEnabled(True)
@@ -1576,6 +1659,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_lip_upper_outer_Btn.setEnabled(False)
             self.ui.P_R_lip_upper_outer_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_lip_lower_side_ctrl'):
             self.ui.P_L_lip_lower_side_Btn.setStyleSheet(self.red)
             self.ui.P_L_lip_lower_side_Btn.setEnabled(True)
@@ -1588,6 +1672,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_lip_lower_side_Btn.setEnabled(False)
             self.ui.P_L_lip_lower_side_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_lip_lower_side_FK_ctrl'):
             self.ui.P_L_lip_lower_side_FK_Btn.setStyleSheet(self.white)
             self.ui.P_L_lip_lower_side_FK_Btn.setEnabled(True)
@@ -1600,6 +1685,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_lip_lower_side_FK_Btn.setEnabled(False)
             self.ui.P_L_lip_lower_side_FK_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_lip_lower_side_02_FK_ctrl'):
             self.ui.P_L_lip_lower_side_02_FK_Btn.setStyleSheet(self.white)
             self.ui.P_L_lip_lower_side_02_FK_Btn.setEnabled(True)
@@ -1612,6 +1698,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_lip_lower_side_02_FK_Btn.setEnabled(False)
             self.ui.P_L_lip_lower_side_02_FK_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'L_lip_lower_outer_ctrl'):
             self.ui.P_L_lip_lower_outer_Btn.setStyleSheet(self.red)
             self.ui.P_L_lip_lower_outer_Btn.setEnabled(True)
@@ -1624,6 +1711,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_L_lip_lower_outer_Btn.setEnabled(False)
             self.ui.P_L_lip_lower_outer_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_lip_lower_side_ctrl'):
             self.ui.P_R_lip_lower_side_Btn.setStyleSheet(self.red)
             self.ui.P_R_lip_lower_side_Btn.setEnabled(True)
@@ -1636,6 +1724,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_lip_lower_side_Btn.setEnabled(False)
             self.ui.P_R_lip_lower_side_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_lip_lower_side_FK_ctrl'):
             self.ui.P_R_lip_lower_side_FK_Btn.setStyleSheet(self.white)
             self.ui.P_R_lip_lower_side_FK_Btn.setEnabled(True)
@@ -1648,6 +1737,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_lip_lower_side_FK_Btn.setEnabled(False)
             self.ui.P_R_lip_lower_side_FK_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_lip_lower_side_02_FK_ctrl'):
             self.ui.P_R_lip_lower_side_02_FK_Btn.setStyleSheet(self.white)
             self.ui.P_R_lip_lower_side_02_FK_Btn.setEnabled(True)
@@ -1660,6 +1750,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_lip_lower_side_02_FK_Btn.setEnabled(False)
             self.ui.P_R_lip_lower_side_02_FK_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'R_lip_lower_outer_ctrl'):
             self.ui.P_R_lip_lower_outer_Btn.setStyleSheet(self.red)
             self.ui.P_R_lip_lower_outer_Btn.setEnabled(True)
@@ -1672,6 +1763,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_R_lip_lower_outer_Btn.setEnabled(False)
             self.ui.P_R_lip_lower_outer_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Lip_Master_ctrl'):
             self.ui.P_Lip_Master_Btn.setStyleSheet(self.magenta)
             self.ui.P_Lip_Master_Btn.setEnabled(True)
@@ -1684,6 +1776,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_Lip_Master_Btn.setEnabled(False)
             self.ui.P_Lip_Master_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Jaw_Master_Ctrl'):
             self.ui.P_Jaw_Master_Btn.setStyleSheet(self.yellow)
             self.ui.P_Jaw_Master_Btn.setEnabled(True)
@@ -1696,42 +1789,49 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_Jaw_Master_Btn.setEnabled(False)
             self.ui.P_Jaw_Master_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Lip_FACS_Ctrl'):
             self.ui.P_Lip_FACS_Btn.setStyleSheet(self.red)
             self.ui.P_Lip_FACS_Btn.setEnabled(True)
         else:
             self.ui.P_Lip_FACS_Btn.setEnabled(False)
             self.ui.P_Lip_FACS_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Lip_FACS_bar_ctrl'):
             self.ui.P_Lip_FACS_bar_Btn.setStyleSheet(self.white)
             self.ui.P_Lip_FACS_bar_Btn.setEnabled(True)
         else:
             self.ui.P_Lip_FACS_bar_Btn.setEnabled(False)
             self.ui.P_Lip_FACS_bar_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Lip_FACS_L_bar_ctrl'):
             self.ui.P_Lip_FACS_L_bar_Btn.setStyleSheet(self.green)
             self.ui.P_Lip_FACS_L_bar_Btn.setEnabled(True)
         else:
             self.ui.P_Lip_FACS_L_bar_Btn.setEnabled(False)
             self.ui.P_Lip_FACS_L_bar_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Lip_FACS_R_bar_ctrl'):
             self.ui.P_Lip_FACS_R_bar_Btn.setStyleSheet(self.blue)
             self.ui.P_Lip_FACS_R_bar_Btn.setEnabled(True)
         else:
             self.ui.P_Lip_FACS_R_bar_Btn.setEnabled(False)
             self.ui.P_Lip_FACS_R_bar_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Lip_FACS_upper_bar_ctrl'):
             self.ui.P_Lip_FACS_upper_bar_Btn.setStyleSheet(self.yellow)
             self.ui.P_Lip_FACS_upper_bar_Btn.setEnabled(True)
         else:
             self.ui.P_Lip_FACS_upper_bar_Btn.setEnabled(False)
             self.ui.P_Lip_FACS_upper_bar_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Lip_FACS_lower_bar_ctrl'):
             self.ui.P_Lip_FACS_lower_bar_Btn.setStyleSheet(self.yellow)
             self.ui.P_Lip_FACS_lower_bar_Btn.setEnabled(True)
         else:
             self.ui.P_Lip_FACS_lower_bar_Btn.setEnabled(False)
             self.ui.P_Lip_FACS_lower_bar_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Upper_teeth_ctrl'):
             self.ui.P_Upper_teeth_Btn.setStyleSheet(self.red)
             self.ui.P_Upper_teeth_Btn.setEnabled(True)
@@ -1744,6 +1844,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_Upper_teeth_Btn.setEnabled(False)
             self.ui.P_Upper_teeth_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Lower_teeth_ctrl'):
             self.ui.P_Lower_teeth_Btn.setStyleSheet(self.red)
             self.ui.P_Lower_teeth_Btn.setEnabled(True)
@@ -1756,6 +1857,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_Lower_teeth_Btn.setEnabled(False)
             self.ui.P_Lower_teeth_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Tongue_ctrl'):
             self.ui.P_Tongue_Btn.setStyleSheet(self.red)
             self.ui.P_Tongue_Btn.setEnabled(True)
@@ -1768,6 +1870,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_Tongue_Btn.setEnabled(False)
             self.ui.P_Tongue_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Tongue_02_ctrl'):
             self.ui.P_Tongue_02_Btn.setStyleSheet(self.red)
             self.ui.P_Tongue_02_Btn.setEnabled(True)
@@ -1780,6 +1883,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_Tongue_02_Btn.setEnabled(False)
             self.ui.P_Tongue_02_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Tongue_03_ctrl'):
             self.ui.P_Tongue_03_Btn.setStyleSheet(self.red)
             self.ui.P_Tongue_03_Btn.setEnabled(True)
@@ -1792,12 +1896,14 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         else:
             self.ui.P_Tongue_03_Btn.setEnabled(False)
             self.ui.P_Tongue_03_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Facial_Master_Ctrl'):
             self.ui.P_Facial_Master_Btn.setStyleSheet(self.magenta)
             self.ui.P_Facial_Master_Btn.setEnabled(True)
         else:
             self.ui.P_Facial_Master_Btn.setEnabled(False)
             self.ui.P_Facial_Master_Btn.setStyleSheet(None)
+
         if cmds.objExists(self.np + 'Facial_Set_Ctrl.Primary_Ctrl'):
             if self.ui.PrimaryCheckBox.isChecked() is True:
                 cmds.setAttr(self.np + 'Facial_Set_Ctrl.Primary_Ctrl', 1)
@@ -4390,7 +4496,6 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
                 cmds.setAttr(self.np + 'Jaw_Master_Ctrl.Tongue_follow', 1)
             if cmds.objExists(self.np + 'Jaw_Master_Ctrl') and cmds.objExists(self.np + 'Lower_teeth_ctrl'):
                 cmds.setAttr(self.np + 'Jaw_Master_Ctrl.Lower_Teeth_follow', 1)
-
 
 if __name__ == '__main__':
     Facial_Picker_window.main()

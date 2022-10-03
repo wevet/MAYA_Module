@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Tuna License Check</string>
+   <string>Valid Check</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(44, 44, 44);</string>
@@ -28,6 +28,9 @@
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
      <widget class="QPushButton" name="okBtn">
+      <property name="styleSheet">
+       <string notr="true">color:rgb(0, 170, 255);</string>
+      </property>
       <property name="text">
        <string>Activate</string>
       </property>
@@ -47,6 +50,9 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QLabel" name="label">
+      <property name="styleSheet">
+       <string notr="true">color:rgb(0, 170, 255);</string>
+      </property>
       <property name="text">
        <string>Please input the Serial-Key.</string>
       </property>
@@ -56,29 +62,6 @@
      <widget class="QLineEdit" name="serialEdit"/>
     </item>
    </layout>
-  </widget>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>140</y>
-     <width>249</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <weight>75</weight>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="lineWidth">
-    <number>2</number>
-   </property>
-   <property name="text">
-    <string>You can find the Serial-Key in the 
-email you used to purchase it.</string>
-   </property>
   </widget>
   <widget class="QLabel" name="label_3">
    <property name="geometry">

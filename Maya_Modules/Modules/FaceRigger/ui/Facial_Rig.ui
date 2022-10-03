@@ -151,7 +151,7 @@
                <color alpha="255">
                 <red>0</red>
                 <green>170</green>
-                <blue>127</blue>
+                <blue>255</blue>
                </color>
               </brush>
              </colorrole>
@@ -169,7 +169,7 @@
                <color alpha="255">
                 <red>0</red>
                 <green>170</green>
-                <blue>127</blue>
+                <blue>255</blue>
                </color>
               </brush>
              </colorrole>
@@ -178,7 +178,7 @@
                <color alpha="255">
                 <red>0</red>
                 <green>170</green>
-                <blue>127</blue>
+                <blue>255</blue>
                </color>
               </brush>
              </colorrole>
@@ -216,7 +216,7 @@
                <color alpha="255">
                 <red>0</red>
                 <green>170</green>
-                <blue>127</blue>
+                <blue>255</blue>
                </color>
               </brush>
              </colorrole>
@@ -234,7 +234,7 @@
                <color alpha="255">
                 <red>0</red>
                 <green>170</green>
-                <blue>127</blue>
+                <blue>255</blue>
                </color>
               </brush>
              </colorrole>
@@ -243,7 +243,7 @@
                <color alpha="255">
                 <red>0</red>
                 <green>170</green>
-                <blue>127</blue>
+                <blue>255</blue>
                </color>
               </brush>
              </colorrole>
@@ -281,7 +281,7 @@
                <color alpha="255">
                 <red>0</red>
                 <green>170</green>
-                <blue>127</blue>
+                <blue>255</blue>
                </color>
               </brush>
              </colorrole>
@@ -299,7 +299,7 @@
                <color alpha="255">
                 <red>0</red>
                 <green>170</green>
-                <blue>127</blue>
+                <blue>255</blue>
                </color>
               </brush>
              </colorrole>
@@ -308,7 +308,7 @@
                <color alpha="255">
                 <red>0</red>
                 <green>170</green>
-                <blue>127</blue>
+                <blue>255</blue>
                </color>
               </brush>
              </colorrole>
@@ -349,7 +349,7 @@
            </font>
           </property>
           <property name="styleSheet">
-           <string notr="true">color: rgb(0, 170, 127);
+           <string notr="true">color:rgb(0, 170, 255);
 border-color: rgb(255, 255, 255);
 selection-background-color: rgb(255, 85, 0);</string>
           </property>
@@ -381,7 +381,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                     <color alpha="255">
                      <red>0</red>
                      <green>170</green>
-                     <blue>127</blue>
+                     <blue>255</blue>
                     </color>
                    </brush>
                   </colorrole>
@@ -399,7 +399,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                     <color alpha="255">
                      <red>0</red>
                      <green>170</green>
-                     <blue>127</blue>
+                     <blue>255</blue>
                     </color>
                    </brush>
                   </colorrole>
@@ -408,7 +408,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                     <color alpha="255">
                      <red>0</red>
                      <green>170</green>
-                     <blue>127</blue>
+                     <blue>255</blue>
                     </color>
                    </brush>
                   </colorrole>
@@ -446,7 +446,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                     <color alpha="255">
                      <red>0</red>
                      <green>170</green>
-                     <blue>127</blue>
+                     <blue>255</blue>
                     </color>
                    </brush>
                   </colorrole>
@@ -464,7 +464,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                     <color alpha="255">
                      <red>0</red>
                      <green>170</green>
-                     <blue>127</blue>
+                     <blue>255</blue>
                     </color>
                    </brush>
                   </colorrole>
@@ -473,7 +473,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                     <color alpha="255">
                      <red>0</red>
                      <green>170</green>
-                     <blue>127</blue>
+                     <blue>255</blue>
                     </color>
                    </brush>
                   </colorrole>
@@ -511,7 +511,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                     <color alpha="255">
                      <red>0</red>
                      <green>170</green>
-                     <blue>127</blue>
+                     <blue>255</blue>
                     </color>
                    </brush>
                   </colorrole>
@@ -529,7 +529,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                     <color alpha="255">
                      <red>0</red>
                      <green>170</green>
-                     <blue>127</blue>
+                     <blue>255</blue>
                     </color>
                    </brush>
                   </colorrole>
@@ -538,7 +538,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                     <color alpha="255">
                      <red>0</red>
                      <green>170</green>
-                     <blue>127</blue>
+                     <blue>255</blue>
                     </color>
                    </brush>
                   </colorrole>
@@ -572,8 +572,11 @@ selection-background-color: rgb(255, 85, 0);</string>
                  </disabled>
                 </palette>
                </property>
+               <property name="autoFillBackground">
+                <bool>false</bool>
+               </property>
                <property name="styleSheet">
-                <string notr="true">selection-background-color: rgb(255, 85, 0);</string>
+                <string notr="true">color:rgb(0, 170, 255);</string>
                </property>
                <property name="text">
                 <string>Create Lip</string>
@@ -650,7 +653,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                     <color alpha="255">
                      <red>0</red>
                      <green>170</green>
-                     <blue>127</blue>
+                     <blue>255</blue>
                     </color>
                    </brush>
                   </colorrole>
@@ -668,7 +671,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                     <color alpha="255">
                      <red>0</red>
                      <green>170</green>
-                     <blue>127</blue>
+                     <blue>255</blue>
                     </color>
                    </brush>
                   </colorrole>
@@ -677,7 +680,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                     <color alpha="255">
                      <red>0</red>
                      <green>170</green>
-                     <blue>127</blue>
+                     <blue>255</blue>
                     </color>
                    </brush>
                   </colorrole>
@@ -715,7 +718,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                     <color alpha="255">
                      <red>0</red>
                      <green>170</green>
-                     <blue>127</blue>
+                     <blue>255</blue>
                     </color>
                    </brush>
                   </colorrole>
@@ -733,7 +736,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                     <color alpha="255">
                      <red>0</red>
                      <green>170</green>
-                     <blue>127</blue>
+                     <blue>255</blue>
                     </color>
                    </brush>
                   </colorrole>
@@ -742,7 +745,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                     <color alpha="255">
                      <red>0</red>
                      <green>170</green>
-                     <blue>127</blue>
+                     <blue>255</blue>
                     </color>
                    </brush>
                   </colorrole>
@@ -780,7 +783,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                     <color alpha="255">
                      <red>0</red>
                      <green>170</green>
-                     <blue>127</blue>
+                     <blue>255</blue>
                     </color>
                    </brush>
                   </colorrole>
@@ -798,7 +801,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                     <color alpha="255">
                      <red>0</red>
                      <green>170</green>
-                     <blue>127</blue>
+                     <blue>255</blue>
                     </color>
                    </brush>
                   </colorrole>
@@ -807,7 +810,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                     <color alpha="255">
                      <red>0</red>
                      <green>170</green>
-                     <blue>127</blue>
+                     <blue>255</blue>
                     </color>
                    </brush>
                   </colorrole>
@@ -842,7 +845,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                 </palette>
                </property>
                <property name="styleSheet">
-                <string notr="true">selection-background-color: rgb(255, 85, 0);</string>
+                <string notr="true">color:rgb(0, 170, 255);</string>
                </property>
                <property name="text">
                 <string>Create Cheek</string>
@@ -893,7 +896,7 @@ selection-background-color: rgb(255, 85, 0);</string>
              <item>
               <widget class="QCheckBox" name="NoseCheckBox">
                <property name="styleSheet">
-                <string notr="true">selection-background-color: rgb(255, 85, 0);</string>
+                <string notr="true">color:rgb(0, 170, 255);</string>
                </property>
                <property name="text">
                 <string>Create Nose</string>
@@ -949,7 +952,7 @@ selection-background-color: rgb(255, 85, 0);</string>
              <item>
               <widget class="QCheckBox" name="BrowCheckBox">
                <property name="styleSheet">
-                <string notr="true">selection-background-color: rgb(255, 85, 0);</string>
+                <string notr="true">color:rgb(0, 170, 255);</string>
                </property>
                <property name="text">
                 <string>Create Brow</string>
@@ -1010,7 +1013,7 @@ selection-background-color: rgb(255, 85, 0);</string>
              <item>
               <widget class="QCheckBox" name="EyeCheckBox">
                <property name="styleSheet">
-                <string notr="true">selection-background-color: rgb(255, 85, 0);</string>
+                <string notr="true">color:rgb(0, 170, 255);</string>
                </property>
                <property name="text">
                 <string>Create Eye</string>
@@ -1066,7 +1069,7 @@ selection-background-color: rgb(255, 85, 0);</string>
              <item>
               <widget class="QCheckBox" name="EyeTargetCheckBox">
                <property name="styleSheet">
-                <string notr="true">selection-background-color: rgb(255, 85, 0);</string>
+                <string notr="true">color:rgb(0, 170, 255);</string>
                </property>
                <property name="text">
                 <string>Create Eye Target</string>
@@ -1089,7 +1092,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                 <bool>true</bool>
                </property>
                <property name="styleSheet">
-                <string notr="true">selection-background-color: rgb(255, 85, 0);</string>
+                <string notr="true">color:rgb(0, 170, 255);</string>
                </property>
                <property name="text">
                 <string>Create Oral Cavity</string>
@@ -1154,6 +1157,9 @@ selection-background-color: rgb(255, 85, 0);</string>
             <weight>75</weight>
             <bold>true</bold>
            </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color:rgb(0, 170, 255);</string>
           </property>
           <property name="title">
            <string>Advanced Button</string>
@@ -1255,7 +1261,7 @@ selection-background-color: rgb(255, 85, 0);</string>
              <item>
               <widget class="QCheckBox" name="BrowTopolCheckBox">
                <property name="styleSheet">
-                <string notr="true">color: rgb(0, 170, 127);</string>
+                <string notr="true">color: rgb(0, 170, 255);</string>
                </property>
                <property name="text">
                 <string>Brow Topology</string>
@@ -1330,7 +1336,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                 <bool>false</bool>
                </property>
                <property name="styleSheet">
-                <string notr="true">color: rgb(0, 170, 127);</string>
+                <string notr="true">color: rgb(0, 170, 255);</string>
                </property>
                <property name="text">
                 <string>Eye Topology</string>
@@ -1402,7 +1408,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                 <bool>false</bool>
                </property>
                <property name="styleSheet">
-                <string notr="true">color: rgb(0, 170, 127);</string>
+                <string notr="true">color: rgb(0, 170, 255);</string>
                </property>
                <property name="text">
                 <string>Nose Topology</string>
@@ -1474,7 +1480,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                 <bool>false</bool>
                </property>
                <property name="styleSheet">
-                <string notr="true">color: rgb(0, 170, 127);</string>
+                <string notr="true">color: rgb(0, 170, 255);</string>
                </property>
                <property name="text">
                 <string>Cheek Topology</string>
@@ -1546,7 +1552,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                 <bool>false</bool>
                </property>
                <property name="styleSheet">
-                <string notr="true">color: rgb(0, 170, 127);</string>
+                <string notr="true">color: rgb(0, 170, 255);</string>
                </property>
                <property name="text">
                 <string>Lip Topology</string>
@@ -1618,7 +1624,7 @@ selection-background-color: rgb(255, 85, 0);</string>
                 <bool>false</bool>
                </property>
                <property name="styleSheet">
-                <string notr="true">color: rgb(0, 170, 127);</string>
+                <string notr="true">color: rgb(0, 170, 255);</string>
                </property>
                <property name="text">
                 <string>Jaw Topology</string>
@@ -1809,7 +1815,7 @@ selection-background-color: rgb(255, 85, 0);</string>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color: rgb(0, 170, 127);</string>
+             <string notr="true">background-color: rgb(0, 170, 255);</string>
             </property>
             <property name="text">
              <string>Skin Build</string>
@@ -1819,9 +1825,6 @@ selection-background-color: rgb(255, 85, 0);</string>
          </layout>
         </item>
        </layout>
-       <zorder>layoutWidget</zorder>
-       <zorder>groupBox</zorder>
-       <zorder>groupBox_2</zorder>
       </widget>
       <widget class="QWidget" name="child3">
        <attribute name="title">
@@ -2082,7 +2085,7 @@ selection-background-color: rgb(0, 170, 127);</string>
                 </font>
                </property>
                <property name="styleSheet">
-                <string notr="true">background-color: rgb(0, 170, 127);</string>
+                <string notr="true">background-color: rgb(0, 170, 255);</string>
                </property>
                <property name="text">
                 <string>Ready to Export</string>
@@ -2118,7 +2121,7 @@ selection-background-color: rgb(0, 170, 127);</string>
          </font>
         </property>
         <property name="styleSheet">
-         <string notr="true">color: rgb(0, 170, 127);</string>
+         <string notr="true">color: rgb(0, 170, 255);</string>
         </property>
         <property name="text">
          <string>Create Joint</string>
@@ -2140,7 +2143,7 @@ selection-background-color: rgb(0, 170, 127);</string>
          </font>
         </property>
         <property name="styleSheet">
-         <string notr="true">color: rgb(0, 170, 127);</string>
+         <string notr="true">color: rgb(0, 170, 255);</string>
         </property>
         <property name="text">
          <string>Create Rig</string>
@@ -2179,8 +2182,11 @@ selection-background-color: rgb(0, 170, 127);</string>
      <x>0</x>
      <y>0</y>
      <width>542</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color:rgb(0, 170, 255);</string>
    </property>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -2194,10 +2200,6 @@ selection-background-color: rgb(0, 170, 127);</string>
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="actionWebSite"/>
-    <addaction name="separator"/>
-    <addaction name="actionAbout_License"/>
-    <addaction name="actionOpen_PDF"/>
     <addaction name="actionJoint_Location"/>
    </widget>
    <addaction name="menuEdit"/>

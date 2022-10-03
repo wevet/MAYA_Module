@@ -194,6 +194,7 @@ def create_system_on_curve_selected(*args):
                                 mc.parent(jntOff, loc)
                                 mc.select(cl=1)
                                 mc.joint(n=locName + '_jnt')
+                                print(locName)
                                 jnt = mc.ls(sl=1)[0]
                                 mc.xform(jnt, ws=1, t=pos)
                                 mc.parent(jnt, jntOff)

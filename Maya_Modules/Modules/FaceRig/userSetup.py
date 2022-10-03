@@ -2,7 +2,6 @@
 
 
 import sys
-import importlib
 import maya.cmds as cmds
 import maya.utils
 import facial_rig_ui as facial_rig
@@ -11,7 +10,7 @@ def face_rig_loader():
     cmds.setParent('MayaWindow')
     cmds.menu(label=u'Face Rig Tools', tearOff=True)
     cmds.menuItem(subMenu=True, label='Setup', tearOff=True)
-    cmds.menuItem(l='Create Window', c='facial_rig.FaceRigMainUI().show_ui()')
+    cmds.menuItem(label='Create Window', command="""import importlib\r\nimportlib.reload(facial_rig)\r\nfacial_rig.FaceRigMainUI().show_ui()""")
     cmds.setParent('..', menu=True)
     print("""
 _____________________________________

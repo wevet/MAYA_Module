@@ -89,6 +89,7 @@ class FaceRigMainUI:
         mc.textScrollList('RecordPosCtrl', vis=0, h=30)
         mc.setParent('..')
         mc.showWindow(window)
+        #print("refresh !!")
 
     def menu_bar_ui(self):
         menuBarLayout = mc.menuBarLayout(menuBarVisible=True, po=True)
@@ -104,7 +105,7 @@ class FaceRigMainUI:
         mc.setParent('..')
         mc.rowLayout(nc=2)
         mc.separator(w=35, style='none')
-        mc.text(fn='boldLabelFont', w=320, l='FACIAL RIG')
+        mc.text(fn='boldLabelFont', w=320, l='FACIAL RIG SETUP TOOL')
         mc.setParent('..')
         mc.rowLayout(nc=2)
         mc.separator(w=90, style='none')
@@ -124,16 +125,19 @@ class FaceRigMainUI:
         self.add_to_current_skin_ui(version)
         self.add_new_part_on_your_rig()
         mc.setParent('..')
+        """
         child3 = mc.frameLayout(labelVisible=0)
         self.make_the_facial_controller_ui()
         self.mouth_blend_shape_menu_ui()
         self.blend_shape_menu_ui()
         self.attach_to_facial_controller()
         mc.setParent('..')
+        """
         child4 = mc.frameLayout(labelVisible=0)
         self.other_menu_ui()
         mc.setParent('..')
-        mc.tabLayout(tabs, edit=True, tabLabel=((child1, 'Setup And Creation'), (child2, 'Make Skin'), (child3, 'Make Blend shape'), (child4, 'Others')))
+        #mc.tabLayout(tabs, edit=True, tabLabel=((child1, 'Setup And Creation'), (child2, 'Make Skin'), (child3, 'Make Blend shape'), (child4, 'Others')))
+        mc.tabLayout(tabs, edit=True, tabLabel=((child1, 'Setup And Creation'), (child2, 'Make Skin'), (child4, 'Others')))
         mc.setParent('..')
 
     def creation_placement(self):
@@ -264,7 +268,7 @@ class FaceRigMainUI:
         mc.frameLayout('II - User Replace Position Controller System', collapsable=1, collapse=1)
         mc.frameLayout('How To:', collapsable=1, collapse=1)
         mc.text(l='作成したコントローラを選択し、textFieldに入力します。')
-        mc.text(l='and tweak his position with the slider \n make the same thing for others if you need it \n after that, you need to click on rebuild EP position curve \n doing the same thing for each curves even \n if you do not move controllers')
+        mc.text(l='Tweak his position with the slider \n make the same thing for others if you need it \n after that, you need to click on rebuild EP position curve \n doing the same thing for each curves even \n if you do not move controllers')
         mc.separator(style='in')
         mc.setParent('..')
         mc.separator(style='none')
@@ -292,7 +296,7 @@ class FaceRigMainUI:
         mc.setParent('..')
 
     def attach_new_system(self):
-        mc.frameLayout(l='III - Attach the new system on your model', collapsable=1, collapse=1, w=330)
+        mc.frameLayout(l='III - システムをモデルにアタッチします', collapsable=1, collapse=1, w=330)
         mc.rowLayout(nc=2)
         mc.separator(w=60, style='none')
         mc.text(l='異なる要素を追加して、実行します')
@@ -378,7 +382,7 @@ class FaceRigMainUI:
         mc.separator(w=5, style='none')
         mc.text(l='Additionnal Part:', fn='boldLabelFont')
         mc.separator(w=1, style='none')
-        mc.textScrollList('addAdditionnalCtrl', w=150, h=60)
+        mc.textScrollList('addAdditionalCtrl', w=150, h=60)
         mc.separator(w=5, style='none')
         mc.columnLayout()
         mc.button(l='Add', w=80, c=creation.add_button_of_additional_part)
@@ -386,7 +390,7 @@ class FaceRigMainUI:
         mc.setParent('..')
         mc.setParent('..')
         mc.separator(style='in')
-        mc.button(l='Validate Additionnal Part', c=creation.validate_additional_part)
+        mc.button(l='Validate Additional Part', c=creation.validate_additional_part)
         mc.separator(style='double')
         mc.setParent('..')
         mc.button(l='Skin Tool', c=creation.skin_tool)
@@ -417,7 +421,7 @@ class FaceRigMainUI:
         mc.button(l='Confirm Position', w=150, c=creation.valid_position_of_facial_controller_expression)
         mc.setParent('..')
         mc.separator(style='in')
-        mc.text(l='使用する前に、各Ctrlの回転と並進に値がないことを確認してください。', fn='boldLabelFont')
+        mc.text(l='使用する前に、各ControllerのRotationとTranslationに値がないことを確認してください。', fn='boldLabelFont')
         mc.button(l='各ControllerとJointの間にScale Constraintを追加します。', c=recorder.add_scale_constraint_on_each_controller)
         mc.setParent('..')
 
@@ -574,7 +578,6 @@ class FaceRigMainUI:
 
     def realistic_eyelid_ui(self):
         mc.frameLayout(l='Make Realistic Eye Rig', collapsable=1, collapse=0)
-        mc.text(l='This part use the script of UKDP based on Marco Giordano tutorial')
         mc.button(l='Launch The script', c=launch_marco_ui)
         mc.setParent('..')
 

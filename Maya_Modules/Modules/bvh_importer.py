@@ -4,6 +4,14 @@ import pymel.core as pm
 import maya.cmds as mc
 import os
 
+"""
+import bvh_importer
+import importlib
+importlib.reload(bvh_importer)
+bvh_importer.BVHImporterWindow()
+"""
+
+
 # This maps the BVH naming convention to Maya
 translationDict = {
     "Xposition": "translateX",
@@ -25,10 +33,10 @@ class TinyDAG(object):
         # returns object name
         return str(self.obj)
 
-    def get_full_Path(self):
+    def _fullPath(self):
         # returns full object path
         if self.pObj is not None:
-            return "%s|%s" % (self.pObj.fullPath(), self.__str__())
+            return "%s|%s" % (self.pObj._fullPath(), self.__str__())
         return str(self.obj)
 
 
@@ -176,7 +184,7 @@ class BVHImporterWindow(object):
                         if myParent is not None:
                             myParent = myParent.pObj
                             if myParent is not None:
-                                mc.select(myParent.get_full_Path())
+                                mc.select(myParent._fullPath())
 
                     if "CHANNELS" in line:
                         chan = line.strip().split(" ")
@@ -185,7 +193,7 @@ class BVHImporterWindow(object):
 
                         # Append the channels that are animated
                         for i in range(int(chan[1])):
-                            self._channels.append("%s.%s" % (myParent.get_full_Path(), translationDict[chan[2 + i]]))
+                            self._channels.append("%s.%s" % (myParent._fullPath(), translationDict[chan[2 + i]]))
 
                     if "OFFSET" in line:
                         offset = line.strip().split(" ")
@@ -198,8 +206,8 @@ class BVHImporterWindow(object):
                             jntName += "_tip"
 
                         # skip if exists
-                        if mc.objExists(myParent.get_full_Path()):
-                            jnt = pm.PyNode(myParent.get_full_Path())
+                        if mc.objExists(myParent._fullPath()):
+                            jnt = pm.PyNode(myParent._fullPath())
                             jnt.rotateOrder.set(rotOrder)
                             jnt.translate.set([float(offset[1]), float(offset[2]), float(offset[3])])
                             continue
@@ -215,7 +223,7 @@ class BVHImporterWindow(object):
 
                     if self._debug:
                         if myParent is not None:
-                            print("parent: %s" % myParent.get_full_Path())
+                            print("parent: %s" % myParent._fullPath())
 
                 else:
                     # We don't really need to use Frame count and time(since Python handles file reads nicely)
@@ -244,6 +252,7 @@ class BVHImporterWindow(object):
         trans_attrs = ["translateX", "translateY", "translateZ"]
         rot_attrs = ["rotateX", "rotateY", "rotateZ"]
         for node in nodes:
+            print("selected => {0}".format(node))
             for attr in trans_attrs:
                 connections = node.attr(attr).inputs()
                 pm.delete(connections)

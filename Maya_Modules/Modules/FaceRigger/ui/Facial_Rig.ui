@@ -80,6 +80,13 @@
            </spacer>
           </item>
           <item>
+           <widget class="QPushButton" name="JointLocationBtn">
+            <property name="text">
+             <string>Joint Location</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="TopolDefineBtn">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -2151,6 +2158,22 @@ selection-background-color: rgb(0, 170, 127);</string>
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="Connect_jnt_Btn">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(0, 170, 255);</string>
+        </property>
+        <property name="text">
+         <string>Connect Joint</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="closeBtn">
         <property name="minimumSize">
          <size>
@@ -2177,6 +2200,9 @@ selection-background-color: rgb(0, 170, 127);</string>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -2196,14 +2222,7 @@ selection-background-color: rgb(0, 170, 127);</string>
     <addaction name="actionLoad_Settings"/>
     <addaction name="actionReset_Settings"/>
    </widget>
-   <widget class="QMenu" name="menuHelp">
-    <property name="title">
-     <string>Help</string>
-    </property>
-    <addaction name="actionJoint_Location"/>
-   </widget>
    <addaction name="menuEdit"/>
-   <addaction name="menuHelp"/>
   </widget>
   <action name="actionSave_Settings">
    <property name="text">

@@ -34,6 +34,10 @@ def maya_main_window():
 
 
 FACIAL_MESH_GROUP_NAME = 'Facial_Mesh_grp'
+HEAD_MASTER_JOINT_NAME = 'Head_master_jnt'
+JAW_MASTER_JOINT_NAME = 'Jaw_master_jnt'
+SKIN_HEAD_MASTER_JOINT_NAME = 'Skin_Head_master_jnt'
+SKIN_JAW_MASTER_JOINT_NAME = 'Skin_Jaw_master_jnt'
 
 class Facial_Window_Manager(QtWidgets.QDialog):
 
@@ -303,9 +307,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.ui.Create_jnt_Btn.clicked.connect(self.Create_jnt_BtnCmd)
         self.ui.HeadJointBtn.clicked.connect(self.HeadJointBtnCmd)
         self.ui.SymBtn.clicked.connect(self.SymBtnCmd)
-        self.ui.Create_Rig_Btn.clicked.connect(self.Create_Rig_BtnCmd)
+        self.ui.Create_Rig_Btn.clicked.connect(self.create_rig_command)
         self.ui.Connect_jnt_Btn.clicked.connect(self.connect_joint_command)
-        self.ui.LabelBtn.clicked.connect(self.LabelBtnCmd)
+        self.ui.LabelBtn.clicked.connect(self.label_command)
         self.ui.LabelAllBtn.clicked.connect(self.LabelAllBtnCmd)
         self.ui.LipCheckBox.stateChanged.connect(self.Lip_CheckBox_function)
         self.ui.LipOption.currentTextChanged.connect(self.LipOption_Cmd)
@@ -314,6 +318,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.ui.RebuildSymBtn.clicked.connect(self.RebuildSymBtnCmd)
         self.ui.PickerBtn.clicked.connect(self.PickerBtnCmd)
 
+        # 使わないので非表示
         # save setting start
         self.ui.menuBar().setVisible(False)
         self.ui.actionReset_Settings.triggered.connect(self.editMenuResetCmd)
@@ -439,7 +444,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         text = self.ui.Neck_pathText.text()
         print(text)
 
-    # Issue
     def editMenuResetCmd(self, *args):
         self.Eye_C_Grow_vertex = ''
         print('Grow vertex reset')
@@ -2348,7 +2352,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.select(cl=True)
         if cmds.objExists('Skin_Head_master_jnt_parentConstraint1'):
             cmds.delete('Skin_Head_master_jnt_parentConstraint1')
-        cmds.select('Skin_Head_master_jnt', Head_child, add=True)
+        cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, Head_child, add=True)
         sel = cmds.ls(sl=True)
         Position = cmds.xform(sel[1], ws=True, q=True, t=True)
         cmds.xform(sel[0], ws=True, t=Position)
@@ -2411,8 +2415,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.sets(n='New_Set')
             cmds.select(cl=True)
             cmds.copySkinWeights('OG_Set', 'New_Set', nm=True)
-            if cmds.objExists('Skin_Jaw_master_jnt'):
-                cmds.skinCluster(Update_Skin, edit=True, siv='Skin_Jaw_master_jnt')
+            if cmds.objExists(SKIN_JAW_MASTER_JOINT_NAME):
+                cmds.skinCluster(Update_Skin, edit=True, siv=SKIN_JAW_MASTER_JOINT_NAME)
             else:
                 cmds.skinCluster(Update_Skin, edit=True, siv='Root_Skin_Neck_Bone')
             if cmds.currentCtx() != 'artAttrSkinContext':
@@ -2428,13 +2432,13 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Root_Skin_Neck_Bone', clear=1)
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Root_Skin_Neck_Bone', clear=1)
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Root_Skin_Neck_Bone', clear=1)
-            if cmds.objExists('Skin_Jaw_master_jnt'):
+            if cmds.objExists(SKIN_JAW_MASTER_JOINT_NAME):
                 cmds.skinCluster(Update_Skin, edit=True, siv='Root_Skin_Neck_Bone')
                 mel.eval('artSkinInflListChanging "Skin_Jaw_master_jnt" 1')
                 mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                 mel.eval('mayaHasRenderSetup')
-                cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_Jaw_master_jnt', clear=1)
-            cmds.skinCluster(Update_Skin, edit=True, siv='Skin_Head_master_jnt')
+                cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_JAW_MASTER_JOINT_NAME, clear=1)
+            cmds.skinCluster(Update_Skin, edit=True, siv=SKIN_HEAD_MASTER_JOINT_NAME)
             mel.eval('artSkinInflListChanging "Root_Skin_Neck_Bone" 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
@@ -2445,8 +2449,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging "Skin_Head_master_jnt" 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_Head_master_jnt', clear=1)
-            cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_Head_master_jnt', clear=1)
+            cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_HEAD_MASTER_JOINT_NAME, clear=1)
+            cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_HEAD_MASTER_JOINT_NAME, clear=1)
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, selectedattroper=currOp)
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, value=currValue)
             cmds.delete('New_Set', 'OG_Set')
@@ -2514,17 +2518,17 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                         name_space = Export_Sel[0].split(':')[0]
                         if cmds.objExists(name_space + ':Facial_Set_Ctrl'):
                             cmds.setAttr(name_space + ':Facial_Set_Ctrl.Joint_Visible', 1)
-                        facial_mesh_grp_name = name_space + ':Facial_Mesh_grp'
+                        facial_mesh_grp_name = name_space + FACIAL_MESH_GROUP_NAME
                         cmds.duplicate(facial_mesh_grp_name)
                         cmds.select(facial_mesh_grp_name, hi=True)
                         cmds.select(facial_mesh_grp_name, '*Shape*', d=True)
                         name_space_mesh = cmds.ls(sl=True)
-                        Facial_Mesh_grp_parent = cmds.listRelatives('Facial_Mesh_grp', p=True)
+                        Facial_Mesh_grp_parent = cmds.listRelatives(FACIAL_MESH_GROUP_NAME, p=True)
                         if Facial_Mesh_grp_parent is not None:
-                            cmds.parent('Facial_Mesh_grp', w=True)
+                            cmds.parent(FACIAL_MESH_GROUP_NAME, w=True)
                         cmds.select(cl=True)
-                        cmds.select('Facial_Mesh_grp', hi=True)
-                        cmds.select('Facial_Mesh_grp', '*Shape*', d=True)
+                        cmds.select(FACIAL_MESH_GROUP_NAME, hi=True)
+                        cmds.select(FACIAL_MESH_GROUP_NAME, '*Shape*', d=True)
                         Facial_geo_mesh = cmds.ls(sl=True)
                         cmds.select(cl=True)
                         if cmds.objExists('Root_Skin_Neck_Bone'):
@@ -2534,7 +2538,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                                     if a == each_mesh:
                                         OG_Skin = mel.eval('findRelatedSkinCluster ' + each)
                                         max_inf = cmds.skinCluster(OG_Skin, q=True, mi=True)
-                                        cmds.select('Skin_Head_master_jnt', hi=True)
+                                        cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, hi=True)
                                         cmds.select('*parentConstraint*', d=True)
                                         cmds.select('Root_Skin_Neck_Bone', add=True)
                                         cmds.select(a, add=True)
@@ -2547,7 +2551,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                                     if a == each_mesh:
                                         OG_Skin = mel.eval('findRelatedSkinCluster ' + each)
                                         max_inf = cmds.skinCluster(OG_Skin, q=True, mi=True)
-                                        cmds.select('Skin_Head_master_jnt', hi=True)
+                                        cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, hi=True)
                                         cmds.select('*parentConstraint*', d=True)
                                         cmds.select(a, add=True)
                                         cmds.skinCluster(tsb=True, dr=4, mi=max_inf, omi=True)
@@ -2563,7 +2567,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                                     mel.eval('removeUnusedInfluences')
 
                     cmds.setAttr('Facial_Set_Ctrl.Joint_Visible', 1)
-                    cmds.select('Skin_Head_master_jnt', hi=True)
+                    cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, hi=True)
                     cmds.select('*parentConstraint*', d=True)
                     head_joint_all = cmds.ls(sl=True)
                     if self.ui.UnrealCheckBox.isChecked() is True:
@@ -2575,7 +2579,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                         cmds.bakeResults(head_joint_all, t=(TimeStart_pathTemp, TimeEnd_pathTemp), simulation=True)
                     self.findMultMatixDelete()
                     cmds.select(head_joint_all)
-                    cmds.select('Skin_Head_master_jnt', hi=True, tgl=True)
+                    cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, hi=True, tgl=True)
                     cmds.delete()
                     cmds.parent('Skin_*_jnt', w=True)
                     if cmds.objExists('Brow*_expression'):
@@ -2613,31 +2617,31 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                         cmds.delete('Eye_World_point_Loc_grp')
                     cmds.parent('Skin_*_jnt', 'Facial_Skin_joint_grp')
                     cmds.select('Skin_*_jnt')
-                    cmds.select('Skin_Head_master_jnt', d=True)
-                    cmds.select('Skin_Head_master_jnt', add=True)
+                    cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, d=True)
+                    cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, add=True)
                     cmds.parent()
                     if cmds.objExists('Root_Skin_Neck_Bone'):
-                        cmds.parent('Skin_Head_master_jnt', 'Root_Skin_Neck_Bone')
+                        cmds.parent(SKIN_HEAD_MASTER_JOINT_NAME, 'Root_Skin_Neck_Bone')
                     else:
                         head_parent = cmds.listRelatives('Facial_Master_Ctrl_grp', p=True)
                         if head_parent is not None:
-                            cmds.parent('Skin_Head_master_jnt', head_parent[0])
-                            child_parent = cmds.listRelatives('Skin_Head_master_jnt', p=True)
+                            cmds.parent(SKIN_HEAD_MASTER_JOINT_NAME, head_parent[0])
+                            child_parent = cmds.listRelatives(SKIN_HEAD_MASTER_JOINT_NAME, p=True)
                             if child_parent[0] != head_parent[0]:
                                 cmds.rename(child_parent[0], 'Facial_joint_grp')
                         else:
-                            cmds.parent('Skin_Head_master_jnt', w=True)
+                            cmds.parent(SKIN_HEAD_MASTER_JOINT_NAME, w=True)
                     cmds.delete('Facial_Master_Ctrl_grp')
                     cmds.select(cl=True)
                     if cmds.objExists('Root_Skin_Neck_Bone'):
                         cmds.select('Root_Skin_Neck_Bone', hi=True)
                     else:
-                        cmds.select('Skin_Head_master_jnt', hi=True)
+                        cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, hi=True)
                     if self.ui.NameCheckBox.isChecked():
                         if cmds.objExists('Root_Skin_Neck_Bone'):
                             cmds.select('Root_Skin_Neck_Bone')
                         else:
-                            cmds.select('Skin_Head_master_jnt')
+                            cmds.select(SKIN_HEAD_MASTER_JOINT_NAME)
                         mel.eval('searchReplaceNames "Skin_" "" "hierarchy"')
                         mel.eval('searchReplaceNames "Root_" "" "hierarchy"')
                         cmds.select('L_*jnt')
@@ -2663,7 +2667,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         return
 
     def findMultMatixDelete(self, *args):
-        cmds.select('Skin_Head_master_jnt', hi=True)
+        cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, hi=True)
         all_jnt = cmds.ls(sl=True)
         for each in all_jnt:
             multMat_node = cmds.listConnections(each, type='multMatrix')
@@ -2674,31 +2678,20 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.Create_joint()
 
     def connect_joint_command(self, *args):
-        cmds.select(clear=True)
         if len(self.head_joint) != 0:
-            cmds.select('FitScale_ctrl_grp', hi=True)
-            ctrl_joint = cmds.ls(sl=True, type='joint')
-            for each in ctrl_joint:
+            cmds.select('*_jnt')
+            Label_sel = cmds.ls(selection=True)
+            for each in Label_sel:
+                print(each)
                 cmds.parent(each, self.head_joint)
-
-            cmds.select('Facial_jnt_Sym_grp_L', hi=True)
-            left_joint = cmds.ls(sl=True, type='joint')
-            for each in left_joint:
-                cmds.parent(each, self.head_joint)
-                
-            cmds.select('Facial_jnt_Sym_grp_R', hi=True)
-            right_joint = cmds.ls(sl=True, type='joint')
-            for each in right_joint:
-                cmds.parent(each, self.head_joint)
-
         else:
             QtWidgets.QMessageBox.warning(None, 'Warning', 'Head Jointを選択してください!')
             return
 
-    def Create_Rig_BtnCmd(self, *args):
-        self.Create_Rig()
+    def create_rig_command(self, *args):
+        self.create_controller()
 
-    def LabelBtnCmd(self, *args):
+    def label_command(self, *args):
         if cmds.objExists('FitScale_ctrl_grp'):
             if cmds.objExists('Facial_System_joint_grp'):
                 print('you already generated Rig System')
@@ -5486,17 +5479,17 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.delete('Eye_World_point_Loc_grp')
         cmds.parent('Skin_*_jnt', 'Facial_Skin_joint_grp')
         cmds.select('Skin_*_jnt')
-        cmds.select('Skin_Head_master_jnt', d=True)
-        cmds.select('Skin_Head_master_jnt', add=True)
+        cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, d=True)
+        cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, add=True)
         cmds.parent()
-        cmds.select('Skin_Head_master_jnt', hi=True)
+        cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, hi=True)
         cmds.select('Skin_*_jnt', tgl=True)
         None_facial = cmds.ls(sl=True)
         if len(None_facial) != 0:
             cmds.select(cl=True)
             for each in None_facial:
                 None_parent = cmds.listRelatives(each, p=True)
-                if None_parent[0] == 'Skin_Head_master_jnt':
+                if None_parent[0] == SKIN_HEAD_MASTER_JOINT_NAME:
                     cmds.select(each, add=True)
 
             None_facial = cmds.ls(sl=True)
@@ -5517,7 +5510,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         for each in jnt_sel:
             match = 'Rebuild_Skin_' + each + '_Rebuild'
             if cmds.objExists(match):
-                if each == 'Jaw_master_jnt':
+                if each == JAW_MASTER_JOINT_NAME:
                     cmds.setAttr('Jaw_master_jnt.tx', lock=False)
                     cmds.pointConstraint(match, each)
                     cmds.setAttr('Jaw_master_jnt.tx', lock=True)
@@ -6715,7 +6708,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             self.TopolDefine_window.Lip_R_LowerSide_02_Btn.setVisible(False)
 
-        if cmds.objExists('Skin_Jaw_master_jnt') or cmds.objExists('Jaw_master_jnt'):
+        if cmds.objExists(SKIN_JAW_MASTER_JOINT_NAME) or cmds.objExists(JAW_MASTER_JOINT_NAME):
             self.TopolDefine_window.Lip_Jaw_Btn.setVisible(True)
         else:
             self.TopolDefine_window.Lip_Jaw_Btn.setVisible(False)
@@ -7273,7 +7266,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             R_lip_lower_side_02 = 2
         if L_lip_corner >= 1 and L_lip_lower_corner >= 1 and R_lip_corner >= 1 and R_lip_lower_corner >= 1 and upper_lip >= 1 and Lower_lip >= 1 and Lower_lip_outer >= 1 and L_lip_upper_side >= 1 and L_lip_upper_outer >= 1 and L_lip_lower_side >= 1 and L_lip_lower_outer >= 1 and R_lip_upper_side >= 1 and R_lip_upper_outer >= 1 and R_lip_lower_side >= 1 and R_lip_lower_outer >= 1 and L_lip_upper_side_02 >= 1 and L_lip_lower_side_02 >= 1 and R_lip_upper_side_02 >= 1 and R_lip_lower_side_02 >= 1:
             self.Skin_Lip_vetex_Check = 1
-        if cmds.objExists('Skin_Jaw_master_jnt'):
+        if cmds.objExists(SKIN_JAW_MASTER_JOINT_NAME):
             if len(self.Lip_Jaw_Vetex) != 0:
                 Jaw_master = 1
             else:
@@ -9380,7 +9373,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                     cmds.xform(sel[0], ws=True, t=position)
                     cmds.select(each)
                     cmds.move(0, 0, -0.3 * Scale_check, each, r=True)
-            if each == 'Jaw_master_jnt':
+            if each == JAW_MASTER_JOINT_NAME:
                 if len(self.Lip_Jaw_Vetex) != 0:
                     cmds.select(cl=True)
                     cmds.select(each, self.Lip_Jaw_Vetex[0], add=True)
@@ -9979,7 +9972,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         if len(self.HeadMesh) != 0:
             Head_SkinCluster = mel.eval('findRelatedSkinCluster ' + self.HeadMesh)
             if len(Head_SkinCluster) == 0:
-                cmds.select('Skin_Head_master_jnt', self.HeadMesh, add=True)
+                cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, self.HeadMesh, add=True)
                 if max_influecne_value < 3:
                     cmds.skinCluster(tsb=True, dr=4, mi=8, omi=True, rui=True)
                 else:
@@ -10228,10 +10221,10 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.setAttr('scale_check_grp.scaleX', A)
         cmds.setAttr('scale_check_grp.scaleY', B)
         cmds.setAttr('scale_check_grp.scaleZ', C)
-        if cmds.objExists('Jaw_master_jnt'):
+        if cmds.objExists(JAW_MASTER_JOINT_NAME):
             cmds.setAttr('Jaw_master_jnt.tx', lock=False)
         cmds.makeIdentity('FitScale_ctrl_grp', apply=True, t=True, r=False, scale=True)
-        if cmds.objExists('Jaw_master_jnt'):
+        if cmds.objExists(JAW_MASTER_JOINT_NAME):
             cmds.setAttr('Jaw_master_jnt.tx', lock=True)
         cmds.select('*_jnt')
         Joint_sel = cmds.ls(selection=True)
@@ -10259,7 +10252,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         Skin_joint = cmds.skinCluster(Head_SkinCluster, q=True, inf=True)
         if len(Skin_joint) != 0:
             for each in Skin_joint:
-                if each == 'Skin_Head_master_jnt':
+                if each == SKIN_HEAD_MASTER_JOINT_NAME:
                     each_liw = each + '.liw'
                     cmds.setAttr(each_liw, 0)
                 else:
@@ -10713,7 +10706,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
             for i in range(Brow_L_vertex_count / 60 + 2):
-                cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_Head_master_jnt', clear=1)
+                cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_HEAD_MASTER_JOINT_NAME, clear=1)
 
         for each in Brow_sel:
             each_liw = each + '.liw'
@@ -11094,7 +11087,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
             for i in range(Brow_R_vertex_count / 60 + 2):
-                cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_Head_master_jnt', clear=1)
+                cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_HEAD_MASTER_JOINT_NAME, clear=1)
 
         for each in Brow_sel:
             each_liw = each + '.liw'
@@ -11108,7 +11101,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         Skin_joint = cmds.skinCluster(Head_SkinCluster, q=True, inf=True)
         if len(Skin_joint) != 0:
             for each in Skin_joint:
-                if each == 'Skin_Head_master_jnt':
+                if each == SKIN_HEAD_MASTER_JOINT_NAME:
                     each_liw = each + '.liw'
                     cmds.setAttr(each_liw, 0)
                 else:
@@ -12406,7 +12399,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         Skin_joint = cmds.skinCluster(Head_SkinCluster, q=True, inf=True)
         if len(Skin_joint) != 0:
             for each in Skin_joint:
-                if each == 'Skin_Head_master_jnt':
+                if each == SKIN_HEAD_MASTER_JOINT_NAME:
                     each_liw = each + '.liw'
                     cmds.setAttr(each_liw, 0)
                 else:
@@ -13015,7 +13008,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         Skin_joint = cmds.skinCluster(Head_SkinCluster, q=True, inf=True)
         if len(Skin_joint) != 0:
             for each in Skin_joint:
-                if each == 'Skin_Head_master_jnt':
+                if each == SKIN_HEAD_MASTER_JOINT_NAME:
                     each_liw = each + '.liw'
                     cmds.setAttr(each_liw, 0)
                 else:
@@ -13761,7 +13754,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         Skin_joint = cmds.skinCluster(Head_SkinCluster, q=True, inf=True)
         if len(Skin_joint) != 0:
             for each in Skin_joint:
-                if each == 'Skin_Head_master_jnt':
+                if each == SKIN_HEAD_MASTER_JOINT_NAME:
                     each_liw = each + '.liw'
                     cmds.setAttr(each_liw, 0)
                 else:
@@ -15080,7 +15073,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         Skin_joint = cmds.skinCluster(Head_SkinCluster, q=True, inf=True)
         if len(Skin_joint) != 0:
             for each in Skin_joint:
-                if each == 'Skin_Head_master_jnt':
+                if each == SKIN_HEAD_MASTER_JOINT_NAME:
                     each_liw = each + '.liw'
                     cmds.setAttr(each_liw, 0)
                 else:
@@ -15102,7 +15095,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             if cmds.objExists('Skin_R_lower_liplid_jnt'):
                 cmds.select('Skin_R_lower_liplid_jnt', add=True)
             R_Cheek_sel = cmds.ls(sl=True)
-        cmds.select('Skin_Jaw_master_jnt')
+        cmds.select(SKIN_JAW_MASTER_JOINT_NAME)
         jaw_jnt = cmds.ls(sl=True)
         list_jnt = cmds.skinCluster(Head_SkinCluster, q=True, inf=True)
         list_Jaw_jnt_check = 0
@@ -15113,10 +15106,10 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                         list_Jaw_jnt_check = 1
 
         if list_Jaw_jnt_check == 1:
-            cmds.skinCluster(Head_SkinCluster, e=True, ri='Skin_Jaw_master_jnt')
-            cmds.skinCluster(Head_SkinCluster, edit=True, dr=0, ps=0, ns=0.1, lw=True, ai='Skin_Jaw_master_jnt')
+            cmds.skinCluster(Head_SkinCluster, e=True, ri=SKIN_JAW_MASTER_JOINT_NAME)
+            cmds.skinCluster(Head_SkinCluster, edit=True, dr=0, ps=0, ns=0.1, lw=True, ai=SKIN_JAW_MASTER_JOINT_NAME)
         elif list_Jaw_jnt_check == 0:
-            cmds.skinCluster(Head_SkinCluster, edit=True, dr=0, ps=0, ns=0.1, lw=True, ai='Skin_Jaw_master_jnt')
+            cmds.skinCluster(Head_SkinCluster, edit=True, dr=0, ps=0, ns=0.1, lw=True, ai=SKIN_JAW_MASTER_JOINT_NAME)
         cmds.setAttr('Skin_Jaw_master_jnt.liw', 0)
         if cmds.currentCtx() != 'artAttrSkinContext':
             mel.eval('ArtPaintSkinWeightsTool;')
@@ -15127,24 +15120,24 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('artSkinInflListChanging Skin_Jaw_master_jnt 1')
         mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
         mel.eval('mayaHasRenderSetup')
-        cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_Jaw_master_jnt', clear=1)
+        cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_JAW_MASTER_JOINT_NAME, clear=1)
         cmds.select(self.JawVetex)
         Jaw_vertex_count = len(cmds.ls(sl=True, fl=True))
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='smooth')
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=1)
-        cmds.skinCluster(Head_SkinCluster, edit=True, siv='Skin_Jaw_master_jnt')
+        cmds.skinCluster(Head_SkinCluster, edit=True, siv=SKIN_JAW_MASTER_JOINT_NAME)
         mel.eval('artSkinInflListChanging Skin_Jaw_master_jnt 1')
         mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
         mel.eval('mayaHasRenderSetup')
         for i in range(Jaw_vertex_count / 786 * 4 + 4):
-            cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_Jaw_master_jnt', clear=1)
+            cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_JAW_MASTER_JOINT_NAME, clear=1)
 
-        cmds.skinCluster(Head_SkinCluster, edit=True, siv='Skin_Head_master_jnt')
+        cmds.skinCluster(Head_SkinCluster, edit=True, siv=SKIN_HEAD_MASTER_JOINT_NAME)
         mel.eval('artSkinInflListChanging Skin_Head_master_jnt 1')
         mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
         mel.eval('mayaHasRenderSetup')
         for i in range(HeadFullCount / 3744 * 2 + 2):
-            cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_Head_master_jnt', clear=1)
+            cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_HEAD_MASTER_JOINT_NAME, clear=1)
 
         if cmds.objExists('Skin_L_lip_corner_jnt'):
             if len(self.LipCorner_L_Vetex) != 0:
@@ -15171,7 +15164,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                 mel.eval('mayaHasRenderSetup')
                 for i in range(Jaw_vertex_count / 786 + 2):
-                    cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_Jaw_master_jnt', clear=1)
+                    cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_JAW_MASTER_JOINT_NAME, clear=1)
 
                 for each in LipAllselect:
                     each_liw = each + '.liw'
@@ -15203,7 +15196,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                 mel.eval('mayaHasRenderSetup')
                 for i in range(Jaw_vertex_count / 786 + 2):
-                    cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_Jaw_master_jnt', clear=1)
+                    cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_JAW_MASTER_JOINT_NAME, clear=1)
 
                 for each in LipAllselect:
                     each_liw = each + '.liw'
@@ -15218,7 +15211,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.5)
         if len(Skin_joint) != 0:
             for each in Skin_joint:
-                if each == 'Skin_Head_master_jnt':
+                if each == SKIN_HEAD_MASTER_JOINT_NAME:
                     each_liw = each + '.liw'
                     cmds.setAttr(each_liw, 0)
                 else:
@@ -15231,13 +15224,13 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
             for i in range(HeadFullCount / 3744 * 2 + 2):
-                cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_Head_master_jnt', clear=1)
+                cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_HEAD_MASTER_JOINT_NAME, clear=1)
 
             mel.eval('artSkinInflListChanging Skin_Jaw_master_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
             for i in range(HeadFullCount / 3744 * 2 + 2):
-                cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_Jaw_master_jnt', clear=1)
+                cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_JAW_MASTER_JOINT_NAME, clear=1)
 
             if cmds.objExists('Skin_L_lip_corner_jnt'):
                 mel.eval('artSkinInflListChanging Skin_L_lip_corner_jnt 1')
@@ -15287,13 +15280,13 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
             for i in range(HeadFullCount / 3744 * 2 + 2):
-                cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_Head_master_jnt', clear=1)
+                cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_HEAD_MASTER_JOINT_NAME, clear=1)
 
             mel.eval('artSkinInflListChanging Skin_Jaw_master_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
             for i in range(HeadFullCount / 3744 * 2 + 2):
-                cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_Jaw_master_jnt', clear=1)
+                cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_JAW_MASTER_JOINT_NAME, clear=1)
 
             if cmds.objExists('Skin_R_lip_corner_jnt'):
                 mel.eval('artSkinInflListChanging Skin_R_lip_corner_jnt 1')
@@ -15339,7 +15332,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
 
         if len(Skin_joint) != 0:
             for each in Skin_joint:
-                if each == 'Skin_Head_master_jnt' or each == 'Skin_Jaw_master_jnt':
+                if each == SKIN_HEAD_MASTER_JOINT_NAME or each == SKIN_JAW_MASTER_JOINT_NAME:
                     each_liw = each + '.liw'
                     cmds.setAttr(each_liw, 0)
                 else:
@@ -15357,17 +15350,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         for i in range(Jaw_vertex_count / 786 * 2 + 2):
             mel.eval('GrowPolygonSelectionRegion')
 
+        # JAW_MASTER_JOINT_NAME
         mel.eval('artSkinInflListChanging Skin_Jaw_master_jnt 1')
         mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
         mel.eval('mayaHasRenderSetup')
-        cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_Jaw_master_jnt', clear=1)
+        cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_JAW_MASTER_JOINT_NAME, clear=1)
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='smooth')
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=1)
         for i in range(Jaw_vertex_count / 786 + 2):
             mel.eval('GrowPolygonSelectionRegion')
 
         for i in range(Jaw_vertex_count / 786 * 2 + 2):
-            cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_Jaw_master_jnt', clear=1)
+            cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_JAW_MASTER_JOINT_NAME, clear=1)
 
         if cmds.objExists('Skin*lip*lower*jnt'):
             for each in LowerLipselect:
@@ -15386,7 +15380,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('artSkinInflListChanging Skin_Jaw_master_jnt 1')
         mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
         mel.eval('mayaHasRenderSetup')
-        cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_Jaw_master_jnt', clear=1)
+        cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_JAW_MASTER_JOINT_NAME, clear=1)
         cmds.select(cl=True)
         cmds.setAttr('Skin_Jaw_master_jnt.liw', 1)
 
@@ -15449,17 +15443,17 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.create_joint_check = True
         cmds.select(clear=True)
         if len(self.head_joint) != 0:
-            cmds.duplicate(self.head_joint, po=True, n='Head_master_jnt')
-            Parent_head = cmds.listRelatives('Head_master_jnt', p=True)
+            cmds.duplicate(self.head_joint, po=True, n=HEAD_MASTER_JOINT_NAME)
+            Parent_head = cmds.listRelatives(HEAD_MASTER_JOINT_NAME, p=True)
             if Parent_head is None:
                 pass
             else:
-                cmds.parent('Head_master_jnt', w=True)
-            head_jnt_parent = cmds.listRelatives('Head_master_jnt', parent=True)
+                cmds.parent(HEAD_MASTER_JOINT_NAME, w=True)
+            head_jnt_parent = cmds.listRelatives(HEAD_MASTER_JOINT_NAME, parent=True)
             if head_jnt_parent is not None:
                 cmds.select(head_jnt_parent[0])
                 cmds.makeIdentity(apply=True, t=True, r=False, s=True, pn=True)
-                cmds.parent('Head_master_jnt', w=True)
+                cmds.parent(HEAD_MASTER_JOINT_NAME, w=True)
                 cmds.delete(head_jnt_parent[0])
             cmds.setAttr('Head_master_jnt.translateX', 0)
             cmds.setAttr('Head_master_jnt.translateY', 184.193)
@@ -15517,12 +15511,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.move(0, 6, 0, 'FitScale_ctrl.cv[0:2]', r=True)
         cmds.setAttr('FitScale_ctrlShape.overrideEnabled', 1)
         cmds.setAttr('FitScale_ctrlShape.overrideColor', 17)
-        cmds.parent('Head_master_jnt', w=True)
-        cmds.parentConstraint('Head_master_jnt', 'FitScale_ctrl', mo=True)
-        cmds.pointConstraint(self.head_joint, 'Head_master_jnt')
+        cmds.parent(HEAD_MASTER_JOINT_NAME, w=True)
+        cmds.parentConstraint(HEAD_MASTER_JOINT_NAME, 'FitScale_ctrl', mo=True)
+        cmds.pointConstraint(self.head_joint, HEAD_MASTER_JOINT_NAME)
         cmds.delete('FitScale_ctrl_parentConstraint1')
         cmds.delete('Head_master_jnt_pointConstraint1')
-        cmds.parent('Head_master_jnt', 'FitScale_ctrl_grp')
+        cmds.parent(HEAD_MASTER_JOINT_NAME, 'FitScale_ctrl_grp')
         cmds.select(cl=True)
         cmds.select('FitScale_ctrl', self.head_joint, add=True)
         sel = cmds.ls(sl=True)
@@ -15732,7 +15726,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(clear=True)
             cmds.joint(n='L_lip_corner_jnt', p=(2.88, 183.375, 13.78), rad=self.jntRadius)
         cmds.select(clear=True)
-        cmds.joint(n='Jaw_master_jnt', p=(0, 184.615, 6.347), rad=self.jntRadius)
+        cmds.joint(n=JAW_MASTER_JOINT_NAME, p=(0, 184.615, 6.347), rad=self.jntRadius)
         cmds.setAttr('Jaw_master_jnt.tx', lock=True)
         if 'Lip 04 joint' == self.ui.LipOption.currentText() or 'Lip 10 joint' == self.ui.LipOption.currentText() or 'Lip 14 joint' == self.ui.LipOption.currentText() or 'Lip 14 & Lip Outer 5 joint' == self.ui.LipOption.currentText():
             cmds.setAttr('upper_lip_jnt.type', 18)
@@ -15824,10 +15818,10 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.setAttr('scale_check_grp.scaleX', A)
         cmds.setAttr('scale_check_grp.scaleY', B)
         cmds.setAttr('scale_check_grp.scaleZ', C)
-        if cmds.objExists('Jaw_master_jnt'):
+        if cmds.objExists(JAW_MASTER_JOINT_NAME):
             cmds.setAttr('Jaw_master_jnt.tx', lock=False)
         cmds.makeIdentity('FitScale_ctrl_grp', apply=True, t=True, r=False, scale=True)
-        if cmds.objExists('Jaw_master_jnt'):
+        if cmds.objExists(JAW_MASTER_JOINT_NAME):
             cmds.setAttr('Jaw_master_jnt.tx', lock=True)
         cmds.select('*_jnt')
         Joint_sel = cmds.ls(selection=True)
@@ -15846,7 +15840,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select('Facial_jnt_Sym_grp_R', hi=True)
             mel.eval('searchReplaceNames "L_" "R_" "hierarchy"')
 
-    def Create_Rig(self):
+    def create_controller(self):
         if self.non_symmetry_check is True:
             print('non_symmetry_check is true')
             self.create_rig_system()
@@ -15862,12 +15856,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
     def create_rig_system(self):
         self.rig_check = True
 
-        if self.head_joint is not None:
-            cmds.select(self.head_joint, hi=True)
-            ctrl_joint = cmds.ls(sl=True, type='joint')
-            for each in ctrl_joint:
-                pass
-
         cmds.delete('FitScale_ctrl')
         cmds.select('*_jnt')
         Label_sel = cmds.ls(selection=True)
@@ -15881,11 +15869,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.select('FitScale_ctrl_grp', hi=True)
         cmds.select('FitScale_ctrl_grp', d=True)
         All_sel = cmds.ls(selection=True)
+        # symmetryがあるか?
         if cmds.objExists('Facial_jnt_Sym_grp_L') and cmds.objExists('Facial_jnt_Sym_grp_R'):
-            cmds.sets(All_sel, 'Facial_jnt_Sym_grp_L', 'Facial_jnt_Sym_grp_R', n='All_joint_set')
+            cmds.sets(All_sel, 'Facial_jnt_Sym_grp_L', 'Facial_jnt_Sym_grp_R', name='All_joint_set')
         else:
-            cmds.sets(All_sel, n='All_joint_set')
-        cmds.group(em=True, n='Facial_System_joint_grp')
+            cmds.sets(All_sel, name='All_joint_set')
+        cmds.group(empty=True, name='Facial_System_joint_grp')
         cmds.select('All_joint_set')
         cmds.select('Facial_System_joint_grp', add=True)
         cmds.parent()
@@ -15895,6 +15884,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         for each in selected_objects:
             newItem = newname + each
             cmds.rename(each, '%s' % newItem)
+            print('selected_joint => {}'.format(each))
 
         cmds.delete('All_joint_set')
         cmds.duplicate('Facial_System_joint_grp', n='Facial_Skin_joint_grp')
@@ -15903,18 +15893,17 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
 
         # jointが存在するか？
         if cmds.objExists('Skin_L_*_jnt') and cmds.objExists('Skin_R_*_jnt'):
+            print('--------------------- joint_all_start ---------------------')
             cmds.select('Skin_R_*_jnt')
             cmds.select('Skin_L_*_jnt', add=True)
-            print('--------------------- joint_all_start ---------------------')
             joint_all = cmds.ls(selection=True)
-            #joint_all = cmds.select('*_jnt')
             for each in joint_all:
                 print(each)
             print('--------------------- joint_all_end -----------------------')
             cmds.parent(joint_all, 'Facial_Skin_joint_grp')
             cmds.delete('Skin_Facial_jnt_Sym_grp_L')
             cmds.delete('Skin_Facial_jnt_Sym_grp_R')
-        cmds.softSelect(sse=0)
+        cmds.softSelect(softSelectEnabled=0)
         cmds.symmetricModelling(symmetry=False)
 
         cmds.select('Skin_*_jnt')
@@ -15923,7 +15912,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.select('System_*_jnt')
         cmds.createDisplayLayer(n='System_jnt_layer')
         cmds.setAttr('System_jnt_layer.color', 15)
-        if cmds.objExists('Skin_Jaw_master_jnt'):
+        if cmds.objExists(SKIN_JAW_MASTER_JOINT_NAME):
             cmds.setAttr('Skin_Jaw_master_jnt.tx', lock=False)
         if self.ui.LipCheckBox.isChecked() is True:
             self.Lip_All_System()
@@ -15974,7 +15963,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
 
     def create_facial_mesh_group(self):
         if cmds.objExists(FACIAL_MESH_GROUP_NAME):
-            print('you already have Facial_Mesh_grp')
+            print('you already have => {}'.format(FACIAL_MESH_GROUP_NAME))
             child = cmds.listRelatives(FACIAL_MESH_GROUP_NAME, c=True)
             head = 0
             L_eyeball = 0
@@ -16096,8 +16085,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
     def ForGameHi(self):
         cmds.parent('Facial_Skin_joint_grp', 'Facial_Master_Ctrl_grp')
         cmds.select('Skin_*_jnt')
-        cmds.select('Skin_Head_master_jnt', d=True)
-        cmds.select('Skin_Head_master_jnt', add=True)
+        cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, d=True)
+        cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, add=True)
         cmds.parent()
 
     def Facial_Set_Ctrl(self):

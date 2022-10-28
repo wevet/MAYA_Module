@@ -2,8 +2,12 @@
 
 
 import maya.cmds as cmds
-joints = cmds.select('*_jnt')
-print(joints)
+
+cmds.select('*_jnt')
+Label_sel = cmds.ls(selection=True)
+for each in Label_sel:
+    print(each)
+
 
 
 

@@ -42,6 +42,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         super(Facial_Picker_window, self).__init__(parent)
         self.setWindowTitle('FaceRig Picker')
         self.setFixedSize(705, 611)
+        self.styles = 'Plastique'
         self.init_ui()
         self.create_layout()
         self.create_connections()
@@ -54,8 +55,8 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         self.white = 'background-color: rgb(255,255,255)'
         self.np = ''
         self.shift = 0
-        self.NameSpaceComboUpdate()
-        self.UpdateCVBtnCmd()
+        self.name_space_combo_update()
+        self.update_CV_command()
 
     def init_ui(self):
         self.current_dir = os.path.dirname(__file__)
@@ -71,41 +72,41 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
 
     def create_layout(self):
         self.ui.layout().setContentsMargins(6, 6, 6, 6)
-        self.ui.BtnGrp.setStyle(QtWidgets.QStyleFactory.create('plastique'))
+        self.ui.BtnGrp.setStyle(QtWidgets.QStyleFactory.create(self.styles))
 
     def create_connections(self):
-        self.ui.P_L_brow_Btn.clicked.connect(self.L_brow_BtnCmd)
-        self.ui.P_L_brow_02_Btn.clicked.connect(self.L_brow_02_BtnCmd)
-        self.ui.P_L_brow_03_Btn.clicked.connect(self.L_brow_03_BtnCmd)
-        self.ui.P_L_medial_fibers_brow_Btn.clicked.connect(self.L_medial_fibers_brow_BtnCmd)
-        self.ui.P_L_lateral_fibers_brow_Btn.clicked.connect(self.L_lateral_fibers_brow_BtnCmd)
-        self.ui.P_L_procerus_brow_Btn.clicked.connect(self.L_procerus_brow_BtnCmd)
-        self.ui.P_R_brow_Btn.clicked.connect(self.R_brow_BtnCmd)
-        self.ui.P_R_brow_02_Btn.clicked.connect(self.R_brow_02_BtnCmd)
-        self.ui.P_R_brow_03_Btn.clicked.connect(self.R_brow_03_BtnCmd)
-        self.ui.P_R_medial_fibers_brow_Btn.clicked.connect(self.R_medial_fibers_brow_BtnCmd)
-        self.ui.P_R_lateral_fibers_brow_Btn.clicked.connect(self.R_lateral_fibers_brow_BtnCmd)
-        self.ui.P_R_procerus_brow_Btn.clicked.connect(self.R_procerus_brow_BtnCmd)
-        self.ui.P_Center_brow_Btn.clicked.connect(self.Center_brow_BtnCmd)
-        self.ui.P_L_brow_master_Btn.clicked.connect(self.L_brow_master_BtnCmd)
-        self.ui.P_R_brow_master_Btn.clicked.connect(self.R_brow_master_BtnCmd)
-        self.ui.P_L_eye_blink_Btn.clicked.connect(self.L_eye_blink_BtnCmd)
-        self.ui.P_R_eye_blink_Btn.clicked.connect(self.R_eye_blink_BtnCmd)
-        self.ui.P_L_eye_lower_Btn.clicked.connect(self.L_eye_lower_BtnCmd)
-        self.ui.P_R_eye_lower_Btn.clicked.connect(self.R_eye_lower_BtnCmd)
-        self.ui.P_L_eye_lacrimal_Btn.clicked.connect(self.L_eye_lacrimal_BtnCmd)
-        self.ui.P_L_eye_lacrimal_upper_Btn.clicked.connect(self.L_eye_lacrimal_upper_BtnCmd)
-        self.ui.P_L_eye_lacrimal_lower_Btn.clicked.connect(self.L_eye_lacrimal_lower_BtnCmd)
-        self.ui.P_L_eye_back_Btn.clicked.connect(self.L_eye_back_BtnCmd)
-        self.ui.P_L_eye_back_upper_Btn.clicked.connect(self.L_eye_back_upper_BtnCmd)
-        self.ui.P_L_eye_back_lower_Btn.clicked.connect(self.L_eye_back_lower_BtnCmd)
-        self.ui.P_L_eye_double_Btn.clicked.connect(self.L_eye_double_BtnCmd)
-        self.ui.P_R_eye_lacrimal_Btn.clicked.connect(self.R_eye_lacrimal_BtnCmd)
-        self.ui.P_R_eye_lacrimal_upper_Btn.clicked.connect(self.R_eye_lacrimal_upper_BtnCmd)
-        self.ui.P_R_eye_lacrimal_lower_Btn.clicked.connect(self.R_eye_lacrimal_lower_BtnCmd)
-        self.ui.P_R_eye_back_Btn.clicked.connect(self.R_eye_back_BtnCmd)
-        self.ui.P_R_eye_back_upper_Btn.clicked.connect(self.R_eye_back_upper_BtnCmd)
-        self.ui.P_R_eye_back_lower_Btn.clicked.connect(self.R_eye_back_lower_BtnCmd)
+        self.ui.P_L_brow_Btn.clicked.connect(self.left_brow_command)
+        self.ui.P_L_brow_02_Btn.clicked.connect(self.left_brow_02_command)
+        self.ui.P_L_brow_03_Btn.clicked.connect(self.left_brow_03_command)
+        self.ui.P_L_medial_fibers_brow_Btn.clicked.connect(self.left_medial_fibers_brow_command)
+        self.ui.P_L_lateral_fibers_brow_Btn.clicked.connect(self.left_lateral_fibers_brow_command)
+        self.ui.P_L_procerus_brow_Btn.clicked.connect(self.left_procerus_brow_command)
+        self.ui.P_R_brow_Btn.clicked.connect(self.right_brow_command)
+        self.ui.P_R_brow_02_Btn.clicked.connect(self.right_brow_02_command)
+        self.ui.P_R_brow_03_Btn.clicked.connect(self.right_brow_03_command)
+        self.ui.P_R_medial_fibers_brow_Btn.clicked.connect(self.right_medial_fibers_brow_command)
+        self.ui.P_R_lateral_fibers_brow_Btn.clicked.connect(self.right_lateral_fibers_brow_command)
+        self.ui.P_R_procerus_brow_Btn.clicked.connect(self.right_procerus_brow_command)
+        self.ui.P_Center_brow_Btn.clicked.connect(self.center_brow_command)
+        self.ui.P_L_brow_master_Btn.clicked.connect(self.left_brow_master_command)
+        self.ui.P_R_brow_master_Btn.clicked.connect(self.right_brow_master_command)
+        self.ui.P_L_eye_blink_Btn.clicked.connect(self.left_eye_blink_command)
+        self.ui.P_R_eye_blink_Btn.clicked.connect(self.right_eye_blink_command)
+        self.ui.P_L_eye_lower_Btn.clicked.connect(self.left_eye_lower_command)
+        self.ui.P_R_eye_lower_Btn.clicked.connect(self.right_eye_lower_command)
+        self.ui.P_L_eye_lacrimal_Btn.clicked.connect(self.left_eye_lacrimal_command)
+        self.ui.P_L_eye_lacrimal_upper_Btn.clicked.connect(self.left_eye_lacrimal_upper_command)
+        self.ui.P_L_eye_lacrimal_lower_Btn.clicked.connect(self.left_eye_lacrimal_lower_command)
+        self.ui.P_L_eye_back_Btn.clicked.connect(self.left_eye_back_command)
+        self.ui.P_L_eye_back_upper_Btn.clicked.connect(self.left_eye_back_upper_command)
+        self.ui.P_L_eye_back_lower_Btn.clicked.connect(self.left_eye_back_lower_command)
+        self.ui.P_L_eye_double_Btn.clicked.connect(self.left_eye_double_command)
+        self.ui.P_R_eye_lacrimal_Btn.clicked.connect(self.right_eye_lacrimal_command)
+        self.ui.P_R_eye_lacrimal_upper_Btn.clicked.connect(self.right_eye_lacrimal_upper_command)
+        self.ui.P_R_eye_lacrimal_lower_Btn.clicked.connect(self.right_eye_lacrimal_lower_command)
+        self.ui.P_R_eye_back_Btn.clicked.connect(self.right_eye_back_command)
+        self.ui.P_R_eye_back_upper_Btn.clicked.connect(self.right_eye_back_upper_command)
+        self.ui.P_R_eye_back_lower_Btn.clicked.connect(self.right_eye_back_lower_command)
         self.ui.P_R_eye_double_Btn.clicked.connect(self.R_eye_double_BtnCmd)
         self.ui.P_L_eye_target_Btn.clicked.connect(self.L_eye_target_BtnCmd)
         self.ui.P_R_eye_target_Btn.clicked.connect(self.R_eye_target_BtnCmd)
@@ -183,47 +184,47 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         self.ui.P_Tongue_02_Btn.clicked.connect(self.Tongue_02_BtnCmd)
         self.ui.P_Tongue_03_Btn.clicked.connect(self.Tongue_03_BtnCmd)
         self.ui.P_Facial_Master_Btn.clicked.connect(self.Facial_Master_BtnCmd)
-        self.ui.UpdateCVBtn.clicked.connect(self.NameSpaceComboUpdate)
-        self.ui.UpdateCVBtn.clicked.connect(self.UpdateCVBtnCmd)
-        self.ui.PrimaryCheckBox.stateChanged.connect(self.CheckBoxStateCmd)
-        self.ui.SecondaryCheckBox.stateChanged.connect(self.CheckBoxStateCmd)
-        self.ui.MasterCheckBox.stateChanged.connect(self.CheckBoxStateCmd)
-        self.ui.FKCheckBox.stateChanged.connect(self.CheckBoxStateCmd)
-        self.ui.OralCavityCheckBox.stateChanged.connect(self.CheckBoxStateCmd)
-        self.ui.Reset_CtrlBtn.clicked.connect(self.Reset_CtrlBtnCmd)
-        self.ui.SelAll_CtrlBtn.clicked.connect(self.SelAll_CtrlBtnCmd)
-        self.ui.Reset_BrowBtn.clicked.connect(self.Reset_BrowBtnCmd)
-        self.ui.Select_BrowBtn.clicked.connect(self.Select_BrowBtnCmd)
-        self.ui.Reset_EyeBtn.clicked.connect(self.Reset_EyeBtnCmd)
-        self.ui.Select_EyeBtn.clicked.connect(self.Select_EyeBtnCmd)
-        self.ui.Reset_EyeTargetBtn.clicked.connect(self.Reset_EyeTargetBtnCmd)
-        self.ui.Select_EyeTargetBtn.clicked.connect(self.Select_EyeTargetBtnCmd)
-        self.ui.Reset_NoseBtn.clicked.connect(self.Reset_NoseBtnCmd)
-        self.ui.Select_NoseBtn.clicked.connect(self.Select_NoseBtnCmd)
-        self.ui.Reset_CheekBtn.clicked.connect(self.Reset_CheekBtnCmd)
-        self.ui.Select_CheekBtn.clicked.connect(self.Select_CheekBtnCmd)
-        self.ui.Reset_LipBtn.clicked.connect(self.Reset_LipBtnCmd)
-        self.ui.Select_LipBtn.clicked.connect(self.Select_LipBtnCmd)
-        self.ui.Reset_OralBtn.clicked.connect(self.Reset_OralBtnCmd)
-        self.ui.Select_OralBtn.clicked.connect(self.Select_OralBtnCmd)
-        self.ui.Reset_LipFollowBtn.clicked.connect(self.Reset_LipFollowBtnCmd)
-        self.ui.Reset_Lip_FACSBtn.clicked.connect(self.Reset_Lip_FACSBtnCmd)
-        self.ui.Reset_NoseFollowBtn.clicked.connect(self.Reset_NoseFollowBtnCmd)
-        self.ui.Reset_CheekFollowBtn.clicked.connect(self.Reset_CheekFollowBtnCmd)
-        self.ui.Reset_EyeLowerFollowBtn.clicked.connect(self.Reset_EyeLowerFollowBtnCmd)
-        self.ui.Reset_BrowFollowBtn.clicked.connect(self.Reset_BrowFollowBtnCmd)
-        self.ui.Reset_EyeFollowBtn.clicked.connect(self.Reset_EyeFollowBtnCmd)
-        self.ui.NameSpace_Combo.currentTextChanged.connect(self.UpdateCVBtnCmd)
+        self.ui.UpdateCVBtn.clicked.connect(self.name_space_combo_update)
+        self.ui.UpdateCVBtn.clicked.connect(self.update_CV_command)
+        self.ui.PrimaryCheckBox.stateChanged.connect(self.check_box_state_command)
+        self.ui.SecondaryCheckBox.stateChanged.connect(self.check_box_state_command)
+        self.ui.MasterCheckBox.stateChanged.connect(self.check_box_state_command)
+        self.ui.FKCheckBox.stateChanged.connect(self.check_box_state_command)
+        self.ui.OralCavityCheckBox.stateChanged.connect(self.check_box_state_command)
+        self.ui.Reset_CtrlBtn.clicked.connect(self.reset_control_command)
+        self.ui.SelAll_CtrlBtn.clicked.connect(self.select_all_control_command)
+        self.ui.Reset_BrowBtn.clicked.connect(self.reset_brow_command)
+        self.ui.Select_BrowBtn.clicked.connect(self.select_brow_command)
+        self.ui.Reset_EyeBtn.clicked.connect(self.reset_eye_command)
+        self.ui.Select_EyeBtn.clicked.connect(self.select_eye_command)
+        self.ui.Reset_EyeTargetBtn.clicked.connect(self.reset_eye_target_command)
+        self.ui.Select_EyeTargetBtn.clicked.connect(self.select_eye_target_command)
+        self.ui.Reset_NoseBtn.clicked.connect(self.reset_nose_command)
+        self.ui.Select_NoseBtn.clicked.connect(self.select_nose_command)
+        self.ui.Reset_CheekBtn.clicked.connect(self.reset_cheek_command)
+        self.ui.Select_CheekBtn.clicked.connect(self.select_cheek_command)
+        self.ui.Reset_LipBtn.clicked.connect(self.reset_lip_command)
+        self.ui.Select_LipBtn.clicked.connect(self.select_lip_command)
+        self.ui.Reset_OralBtn.clicked.connect(self.reset_oral_command)
+        self.ui.Select_OralBtn.clicked.connect(self.select_oral_command)
+        self.ui.Reset_LipFollowBtn.clicked.connect(self.reset_lip_follow_command)
+        self.ui.Reset_Lip_FACSBtn.clicked.connect(self.reset_lip_FACS_command)
+        self.ui.Reset_NoseFollowBtn.clicked.connect(self.reset_nose_follow_command)
+        self.ui.Reset_CheekFollowBtn.clicked.connect(self.reset_cheek_follow_command)
+        self.ui.Reset_EyeLowerFollowBtn.clicked.connect(self.reset_eye_lower_follow_command)
+        self.ui.Reset_BrowFollowBtn.clicked.connect(self.reset_brow_follow_command)
+        self.ui.Reset_EyeFollowBtn.clicked.connect(self.reset_eye_follow_command)
+        self.ui.NameSpace_Combo.currentTextChanged.connect(self.update_CV_command)
 
-    def NameSpaceComboUpdate(self):
+    def name_space_combo_update(self):
         self.ui.NameSpace_Combo.clear()
         self.ui.NameSpace_Combo.addItem('')
-        all_nameSpace_list = self.FindAllNameSpace()
+        all_nameSpace_list = self.find_all_name_space()
         if all_nameSpace_list:
             for each in all_nameSpace_list:
                 self.ui.NameSpace_Combo.addItem(each)
 
-    def FindAllNameSpace(self):
+    def find_all_name_space(self):
         all_nameSpace_list = list()
         all_objects = cmds.ls(tr=True)
         if all_objects:
@@ -247,22 +248,22 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             self.another_dialog.textEdit.setText(each)
             self.ui.lineEdit.setText(each)
 
-    def Reset_CtrlBtnCmd(self, *args):
+    def reset_control_command(self, *args):
         with UndoContext():
-            self.Reset_LipBtnCmd()
-            self.Reset_LipFollowBtnCmd()
-            self.Reset_Lip_FACSBtnCmd()
-            self.Reset_NoseFollowBtnCmd()
-            self.Reset_CheekFollowBtnCmd()
-            self.Reset_CheekBtnCmd()
-            self.Reset_EyeLowerFollowBtnCmd()
-            self.Reset_NoseBtnCmd()
-            self.Reset_BrowBtnCmd()
-            self.Reset_EyeBtnCmd()
-            self.Reset_BrowFollowBtnCmd()
-            self.Reset_EyeTargetBtnCmd()
-            self.Reset_EyeFollowBtnCmd()
-            self.Reset_OralBtnCmd()
+            self.reset_lip_command()
+            self.reset_lip_follow_command()
+            self.reset_lip_FACS_command()
+            self.reset_nose_follow_command()
+            self.reset_cheek_follow_command()
+            self.reset_cheek_command()
+            self.reset_eye_lower_follow_command()
+            self.reset_nose_command()
+            self.reset_brow_command()
+            self.reset_eye_command()
+            self.reset_brow_follow_command()
+            self.reset_eye_target_command()
+            self.reset_eye_follow_command()
+            self.reset_oral_command()
             if cmds.objExists(self.np + 'Facial_Master_Ctrl'):
                 cmds.setAttr(self.np + 'Facial_Master_Ctrl.translateX', 0)
                 cmds.setAttr(self.np + 'Facial_Master_Ctrl.translateY', 0)
@@ -275,30 +276,30 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
                 cmds.setAttr(self.np + 'Facial_Master_Ctrl.scaleZ', 1)
             print('All ctrl reset')
 
-    def SelAll_CtrlBtnCmd(self, *args):
+    def select_all_control_command(self, *args):
         with UndoContext():
-            self.Select_BrowBtnCmd()
+            self.select_brow_command()
             brow_sel_all = cmds.ls(sl=True)
-            self.Select_EyeBtnCmd()
+            self.select_eye_command()
             eye_sel_all = cmds.ls(sl=True)
-            self.Select_EyeTargetBtnCmd()
+            self.select_eye_target_command()
             eyetarget_sel_all = cmds.ls(sl=True)
-            self.Select_NoseBtnCmd()
+            self.select_nose_command()
             nose_sel_all = cmds.ls(sl=True)
-            self.Select_CheekBtnCmd()
+            self.select_cheek_command()
             cheek_sel_all = cmds.ls(sl=True)
-            self.Select_LipBtnCmd()
+            self.select_lip_command()
             lip_sel_all = cmds.ls(sl=True)
-            self.Select_OralBtnCmd()
+            self.select_oral_command()
             oral_sel_all = cmds.ls(sl=True)
             cmds.select(brow_sel_all, eye_sel_all, eyetarget_sel_all, nose_sel_all, cheek_sel_all, lip_sel_all, oral_sel_all)
 
-    def Reset_BrowBtnCmd(self, *args):
+    def reset_brow_command(self, *args):
         if cmds.objExists(self.np + 'Brow_All_Ctrl_grp'):
             self.Brow_All_Ctrl_reset()
             print('Brow ctrl reset')
 
-    def Select_BrowBtnCmd(self, *args):
+    def select_brow_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'Brow_All_Ctrl_grp'):
                 mods = cmds.getModifiers()
@@ -307,12 +308,12 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
                 else:
                     cmds.select(self.np + '*brow*ctrl')
 
-    def Reset_EyeBtnCmd(self, *args):
+    def reset_eye_command(self, *args):
         if cmds.objExists(self.np + 'Eye_All_Ctrl_grp'):
             self.Eye_All_Ctrl_reset()
             print('Eye ctrl reset')
 
-    def Select_EyeBtnCmd(self, *args):
+    def select_eye_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'Eye_All_Ctrl_grp'):
                 mods = cmds.getModifiers()
@@ -333,12 +334,12 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
                     if cmds.objExists(self.np + '*double*ctrl'):
                         cmds.select(self.np + '*double*ctrl', add=True)
 
-    def Reset_EyeTargetBtnCmd(self, *args):
+    def reset_eye_target_command(self, *args):
         if cmds.objExists(self.np + 'Eye_target_All_Ctrl_grp'):
             self.Eye_Target_All_Ctrl_reset()
             print('EyeTarget ctrl reset')
 
-    def Select_EyeTargetBtnCmd(self, *args):
+    def select_eye_target_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'Eye_target_All_Ctrl_grp'):
                 mods = cmds.getModifiers()
@@ -353,12 +354,12 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
                     cmds.select(self.np + 'L_Eye_World_point_ctrl', add=True)
                     cmds.select(self.np + 'R_Eye_World_point_ctrl', add=True)
 
-    def Reset_NoseBtnCmd(self, *args):
+    def reset_nose_command(self, *args):
         if cmds.objExists(self.np + 'Nose_All_Ctrl_grp'):
             self.Nose_All_Ctrl_reset()
             print('Nose ctrl reset')
 
-    def Select_NoseBtnCmd(self, *args):
+    def select_nose_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'Nose_All_Ctrl_grp'):
                 mods = cmds.getModifiers()
@@ -373,12 +374,12 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
                     if cmds.objExists(self.np + 'Nose_ctrl'):
                         cmds.select(self.np + 'Nose_ctrl', add=True)
 
-    def Reset_CheekBtnCmd(self, *args):
+    def reset_cheek_command(self, *args):
         if cmds.objExists(self.np + 'Cheek_All_Ctrl_grp'):
             self.Cheek_All_Ctrl_reset()
             print('Cheek ctrl reset')
 
-    def Select_CheekBtnCmd(self, *args):
+    def select_cheek_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'Cheek_All_Ctrl_grp'):
                 mods = cmds.getModifiers()
@@ -391,12 +392,12 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
                     if cmds.objExists(self.np + '*_lower_liplid_ctrl'):
                         cmds.select(self.np + '*_lower_liplid_ctrl', add=True)
 
-    def Reset_LipBtnCmd(self, *args):
+    def reset_lip_command(self, *args):
         if cmds.objExists(self.np + 'Lip_All_Ctrl_grp'):
             self.Lip_All_Ctrl_reset()
             print('Lip ctrl reset')
 
-    def Select_LipBtnCmd(self, *args):
+    def select_lip_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'Lip_All_Ctrl_grp'):
                 mods = cmds.getModifiers()
@@ -437,12 +438,12 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
                     if cmds.objExists(self.np + 'Lip_FACS_*bar_ctrl'):
                         cmds.select(self.np + 'Lip_FACS_*bar_ctrl', add=True)
 
-    def Reset_OralBtnCmd(self, *args):
+    def reset_oral_command(self, *args):
         if cmds.objExists(self.np + 'Oral_Cavity_All_Ctrl_grp'):
             self.Oral_Cavity_All_Ctrl_reset()
             print('Oral Cavity ctrl reset')
 
-    def Select_OralBtnCmd(self, *args):
+    def select_oral_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'Oral_Cavity_All_Ctrl_grp'):
                 mods = cmds.getModifiers()
@@ -455,45 +456,45 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
                     if cmds.objExists(self.np + 'Tongue_*ctrl'):
                         cmds.select(self.np + 'Tongue_*ctrl', add=True)
 
-    def Reset_LipFollowBtnCmd(self, *args):
+    def reset_lip_follow_command(self, *args):
         if cmds.objExists(self.np + 'Lip_All_Ctrl_grp'):
             self.Lip_Connect_Ctrl_reset()
             print('Lip Follow Attribute reset')
 
-    def Reset_Lip_FACSBtnCmd(self, *args):
+    def reset_lip_FACS_command(self, *args):
         if cmds.objExists(self.np + 'Lip_FACS_Ctrl'):
             self.Lip_FACS_Ctrl_reset()
             print('Lip FACS Attribute reset')
 
-    def Reset_NoseFollowBtnCmd(self, *args):
+    def reset_nose_follow_command(self, *args):
         if cmds.objExists(self.np + 'Lip_All_Ctrl_grp') and cmds.objExists(self.np + 'Nose_All_Ctrl_grp'):
             self.Lip_Nose_Connect_Ctrl_reset()
             print('Lip Nose Follow Attribute reset')
 
-    def Reset_CheekFollowBtnCmd(self, *args):
+    def reset_cheek_follow_command(self, *args):
         if cmds.objExists(self.np + 'Lip_All_Ctrl_grp') and cmds.objExists(self.np + 'Cheek_All_Ctrl_grp'):
             self.Lip_Cheek_Connect_Ctrl_reset()
             print('Lip Cheek Follow Attribute reset')
 
-    def Reset_EyeLowerFollowBtnCmd(self, *args):
+    def reset_eye_lower_follow_command(self, *args):
         if cmds.objExists(self.np + 'Cheek_All_Ctrl_grp') and cmds.objExists(self.np + 'Eye_All_Ctrl_grp'):
             self.Cheek_Eye_Connect_Ctrl_reset()
             print('Upper Cheek Eye Lower Follow Attribute reset')
 
-    def Reset_BrowFollowBtnCmd(self, *args):
+    def reset_brow_follow_command(self, *args):
         if cmds.objExists(self.np + 'Eye_All_Ctrl_grp') and cmds.objExists(self.np + 'Brow_All_Ctrl_grp'):
             self.Eye_Brow_Connect_Ctrl_reset()
             print('Eye Brow Follow Attribute reset')
 
-    def Reset_EyeFollowBtnCmd(self, *args):
+    def reset_eye_follow_command(self, *args):
         if cmds.objExists(self.np + 'Eye_target_All_Ctrl_grp') and cmds.objExists(self.np + 'Eye_All_Ctrl_grp'):
             self.Eye_Target_Eye_Connect_Ctrl_reset()
             print('EyeTarget Eye Follow Attribute reset')
 
-    def CheckBoxStateCmd(self, *args):
-        self.UpdateCVBtnCmd()
+    def check_box_state_command(self, *args):
+        self.update_CV_command()
 
-    def UpdateCVBtnCmd(self, *args):
+    def update_CV_command(self, *args):
         self.np = self.ui.NameSpace_Combo.currentText()
         if cmds.objExists(self.np + 'L_brow_ctrl'):
             if cmds.objExists(self.np + 'L_medial_fibers_brow_ctrl') is False:
@@ -1931,7 +1932,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
                 cmds.setAttr(self.np + 'Facial_Set_Ctrl.Oral_Cavity_Ctrl', 0)
         return
 
-    def L_brow_BtnCmd(self, *args):
+    def left_brow_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'L_brow_ctrl'):
                 mods = cmds.getModifiers()
@@ -1942,7 +1943,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def L_brow_02_BtnCmd(self, *args):
+    def left_brow_02_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'L_brow_02_ctrl'):
                 mods = cmds.getModifiers()
@@ -1953,7 +1954,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def L_brow_03_BtnCmd(self, *args):
+    def left_brow_03_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'L_brow_03_ctrl'):
                 mods = cmds.getModifiers()
@@ -1964,7 +1965,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def L_medial_fibers_brow_BtnCmd(self, *args):
+    def left_medial_fibers_brow_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'L_medial_fibers_brow_ctrl'):
                 mods = cmds.getModifiers()
@@ -1975,7 +1976,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def L_lateral_fibers_brow_BtnCmd(self, *args):
+    def left_lateral_fibers_brow_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'L_lateral_fibers_brow_ctrl'):
                 mods = cmds.getModifiers()
@@ -1986,7 +1987,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def L_procerus_brow_BtnCmd(self, *args):
+    def left_procerus_brow_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'L_procerus_brow_FK_ctrl'):
                 mods = cmds.getModifiers()
@@ -1997,7 +1998,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def R_brow_BtnCmd(self, *args):
+    def right_brow_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'R_brow_ctrl'):
                 mods = cmds.getModifiers()
@@ -2008,7 +2009,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def R_brow_02_BtnCmd(self, *args):
+    def right_brow_02_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'R_brow_02_ctrl'):
                 mods = cmds.getModifiers()
@@ -2019,7 +2020,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def R_brow_03_BtnCmd(self, *args):
+    def right_brow_03_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'R_brow_03_ctrl'):
                 mods = cmds.getModifiers()
@@ -2030,7 +2031,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def R_medial_fibers_brow_BtnCmd(self, *args):
+    def right_medial_fibers_brow_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'R_medial_fibers_brow_ctrl'):
                 mods = cmds.getModifiers()
@@ -2041,7 +2042,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def R_lateral_fibers_brow_BtnCmd(self, *args):
+    def right_lateral_fibers_brow_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'R_lateral_fibers_brow_ctrl'):
                 mods = cmds.getModifiers()
@@ -2052,7 +2053,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def R_procerus_brow_BtnCmd(self, *args):
+    def right_procerus_brow_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'R_procerus_brow_FK_ctrl'):
                 mods = cmds.getModifiers()
@@ -2063,7 +2064,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def Center_brow_BtnCmd(self, *args):
+    def center_brow_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'Center_brow_ctrl'):
                 mods = cmds.getModifiers()
@@ -2074,7 +2075,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def L_brow_master_BtnCmd(self, *args):
+    def left_brow_master_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'L_brow_master_ctrl'):
                 mods = cmds.getModifiers()
@@ -2085,7 +2086,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def R_brow_master_BtnCmd(self, *args):
+    def right_brow_master_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'R_brow_master_ctrl'):
                 mods = cmds.getModifiers()
@@ -2096,7 +2097,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def L_eye_blink_BtnCmd(self, *args):
+    def left_eye_blink_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'L_eye_blink_ctrl'):
                 mods = cmds.getModifiers()
@@ -2107,7 +2108,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def R_eye_blink_BtnCmd(self, *args):
+    def right_eye_blink_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'R_eye_blink_ctrl'):
                 mods = cmds.getModifiers()
@@ -2118,7 +2119,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def L_eye_lower_BtnCmd(self, *args):
+    def left_eye_lower_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'L_eye_lower_ctrl'):
                 mods = cmds.getModifiers()
@@ -2129,7 +2130,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def R_eye_lower_BtnCmd(self, *args):
+    def right_eye_lower_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'R_eye_lower_ctrl'):
                 mods = cmds.getModifiers()
@@ -2140,7 +2141,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def L_eye_lacrimal_BtnCmd(self, *args):
+    def left_eye_lacrimal_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'L_eye_lacrimal_ctrl'):
                 mods = cmds.getModifiers()
@@ -2151,7 +2152,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def L_eye_lacrimal_upper_BtnCmd(self, *args):
+    def left_eye_lacrimal_upper_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'L_eye_lacrimal_upper_FK_ctrl'):
                 mods = cmds.getModifiers()
@@ -2162,7 +2163,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def L_eye_lacrimal_lower_BtnCmd(self, *args):
+    def left_eye_lacrimal_lower_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'L_eye_lacrimal_lower_FK_ctrl'):
                 mods = cmds.getModifiers()
@@ -2173,7 +2174,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def L_eye_back_BtnCmd(self, *args):
+    def left_eye_back_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'L_eye_back_ctrl'):
                 mods = cmds.getModifiers()
@@ -2184,7 +2185,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def L_eye_back_upper_BtnCmd(self, *args):
+    def left_eye_back_upper_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'L_eye_back_upper_FK_ctrl'):
                 mods = cmds.getModifiers()
@@ -2195,7 +2196,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def L_eye_back_lower_BtnCmd(self, *args):
+    def left_eye_back_lower_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'L_eye_back_lower_FK_ctrl'):
                 mods = cmds.getModifiers()
@@ -2206,7 +2207,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def L_eye_double_BtnCmd(self, *args):
+    def left_eye_double_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'L_eye_double_ctrl'):
                 mods = cmds.getModifiers()
@@ -2217,7 +2218,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def R_eye_lacrimal_BtnCmd(self, *args):
+    def right_eye_lacrimal_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'R_eye_lacrimal_ctrl'):
                 mods = cmds.getModifiers()
@@ -2228,7 +2229,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def R_eye_lacrimal_upper_BtnCmd(self, *args):
+    def right_eye_lacrimal_upper_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'R_eye_lacrimal_upper_FK_ctrl'):
                 mods = cmds.getModifiers()
@@ -2239,7 +2240,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def R_eye_lacrimal_lower_BtnCmd(self, *args):
+    def right_eye_lacrimal_lower_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'R_eye_lacrimal_lower_FK_ctrl'):
                 mods = cmds.getModifiers()
@@ -2250,7 +2251,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def R_eye_back_BtnCmd(self, *args):
+    def right_eye_back_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'R_eye_back_ctrl'):
                 mods = cmds.getModifiers()
@@ -2261,7 +2262,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def R_eye_back_upper_BtnCmd(self, *args):
+    def right_eye_back_upper_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'R_eye_back_upper_FK_ctrl'):
                 mods = cmds.getModifiers()
@@ -2272,7 +2273,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             else:
                 print('no existing object!!')
 
-    def R_eye_back_lower_BtnCmd(self, *args):
+    def right_eye_back_lower_command(self, *args):
         with UndoContext():
             if cmds.objExists(self.np + 'R_eye_back_lower_FK_ctrl'):
                 mods = cmds.getModifiers()

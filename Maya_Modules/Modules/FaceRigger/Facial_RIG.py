@@ -32,7 +32,7 @@ def maya_main_window():
     main_window_ptr = omui.MQtUtil.mainWindow()
     return wrapInstance(int(main_window_ptr), QtWidgets.QWidget)
 
-
+# constant
 FACIAL_MESH_GROUP_NAME = 'Facial_Mesh_grp'
 HEAD_MASTER_JOINT_NAME = 'Head_master_jnt'
 JAW_MASTER_JOINT_NAME = 'Jaw_master_jnt'
@@ -103,6 +103,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('channelBoxCommand -break;')
         self.setWindowTitle('FaceRig SetUp v1.0')
         cmds.loadPlugin('matrixNodes.mll')
+        self.color_property = 'QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }'
+        self.styles = 'Plastique'
         self.init_ui()
         self.create_layout()
         self.create_connections()
@@ -113,7 +115,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.non_symmetry_check = False
         self.rig_check = False
         self.create_joint_check = False
-
         self.RebuildCheck = 0
         self.TopolDefine_window = 'TopolDefine_window'
         self.addNeck = 0
@@ -262,39 +263,40 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.ui.TimeEnd_pathText.setText(maxTime)
         self.ui.Neck_pathText.returnPressed.connect(self.returnNeck)
         self.ui.set_min_Btn.clicked.connect(self.SetMaxInfluenceBtnCmd)
-        self.ui.centralwidget.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.FacialSetOptionGrp.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.groupBox.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.LipOption.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.CheekOption.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.NoseOption.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.BrowOption.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.EyeOption.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.AdvancedButtonGrp.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.OralOption.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.BrowTopolLBtn.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.BrowTopolRBtn.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.EyeTopolLBtn.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.EyeTopolRBtn.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.NoseTopolBtn.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.CheekTopolLBtn.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.CheekTopolRBtn.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.LipTopolUpBtn.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.LipTopolDownBtn.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.JawTopolBtn.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-        self.ui.LipCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.CheekCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.NoseCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.BrowCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.EyeCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.EyeTargetCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.OralCavityCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.BrowTopolCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.EyeTopolCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.NoseTopolCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.CheekTopolCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.LipTopolCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
-        self.ui.JawTopolCheckBox.setStyleSheet('QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }')
+        self.ui.centralwidget.setStyle(QtWidgets.QStyleFactory.create(self.styles))
+        self.ui.FacialSetOptionGrp.setStyle(QtWidgets.QStyleFactory.create(self.styles))
+        self.ui.groupBox.setStyle(QtWidgets.QStyleFactory.create(self.styles))
+        self.ui.LipOption.setStyle(QtWidgets.QStyleFactory.create(self.styles))
+        self.ui.CheekOption.setStyle(QtWidgets.QStyleFactory.create(self.styles))
+        self.ui.NoseOption.setStyle(QtWidgets.QStyleFactory.create(self.styles))
+        self.ui.BrowOption.setStyle(QtWidgets.QStyleFactory.create(self.styles))
+        self.ui.EyeOption.setStyle(QtWidgets.QStyleFactory.create(self.styles))
+        self.ui.AdvancedButtonGrp.setStyle(QtWidgets.QStyleFactory.create(self.styles))
+        self.ui.OralOption.setStyle(QtWidgets.QStyleFactory.create(self.styles))
+        self.ui.BrowTopolLBtn.setStyle(QtWidgets.QStyleFactory.create(self.styles))
+        self.ui.BrowTopolRBtn.setStyle(QtWidgets.QStyleFactory.create(self.styles))
+        self.ui.EyeTopolLBtn.setStyle(QtWidgets.QStyleFactory.create(self.styles))
+        self.ui.EyeTopolRBtn.setStyle(QtWidgets.QStyleFactory.create(self.styles))
+        self.ui.NoseTopolBtn.setStyle(QtWidgets.QStyleFactory.create(self.styles))
+        self.ui.CheekTopolLBtn.setStyle(QtWidgets.QStyleFactory.create(self.styles))
+        self.ui.CheekTopolRBtn.setStyle(QtWidgets.QStyleFactory.create(self.styles))
+        self.ui.LipTopolUpBtn.setStyle(QtWidgets.QStyleFactory.create(self.styles))
+        self.ui.LipTopolDownBtn.setStyle(QtWidgets.QStyleFactory.create(self.styles))
+        self.ui.JawTopolBtn.setStyle(QtWidgets.QStyleFactory.create(self.styles))
+
+        self.ui.LipCheckBox.setStyleSheet(self.color_property)
+        self.ui.CheekCheckBox.setStyleSheet(self.color_property)
+        self.ui.NoseCheckBox.setStyleSheet(self.color_property)
+        self.ui.BrowCheckBox.setStyleSheet(self.color_property)
+        self.ui.EyeCheckBox.setStyleSheet(self.color_property)
+        self.ui.EyeTargetCheckBox.setStyleSheet(self.color_property)
+        self.ui.OralCavityCheckBox.setStyleSheet(self.color_property)
+        self.ui.BrowTopolCheckBox.setStyleSheet(self.color_property)
+        self.ui.EyeTopolCheckBox.setStyleSheet(self.color_property)
+        self.ui.NoseTopolCheckBox.setStyleSheet(self.color_property)
+        self.ui.CheekTopolCheckBox.setStyleSheet(self.color_property)
+        self.ui.LipTopolCheckBox.setStyleSheet(self.color_property)
+        self.ui.JawTopolCheckBox.setStyleSheet(self.color_property)
         self.ui.UnrealCheckBox.setVisible(False)
 
     def returnNeck(self):
@@ -2350,8 +2352,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         rotation = cmds.xform(sel[1], q=True, ro=True)
         cmds.xform(sel[0], ro=rotation)
         cmds.select(cl=True)
-        if cmds.objExists('Skin_Head_master_jnt_parentConstraint1'):
-            cmds.delete('Skin_Head_master_jnt_parentConstraint1')
+        if cmds.objExists(SKIN_HEAD_MASTER_JOINT_NAME + '_parentConstraint1'):
+            cmds.delete(SKIN_HEAD_MASTER_JOINT_NAME + '_parentConstraint1')
         cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, Head_child, add=True)
         sel = cmds.ls(sl=True)
         Position = cmds.xform(sel[1], ws=True, q=True, t=True)
@@ -2446,7 +2448,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Root_Skin_Neck_Bone', clear=1)
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Root_Skin_Neck_Bone', clear=1)
             cmds.skinCluster(Update_Skin, edit=True, siv='Root_Skin_Neck_Bone')
-            mel.eval('artSkinInflListChanging "Skin_Head_master_jnt" 1')
+            mel.eval('artSkinInflListChanging ' + SKIN_HEAD_MASTER_JOINT_NAME + ' 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_HEAD_MASTER_JOINT_NAME, clear=1)
@@ -5569,7 +5571,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowMinimizeButtonHint)
         image_path = self.current_dir + '/icon/Facial_image.png'
         self.TopolDefine_window.Label_image.setPixmap(image_path)
-        self.TopolDefine_window.Match_joint_Btn.setStyle(QtWidgets.QStyleFactory.create('plastique'))
+        self.TopolDefine_window.Match_joint_Btn.setStyle(QtWidgets.QStyleFactory.create(self.styles))
         if len(self.LipCorner_L_Vetex) != 0:
             self.TopolDefine_window.LipCorner_L_Btn.setStyleSheet(self.green_color)
         if len(self.LipCorner_lower_L_Vetex) != 0:
@@ -10702,7 +10704,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='smooth')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.5)
             cmds.skinCluster(Head_SkinCluster, edit=True, siv='Skin_L_brow_jnt')
-            mel.eval('artSkinInflListChanging Skin_Head_master_jnt 1')
+            mel.eval('artSkinInflListChanging' + SKIN_HEAD_MASTER_JOINT_NAME + '1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
             for i in range(Brow_L_vertex_count / 60 + 2):
@@ -11083,7 +11085,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='smooth')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.5)
             cmds.skinCluster(Head_SkinCluster, edit=True, siv='Skin_R_brow_jnt')
-            mel.eval('artSkinInflListChanging Skin_Head_master_jnt 1')
+            mel.eval('artSkinInflListChanging '+ SKIN_HEAD_MASTER_JOINT_NAME +' 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
             for i in range(Brow_R_vertex_count / 60 + 2):
@@ -15034,7 +15036,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.25)
         for each in LipAllselect:
             cmds.skinCluster(Head_SkinCluster, edit=True, siv=each)
-            mel.eval('artSkinInflListChanging Skin_Head_master_jnt 1')
+            mel.eval('artSkinInflListChanging' + SKIN_HEAD_MASTER_JOINT_NAME + '1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
             for i in range(LipUp_vertex_count / 399 * 2 + 1):
@@ -15133,7 +15135,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_JAW_MASTER_JOINT_NAME, clear=1)
 
         cmds.skinCluster(Head_SkinCluster, edit=True, siv=SKIN_HEAD_MASTER_JOINT_NAME)
-        mel.eval('artSkinInflListChanging Skin_Head_master_jnt 1')
+        mel.eval('artSkinInflListChanging' + SKIN_HEAD_MASTER_JOINT_NAME + '1')
         mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
         mel.eval('mayaHasRenderSetup')
         for i in range(HeadFullCount / 3744 * 2 + 2):
@@ -15220,7 +15222,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
 
         if cmds.objExists('Skin_L_lower_liplid_jnt'):
             cmds.skinCluster(Head_SkinCluster, edit=True, siv='Skin_L_lower_liplid_jnt')
-            mel.eval('artSkinInflListChanging Skin_Head_master_jnt 1')
+            mel.eval('artSkinInflListChanging' + SKIN_HEAD_MASTER_JOINT_NAME + '1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
             for i in range(HeadFullCount / 3744 * 2 + 2):
@@ -15276,7 +15278,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
 
         if cmds.objExists('Skin_R_lower_liplid_jnt'):
             cmds.skinCluster(Head_SkinCluster, edit=True, siv='Skin_R_lower_liplid_jnt')
-            mel.eval('artSkinInflListChanging Skin_Head_master_jnt 1')
+            mel.eval('artSkinInflListChanging' + SKIN_HEAD_MASTER_JOINT_NAME + '1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
             for i in range(HeadFullCount / 3744 * 2 + 2):
@@ -15455,15 +15457,15 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 cmds.makeIdentity(apply=True, t=True, r=False, s=True, pn=True)
                 cmds.parent(HEAD_MASTER_JOINT_NAME, w=True)
                 cmds.delete(head_jnt_parent[0])
-            cmds.setAttr('Head_master_jnt.translateX', 0)
-            cmds.setAttr('Head_master_jnt.translateY', 184.193)
-            cmds.setAttr('Head_master_jnt.translateZ', 4.003)
+            cmds.setAttr(HEAD_MASTER_JOINT_NAME + '.translateX', 0)
+            cmds.setAttr(HEAD_MASTER_JOINT_NAME + '.translateY', 184.193)
+            cmds.setAttr(HEAD_MASTER_JOINT_NAME + '.translateZ', 4.003)
         else:
             QtWidgets.QMessageBox.warning(None, 'Warning', 'Please Define your head joint!')
             cmds.error('Please Define your head joint!')
 
-        cmds.setAttr('Head_master_jnt.type', 18)
-        mel.eval('setAttr -type "string" Head_master_jnt.otherType "Head"')
+        cmds.setAttr(HEAD_MASTER_JOINT_NAME + '.type', 18)
+        mel.eval('setAttr -type "string" ' + HEAD_MASTER_JOINT_NAME + '.otherType "Head"')
         if self.ui.BrowCheckBox.isChecked() is True:
             self.Create_Brow_joint()
         if self.ui.EyeCheckBox.isChecked() is True:
@@ -15515,7 +15517,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.parentConstraint(HEAD_MASTER_JOINT_NAME, 'FitScale_ctrl', mo=True)
         cmds.pointConstraint(self.head_joint, HEAD_MASTER_JOINT_NAME)
         cmds.delete('FitScale_ctrl_parentConstraint1')
-        cmds.delete('Head_master_jnt_pointConstraint1')
+        cmds.delete(HEAD_MASTER_JOINT_NAME + '_pointConstraint1')
         cmds.parent(HEAD_MASTER_JOINT_NAME, 'FitScale_ctrl_grp')
         cmds.select(cl=True)
         cmds.select('FitScale_ctrl', self.head_joint, add=True)

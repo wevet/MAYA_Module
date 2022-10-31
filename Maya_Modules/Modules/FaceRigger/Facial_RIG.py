@@ -18,7 +18,6 @@ from PySide2.QtNetwork import QNetworkAccessManager, QNetworkRequest
 import maya.OpenMayaUI as omui
 import importlib
 
-
 class UndoContext(object):
 
     def __enter__(self):
@@ -320,9 +319,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.ui.RebuildSymBtn.clicked.connect(self.RebuildSymBtnCmd)
         self.ui.PickerBtn.clicked.connect(self.PickerBtnCmd)
 
-        # 使わないので非表示
         # save setting start
-        self.ui.menuBar().setVisible(False)
         self.ui.actionReset_Settings.triggered.connect(self.editMenuResetCmd)
         self.ui.actionSave_Settings.triggered.connect(self.editMenuSaveCmd)
         self.ui.actionLoad_Settings.triggered.connect(self.editMenuLoadCmd)
@@ -10280,6 +10277,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.skinCluster(Head_SkinCluster, edit=True, dr=0, ps=0, ns=0.1, lw=True, ai=Brow_sel)
         elif list_Brow_jnt_check == 0:
             cmds.skinCluster(Head_SkinCluster, edit=True, dr=0, ps=0, ns=0.1, lw=True, ai=Brow_sel)
+
+        # ここから
         for each in Brow_sel:
             each_liw = each + '.liw'
             cmds.setAttr(each_liw, 1)
@@ -10292,11 +10291,11 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.7)
             cmds.select(self.Brow_L_Vetex)
             if cmds.objExists('Skin_L_medial_fibers_brow_jnt') is False:
-                for i in range(Brow_L_vertex_count / 60 + 1):
+                for i in range(int(Brow_L_vertex_count / 60 + 1)):
                     mel.eval('GrowPolygonSelectionRegion')
 
             else:
-                for i in range(Brow_L_vertex_count / 60):
+                for i in range(int(Brow_L_vertex_count / 60)):
                     mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_brow_jnt 1')
@@ -10312,13 +10311,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
             if cmds.objExists('Skin_L_medial_fibers_brow_jnt') is False:
-                for i in range(Brow_L_vertex_count / 60 + 1):
+                for i in range(int(Brow_L_vertex_count / 60 + 1)):
                     mel.eval('GrowPolygonSelectionRegion')
 
             else:
-                for i in range(Brow_L_vertex_count / 60):
+                for i in range(int(Brow_L_vertex_count / 60)):
                     mel.eval('GrowPolygonSelectionRegion')
-
             max_weight = 0
             for a in each_Siv:
                 vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_brow_jnt', query=True)
@@ -10354,7 +10352,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             opvalue = cmds.artAttrSkinPaintCtx(cmds.currentCtx(), q=True, op=True)
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_L_brow_jnt', clear=1)
             self.Temp = ''
-            for i in range(Brow_L_vertex_count / 60 + 1):
+            for i in range(int(Brow_L_vertex_count / 60 + 1)):
                 if len(self.Temp) == 0:
                     self.Temp = self.Brow_L_Vetex[0]
                 minus = cmds.ls(sl=True)
@@ -10406,7 +10404,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Brow_L_medial_fibers_Vetex)
-            for i in range(Brow_L_vertex_count / 60):
+            for i in range(int(Brow_L_vertex_count / 60)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_medial_fibers_brow_jnt 1')
@@ -10421,7 +10419,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_medial_fibers_brow_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Brow_L_vertex_count / 60):
+            for i in range(int(Brow_L_vertex_count / 60)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -10457,7 +10455,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Brow_L_lateral_fibers_Vetex)
-            for i in range(Brow_L_vertex_count / 60):
+            for i in range(int(Brow_L_vertex_count / 60)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_lateral_fibers_brow_jnt 1')
@@ -10472,7 +10470,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_lateral_fibers_brow_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Brow_L_vertex_count / 60):
+            for i in range(int(Brow_L_vertex_count / 60)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -10507,7 +10505,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Brow_L_procerus_Vetex)
-            for i in range(Brow_L_vertex_count / 60):
+            for i in range(int(Brow_L_vertex_count / 60)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_procerus_brow_jnt 1')
@@ -10522,7 +10520,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_procerus_brow_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Brow_L_vertex_count / 60):
+            for i in range(int(Brow_L_vertex_count / 60)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -10556,7 +10554,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.5)
             cmds.select(self.Brow_L_02_Vetex)
-            for i in range(Brow_L_vertex_count / 60 + 1):
+            for i in range(int(Brow_L_vertex_count / 60 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_brow_02_jnt 1')
@@ -10571,7 +10569,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_brow_02_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Brow_L_vertex_count / 60):
+            for i in range(int(Brow_L_vertex_count / 60)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -10605,7 +10603,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Brow_L_03_Vetex)
-            for i in range(Brow_L_vertex_count / 60 + 1):
+            for i in range(int(Brow_L_vertex_count / 60 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_brow_03_jnt 1')
@@ -10620,7 +10618,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_brow_03_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Brow_L_vertex_count / 60):
+            for i in range(int(Brow_L_vertex_count / 60)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -10654,7 +10652,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Brow_Center_Vetex)
-            for i in range(Brow_L_vertex_count / 60 + 1):
+            for i in range(int(Brow_L_vertex_count / 60 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_center_brow_jnt 1')
@@ -10669,7 +10667,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_center_brow_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Brow_L_vertex_count / 60):
+            for i in range(int(Brow_L_vertex_count / 60)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -10694,12 +10692,11 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 if max_count > 8:
                     break
                 print(max_weight)
-
             cmds.setAttr('Skin_center_brow_jnt.liw', 0)
+
         for each in Brow_sel:
             each_liw = each + '.liw'
             cmds.setAttr(each_liw, 0)
-
         if cmds.objExists('Skin_L_brow_jnt'):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='smooth')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.5)
@@ -10707,9 +10704,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging' + SKIN_HEAD_MASTER_JOINT_NAME + '1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Brow_L_vertex_count / 60 + 2):
+            for i in range(int(Brow_L_vertex_count / 60 + 2)):
                 cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_HEAD_MASTER_JOINT_NAME, clear=1)
-
         for each in Brow_sel:
             each_liw = each + '.liw'
             cmds.setAttr(each_liw, 1)
@@ -10722,11 +10718,11 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.7)
             cmds.select(self.Brow_R_Vetex)
             if cmds.objExists('Skin_R_medial_fibers_brow_jnt') is False:
-                for i in range(Brow_R_vertex_count / 60 + 1):
+                for i in range(int(Brow_R_vertex_count / 60 + 1)):
                     mel.eval('GrowPolygonSelectionRegion')
 
             else:
-                for i in range(Brow_R_vertex_count / 60):
+                for i in range(int(Brow_R_vertex_count / 60)):
                     mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_brow_jnt 1')
@@ -10742,11 +10738,11 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
             if cmds.objExists('Skin_R_medial_fibers_brow_jnt') is False:
-                for i in range(Brow_R_vertex_count / 60 + 1):
+                for i in range(int(Brow_R_vertex_count / 60 + 1)):
                     mel.eval('GrowPolygonSelectionRegion')
 
             else:
-                for i in range(Brow_R_vertex_count / 60):
+                for i in range(int(Brow_R_vertex_count / 60)):
                     mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -10784,7 +10780,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             opvalue = cmds.artAttrSkinPaintCtx(cmds.currentCtx(), q=True, op=True)
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_R_brow_jnt', clear=1)
             self.Temp = ''
-            for i in range(Brow_R_vertex_count / 60 + 1):
+            for i in range(int(Brow_R_vertex_count / 60 + 1)):
                 if len(self.Temp) == 0:
                     self.Temp = self.Brow_R_Vetex[0]
                 minus = cmds.ls(sl=True)
@@ -10826,7 +10822,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 if max_count > 8:
                     break
                 print(max_weight)
-
             cmds.setAttr('Skin_R_brow_jnt.liw', 1)
         if cmds.objExists('Skin_R_medial_fibers_brow_jnt'):
             cmds.setAttr('Skin_R_medial_fibers_brow_jnt.liw', 1)
@@ -10836,7 +10831,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Brow_R_medial_fibers_Vetex)
-            for i in range(Brow_R_vertex_count / 60):
+            for i in range(int(Brow_R_vertex_count / 60)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_medial_fibers_brow_jnt 1')
@@ -10851,13 +10846,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_medial_fibers_brow_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Brow_R_vertex_count / 60):
+            for i in range(int(Brow_R_vertex_count / 60)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_medial_fibers_brow_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_medial_fibers_brow_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -10867,8 +10861,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_medial_fibers_brow_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_medial_fibers_brow_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
 
@@ -10887,7 +10880,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Brow_R_lateral_fibers_Vetex)
-            for i in range(Brow_R_vertex_count / 60):
+            for i in range(int(Brow_R_vertex_count / 60)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_lateral_fibers_brow_jnt 1')
@@ -10902,7 +10895,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_lateral_fibers_brow_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Brow_R_vertex_count / 60):
+            for i in range(int(Brow_R_vertex_count / 60)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -10929,7 +10922,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 if max_count > 8:
                     break
                 print(max_weight)
-
         if cmds.objExists('Skin_R_procerus_brow_jnt'):
             cmds.setAttr('Skin_R_procerus_brow_jnt.liw', 1)
             if cmds.currentCtx() != 'artAttrSkinContext':
@@ -10937,7 +10929,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Brow_R_procerus_Vetex)
-            for i in range(Brow_R_vertex_count / 60):
+            for i in range(int(Brow_R_vertex_count / 60)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_procerus_brow_jnt 1')
@@ -10952,7 +10944,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_procerus_brow_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Brow_R_vertex_count / 60):
+            for i in range(int(Brow_R_vertex_count / 60)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -10978,7 +10970,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 if max_count > 8:
                     break
                 print(max_weight)
-
         if cmds.objExists('Skin_R_brow_02_jnt'):
             cmds.setAttr('Skin_R_brow_02_jnt.liw', 0)
             if cmds.currentCtx() != 'artAttrSkinContext':
@@ -10986,7 +10977,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.5)
             cmds.select(self.Brow_R_02_Vetex)
-            for i in range(Brow_R_vertex_count / 60 + 1):
+            for i in range(int(Brow_R_vertex_count / 60 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_brow_02_jnt 1')
@@ -11001,7 +10992,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_brow_02_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Brow_R_vertex_count / 60):
+            for i in range(int(Brow_R_vertex_count / 60)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -11035,7 +11026,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Brow_R_03_Vetex)
-            for i in range(Brow_R_vertex_count / 60 + 1):
+            for i in range(int(Brow_R_vertex_count / 60 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_brow_03_jnt 1')
@@ -11050,7 +11041,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_brow_03_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Brow_R_vertex_count / 60):
+            for i in range(int(Brow_R_vertex_count / 60)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -11077,10 +11068,10 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 print(max_weight)
 
             cmds.setAttr('Skin_R_brow_03_jnt.liw', 1)
+
         for each in Brow_sel:
             each_liw = each + '.liw'
             cmds.setAttr(each_liw, 0)
-
         if cmds.objExists('Skin_R_brow_jnt'):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='smooth')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.5)
@@ -11088,9 +11079,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging '+ SKIN_HEAD_MASTER_JOINT_NAME +' 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Brow_R_vertex_count / 60 + 2):
+            for i in range(int(Brow_R_vertex_count / 60 + 2)):
                 cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_HEAD_MASTER_JOINT_NAME, clear=1)
-
         for each in Brow_sel:
             each_liw = each + '.liw'
             cmds.setAttr(each_liw, 1)
@@ -11142,11 +11132,11 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.select(self.Eye_L_blink_Vetex)
         if cmds.objExists('Skin_L_eye_lacrimal_upper_jnt') == False and cmds.objExists(
                 'Skin_L_eye_back_upper_jnt') == False:
-            for i in range(L_Eye_vertex_count / 289 + 2):
+            for i in range(int(L_Eye_vertex_count / 289 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
         else:
-            for i in range(L_Eye_vertex_count / 200):
+            for i in range(int(L_Eye_vertex_count / 200)):
                 mel.eval('GrowPolygonSelectionRegion')
 
         mel.eval('artSkinInflListChanging Skin_L_eye_blink_jnt 1')
@@ -11163,11 +11153,11 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('mayaHasRenderSetup')
         if cmds.objExists('Skin_L_eye_lacrimal_upper_jnt') == False and cmds.objExists(
                 'Skin_L_eye_back_upper_jnt') == False:
-            for i in range(L_Eye_vertex_count / 289 + 2):
+            for i in range(int(L_Eye_vertex_count / 289 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
         else:
-            for i in range(L_Eye_vertex_count / 200):
+            for i in range(int(L_Eye_vertex_count / 200)):
                 mel.eval('GrowPolygonSelectionRegion')
 
         max_weight = 0
@@ -11193,7 +11183,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 break
             print(max_weight)
 
-        for i in range(L_Eye_vertex_count / 289 * 10 + 2):
+        for i in range(int(L_Eye_vertex_count / 289 * 10 + 2)):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=1)
             cmds.select(self.Eye_L_blink_Vetex)
@@ -11204,10 +11194,10 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
 
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.5)
         cmds.select(self.Eye_L_blink_Vetex)
-        for i in range(L_Eye_vertex_count / 289 + 1):
+        for i in range(int(L_Eye_vertex_count / 289 + 1)):
             mel.eval('GrowPolygonSelectionRegion')
 
-        for i in range(L_Eye_vertex_count / 289 + 1):
+        for i in range(int(L_Eye_vertex_count / 289 + 1)):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_L_eye_blink_jnt', clear=1)
 
         opvalue = 1
@@ -11222,9 +11212,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         opvalue = cmds.artAttrSkinPaintCtx(cmds.currentCtx(), q=True, op=True)
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_L_eye_blink_jnt', clear=1)
         self.Temp = ''
-        if cmds.objExists('Skin_L_eye_lacrimal_upper_jnt') == False and cmds.objExists(
-                'Skin_L_eye_back_upper_jnt') == False:
-            for i in range(L_Eye_vertex_count / 289 + 2):
+        if cmds.objExists('Skin_L_eye_lacrimal_upper_jnt') == False and cmds.objExists('Skin_L_eye_back_upper_jnt') == False:
+            for i in range(int(L_Eye_vertex_count / 289 + 2)):
                 if len(self.Temp) == 0:
                     self.Temp = self.Eye_L_blink_Vetex[0]
                 minus = cmds.ls(sl=True)
@@ -11237,7 +11226,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_L_eye_blink_jnt', clear=1)
 
         else:
-            for i in range(L_Eye_vertex_count / 289 + 1):
+            for i in range(int(L_Eye_vertex_count / 289 + 1)):
                 if len(self.Temp) == 0:
                     self.Temp = self.Eye_L_blink_Vetex[0]
                 minus = cmds.ls(sl=True)
@@ -11253,12 +11242,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.3)
         cmds.select(self.Eye_L_blink_Vetex)
         mel.eval('GrowPolygonSelectionRegion')
-        for i in range(L_Eye_vertex_count / 289 * 2 - 2):
+        for i in range(int(L_Eye_vertex_count / 289 * 2 - 2)):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_L_eye_blink_jnt', clear=1)
 
         if cmds.objExists('Skin_L_eye_lower_jnt'):
             cmds.select(self.Eye_L_lower_Vetex)
-            for i in range(L_Eye_vertex_count / 289 * 2 + 2):
+            for i in range(int(L_Eye_vertex_count / 289 * 2 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
@@ -11270,15 +11259,13 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=1)
             cmds.select(self.Eye_L_lower_Vetex)
-            if cmds.objExists('Skin_L_eye_lacrimal_lower_jnt') == False and cmds.objExists(
-                    'Skin_L_eye_back_lower_jnt') == False:
-                for i in range(L_Eye_vertex_count / 289 + 3):
+            if cmds.objExists('Skin_L_eye_lacrimal_lower_jnt') == False and cmds.objExists('Skin_L_eye_back_lower_jnt') == False:
+                for i in range(int(L_Eye_vertex_count / 289 + 3)):
                     mel.eval('GrowPolygonSelectionRegion')
 
             else:
-                for i in range(L_Eye_vertex_count / 289 + 2):
+                for i in range(int(L_Eye_vertex_count / 289 + 2)):
                     mel.eval('GrowPolygonSelectionRegion')
-
             mel.eval('artSkinInflListChanging Skin_L_eye_lower_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
@@ -11291,13 +11278,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_eye_lower_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            if cmds.objExists('Skin_L_eye_lacrimal_lower_jnt') == False and cmds.objExists(
-                    'Skin_L_eye_back_lower_jnt') == False:
-                for i in range(L_Eye_vertex_count / 289 + 1):
+            if cmds.objExists('Skin_L_eye_lacrimal_lower_jnt') == False and cmds.objExists('Skin_L_eye_back_lower_jnt') == False:
+                for i in range(int(L_Eye_vertex_count / 289 + 1)):
                     mel.eval('GrowPolygonSelectionRegion')
 
             else:
-                for i in range(L_Eye_vertex_count / 289 + 1):
+                for i in range(int(L_Eye_vertex_count / 289 + 1)):
                     mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -11335,9 +11321,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             opvalue = cmds.artAttrSkinPaintCtx(cmds.currentCtx(), q=True, op=True)
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_L_eye_lower_jnt', clear=1)
             self.Temp = ''
-            if cmds.objExists('Skin_L_eye_lacrimal_lower_jnt') == False and cmds.objExists(
-                    'Skin_L_eye_back_lower_jnt') == False:
-                for i in range(L_Eye_vertex_count / 289 + 2):
+            if cmds.objExists('Skin_L_eye_lacrimal_lower_jnt') == False and cmds.objExists('Skin_L_eye_back_lower_jnt') == False:
+                for i in range(int(L_Eye_vertex_count / 289 + 2)):
                     if len(self.Temp) == 0:
                         self.Temp = self.Eye_L_lower_Vetex[0]
                     minus = cmds.ls(sl=True)
@@ -11350,7 +11335,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_L_eye_lower_jnt', clear=1)
 
             else:
-                for i in range(L_Eye_vertex_count / 289 + 1):
+                for i in range(int(L_Eye_vertex_count / 289 + 1)):
                     if len(self.Temp) == 0:
                         self.Temp = self.Eye_L_lower_Vetex[0]
                     minus = cmds.ls(sl=True)
@@ -11366,11 +11351,11 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.3)
             cmds.select(self.Eye_L_lower_Vetex)
             mel.eval('GrowPolygonSelectionRegion')
-            for i in range(L_Eye_vertex_count / 289 * 2 - 1):
+            for i in range(int(L_Eye_vertex_count / 289 * 2 - 1)):
                 cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_L_eye_lower_jnt', clear=1)
 
             cmds.select(self.Eye_L_blink_Vetex)
-            for i in range(L_Eye_vertex_count / 289 + 3):
+            for i in range(int(L_Eye_vertex_count / 289 + 3)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
@@ -11383,7 +11368,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=1)
             cmds.select(self.Eye_L_lacrimal_Vetex)
-            for i in range(L_Eye_vertex_count / 289 + 2):
+            for i in range(int(L_Eye_vertex_count / 289 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_eye_lacrimal_jnt 1')
@@ -11399,7 +11384,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_eye_lacrimal_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(L_Eye_vertex_count / 289 + 2):
+            for i in range(int(L_Eye_vertex_count / 289 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -11433,7 +11418,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.Eye_L_lacrimal_upper_Vetex)
-            for i in range(L_Eye_vertex_count / 289):
+            for i in range(int(L_Eye_vertex_count / 289)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             cmds.select(self.Eye_L_blink_Vetex, d=True)
@@ -11450,7 +11435,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_eye_lacrimal_upper_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(L_Eye_vertex_count / 289 + 1):
+            for i in range(int(L_Eye_vertex_count / 289 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -11486,7 +11471,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.Eye_L_lacrimal_lower_Vetex)
-            for i in range(L_Eye_vertex_count / 289 + 1):
+            for i in range(int(L_Eye_vertex_count / 289 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             cmds.select(self.Eye_L_lower_Vetex, d=True)
@@ -11503,7 +11488,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_eye_lacrimal_lower_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(L_Eye_vertex_count / 289 + 2):
+            for i in range(int(L_Eye_vertex_count / 289 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -11539,7 +11524,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=1)
             cmds.select(self.Eye_L_back_Vetex)
-            for i in range(L_Eye_vertex_count / 289 + 2):
+            for i in range(int(L_Eye_vertex_count / 289 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_eye_back_jnt 1')
@@ -11555,7 +11540,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_eye_back_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(L_Eye_vertex_count / 289 + 2):
+            for i in range(int(L_Eye_vertex_count / 289 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -11588,7 +11573,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.Eye_L_back_upper_Vetex)
-            for i in range(L_Eye_vertex_count / 289):
+            for i in range(int(L_Eye_vertex_count / 289)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             cmds.select(self.Eye_L_blink_Vetex, d=True)
@@ -11605,7 +11590,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_eye_back_upper_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(L_Eye_vertex_count / 289 + 1):
+            for i in range(int(L_Eye_vertex_count / 289 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -11640,7 +11625,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.Eye_L_back_lower_Vetex)
-            for i in range(L_Eye_vertex_count / 289 + 1):
+            for i in range(int(L_Eye_vertex_count / 289 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             cmds.select(self.Eye_L_lower_Vetex, d=True)
@@ -11657,7 +11642,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_eye_back_lower_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(L_Eye_vertex_count / 289 + 2):
+            for i in range(int(L_Eye_vertex_count / 289 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -11692,7 +11677,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Eye_L_double_Vetex)
-            for i in range(L_Eye_vertex_count / 289 + 1):
+            for i in range(int(L_Eye_vertex_count / 289 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_eye_double_jnt 1')
@@ -11712,7 +11697,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_eye_double_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(L_Eye_vertex_count / 289 + 1):
+            for i in range(int(L_Eye_vertex_count / 289 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0

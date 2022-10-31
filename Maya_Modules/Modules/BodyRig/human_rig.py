@@ -11,12 +11,11 @@ from functools import partial
 import human_rig as rig
 import importlib
 importlib.reload(rig)
-window = rig.human_rig_window()
+window = rig.Human_rig_window()
 window.create()
 """
 
-
-class human_rig_window(object):
+class Human_rig_window(object):
 
 	def __init__(self):
 		self.window = 'ar_optionsWindow'
@@ -95,7 +94,7 @@ class human_rig_window(object):
 			cmds.deleteUI(self.window, window=True)
 
 	def create_skeleton(self, *args):
-		skeletonJT = human_skeleton()
+		skeletonJT = Human_skeleton()
 		skeletonJT.__create_spine_skeleton__()
 		skeletonJT.__create_leg_skeleton__()
 		skeletonJT.__create_arm_skeleton__()
@@ -678,8 +677,7 @@ class human_rig_window(object):
 		cmds.parent("Knee_Grp", master_ctrl)
 		return master_ctrl
 
-
-class human_skeleton(object):
+class Human_skeleton(object):
 	def __create_spine_skeleton__(self):
 		self.hip_joint = cmds.joint(name='A_Hip_Jt', position=(0.008, 4.451, 0))
 		cmds.joint('A_Hip_Jt', edit=True, zso=True, oj='xyz')

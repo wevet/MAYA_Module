@@ -58,6 +58,17 @@ class Mirror_Pose_Window_Manager(QtWidgets.QDialog):
     dialog_instance = None
 
     @classmethod
+    def main(cls):
+        global mirror_control
+        try:
+            mirror_control.close()
+            mirror_control.deleteLater()
+        except:
+            pass
+        mirror_control = Mirror_Pose_Window_Manager()
+        mirror_control.show()
+
+    @classmethod
     def show_dialog(cls):
         if not cls.dialog_instance:
             cls.dialog_instance = Mirror_Pose_Window_Manager()
@@ -170,31 +181,15 @@ class Mirror_Pose_Window_Manager(QtWidgets.QDialog):
         self.link_btn.clicked.connect(self.open_url)
 
     def get_mirror_axis(self):
-        """
-        Returns:
-            Returns the current text in the Mirror Axis Combo Box
-        """
         return self.mirror_axis_cb.currentText()
 
     def get_operation(self):
-        """
-        Returns:
-            Returns the current text in the Operation Combo Box
-        """
         return self.operation_cb.currentText()
 
     def get_left_name(self):
-        """
-        Returns:
-            Returns the userdefined naming convention for the left controller
-        """
         return self.left_ctrl_name_le.text()
 
     def get_right_name(self):
-        """
-        Returns:
-            Returns the userdefined naming convention for the right controller
-        """
         return self.right_ctrl_name_le.text()
 
     def get_vectors_dominating_axis(self, vector):
@@ -244,10 +239,6 @@ class Mirror_Pose_Window_Manager(QtWidgets.QDialog):
         return cmds.playbackOptions(maxTime=True, query=True)
 
     def get_flip_frame(self):
-        """
-        Returns:
-            Returns the userdefined value in frame double spin box
-        """
         return self.mirror_frame_dsb.value()
 
     def get_vector_data(self, ctrl_list):
@@ -467,10 +458,6 @@ class Mirror_Pose_Window_Manager(QtWidgets.QDialog):
                     cmds.autoKeyframe(state=True)
 
     def no_nurbs_in_scene(self):
-        """
-        Description:
-            Error if there is no nurbsCurves or nurbsSurfaces in the scene
-        """
         om.MGlobal.displayError("Couldn't find nurbsCurve or nurbsSurface in scene.")
 
     def split_string(self, name, split):
@@ -1072,13 +1059,5 @@ class Mirror_Pose_Window_Manager(QtWidgets.QDialog):
 
 
 if __name__ == "__main__":
-    global mirror_control
-    try:
-        mirror_control.close()
-        mirror_control.deleteLater()
-    except:
-        pass
-
-    mirror_control = Mirror_Pose_Window_Manager()
-    mirror_control.show()
+    Mirror_Pose_Window_Manager.main()
 

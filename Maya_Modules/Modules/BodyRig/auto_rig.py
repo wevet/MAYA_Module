@@ -130,7 +130,6 @@ def create_main_window():
         (child4, 'Scale Fk Control')))
     cmds.showWindow()
 
-
 def create_help_window(text, *args):
     if cmds.window(kWindowHelpName, exists=True):
         cmds.deleteUI(kWindowHelpName)
@@ -215,17 +214,14 @@ def create_help_window(text, *args):
         cmds.text(label='')
     cmds.showWindow()
 
-
 def create_fk_control_button(self):
     attr = cmds.textScrollList('Rig_FKControlLockAttribute', q=True, selectItem=True)
     radio_button = cmds.radioCollection(kRigFKConstraintType, q=True, select=True)
     const = radio_button.rsplit('_', 1)[1]
     create_fk_control(jointList=cmds.ls(sl=True), lockAttributes=attr, constraint=const)
 
-
 def parent_fk_control_button(self):
     parent_fk_control(controlList=cmds.ls(sl=True))
-
 
 def rename_joint_button(self):
     if cmds.radioCollection(kRigAddToJoints, q=True, select=True) == 'Rig_AddToJoints_hierarchy':
@@ -235,10 +231,8 @@ def rename_joint_button(self):
         joint_list = cmds.ls(sl=True)
     rename_joints(jointList=joint_list, add='_bn')
 
-
 def create_main_group_button(self):
     create_main_group()
-
 
 """
 一時的なスケルトンを生成する
@@ -265,7 +259,6 @@ def create_temp_skeleton_button(self):
     cmds.parent('c_hip_tempJt', temp_skeleton_control)
     cmds.select(temp_skeleton_control)
 
-
 def list_fk_control_button(self):
     fk_raw_list = cmds.ls('*.fkControl')
     clean_list = []
@@ -273,7 +266,6 @@ def list_fk_control_button(self):
         ctrl = item.split('.')
         clean_list.append(ctrl[0])
     cmds.textScrollList('Rig_FKControlList', edit=True, append=clean_list)
-
 
 def change_scale_fk_button(self):
     fk_list = cmds.textScrollList('Rig_FKControlList', q=True, selectItem=True)
@@ -287,7 +279,6 @@ def change_scale_fk_button(self):
                 cmds.setAttr(item + '.' + a, lock=False)
             cmds.setAttr(item + '.sy', scale)
             cmds.setAttr(item + '.sz', scale)
-
 
 def create_scale_fk_select_button(self):
     text = cmds.textFieldGrp('Rig_FKControlSelect', q=True, text=True)
@@ -305,7 +296,6 @@ def create_scale_fk_select_button(self):
 
     cmds.textScrollList('Rig_FKControlList', e=True, selectItem=select_list)
 
-
 def freeze_transformation_button(self):
     fk_list = cmds.textScrollList('Rig_FKControlList', q=True, selectItem=True)
     attr = ['sx', 'sy', 'sz']
@@ -317,7 +307,6 @@ def freeze_transformation_button(self):
                 cmds.makeIdentity(item, apply=True, scale=True)
                 for a in attr:
                     cmds.setAttr(item + '.' + a, lock=True)
-
 
 def create_biped_rig_button(self):
     if not cmds.objExists('scale_tempSkeleton_ctrl'):
@@ -378,10 +367,8 @@ def create_biped_rig_button(self):
         else:
             OpenMaya.MGlobal.displayInfo("Successfully created: " + clean_string + '.')
 
-
 def display_joint_size_button(self):
     mel.eval('jdsWin;')
-
 
 def create_fk_control(**kwargs):
     selection = kwargs.setdefault("jointList")
@@ -432,7 +419,6 @@ def create_fk_control(**kwargs):
 
     return control_list
 
-
 def parent_fk_control(**kwargs):
     control_list = kwargs.setdefault("controlList")
     control_group_list = []
@@ -457,7 +443,6 @@ def parent_fk_control(**kwargs):
 
     return control_group_list
 
-
 def rename_joints(**kwargs):
     joint_list = kwargs.setdefault("jointList")
     add = kwargs.setdefault("add")
@@ -470,7 +455,6 @@ def rename_joints(**kwargs):
         except ArithmeticError as e:
             OpenMaya.MGlobal.displayWarning(joint + " not a joint.")
     return new_joint_list
-
 
 def create_main_group():
     group_list = []
@@ -513,7 +497,6 @@ def create_main_group():
         group_list.append('CENTER')
     return group_list
 
-
 def create_temp_skeleton_spine():
     cmds.joint(name='c_hip_tempJt', position=(0, 11.7, 0))
     cmds.joint(name='c_neck_tempJt', position=(0, 18, 0))
@@ -524,7 +507,6 @@ def create_temp_skeleton_spine():
     cmds.joint('c_head_tempJt', edit=True, zso=True, oj='xyz', sao='yup')
     cmds.select('c_hip_tempJt')
     cmds.joint(name='c_lowerHip_tempJt', position=(0, 11.2, 0))
-
 
 def create_temp_skeleton_leg():
     cmds.joint(name='l_hip_tempJt', position=(1.2, 10.7, 0))
@@ -547,7 +529,6 @@ def create_temp_skeleton_leg():
     cmds.select('l_heelFoot_tempJt')
     cmds.joint(name='l_footInner_tempJt', position=(0.7, 0, 1.1))
 
-
 def create_temp_skeleton_arm():
     cmds.joint(name='l_collarbone_tempJt', position=(1, 16.5, 0))
     cmds.joint(name='l_shoulder_tempJt', position=(2.2, 17.4, 0))
@@ -560,7 +541,6 @@ def create_temp_skeleton_arm():
     cmds.joint('l_wrist_tempJt', edit=True, zso=True, oj='xyz', sao='yup')
     cmds.select('l_wrist_tempJt')
     cmds.joint(name='l_handUp_tempJt', position=(8.2, 17.5, 0))
-
 
 def create_temp_skeleton_finger():
     cmds.joint(name='l_innerHand_tempJt', position=(8.3, 16.7, 0.4))
@@ -615,7 +595,6 @@ def create_temp_skeleton_finger():
                                           'l_ringFinger01_tempJt',
                                            'l_outerHand_tempJt'])
 
-
 def create_finger_control_for_temp(**kwargs):
     joints = kwargs.setdefault("joints")
     for jt in joints:
@@ -628,7 +607,6 @@ def create_finger_control_for_temp(**kwargs):
             name = name_split[0]
             cmds.select(joint)
             cmds.joint(name=name + 'Up_tempJt', position=(pos[0], pos[1] + 0.5, pos[2]))
-
 
 def create_arm_joint(**kwargs):
     side = kwargs.setdefault("side")
@@ -710,7 +688,6 @@ def create_arm_joint(**kwargs):
                  ikControls=ik_control[2],
                  fkControls=fk_control[0][1:])
 
-
 def create_leg_joint(**kwargs):
     side = kwargs.setdefault("side")
     scale = kwargs.setdefault("scale")
@@ -788,7 +765,6 @@ def create_leg_joint(**kwargs):
     else:
         cmds.parent(leg_joint_list[0], 'JOINTS')
 
-
 def create_head_joint(**kwargs):
     scale = kwargs.setdefault("scale")
     side = kwargs.setdefault("side")
@@ -834,7 +810,6 @@ def create_head_joint(**kwargs):
         cmds.parent(joint_list[0], 'JOINTS')
     elif cmds.checkBox('Rig_AutoRigSpine', q=True, value=True) is True:
         cmds.parentConstraint('c_ik_shoulder_ctrl', control_group[2], maintainOffset=True)
-
 
 def create_spine_joint(**kwargs):
     side = kwargs.setdefault("side")
@@ -892,49 +867,39 @@ def create_spine_joint(**kwargs):
     for n in range(len(jtHierarchy))[1:]:
         cmds.orientConstraint(ikHierarchy[n], jtHierarchy[n], skip="none", maintainOffset=False)
 
-
 def create_finger_joint(**kwargs):
     side = kwargs.setdefault("side")
     scale = kwargs.setdefault("scale")
 
-    if cmds.radioCollection(kRigMirrorTempSkeleton, q=True,
-                            select=True) == 'Rig_MirrorTempSkeleton_true' and side == 'r':
+    if cmds.radioCollection(kRigMirrorTempSkeleton, q=True, select=True) == 'Rig_MirrorTempSkeleton_true' and side == 'r':
         cmds.mirrorJoint('l_collarbone_tempJt', mirrorBehavior=True, mirrorYZ=True, searchReplace=('l_', 'r_'))
 
     finished_list = []
 
     if cmds.objExists('l_innerHand_tempJt'):
-        thumb = finger_setup(joint=side + '_innerHand_tempJt', side=side, scale=scale, finger='thumb',
-                             parentJoint=side + '_manus_bn')
+        thumb = finger_setup(joint=side + '_innerHand_tempJt', side=side, scale=scale, finger='thumb', parentJoint=side + '_manus_bn')
         finished_list.append(thumb[1])
 
     if cmds.objExists(side + '_indexFinger01_tempJt'):
-        index = finger_setup(joint=side + '_indexFinger01_tempJt', side=side, scale=scale, finger='indexFinger',
-                             parentJoint=side + '_middleHand_bn')
+        index = finger_setup(joint=side + '_indexFinger01_tempJt', side=side, scale=scale, finger='indexFinger', parentJoint=side + '_middleHand_bn')
         finished_list.append(index[1])
 
     if cmds.objExists(side + '_middleFinger01_tempJt'):
-        middle = finger_setup(joint=side + '_middleFinger01_tempJt', side=side, scale=scale, finger='middleFinger',
-                              parentJoint=side + '_middleHand_bn')
+        middle = finger_setup(joint=side + '_middleFinger01_tempJt', side=side, scale=scale, finger='middleFinger', parentJoint=side + '_middleHand_bn')
         finished_list.append(middle[1])
 
     if cmds.objExists(side + '_ringFinger01_tempJt'):
-        ring = finger_setup(joint=side + '_ringFinger01_tempJt', side=side, scale=scale, finger='ringFinger',
-                            parentJoint=side + '_middleHand_bn')
+        ring = finger_setup(joint=side + '_ringFinger01_tempJt', side=side, scale=scale, finger='ringFinger', parentJoint=side + '_middleHand_bn')
         finished_list.append(ring[1])
 
     if cmds.objExists(side + '_outerHand_tempJt'):
-        pinky = finger_setup(joint=side + '_outerHand_tempJt', side=side, scale=scale, finger='pinky',
-                             parentJoint=side + '_manus_bn')
+        pinky = finger_setup(joint=side + '_outerHand_tempJt', side=side, scale=scale, finger='pinky', parentJoint=side + '_manus_bn')
         finished_list.append(pinky[1])
 
     grp = cmds.group(finished_list, name=side + '_fk_fingers_grp')
     cmds.parentConstraint(side + '_manus_bn', grp, maintainOffset=True)
-
-    if cmds.radioCollection(kRigMirrorTempSkeleton, q=True,
-                            select=True) == 'Rig_MirrorTempSkeleton_true' and side == 'r':
+    if cmds.radioCollection(kRigMirrorTempSkeleton, q=True, select=True) == 'Rig_MirrorTempSkeleton_true' and side == 'r':
         cmds.delete('r_collarbone_tempJt')
-
 
 def connect_arm_to_spine():
     shoulder_pos = cmds.joint('l_collarbone_tempJt', q=True, p=True)
@@ -948,7 +913,6 @@ def connect_arm_to_spine():
             cmds.parentConstraint(joint, 'ikFk_armJt_doNotTouch', maintainOffset=True)
     cmds.parentConstraint('c_ik_shoulder_ctrl', 'l_fk_arm_grp', maintainOffset=True)
     cmds.parentConstraint('c_ik_shoulder_ctrl', 'r_fk_arm_grp', maintainOffset=True)
-
 
 def create_master_control(**kwargs):
     scale = kwargs.setdefault("scale")
@@ -979,7 +943,6 @@ def create_master_control(**kwargs):
     for obj in scale_list:
         cmds.scaleConstraint(master_control, obj, mo=True)
 
-
 def insert_joint(**kwargs):
     prefix = kwargs.setdefault("prefix")
     joint_list = kwargs.setdefault("jointList")
@@ -1002,7 +965,6 @@ def insert_joint(**kwargs):
     cmds.select(joint_list[0], hierarchy=True)
     joint_hierarchy = cmds.ls(selection=True)
     return joint_hierarchy
-
 
 def duplicate_joint(**kwargs):
     side = kwargs.setdefault("side")
@@ -1036,7 +998,6 @@ def duplicate_joint(**kwargs):
     cmds.select(hierarchy=True)
     fk_joint = cmds.ls(selection=True)
     return ik_joint, fk_joint
-
 
 def fk_setup(**kwargs):
     side = kwargs.setdefault("side")
@@ -1080,7 +1041,6 @@ def fk_setup(**kwargs):
         cmds.parent(joint_list[0], 'ikFk_' + part + 'Jt_doNotTouch')
     return control_list, control_group_list, fk_body_control_group
 
-
 def ik_spine_setup(**kwargs):
     joint_list = kwargs.setdefault("jointList")
     scale = kwargs.setdefault("scale")
@@ -1123,7 +1083,6 @@ def ik_spine_setup(**kwargs):
     cmds.parent(joint_list[0], 'ikFk_spineJt_doNotTouch')
     return hip_control[3], hip_control[0], shoulder_control[3], shoulder_control[0]
 
-
 def ik_leg_setup(**kwargs):
     side = kwargs.setdefault("side")
     joint_list = kwargs.setdefault("jointList")
@@ -1157,7 +1116,6 @@ def ik_leg_setup(**kwargs):
     cmds.parent(footCtrl[1], 'DO_NOT_TOUCH')
     cmds.parent(joint_list[0], 'ikFk_legJt_doNotTouch')
     return footCtrl, kneeCtrl, ik_foot_control_group
-
 
 def ik_arm_setup(**kwargs):
     side = kwargs.setdefault("side")
@@ -1195,7 +1153,6 @@ def ik_arm_setup(**kwargs):
     cmds.parent(arm_control[1], 'DO_NOT_TOUCH')
     cmds.parent(joint_list[0], 'ikFk_armJt_doNotTouch')
     return arm_control, elbow_control, ik_foot_control_group
-
 
 def if_fk_switch(**kwargs):
     bnList = kwargs.setdefault("bindSkeletonList")
@@ -1244,7 +1201,6 @@ def if_fk_switch(**kwargs):
     for ctrl in fk_control:
         cmds.connectAttr(ikFkSwitchBleCol + ".outputR", ctrl + ".visibility")
     cmds.connectAttr(ikFkSwitchBleCol + ".outputG", ik_control + ".visibility")
-
 
 def finger_setup(**kwargs):
     joint = kwargs.setdefault("joint")
@@ -1301,7 +1257,6 @@ def finger_setup(**kwargs):
                   useAllJoints=True)
     return main_skeleton_list[1:], fk[2]
 
-
 def create_temp_skeleton_control(**kwargs):
     scale = kwargs.setdefault('scale', 1)
     name = kwargs.setdefault('name')
@@ -1311,7 +1266,6 @@ def create_temp_skeleton_control(**kwargs):
     cmds.scale(scale, scale, scale, control)
     cmds.makeIdentity(apply=True, t=1, r=1, s=1, n=0)
     return control
-
 
 def create_pole_vector_control(**kwargs):
     side = kwargs.setdefault("side")
@@ -1335,7 +1289,6 @@ def create_pole_vector_control(**kwargs):
     for attr in lock_attribute:
         cmds.setAttr(ctrl + '.' + attr, lock=True, keyable=False, channelBox=False)
     return grp
-
 
 def create_arm_control(**kwargs):
     side = kwargs.setdefault("side")
@@ -1389,7 +1342,6 @@ def create_arm_control(**kwargs):
     for attr in lock_attribute:
         cmds.setAttr(ctrl + '.' + attr, lock=True, keyable=False, channelBox=False)
     return grp, ikArmDoNotTouch
-
 
 def create_foot_control(**kwargs):
     side = kwargs.setdefault("side")
@@ -1511,7 +1463,6 @@ def create_foot_control(**kwargs):
         cmds.delete('r_hip_tempJt')
     return grp, ikFootDoNotTouch
 
-
 def create_shoulder_hip_control(**kwargs):
     joint = kwargs.setdefault("joint")
     part = kwargs.setdefault("bodyPart")
@@ -1562,7 +1513,6 @@ def create_shoulder_hip_control(**kwargs):
         cmds.setAttr(ctrl + '.' + attr, lock=True, keyable=False, channelBox=False)
     return grp, doNotTouch, spaceLoc[0], ctrl
 
-
 def create_pelvis_control(**kwargs):
     joint = kwargs.setdefault("joint")
     lock_attribute = kwargs.setdefault('locAttributes')
@@ -1586,7 +1536,6 @@ def create_pelvis_control(**kwargs):
         cmds.setAttr(ctrl + '.' + attr, lock=True, keyable=False, channelBox=False)
     cmds.orientConstraint(ctrl, joint, skip='none', maintainOffset=False)
     return ctrl, grp
-
 
 def create_ik_fk_switch_control(**kwargs):
     joint = kwargs.setdefault("joint")
@@ -1628,7 +1577,6 @@ def create_ik_fk_switch_control(**kwargs):
     elif side == 'r':
         cmds.parent(grp, 'RIGHT')
     return ctrl, ctrl + '.ikFkSwitch'
-
 
 def clean_list_to_string(**kwargs):
     original_list = kwargs.setdefault("dirtyList")

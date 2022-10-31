@@ -3,18 +3,19 @@
 import maya.cmds as cmds
 import maya.api.OpenMaya as OpenMaya
 import maya.mel as mel
+import random
+import math
 from functools import partial
 
 """
 import animal_rig as rig
 import importlib
 importlib.reload(rig)
-window = rig.animal_rig_window()
+window = rig.Animal_rig_window()
 window.create()
 """
 
-
-class animal_rig_window(object):
+class Animal_rig_window(object):
 
     def __init__(self):
         self.window = 'ar_optionsWindow'
@@ -112,7 +113,7 @@ class animal_rig_window(object):
             cmds.deleteUI(self.window, window=True)
 
     def create_skeleton(*args, **kwargs):
-        skeleton = animal_skeleton()
+        skeleton = Animal_skeleton()
         skeleton.__create_front_legs_skeleton__()
         skeleton.__create_spine_skeleton__()
         skeleton.__create_back_legs_skeleton__()
@@ -933,11 +934,7 @@ class animal_rig_window(object):
         cmds.group("Tiger_Ctrl", "A_Front_Hip_Jt", name="GRP_B_Main_Ctrl")
         cmds.parent("GRP_B_Main_Ctrl", "Main_Tiger_Ctrl")
 
-
-"""
-Animal Skeleton Class
-"""
-class animal_skeleton(object):
+class Animal_skeleton(object):
     def __create_front_legs_skeleton__(self):
         self.F_HipJoint = cmds.joint(name='A_Front_Hip_Jt', position=(4.086, 8.755, 0.002))
         cmds.joint('A_Front_Hip_Jt', edit=True, zso=True, oj='xyz')

@@ -21,13 +21,11 @@ if os.path.isdir(ICON_PATH) and ICON_PATH not in os.environ['XBMLANGPATH']:
     os.environ['XBMLANGPATH'] = os.pathsep.join((os.environ['XBMLANGPATH'], ICON_PATH))
 MAYA_VERSION = mm.eval('getApplicationVersionAsFloat')
 
-
 def _show_help_command(url):
     """
     This just returns the maya command for launching a web page, since that gets called a few times
     """
     return 'import maya.cmds;maya.cmds.showHelp("' + url + '",absolute=True)'
-
 
 def castToTime(time):
     """
@@ -37,16 +35,13 @@ def castToTime(time):
         return [(x,) for x in time]
     return (time,)
 
-
 def constrain(source, destination, translate=True, rotate=True, scale=False, maintainOffset=False):
     """
     Constrain two objects, even if they have some locked attributes.
     """
-
     transAttr = None
     rotAttr = None
     scaleAttr = None
-
     if translate:
         transAttr = mc.listAttr(destination, keyable=True, unlocked=True, string='translate*')
     if rotate:
@@ -78,10 +73,6 @@ def constrain(source, destination, translate=True, rotate=True, scale=False, mai
 
 
 def create_animation_layer(nodes=None, name=None, namePrefix='', override=True):
-    """
-    Create an animation layer, add nodes, and select it.
-    """
-
     # if there's no layer name, generate one
     if not name:
         if namePrefix:
@@ -121,28 +112,19 @@ def create_animation_layer(nodes=None, name=None, namePrefix='', override=True):
     select_animation_layer(layer)
     return layer
 
-
 def select_animation_layer(animLayer=None):
-    """
-    Select only the specified animation layer
-    """
     # deselect all layers
     for each in mc.ls(type='animLayer'):
         mc.animLayer(each, edit=True, selected=False, preferred=False)
     if animLayer:
         mc.animLayer(animLayer, edit=True, selected=True, preferred=True)
 
-
 def get_selected_animation_layers():
-    """
-    Return the names of the layers which are selected
-    """
     layers = list()
     for each in mc.ls(type='animLayer'):
         if mc.animLayer(each, query=True, selected=True):
             layers.append(each)
     return layers
-
 
 def createHotkey(command, name, description='', python=True):
     """
@@ -752,7 +734,6 @@ class MlUi(object):
             text = text + 'animation_utilities Rev: ' + str(__revision__) + '\n'
         except ZeroDivisionError:
             pass
-
         mc.confirmDialog(title=self.name, message=text, button='Close')
 
     def buttonWithPopup(self, label=None, command=None, annotation='', shelfLabel='', shelfIcon='render_useBackground', readUI_toArgs={}):
@@ -775,7 +756,6 @@ class MlUi(object):
         This creates a menuItem that can be attached to a control to create a shelf menu with the given command
         """
         pythonCommand = 'import ' + self.name + ';' + self.name + '.' + command.__name__ + '()'
-
         mc.menuItem(label=menuLabel,
                     command='import ml_utilities;ml_utilities.createShelfButton(\"' + pythonCommand + '\", \"' + shelfLabel + '\", \"' + self.name + '\", description=\"' + annotation + '\", image=\"' + shelfIcon + '\")',
                     enableCommandRepeat=True,
@@ -795,8 +775,7 @@ class MlUi(object):
         """
         Create a field with a button that adds the selection to the field.
         """
-        field = mc.textFieldButtonGrp(label=label, text=text,
-                                      buttonLabel='Set Selected')
+        field = mc.textFieldButtonGrp(label=label, text=text, buttonLabel='Set Selected')
         mc.textFieldButtonGrp(field, edit=True, buttonCommand=partial(self._populateSelectionField, channel, field))
         return field
 
@@ -808,17 +787,14 @@ class MlUi(object):
                 raise RuntimeError('Please select an attribute in the channelBox.')
             if len(selectedChannels) > 1:
                 raise RuntimeError('Please select only one attribute.')
-
         sel = mc.ls(sl=True)
         if not sel:
             raise RuntimeError('Please select a node.')
         if len(sel) > 1:
             raise RuntimeError('Please select only one node.')
-
         selection = sel[0]
         if selectedChannels:
             selection = selection + '.' + selectedChannels[0]
-
         mc.textFieldButtonGrp(field, edit=True, text=selection)
 
     def selectionList(self, channel=False, **kwargs):
@@ -834,21 +810,17 @@ class MlUi(object):
                 raise RuntimeError('Please select an attribute in the channelBox.')
             if len(selectedChannels) > 1:
                 raise RuntimeError('Please select only one attribute.')
-
         sel = mc.ls(sl=True)
         if not sel:
             raise RuntimeError('Please select a node.')
         if len(sel) > 1:
             raise RuntimeError('Please select only one node.')
-
         selection = sel[0]
         if selectedChannels:
             selection = selection + '.' + selectedChannels[0]
-
         mc.textScrollList(control, edit=True, append=[selection])
 
     class ButtonWithPopup:
-
         def __init__(self,
                      label=None,
                      name=None,
@@ -861,12 +833,10 @@ class MlUi(object):
             """
             The fancy part of this object is the readUI_toArgs argument.
             """
-
             self.uiArgDict = readUI_toArgs
             self.name = name
             self.command = command
             self.kwargs = kwargs
-
             self.annotation = annotation
             self.shelfLabel = shelfLabel
             self.shelfIcon = shelfIcon
@@ -874,14 +844,10 @@ class MlUi(object):
             if annotation and not annotation.endswith('.'):
                 annotation += '.'
 
-            button = mc.button(label=label, command=self.runCommand,
-                               annotation=annotation + ' Or right click for more options.')
-
+            button = mc.button(label=label, command=self.runCommand, annotation=annotation + ' Or right click for more options.')
             mc.popupMenu()
             mc.menuItem(label='Create Shelf Button', command=self.createShelfButton, image=shelfIcon)
-
-            mc.menuItem(label='Create Hotkey',
-                        command=self.createHotkey, image='commandButton')
+            mc.menuItem(label='Create Hotkey', command=self.createHotkey, image='commandButton')
 
         def readUI(self):
             """
@@ -892,7 +858,6 @@ class MlUi(object):
                 # this is some fanciness to read the values of UI elements and generate or run the resulting command
                 # keys represent the argument names, the values are UI elements
                 for k in list(self.uiArgDict.keys()):
-
                     uiType = mc.objectTypeUI(self.uiArgDict[k])
                     value = None
                     if uiType == 'rowGroupLayout':
@@ -920,7 +885,6 @@ class MlUi(object):
                     else:
                         OpenMaya.MGlobal.displayWarning('Cannot read ' + uiType + ' UI element: ' + self.uiArgDict[k])
                         continue
-
                     self.kwargs[k] = value
 
         def runCommand(self, *args):
@@ -934,9 +898,7 @@ class MlUi(object):
             """
             This takes the command
             """
-
             cmd = 'import ' + self.name + '\n' + self.name + '.' + self.command.__name__ + '('
-
             comma = False
             for k, v in list(self.kwargs.items()):
                 value = v
@@ -944,15 +906,11 @@ class MlUi(object):
                     value = "'" + value + "'"
                 else:
                     value = str(value)
-
                 if comma:
                     cmd += ', '
                 cmd = cmd + k + '=' + value
-
                 comma = True
-
             cmd += ')'
-
             return cmd
 
         def createShelfButton(self, *args):
@@ -961,14 +919,12 @@ class MlUi(object):
             """
             self.readUI()
             pythonCommand = self.stringCommand()
-            createShelfButton(pythonCommand, self.shelfLabel, self.name, description=self.annotation,
-                              image=self.shelfIcon)
+            createShelfButton(pythonCommand, self.shelfLabel, self.name, description=self.annotation, image=self.shelfIcon)
 
         def createHotkey(self, annotation='', menuLabel='Create Hotkey'):
             """
             Builds the command and prompts to create a hotkey.
             """
-
             self.readUI()
             pythonCommand = self.stringCommand()
             createHotkey(pythonCommand, self.name, description=self.annotation)

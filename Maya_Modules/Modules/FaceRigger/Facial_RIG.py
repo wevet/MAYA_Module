@@ -237,7 +237,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.Oral_Tongue_03_Vetex = ''
         self.EyeBall_L_Vetex = ''
         self.EyeBall_R_Vetex = ''
-        self.green_color = 'background-color: green;'
+        self.green_color = 'background-color: rgb(0, 170, 255);'
         self.red_color = 'background-color: red'
 
     def init_ui(self):
@@ -345,7 +345,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.ui.LipTopolUpBtn.clicked.connect(self.LipTopolUpBtnCmd)
         self.ui.LipTopolDownBtn.clicked.connect(self.LipTopolDownBtnCmd)
         self.ui.JawTopolBtn.clicked.connect(self.JawTopolBtnCmd)
-        self.ui.SkinBuildBtn.clicked.connect(self.Skin_BuildBtnCmd)
+        self.ui.SkinBuildBtn.clicked.connect(self.skin_build_command)
         self.ui.BrowTopolLBtn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         BrowTopolLBtn_all_action = QtWidgets.QAction('Select the All Vertex', self.ui.BrowTopolLBtn)
         BrowTopolLBtn_reset_action = QtWidgets.QAction('Reset', self.ui.BrowTopolLBtn)
@@ -9937,11 +9937,11 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 self.head_joint = sel[0]
                 print('Head joint define complete')
             else:
-                QtWidgets.QMessageBox.warning(None, 'Warning', 'Please select one item which means head joint on your character body')
-                cmds.error('Please select one item which means head joint on your character body')
+                QtWidgets.QMessageBox.warning(None, 'Warning', 'キャラクターボディのヘッドジョイントの項目を1つ選択してください。')
+                cmds.error('キャラクターボディのヘッドジョイントの項目を1つ選択してください。')
         else:
-            QtWidgets.QMessageBox.warning(None, 'Warning', 'Please select the head joint on your character body')
-            cmds.error('Please select the head joint on your character body')
+            QtWidgets.QMessageBox.warning(None, 'Warning', 'キャラクターボディのヘッドジョイントを選択してください')
+            cmds.error('キャラクターボディのヘッドジョイントを選択してください')
         return
 
     def SetMaxInfluenceBtnCmd(self, *args):
@@ -9960,28 +9960,29 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 QtWidgets.QMessageBox.information(None, 'Information', '' + each + ' is set to ' + str(self.ui.min_value_edit.value()) + ' joints per vertex')
                 print('' + each + ' is set to ' + str(self.ui.min_value_edit.value()) + ' joints per vertex')
             else:
-                QtWidgets.QMessageBox.warning(None, 'Warning', '' + each + ' is not Skin Object! Please select the Skin Mesh which you want to set max influence')
-                cmds.error('' + each + ' is not Skin Object! Please select the Skin Mesh which you want to set max influence')
+                QtWidgets.QMessageBox.warning(None, 'Warning', '' + each + ' はスキンオブジェクトではありません。最大影響力を設定したいスキンメッシュを選択してください。')
+                cmds.error('' + each + ' はスキンオブジェクトではありません。最大影響力を設定したいスキンメッシュを選択してください。')
 
         return
 
-    def Skin_BuildBtnCmd(self, *args):
+    # todo auto skin build start
+    def skin_build_command(self, *args):
         cmds.select(cl=True)
-        max_influecne_value = self.ui.min_value_edit.value()
+        max_influence_value = self.ui.min_value_edit.value()
         if len(self.HeadMesh) != 0:
             Head_SkinCluster = mel.eval('findRelatedSkinCluster ' + self.HeadMesh)
             if len(Head_SkinCluster) == 0:
                 cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, self.HeadMesh, add=True)
-                if max_influecne_value < 3:
+                if max_influence_value < 3:
                     cmds.skinCluster(tsb=True, dr=4, mi=8, omi=True, rui=True)
                 else:
-                    cmds.skinCluster(tsb=True, dr=4, mi=max_influecne_value, omi=True, rui=True)
+                    cmds.skinCluster(tsb=True, dr=4, mi=max_influence_value, omi=True, rui=True)
         self.All_vetex_Check()
         self.UnLockCheck()
         if self.ui.BrowTopolCheckBox.isChecked() is True and len(self.BrowLVetex) != 0 and len(self.BrowRVetex) != 0:
             self.LockParts()
             if self.Skin_Brow_vetex_Check == 1 and self.Skin_Brow_vetex_UnLock == 1:
-                self.BrowAllSkin()
+                self.brow_all_skin()
                 self.ui.BrowTopolCheckBox.setChecked(False)
                 if cmds.objExists('Eye_All_Ctrl_grp'):
                     self.ui.EyeTopolCheckBox.setEnabled(True)
@@ -10006,18 +10007,16 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                                     self.ui.LipTopolCheckBox.setEnabled(False)
                                     self.ui.JawTopolCheckBox.setEnabled(True)
             elif self.Skin_Brow_vetex_Check == 0 and self.Skin_Brow_vetex_UnLock == 1:
-                QtWidgets.QMessageBox.warning(None, 'Warning', "Please click the 'Define All Face' button and finish your character 'Brow' topology set")
-                cmds.error("Please click the 'Define All Face' button and finish your character 'Brow' topology set")
+                QtWidgets.QMessageBox.warning(None, 'Warning', "Define All Face ボタンをクリックし、キャラクター「Brow」のトポロジーセットを完成させてください。")
             elif self.Skin_Brow_vetex_Check == 1 and self.Skin_Brow_vetex_UnLock == 0:
                 pass
         elif self.ui.BrowTopolCheckBox.isChecked() is True and len(self.BrowLVetex) == 0 and len(self.BrowRVetex) == 0:
-            QtWidgets.QMessageBox.warning(None, 'Warning', "Please Select the Brow Topology on your character and click the 'L Boundary' or 'R Boundary' button until the checkbox checked!")
-            cmds.error("Please Select the Brow Topology on your character and click the 'L Boundary' or 'R Boundary' button until the checkbox checked!")
+            QtWidgets.QMessageBox.warning(None, 'Warning', "キャラクター上でBrow Topologyを選択し、'L Boundary' または 'R Boundary' ボタンをチェックボックスにチェックが入るまでクリックしてください。")
         self.UnLockCheck()
         if self.ui.EyeTopolCheckBox.isChecked() is True and len(self.EyeLVetex) != 0 and len(self.EyeRVetex) != 0:
             self.LockParts()
             if self.Skin_Eye_vetex_Check == 1 and self.Skin_Eye_vetex_UnLock == 1:
-                self.EyeAllSkin()
+                self.eye_all_skin()
                 self.ui.EyeTopolCheckBox.setChecked(False)
                 self.ui.BrowTopolCheckBox.setChecked(False)
                 self.ui.BrowTopolCheckBox.setEnabled(False)
@@ -10039,18 +10038,16 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                                 self.ui.LipTopolCheckBox.setEnabled(False)
                                 self.ui.JawTopolCheckBox.setEnabled(True)
             elif self.Skin_Eye_vetex_Check == 0 and self.Skin_Eye_vetex_UnLock == 1:
-                QtWidgets.QMessageBox.warning(None, 'Warning', "Please click the 'Define All Face' button and finish your character 'Eye' topology set")
-                cmds.error("Please click the 'Define All Face' button and finish your character 'Eye' topology set")
+                QtWidgets.QMessageBox.warning(None, 'Warning', "Define All Faceボタンをクリックし、キャラクター「目」のトポロジーセットを完成させてください。")
             elif self.Skin_Eye_vetex_Check == 1 and self.Skin_Eye_vetex_UnLock == 0:
                 pass
         elif self.ui.EyeTopolCheckBox.isChecked() is True and len(self.EyeLVetex) == 0 and len(self.EyeRVetex) == 0:
-            QtWidgets.QMessageBox.warning(None, 'Warning', "Please Select the Eye Topology on your character and click the 'L Boundary' or 'R Boundary' button until the checkbox checked!")
-            cmds.error("Please Select the Eye Topology on your character and click the 'L Boundary' or 'R Boundary' button until the checkbox checked!")
+            QtWidgets.QMessageBox.warning(None, 'Warning', "キャラクター上でBrow Topologyを選択し、'L Boundary' または 'R Boundary' ボタンをチェックボックスにチェックが入るまでクリックしてください。")
         self.UnLockCheck()
         if self.ui.NoseTopolCheckBox.isChecked() is True and len(self.NoseVetex) != 0:
             self.LockParts()
             if self.Skin_Nose_vetex_Check == 1 and self.Skin_Nose_vetex_UnLock == 1:
-                self.NoseAllSkin()
+                self.nose_all_skin()
                 self.ui.NoseTopolCheckBox.setChecked(False)
                 self.ui.BrowTopolCheckBox.setChecked(False)
                 self.ui.BrowTopolCheckBox.setEnabled(False)
@@ -10069,18 +10066,16 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                             self.ui.LipTopolCheckBox.setEnabled(False)
                             self.ui.JawTopolCheckBox.setEnabled(True)
             elif self.Skin_Nose_vetex_Check == 0 and self.Skin_Nose_vetex_UnLock == 1:
-                QtWidgets.QMessageBox.warning(None, 'Warning', "Please click the 'Define All Face' button and finish your character 'Nose' topology set")
-                cmds.error("Please click the 'Define All Face' button and finish your character 'Nose' topology set")
+                QtWidgets.QMessageBox.warning(None, 'Warning', "Define All Faceボタンをクリックし、キャラクター「鼻」のトポロジーセットを完成させてください。")
             elif self.Skin_Nose_vetex_Check == 1 and self.Skin_Nose_vetex_UnLock == 0:
                 pass
         elif self.ui.NoseTopolCheckBox.isChecked() is True and len(self.NoseVetex) == 0:
-            QtWidgets.QMessageBox.warning(None, 'Warning', "Please Select the Nose Topology on your character and click the 'Boundary' button until the checkbox checked!")
-            cmds.error("Please Select the Nose Topology on your character and click the 'Boundary' button until the checkbox checked!")
+            QtWidgets.QMessageBox.warning(None, 'Warning', "キャラクターの鼻のトポロジーを選択し、チェックボックスにチェックが入るまで「Boundary」ボタンをクリックしてください。")
         self.UnLockCheck()
         if self.ui.CheekTopolCheckBox.isChecked() is True and len(self.CheekLVetex) != 0 and len(self.CheekRVetex) != 0:
             self.LockParts()
             if self.Skin_Cheek_vetex_Check == 1 and self.Skin_Cheek_vetex_UnLock == 1:
-                self.CheekAllSkin()
+                self.cheek_all_skin()
                 self.ui.CheekTopolCheckBox.setChecked(False)
                 self.ui.BrowTopolCheckBox.setChecked(False)
                 self.ui.BrowTopolCheckBox.setEnabled(False)
@@ -10096,18 +10091,16 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                         self.ui.LipTopolCheckBox.setEnabled(False)
                         self.ui.JawTopolCheckBox.setEnabled(True)
             elif self.Skin_Cheek_vetex_Check == 0 and self.Skin_Cheek_vetex_UnLock == 1:
-                QtWidgets.QMessageBox.warning(None, 'Warning', "Please click the 'Define All Face' button and finish your character 'Cheek' topology set")
-                cmds.error("Please click the 'Define All Face' button and finish your character 'Cheek' topology set")
+                QtWidgets.QMessageBox.warning(None, 'Warning', "Define All Faceボタンをクリックし、キャラクター「Cheek」のトポロジーセットを完成させてください。")
             elif self.Skin_Cheek_vetex_Check == 1 and self.Skin_Cheek_vetex_UnLock == 0:
                 pass
         elif self.ui.CheekTopolCheckBox.isChecked() is True and len(self.CheekLVetex) == 0 and len(self.CheekRVetex) == 0:
-            QtWidgets.QMessageBox.warning(None, 'Warning', "Please Select the Cheek Topology on your character and click the 'L Boundary' or 'R Boundary' button until the checkbox checked!")
-            cmds.error("Please Select the Cheek Topology on your character and click the 'L Boundary' or 'R Boundary' button until the checkbox checked!")
+            QtWidgets.QMessageBox.warning(None, 'Warning', "キャラクターのチークトポロジーを選択し、チェックボックスにチェックが入るまで「Lバウンダリー」または「Rバウンダリー」ボタンをクリックしてください。")
         self.UnLockCheck()
         if self.ui.LipTopolCheckBox.isChecked() is True and len(self.LipUpVetex) != 0 and len(self.LipDownVetex) != 0:
             self.LockParts()
             if self.Skin_Lip_vetex_Check == 1 and self.Skin_Lip_vetex_UnLock == 1:
-                self.LipAllSkin()
+                self.lip_all_skin()
                 self.ui.LipTopolCheckBox.setChecked(False)
                 self.ui.BrowTopolCheckBox.setChecked(False)
                 self.ui.BrowTopolCheckBox.setEnabled(False)
@@ -10123,19 +10116,16 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                     self.ui.JawTopolCheckBox.setChecked(False)
                     self.ui.JawTopolCheckBox.setEnabled(False)
             elif self.Skin_Lip_vetex_Check == 0 and self.Skin_Lip_vetex_UnLock == 1:
-                QtWidgets.QMessageBox.warning(None, 'Warning', "Please click the 'Define All Face' button and finish your character 'Lip' topology set")
-                cmds.error("Please click the 'Define All Face' button and finish your character 'Lip' topology set")
+                QtWidgets.QMessageBox.warning(None, 'Warning', "Define All Faceボタンをクリックし、キャラクター「Lip」のトポロジーセットを完成させてください。")
             elif self.Skin_Lip_vetex_Check == 1 and self.Skin_Lip_vetex_UnLock == 0:
                 pass
         elif self.ui.LipTopolCheckBox.isChecked() is True and len(self.LipUpVetex) == 0 and len(self.LipDownVetex) == 0:
-            QtWidgets.QMessageBox.warning(None, 'Warning', "Please Select the Lip Topology on your character and click the 'Upper Bd' or 'Lower Bd' button until the checkbox checked!")
-            cmds.error("Please Select the Lip Topology on your character and click the 'Upper Bd' or 'Lower Bd' button until the checkbox checked!")
+            QtWidgets.QMessageBox.warning(None, 'Warning', "キャラクターのリップトポロジーを選択し、チェックボックスにチェックが入るまで「LipUp」または「LipDown」ボタンをクリックしてください。")
         self.UnLockCheck()
-        if self.ui.JawTopolCheckBox.isChecked() is True and len(self.JawVetex) != 0 and len(
-                self.LipUpVetex) != 0 and len(self.LipDownVetex) != 0:
+        if self.ui.JawTopolCheckBox.isChecked() is True and len(self.JawVetex) != 0 and len(self.LipUpVetex) != 0 and len(self.LipDownVetex) != 0:
             self.LockParts()
             if self.Skin_Jaw_vetex_Check == 1 and self.Skin_Jaw_vetex_UnLock == 1:
-                self.JawAllSkin()
+                self.jaw_all_skin()
                 self.ui.JawTopolCheckBox.setChecked(False)
                 self.ui.BrowTopolCheckBox.setChecked(False)
                 self.ui.BrowTopolCheckBox.setEnabled(False)
@@ -10148,19 +10138,15 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 self.ui.LipTopolCheckBox.setChecked(False)
                 self.ui.LipTopolCheckBox.setEnabled(False)
             elif self.Skin_Jaw_vetex_Check == 0 and self.Skin_Jaw_vetex_UnLock == 1:
-                QtWidgets.QMessageBox.warning(None, 'Warning', "Please click the 'Define All Face' button and finish your character 'Jaw' topology set")
-                cmds.error("Please click the 'Define All Face' button and finish your character 'Jaw' topology set")
+                QtWidgets.QMessageBox.warning(None, 'Warning', "Define All Faceボタンをクリックし、キャラクター「Jaw」のトポロジーセットを完成させてください。")
             elif self.Skin_Jaw_vetex_Check == 1 and self.Skin_Jaw_vetex_UnLock == 0:
                 pass
         elif self.ui.JawTopolCheckBox.isChecked() is True and len(self.JawVetex) == 0 and len(self.LipUpVetex) == 0 and len(self.LipDownVetex) == 0:
-            QtWidgets.QMessageBox.warning(None, 'Warning', "Please Select the Jaw Boundary on your character and click the 'boundary' button until the checkbox checked!")
-            cmds.error("Please Select the Jaw Boundary on your character and click the 'boundary' button until the checkbox checked!")
+            QtWidgets.QMessageBox.warning(None, 'Warning', "キャラクターで顎の境界を選択し、チェックボックスにチェックが入るまで「boundary」ボタンをクリックしてください。")
         elif self.ui.JawTopolCheckBox.isChecked() is True and len(self.JawVetex) != 0 and len(self.LipUpVetex) == 0 and len(self.LipDownVetex) == 0:
-            QtWidgets.QMessageBox.warning(None, 'Warning', "Please Select the Lip Topology on your character and click the 'Upper Bd' or 'Lower Bd' button until the checkbox checked! if you want to Jaw Skinning")
-            cmds.error("Please Select the Lip Topology on your character and click the 'Upper Bd' or 'Lower Bd' button until the checkbox checked! if you want to Jaw Skinning")
+            QtWidgets.QMessageBox.warning(None, 'Warning', "キャラクターのリップトポロジーを選択し、チェックボックスにチェックが入るまで「LipUp」または「LipDown」ボタンをクリックしてください。 Jaw Skinningを行う場合は、以下のようになります。")
         if len(self.HeadMesh) != 0:
-            if len(self.HeadMesh) != 0:
-                Head_SkinCluster = mel.eval('findRelatedSkinCluster ' + self.HeadMesh)
+            Head_SkinCluster = mel.eval('findRelatedSkinCluster ' + self.HeadMesh)
             Skin_joint = cmds.skinCluster(Head_SkinCluster, q=True, inf=True)
             if len(Skin_joint) != 0:
                 for each in Skin_joint:
@@ -10169,34 +10155,29 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
 
         if len(self.Oral_Upper_teeth_Vetex) != 0:
             if self.Skin_Upper_teeth_vetex_Check == 1:
-                self.UpperTeethSkin()
+                self.upper_teeth_skin()
             else:
-                QtWidgets.QMessageBox.warning(None, 'Warning', "Please click the 'Define All Face' button and define your character 'Upper teeth' mesh")
-                cmds.error("Please click the 'Define All Face' button and define your character 'Upper teeth' mesh")
+                QtWidgets.QMessageBox.warning(None, 'Warning', "Define All Faceボタンをクリックし、キャラクターの「上歯」のメッシュを定義してください。")
         if len(self.Oral_Lower_teeth_Vetex) != 0:
             if self.Skin_Lower_teeth_vetex_Check == 1:
-                self.LowerTeethSkin()
+                self.lower_teeth_skin()
             else:
-                QtWidgets.QMessageBox.warning(None, 'Warning', "Please click the 'Define All Face' button and define your character 'Lower teeth' mesh")
-                cmds.error("Please click the 'Define All Face' button and define your character 'Lower teeth' mesh")
+                QtWidgets.QMessageBox.warning(None, 'Warning', "Define All Faceボタンをクリックし、キャラクターの「下の歯」メッシュを定義してください。")
         if len(self.Oral_Tongue_Vetex) != 0:
             if self.Skin_Tongue_vetex_Check == 1:
-                self.TongueSkin()
+                self.tongue_skin()
             else:
-                QtWidgets.QMessageBox.warning(None, 'Warning', "Please click the 'Define All Face' button and define your character 'Tongue' mesh")
-                cmds.error("Please click the 'Define All Face' button and define your character 'Tongue' mesh")
+                QtWidgets.QMessageBox.warning(None, 'Warning', "Define All Faceボタンをクリックし、キャラクター「Tongue」のメッシュを定義してください。")
         if len(self.EyeBall_L_Vetex) != 0:
             if self.Skin_EyeBall_L_vetex_Check == 1:
-                self.EyeBallLSkin()
+                self.eye_ball_left_skin()
             else:
-                QtWidgets.QMessageBox.warning(None, 'Warning', "Please click the 'Define All Face' button and define your character 'Left Eyeball' mesh")
-                cmds.error("Please click the 'Define All Face' button and define your character 'Left Eyeball' mesh")
+                QtWidgets.QMessageBox.warning(None, 'Warning', "Define All Faceボタンをクリックして、キャラクターの「左眼球」メッシュを定義してください。")
         if len(self.EyeBall_R_Vetex) != 0:
             if self.Skin_EyeBall_R_vetex_Check == 1:
-                self.EyeBallRSkin()
+                self.eye_ball_right_skin()
             else:
-                QtWidgets.QMessageBox.warning(None, 'Warning', "Please click the 'Define All Face' button and define your character 'Right Eyeball' mesh")
-                cmds.error("Please click the 'Define All Face' button and define your character 'Right Eyeball' mesh")
+                QtWidgets.QMessageBox.warning(None, 'Warning', "Define All Faceボタンをクリックし、キャラクターの「右目」メッシュを定義してください。")
         self.create_facial_mesh_group()
         return
 
@@ -10207,8 +10188,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
     def Symmetry_joint(self):
         cmds.parent('FitScale_ctrl_grp', w=True)
         cmds.hide('FitScale_ctrl')
-        self.ctrl_scale = (cmds.getAttr('FitScale_ctrl_grp.scaleX') + cmds.getAttr(
-            'FitScale_ctrl_grp.scaleY') + cmds.getAttr('FitScale_ctrl_grp.scaleZ')) / 3
+        self.ctrl_scale = (cmds.getAttr('FitScale_ctrl_grp.scaleX') + cmds.getAttr('FitScale_ctrl_grp.scaleY') + cmds.getAttr('FitScale_ctrl_grp.scaleZ')) / 3
         mel.eval('float $sX = `getAttr FitScale_ctrl_grp.scaleX`')
         mel.eval('float $sY = `getAttr FitScale_ctrl_grp.scaleY`')
         mel.eval('float $sZ = `getAttr FitScale_ctrl_grp.scaleZ`')
@@ -10242,7 +10222,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select('Facial_jnt_Sym_grp_R', hi=True)
             mel.eval('searchReplaceNames "L_" "R_" "hierarchy"')
 
-    def BrowAllSkin(self):
+    def brow_all_skin(self):
         Head_SkinCluster = mel.eval('findRelatedSkinCluster ' + self.HeadMesh)
         HeadFullVertex = self.HeadMesh + '.vtx[*]'
         cmds.select(HeadFullVertex)
@@ -10278,7 +10258,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         elif list_Brow_jnt_check == 0:
             cmds.skinCluster(Head_SkinCluster, edit=True, dr=0, ps=0, ns=0.1, lw=True, ai=Brow_sel)
 
-        # ここから
         for each in Brow_sel:
             each_liw = each + '.liw'
             cmds.setAttr(each_liw, 1)
@@ -10293,7 +10272,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             if cmds.objExists('Skin_L_medial_fibers_brow_jnt') is False:
                 for i in range(int(Brow_L_vertex_count / 60 + 1)):
                     mel.eval('GrowPolygonSelectionRegion')
-
             else:
                 for i in range(int(Brow_L_vertex_count / 60)):
                     mel.eval('GrowPolygonSelectionRegion')
@@ -10313,7 +10291,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             if cmds.objExists('Skin_L_medial_fibers_brow_jnt') is False:
                 for i in range(int(Brow_L_vertex_count / 60 + 1)):
                     mel.eval('GrowPolygonSelectionRegion')
-
             else:
                 for i in range(int(Brow_L_vertex_count / 60)):
                     mel.eval('GrowPolygonSelectionRegion')
@@ -10424,8 +10401,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_medial_fibers_brow_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_medial_fibers_brow_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -10435,8 +10411,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_medial_fibers_brow_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_medial_fibers_brow_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
 
@@ -10475,8 +10450,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lateral_fibers_brow_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lateral_fibers_brow_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -10486,8 +10460,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lateral_fibers_brow_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lateral_fibers_brow_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
 
@@ -10535,8 +10508,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_procerus_brow_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_procerus_brow_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
 
@@ -10701,7 +10673,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='smooth')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.5)
             cmds.skinCluster(Head_SkinCluster, edit=True, siv='Skin_L_brow_jnt')
-            mel.eval('artSkinInflListChanging' + SKIN_HEAD_MASTER_JOINT_NAME + '1')
+            mel.eval('artSkinInflListChanging Skin_Head_master_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
             for i in range(int(Brow_L_vertex_count / 60 + 2)):
@@ -10720,7 +10692,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             if cmds.objExists('Skin_R_medial_fibers_brow_jnt') is False:
                 for i in range(int(Brow_R_vertex_count / 60 + 1)):
                     mel.eval('GrowPolygonSelectionRegion')
-
             else:
                 for i in range(int(Brow_R_vertex_count / 60)):
                     mel.eval('GrowPolygonSelectionRegion')
@@ -10740,7 +10711,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             if cmds.objExists('Skin_R_medial_fibers_brow_jnt') is False:
                 for i in range(int(Brow_R_vertex_count / 60 + 1)):
                     mel.eval('GrowPolygonSelectionRegion')
-
             else:
                 for i in range(int(Brow_R_vertex_count / 60)):
                     mel.eval('GrowPolygonSelectionRegion')
@@ -10900,8 +10870,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lateral_fibers_brow_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lateral_fibers_brow_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -10911,8 +10880,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lateral_fibers_brow_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lateral_fibers_brow_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
 
@@ -10959,8 +10927,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_procerus_brow_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_procerus_brow_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
 
@@ -11085,7 +11052,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             each_liw = each + '.liw'
             cmds.setAttr(each_liw, 1)
 
-    def EyeAllSkin(self):
+    def eye_all_skin(self):
         Head_SkinCluster = mel.eval('findRelatedSkinCluster ' + self.HeadMesh)
         HeadFullVertex = self.HeadMesh + '.vtx[*]'
         cmds.select(HeadFullVertex)
@@ -11130,11 +11097,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=1)
         cmds.select(self.Eye_L_blink_Vetex)
-        if cmds.objExists('Skin_L_eye_lacrimal_upper_jnt') == False and cmds.objExists(
-                'Skin_L_eye_back_upper_jnt') == False:
+        if cmds.objExists('Skin_L_eye_lacrimal_upper_jnt') == False and cmds.objExists('Skin_L_eye_back_upper_jnt') == False:
             for i in range(int(L_Eye_vertex_count / 289 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
-
         else:
             for i in range(int(L_Eye_vertex_count / 200)):
                 mel.eval('GrowPolygonSelectionRegion')
@@ -11151,11 +11116,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('artSkinInflListChanging Skin_L_eye_blink_jnt 1')
         mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
         mel.eval('mayaHasRenderSetup')
-        if cmds.objExists('Skin_L_eye_lacrimal_upper_jnt') == False and cmds.objExists(
-                'Skin_L_eye_back_upper_jnt') == False:
+        if cmds.objExists('Skin_L_eye_lacrimal_upper_jnt') == False and cmds.objExists('Skin_L_eye_back_upper_jnt') == False:
             for i in range(int(L_Eye_vertex_count / 289 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
-
         else:
             for i in range(int(L_Eye_vertex_count / 200)):
                 mel.eval('GrowPolygonSelectionRegion')
@@ -11175,7 +11138,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_eye_blink_jnt', query=True)
                 if vertex_weight >= max_weight2:
                     max_weight2 = vertex_weight
-
             max_weight = max_weight2
             if max_weight == max_weight_check:
                 max_count = max_count + 1
@@ -11281,7 +11243,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             if cmds.objExists('Skin_L_eye_lacrimal_lower_jnt') == False and cmds.objExists('Skin_L_eye_back_lower_jnt') == False:
                 for i in range(int(L_Eye_vertex_count / 289 + 1)):
                     mel.eval('GrowPolygonSelectionRegion')
-
             else:
                 for i in range(int(L_Eye_vertex_count / 289 + 1)):
                     mel.eval('GrowPolygonSelectionRegion')
@@ -11333,7 +11294,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=opvalue / 1.8)
                     opvalue = cmds.artAttrSkinPaintCtx(cmds.currentCtx(), q=True, op=True)
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_L_eye_lower_jnt', clear=1)
-
             else:
                 for i in range(int(L_Eye_vertex_count / 289 + 1)):
                     if len(self.Temp) == 0:
@@ -11440,8 +11400,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_eye_lacrimal_upper_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_eye_lacrimal_upper_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -11451,8 +11410,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_eye_lacrimal_upper_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_eye_lacrimal_upper_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
 
@@ -11493,8 +11451,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_eye_lacrimal_lower_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_eye_lacrimal_lower_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -11504,8 +11461,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_eye_lacrimal_lower_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_eye_lacrimal_lower_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
 
@@ -11605,11 +11561,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_eye_back_upper_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_eye_back_upper_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -11657,11 +11611,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_eye_back_lower_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_eye_back_lower_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -11715,7 +11667,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                     vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_eye_double_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -11756,11 +11707,10 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.select(self.Eye_R_blink_Vetex)
         if cmds.objExists('Skin_R_eye_lacrimal_upper_jnt') == False and cmds.objExists(
                 'Skin_R_eye_back_upper_jnt') == False:
-            for i in range(R_Eye_vertex_count / 289 + 2):
+            for i in range(int(R_Eye_vertex_count / 289 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
-
         else:
-            for i in range(R_Eye_vertex_count / 200):
+            for i in range(int(R_Eye_vertex_count / 200)):
                 mel.eval('GrowPolygonSelectionRegion')
 
         mel.eval('artSkinInflListChanging Skin_R_eye_blink_jnt 1')
@@ -11775,13 +11725,11 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('artSkinInflListChanging Skin_R_eye_blink_jnt 1')
         mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
         mel.eval('mayaHasRenderSetup')
-        if cmds.objExists('Skin_R_eye_lacrimal_upper_jnt') == False and cmds.objExists(
-                'Skin_R_eye_back_upper_jnt') == False:
-            for i in range(R_Eye_vertex_count / 289 + 2):
+        if cmds.objExists('Skin_R_eye_lacrimal_upper_jnt') == False and cmds.objExists('Skin_R_eye_back_upper_jnt') == False:
+            for i in range(int(R_Eye_vertex_count / 289 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
-
         else:
-            for i in range(R_Eye_vertex_count / 200):
+            for i in range(int(R_Eye_vertex_count / 200)):
                 mel.eval('GrowPolygonSelectionRegion')
 
         max_weight = 0
@@ -11807,7 +11755,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 break
             print(max_weight)
 
-        for i in range(R_Eye_vertex_count / 289 * 10 + 2):
+        for i in range(int(R_Eye_vertex_count / 289 * 10 + 2)):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=1)
             cmds.select(self.Eye_R_blink_Vetex)
@@ -11818,10 +11766,10 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
 
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.5)
         cmds.select(self.Eye_R_blink_Vetex)
-        for i in range(R_Eye_vertex_count / 289 + 1):
+        for i in range(int(R_Eye_vertex_count / 289 + 1)):
             mel.eval('GrowPolygonSelectionRegion')
 
-        for i in range(R_Eye_vertex_count / 289 + 1):
+        for i in range(int(R_Eye_vertex_count / 289 + 1)):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_R_eye_blink_jnt', clear=1)
 
         opvalue = 1
@@ -11836,9 +11784,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         opvalue = cmds.artAttrSkinPaintCtx(cmds.currentCtx(), q=True, op=True)
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_R_eye_blink_jnt', clear=1)
         self.Temp = ''
-        if cmds.objExists('Skin_R_eye_lacrimal_upper_jnt') == False and cmds.objExists(
-                'Skin_R_eye_back_upper_jnt') == False:
-            for i in range(R_Eye_vertex_count / 289 + 2):
+        if cmds.objExists('Skin_R_eye_lacrimal_upper_jnt') == False and cmds.objExists('Skin_R_eye_back_upper_jnt') == False:
+            for i in range(int(R_Eye_vertex_count / 289 + 2)):
                 if len(self.Temp) == 0:
                     self.Temp = self.Eye_R_blink_Vetex[0]
                 minus = cmds.ls(sl=True)
@@ -11851,7 +11798,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_R_eye_blink_jnt', clear=1)
 
         else:
-            for i in range(R_Eye_vertex_count / 289 + 1):
+            for i in range(int(R_Eye_vertex_count / 289 + 1)):
                 if len(self.Temp) == 0:
                     self.Temp = self.Eye_R_blink_Vetex[0]
                 minus = cmds.ls(sl=True)
@@ -11867,12 +11814,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.3)
         cmds.select(self.Eye_R_blink_Vetex)
         mel.eval('GrowPolygonSelectionRegion')
-        for i in range(R_Eye_vertex_count / 289 * 2 - 2):
+        for i in range(int(R_Eye_vertex_count / 289 * 2 - 2)):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_R_eye_blink_jnt', clear=1)
 
         if cmds.objExists('Skin_R_eye_lower_jnt'):
             cmds.select(self.Eye_R_lower_Vetex)
-            for i in range(R_Eye_vertex_count / 289 * 2 + 2):
+            for i in range(int(R_Eye_vertex_count / 289 * 2 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
@@ -11880,7 +11827,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_R_eye_blink_jnt', clear=1)
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='smooth')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=1)
-            for i in range(R_Eye_vertex_count / 289 * 2):
+            for i in range(int(R_Eye_vertex_count / 289 * 2)):
                 cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_R_eye_blink_jnt', clear=1)
 
         if cmds.objExists('Skin_R_eye_lower_jnt'):
@@ -11889,13 +11836,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=1)
             cmds.select(self.Eye_R_lower_Vetex)
-            if cmds.objExists('Skin_R_eye_lacrimal_lower_jnt') == False and cmds.objExists(
-                    'Skin_R_eye_back_lower_jnt') == False:
-                for i in range(L_Eye_vertex_count / 289 + 3):
+            if cmds.objExists('Skin_R_eye_lacrimal_lower_jnt') == False and cmds.objExists('Skin_R_eye_back_lower_jnt') == False:
+                for i in range(int(L_Eye_vertex_count / 289 + 3)):
                     mel.eval('GrowPolygonSelectionRegion')
 
             else:
-                for i in range(L_Eye_vertex_count / 289 + 2):
+                for i in range(int(L_Eye_vertex_count / 289 + 2)):
                     mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_eye_lower_jnt 1')
@@ -11910,13 +11856,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_eye_lower_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            if cmds.objExists('Skin_R_eye_lacrimal_lower_jnt') == False and cmds.objExists(
-                    'Skin_R_eye_back_lower_jnt') == False:
-                for i in range(R_Eye_vertex_count / 289 + 1):
+            if cmds.objExists('Skin_R_eye_lacrimal_lower_jnt') == False and cmds.objExists('Skin_R_eye_back_lower_jnt') == False:
+                for i in range(int(R_Eye_vertex_count / 289 + 1)):
                     mel.eval('GrowPolygonSelectionRegion')
 
             else:
-                for i in range(R_Eye_vertex_count / 289 + 1):
+                for i in range(int(R_Eye_vertex_count / 289 + 1)):
                     mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -11954,9 +11899,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             opvalue = cmds.artAttrSkinPaintCtx(cmds.currentCtx(), q=True, op=True)
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_R_eye_lower_jnt', clear=1)
             self.Temp = ''
-            if cmds.objExists('Skin_R_eye_lacrimal_lower_jnt') == False and cmds.objExists(
-                    'Skin_R_eye_back_lower_jnt') == False:
-                for i in range(R_Eye_vertex_count / 289 + 2):
+            if cmds.objExists('Skin_R_eye_lacrimal_lower_jnt') == False and cmds.objExists('Skin_R_eye_back_lower_jnt') == False:
+                for i in range(int(R_Eye_vertex_count / 289 + 2)):
                     if len(self.Temp) == 0:
                         self.Temp = self.Eye_R_lower_Vetex[0]
                     minus = cmds.ls(sl=True)
@@ -11969,7 +11913,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_R_eye_lower_jnt', clear=1)
 
             else:
-                for i in range(R_Eye_vertex_count / 289 + 1):
+                for i in range(int(R_Eye_vertex_count / 289 + 1)):
                     if len(self.Temp) == 0:
                         self.Temp = self.Eye_R_lower_Vetex[0]
                     minus = cmds.ls(sl=True)
@@ -11985,11 +11929,11 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.3)
             cmds.select(self.Eye_R_lower_Vetex)
             mel.eval('GrowPolygonSelectionRegion')
-            for i in range(R_Eye_vertex_count / 289 * 2 - 1):
+            for i in range(int(R_Eye_vertex_count / 289 * 2 - 1)):
                 cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_R_eye_lower_jnt', clear=1)
 
             cmds.select(self.Eye_R_blink_Vetex)
-            for i in range(R_Eye_vertex_count / 289 + 3):
+            for i in range(int(R_Eye_vertex_count / 289 + 3)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
@@ -11997,7 +11941,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_R_eye_lower_jnt', clear=1)
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='smooth')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=1)
-            for i in range(R_Eye_vertex_count / 289 * 2):
+            for i in range(int(R_Eye_vertex_count / 289 * 2)):
                 cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_R_eye_lower_jnt', clear=1)
 
         if cmds.objExists('Skin_R_eye_lacrimal_jnt'):
@@ -12007,7 +11951,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=1)
             cmds.select(self.Eye_R_lacrimal_Vetex)
-            for i in range(R_Eye_vertex_count / 289 + 2):
+            for i in range(int(R_Eye_vertex_count / 289 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_eye_lacrimal_jnt 1')
@@ -12023,7 +11967,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_eye_lacrimal_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(R_Eye_vertex_count / 289 + 2):
+            for i in range(int(R_Eye_vertex_count / 289 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -12038,8 +11982,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_eye_lacrimal_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_eye_lacrimal_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
 
@@ -12057,7 +12000,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.Eye_R_lacrimal_upper_Vetex)
-            for i in range(R_Eye_vertex_count / 289):
+            for i in range(int(R_Eye_vertex_count / 289)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             cmds.select(self.Eye_R_blink_Vetex, d=True)
@@ -12074,13 +12017,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_eye_lacrimal_upper_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(R_Eye_vertex_count / 289 + 1):
+            for i in range(int(R_Eye_vertex_count / 289 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_eye_lacrimal_upper_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_eye_lacrimal_upper_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -12090,11 +12032,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_eye_lacrimal_upper_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_eye_lacrimal_upper_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -12110,7 +12050,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.Eye_R_lacrimal_lower_Vetex)
-            for i in range(R_Eye_vertex_count / 289 + 1):
+            for i in range(int(R_Eye_vertex_count / 289 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             cmds.select(self.Eye_R_lower_Vetex, d=True)
@@ -12127,13 +12067,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_eye_lacrimal_lower_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(R_Eye_vertex_count / 289 + 2):
+            for i in range(int(R_Eye_vertex_count / 289 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_eye_lacrimal_lower_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_eye_lacrimal_lower_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -12143,11 +12082,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_eye_lacrimal_lower_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_eye_lacrimal_lower_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -12163,7 +12100,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=1)
             cmds.select(self.Eye_R_back_Vetex)
-            for i in range(R_Eye_vertex_count / 289 + 2):
+            for i in range(int(R_Eye_vertex_count / 289 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_eye_back_jnt 1')
@@ -12179,7 +12116,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_eye_back_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(R_Eye_vertex_count / 289 + 2):
+            for i in range(int(R_Eye_vertex_count / 289 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -12197,7 +12134,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                     vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_eye_back_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -12212,7 +12148,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.Eye_R_back_upper_Vetex)
-            for i in range(R_Eye_vertex_count / 289):
+            for i in range(int(R_Eye_vertex_count / 289)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             cmds.select(self.Eye_R_blink_Vetex, d=True)
@@ -12229,7 +12165,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_eye_back_upper_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(R_Eye_vertex_count / 289):
+            for i in range(int(R_Eye_vertex_count / 289)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -12244,11 +12180,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_eye_back_upper_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_eye_back_upper_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -12264,7 +12198,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.Eye_R_back_lower_Vetex)
-            for i in range(R_Eye_vertex_count / 289 + 1):
+            for i in range(int(R_Eye_vertex_count / 289 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             cmds.select(self.Eye_R_lower_Vetex, d=True)
@@ -12281,7 +12215,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_eye_back_lower_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(R_Eye_vertex_count / 289 + 2):
+            for i in range(int(R_Eye_vertex_count / 289 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -12296,8 +12230,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_eye_back_lower_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_eye_back_lower_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
 
@@ -12316,7 +12249,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Eye_R_double_Vetex)
-            for i in range(R_Eye_vertex_count / 289 + 1):
+            for i in range(int(R_Eye_vertex_count / 289 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_eye_double_jnt 1')
@@ -12336,7 +12269,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_eye_double_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(R_Eye_vertex_count / 289 + 2):
+            for i in range(int(R_Eye_vertex_count / 289 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -12354,7 +12287,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                     vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_eye_double_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -12377,7 +12309,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         if cmds.objExists('Skin_R_eye_double_jnt'):
             cmds.setAttr('Skin_R_eye_double_jnt.liw', 1)
 
-    def NoseAllSkin(self):
+    def nose_all_skin(self):
         Head_SkinCluster = mel.eval('findRelatedSkinCluster ' + self.HeadMesh)
         HeadFullVertex = self.HeadMesh + '.vtx[*]'
         cmds.select(HeadFullVertex)
@@ -12420,7 +12352,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.7)
             cmds.select(self.Nose_L_Vetex)
-            for i in range(Nose_vertex_count / 300 + 2):
+            for i in range(int(Nose_vertex_count / 300 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_nose_jnt 1')
@@ -12435,7 +12367,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_nose_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Nose_vertex_count / 300):
+            for i in range(int(Nose_vertex_count / 300)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -12453,7 +12385,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                     vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_nose_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -12469,7 +12400,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Nose_L_nasalis_transverse_Vetex)
-            for i in range(Nose_vertex_count / 300 + 1):
+            for i in range(int(Nose_vertex_count / 300 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_nasalis_transverse_nose_jnt 1')
@@ -12484,13 +12415,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_nasalis_transverse_nose_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Nose_vertex_count / 300):
+            for i in range(int(Nose_vertex_count / 300)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_nasalis_transverse_nose_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_nasalis_transverse_nose_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -12500,11 +12430,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a,
-                                                     transform='Skin_L_nasalis_transverse_nose_jnt', query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_nasalis_transverse_nose_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -12520,7 +12448,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Nose_L_procerus_Vetex)
-            for i in range(Nose_vertex_count / 300 + 1):
+            for i in range(int(Nose_vertex_count / 300 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_procerus_nose_jnt 1')
@@ -12535,7 +12463,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_procerus_nose_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Nose_vertex_count / 300):
+            for i in range(int(Nose_vertex_count / 300)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -12550,11 +12478,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_procerus_nose_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_procerus_nose_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -12570,7 +12496,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Nose_L_nasolabial_fold_Vetex)
-            for i in range(Nose_vertex_count / 300):
+            for i in range(int(Nose_vertex_count / 300)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_nasolabial_fold_nose_jnt 1')
@@ -12585,13 +12511,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_nasolabial_fold_nose_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Nose_vertex_count / 300 + 1):
+            for i in range(int(Nose_vertex_count / 300 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_nasolabial_fold_nose_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_nasolabial_fold_nose_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -12601,11 +12526,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_nasolabial_fold_nose_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_nasolabial_fold_nose_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -12620,7 +12543,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.7)
             cmds.select(self.Nose_R_Vetex)
-            for i in range(Nose_vertex_count / 300 + 2):
+            for i in range(int(Nose_vertex_count / 300 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_nose_jnt 1')
@@ -12635,7 +12558,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_nose_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Nose_vertex_count / 300):
+            for i in range(int(Nose_vertex_count / 300)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -12653,7 +12576,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                     vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_nose_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -12669,7 +12591,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Nose_R_nasalis_transverse_Vetex)
-            for i in range(Nose_vertex_count / 300 + 1):
+            for i in range(int(Nose_vertex_count / 300 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_nasalis_transverse_nose_jnt 1')
@@ -12684,13 +12606,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_nasalis_transverse_nose_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Nose_vertex_count / 300):
+            for i in range(int(Nose_vertex_count / 300)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_nasalis_transverse_nose_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_nasalis_transverse_nose_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -12700,11 +12621,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a,
-                                                     transform='Skin_R_nasalis_transverse_nose_jnt', query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_nasalis_transverse_nose_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -12720,7 +12639,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Nose_R_procerus_Vetex)
-            for i in range(Nose_vertex_count / 300 + 1):
+            for i in range(int(Nose_vertex_count / 300 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_procerus_nose_jnt 1')
@@ -12735,7 +12654,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_procerus_nose_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Nose_vertex_count / 300):
+            for i in range(int(Nose_vertex_count / 300)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -12750,11 +12669,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_procerus_nose_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_procerus_nose_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -12770,7 +12687,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Nose_R_nasolabial_fold_Vetex)
-            for i in range(Nose_vertex_count / 300):
+            for i in range(int(Nose_vertex_count / 300)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_nasolabial_fold_nose_jnt 1')
@@ -12785,13 +12702,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_nasolabial_fold_nose_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Nose_vertex_count / 300 + 1):
+            for i in range(int(Nose_vertex_count / 300 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_nasolabial_fold_nose_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_nasolabial_fold_nose_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -12801,11 +12717,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_nasolabial_fold_nose_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_nasolabial_fold_nose_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -12820,7 +12734,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.7)
             cmds.select(self.Nose_Center_Vetex)
-            for i in range(Nose_vertex_count / 300 + 2):
+            for i in range(int(Nose_vertex_count / 300 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_nose_jnt 1')
@@ -12835,7 +12749,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_nose_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Nose_vertex_count / 300 + 1):
+            for i in range(int(Nose_vertex_count / 300 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -12853,7 +12767,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                     vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_nose_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -12868,7 +12781,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Nose_Lower_Vetex)
-            for i in range(Nose_vertex_count / 300 + 1):
+            for i in range(int(Nose_vertex_count / 300 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_lower_nose_jnt 1')
@@ -12883,7 +12796,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_lower_nose_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Nose_vertex_count / 300):
+            for i in range(int(Nose_vertex_count / 300)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -12921,7 +12834,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             opvalue = cmds.artAttrSkinPaintCtx(cmds.currentCtx(), q=True, op=True)
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_lower_nose_jnt', clear=1)
             self.Temp = ''
-            for i in range(Nose_vertex_count / 300 + 2):
+            for i in range(int(Nose_vertex_count / 300 + 2)):
                 if len(self.Temp) == 0:
                     self.Temp = self.Nose_Lower_Vetex[0]
                 minus = cmds.ls(sl=True)
@@ -12939,7 +12852,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Nose_depressor_septi_Vetex)
-            for i in range(Nose_vertex_count / 300 + 1):
+            for i in range(int(Nose_vertex_count / 300 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_depressor_septi_nose_jnt 1')
@@ -12954,13 +12867,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_depressor_septi_nose_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(Nose_vertex_count / 300):
+            for i in range(int(Nose_vertex_count / 300)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_depressor_septi_nose_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_depressor_septi_nose_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -12970,11 +12882,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_depressor_septi_nose_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_depressor_septi_nose_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -12982,7 +12892,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                     break
                 print(max_weight)
 
-    def CheekAllSkin(self):
+    def cheek_all_skin(self):
         Head_SkinCluster = mel.eval('findRelatedSkinCluster ' + self.HeadMesh)
         HeadFullVertex = self.HeadMesh + '.vtx[*]'
         cmds.select(HeadFullVertex)
@@ -13037,7 +12947,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
         cmds.setAttr('Skin_L_cheek_jnt.liw', 0)
         cmds.select(self.Cheek_L_Vetex)
-        for i in range(L_Cheek_vertex_count / 82 + 1):
+        for i in range(int(L_Cheek_vertex_count / 82 + 1)):
             mel.eval('GrowPolygonSelectionRegion')
 
         mel.eval('artSkinInflListChanging Skin_L_cheek_jnt 1')
@@ -13052,7 +12962,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('artSkinInflListChanging Skin_L_cheek_jnt 1')
         mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
         mel.eval('mayaHasRenderSetup')
-        for i in range(L_Cheek_vertex_count / 82 + 1):
+        for i in range(int(L_Cheek_vertex_count / 82 + 1)):
             mel.eval('GrowPolygonSelectionRegion')
 
         max_weight = 0
@@ -13098,7 +13008,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.7)
             cmds.select(self.Cheek_L_upper_Vetex)
-            for i in range(L_Cheek_vertex_count / 82 + 1):
+            for i in range(int(L_Cheek_vertex_count / 82 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_upper_cheek_jnt 1')
@@ -13113,7 +13023,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_upper_cheek_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(L_Cheek_vertex_count / 82 + 1):
+            for i in range(int(L_Cheek_vertex_count / 82 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -13128,11 +13038,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_upper_cheek_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_upper_cheek_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -13160,7 +13068,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Cheek_L_outer_orbicularis_Vetex)
-            for i in range(L_Cheek_vertex_count / 82 + 1):
+            for i in range(int(L_Cheek_vertex_count / 82 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_outer_orbicularis_cheek_jnt 1')
@@ -13175,13 +13083,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_outer_orbicularis_cheek_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(L_Cheek_vertex_count / 82 + 1):
+            for i in range(int(L_Cheek_vertex_count / 82 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_outer_orbicularis_cheek_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_outer_orbicularis_cheek_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -13191,11 +13098,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a,
-                                                     transform='Skin_L_outer_orbicularis_cheek_jnt', query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_outer_orbicularis_cheek_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -13210,7 +13115,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Cheek_L_inner_orbicularis_Vetex)
-            for i in range(L_Cheek_vertex_count / 82 + 1):
+            for i in range(int(L_Cheek_vertex_count / 82 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_inner_orbicularis_cheek_jnt 1')
@@ -13225,13 +13130,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_inner_orbicularis_cheek_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(L_Cheek_vertex_count / 82 + 1):
+            for i in range(int(L_Cheek_vertex_count / 82 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_inner_orbicularis_cheek_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_inner_orbicularis_cheek_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -13241,11 +13145,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a,
-                                                     transform='Skin_L_inner_orbicularis_cheek_jnt', query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_inner_orbicularis_cheek_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -13265,7 +13167,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                     mel.eval('artSkinInflListChanging ' + a + ' 1')
                     mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                     mel.eval('mayaHasRenderSetup')
-                    for i in range(L_Cheek_vertex_count / 82 + 2):
+                    for i in range(int(L_Cheek_vertex_count / 82 + 2)):
                         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=a, clear=1)
 
             cmds.skinPercent(Head_SkinCluster, self.HeadMesh, pruneWeights=0.01)
@@ -13276,7 +13178,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.7)
             cmds.select(self.Cheek_L_lower_Vetex)
-            for i in range(L_Cheek_vertex_count / 82 + 2):
+            for i in range(int(L_Cheek_vertex_count / 82 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_lower_cheek_jnt 1')
@@ -13303,11 +13205,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lower_cheek_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lower_cheek_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -13323,7 +13223,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Cheek_L_lip_lid_Vetex)
-            for i in range(L_Cheek_vertex_count / 82 + 2):
+            for i in range(int(L_Cheek_vertex_count / 82 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_lower_liplid_jnt 1')
@@ -13338,7 +13238,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_lower_liplid_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(L_Cheek_vertex_count / 82 + 1):
+            for i in range(int(L_Cheek_vertex_count / 82 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -13353,11 +13253,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lower_liplid_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lower_liplid_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -13388,7 +13286,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
         cmds.setAttr('Skin_R_cheek_jnt.liw', 0)
         cmds.select(self.Cheek_R_Vetex)
-        for i in range(R_Cheek_vertex_count / 82 + 1):
+        for i in range(int(R_Cheek_vertex_count / 82 + 1)):
             mel.eval('GrowPolygonSelectionRegion')
 
         mel.eval('artSkinInflListChanging Skin_R_cheek_jnt 1')
@@ -13403,7 +13301,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('artSkinInflListChanging Skin_R_cheek_jnt 1')
         mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
         mel.eval('mayaHasRenderSetup')
-        for i in range(R_Cheek_vertex_count / 82 + 1):
+        for i in range(int(R_Cheek_vertex_count / 82 + 1)):
             mel.eval('GrowPolygonSelectionRegion')
 
         max_weight = 0
@@ -13421,7 +13319,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_cheek_jnt', query=True)
                 if vertex_weight >= max_weight2:
                     max_weight2 = vertex_weight
-
             max_weight = max_weight2
             if max_weight == max_weight_check:
                 max_count = max_count + 1
@@ -13449,7 +13346,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.7)
             cmds.select(self.Cheek_R_upper_Vetex)
-            for i in range(R_Cheek_vertex_count / 82 + 1):
+            for i in range(int(R_Cheek_vertex_count / 82 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_upper_cheek_jnt 1')
@@ -13464,7 +13361,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_upper_cheek_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(R_Cheek_vertex_count / 82 + 1):
+            for i in range(int(R_Cheek_vertex_count / 82 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -13479,11 +13376,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_upper_cheek_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_upper_cheek_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -13511,7 +13406,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Cheek_R_outer_orbicularis_Vetex)
-            for i in range(R_Cheek_vertex_count / 82 + 1):
+            for i in range(int(R_Cheek_vertex_count / 82 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_outer_orbicularis_cheek_jnt 1')
@@ -13526,13 +13421,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_outer_orbicularis_cheek_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(R_Cheek_vertex_count / 82 + 1):
+            for i in range(int(R_Cheek_vertex_count / 82 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_outer_orbicularis_cheek_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_outer_orbicularis_cheek_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -13542,11 +13436,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a,
-                                                     transform='Skin_R_outer_orbicularis_cheek_jnt', query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_outer_orbicularis_cheek_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -13561,7 +13453,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Cheek_R_inner_orbicularis_Vetex)
-            for i in range(R_Cheek_vertex_count / 82 + 1):
+            for i in range(int(R_Cheek_vertex_count / 82 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_inner_orbicularis_cheek_jnt 1')
@@ -13576,13 +13468,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_inner_orbicularis_cheek_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(R_Cheek_vertex_count / 82 + 1):
+            for i in range(int(R_Cheek_vertex_count / 82 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_inner_orbicularis_cheek_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_inner_orbicularis_cheek_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -13592,11 +13483,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a,
-                                                     transform='Skin_R_inner_orbicularis_cheek_jnt', query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_inner_orbicularis_cheek_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -13616,7 +13505,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                     mel.eval('artSkinInflListChanging ' + a + ' 1')
                     mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                     mel.eval('mayaHasRenderSetup')
-                    for i in range(R_Cheek_vertex_count / 82 + 2):
+                    for i in range(int(R_Cheek_vertex_count / 82 + 2)):
                         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=a, clear=1)
 
             cmds.skinPercent(Head_SkinCluster, self.HeadMesh, pruneWeights=0.01)
@@ -13627,7 +13516,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.7)
             cmds.select(self.Cheek_R_lower_Vetex)
-            for i in range(R_Cheek_vertex_count / 82 + 2):
+            for i in range(int(R_Cheek_vertex_count / 82 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_lower_cheek_jnt 1')
@@ -13654,11 +13543,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lower_cheek_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lower_cheek_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -13674,7 +13561,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.Cheek_R_lip_lid_Vetex)
-            for i in range(R_Cheek_vertex_count / 82 + 2):
+            for i in range(int(R_Cheek_vertex_count / 82 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_lower_liplid_jnt 1')
@@ -13689,7 +13576,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_lower_liplid_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(R_Cheek_vertex_count / 82 + 1):
+            for i in range(int(R_Cheek_vertex_count / 82 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -13704,11 +13591,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lower_liplid_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lower_liplid_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -13718,7 +13603,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
 
             cmds.setAttr('Skin_R_lower_liplid_jnt.liw', 1)
 
-    def LipAllSkin(self):
+    def lip_all_skin(self):
         Head_SkinCluster = mel.eval('findRelatedSkinCluster ' + self.HeadMesh)
         HeadFullVertex = self.HeadMesh + '.vtx[*]'
         cmds.select(self.LipUpVetex)
@@ -13814,7 +13699,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.7)
         cmds.select(self.LipCorner_L_Vetex)
-        for i in range(LipUp_vertex_count / 399 + 2):
+        for i in range(int(LipUp_vertex_count / 399 + 2)):
             mel.eval('GrowPolygonSelectionRegion')
 
         mel.eval('artSkinInflListChanging Skin_L_lip_corner_jnt 1')
@@ -13829,7 +13714,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('artSkinInflListChanging Skin_L_lip_corner_jnt 1')
         mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
         mel.eval('mayaHasRenderSetup')
-        for i in range(LipDown_vertex_count / 315 + 1):
+        for i in range(int(LipDown_vertex_count / 315 + 1)):
             mel.eval('GrowPolygonSelectionRegion')
 
         max_weight = 0
@@ -13860,7 +13745,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.LipCorner_lower_L_Vetex)
-            for i in range(LipUp_vertex_count / 399 + 2):
+            for i in range(int(LipUp_vertex_count / 399 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_lip_lower_corner_jnt 1')
@@ -13875,13 +13760,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_lip_lower_corner_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_lower_corner_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_lower_corner_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -13891,11 +13775,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_lower_corner_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_lower_corner_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -13907,7 +13789,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.7)
         cmds.select(self.LipCorner_R_Vetex)
-        for i in range(LipUp_vertex_count / 399 + 2):
+        for i in range(int(LipUp_vertex_count / 399 + 2)):
             mel.eval('GrowPolygonSelectionRegion')
 
         mel.eval('artSkinInflListChanging Skin_R_lip_corner_jnt 1')
@@ -13922,7 +13804,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('artSkinInflListChanging Skin_R_lip_corner_jnt 1')
         mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
         mel.eval('mayaHasRenderSetup')
-        for i in range(LipDown_vertex_count / 315 + 1):
+        for i in range(int(LipDown_vertex_count / 315 + 1)):
             mel.eval('GrowPolygonSelectionRegion')
 
         max_weight = 0
@@ -13940,7 +13822,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_corner_jnt', query=True)
                 if vertex_weight >= max_weight2:
                     max_weight2 = vertex_weight
-
             max_weight = max_weight2
             if max_weight == max_weight_check:
                 max_count = max_count + 1
@@ -13953,7 +13834,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.LipCorner_lower_R_Vetex)
-            for i in range(LipUp_vertex_count / 399 + 2):
+            for i in range(int(LipUp_vertex_count / 399 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_lip_lower_corner_jnt 1')
@@ -13968,13 +13849,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_lip_lower_corner_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_lower_corner_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_lower_corner_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -13984,11 +13864,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_lower_corner_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_lower_corner_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -14002,11 +13880,10 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.Lip_L_UpperSide_Vetex)
             if cmds.objExists('Skin_L_lip_upper_side_02_jnt') is False:
-                for i in range(LipUp_vertex_count / 399 + 2):
+                for i in range(int(LipUp_vertex_count / 399 + 2)):
                     mel.eval('GrowPolygonSelectionRegion')
-
             else:
-                for i in range(LipUp_vertex_count / 399 + 1):
+                for i in range(int(LipUp_vertex_count / 399 + 1)):
                     mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_lip_upper_side_jnt 1')
@@ -14021,7 +13898,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_lip_upper_side_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -14036,11 +13913,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_upper_side_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_upper_side_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -14053,7 +13928,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.Lip_L_UpperSide_02_Vetex)
-            for i in range(LipUp_vertex_count / 399 + 1):
+            for i in range(int(LipUp_vertex_count / 399 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_lip_upper_side_02_jnt 1')
@@ -14068,13 +13943,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_lip_upper_side_02_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_upper_side_02_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_upper_side_02_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -14084,11 +13958,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_upper_side_02_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_upper_side_02_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -14101,7 +13973,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.Lip_L_UpperOuter_Vetex)
-            for i in range(LipUp_vertex_count / 399 + 1):
+            for i in range(int(LipUp_vertex_count / 399 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_lip_upper_outer_jnt 1')
@@ -14116,13 +13988,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_lip_upper_outer_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_upper_outer_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_upper_outer_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -14132,11 +14003,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_upper_outer_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_upper_outer_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -14150,11 +14019,10 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.Lip_R_UpperSide_Vetex)
             if cmds.objExists('Skin_R_lip_upper_side_02_jnt') is False:
-                for i in range(LipUp_vertex_count / 399 + 2):
+                for i in range(int(LipUp_vertex_count / 399 + 2)):
                     mel.eval('GrowPolygonSelectionRegion')
-
             else:
-                for i in range(LipUp_vertex_count / 399 + 1):
+                for i in range(int(LipUp_vertex_count / 399 + 1)):
                     mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_lip_upper_side_jnt 1')
@@ -14169,7 +14037,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_lip_upper_side_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -14184,11 +14052,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_upper_side_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_upper_side_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -14201,7 +14067,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.Lip_R_UpperSide_02_Vetex)
-            for i in range(LipUp_vertex_count / 399 + 1):
+            for i in range(int(LipUp_vertex_count / 399 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_lip_upper_side_02_jnt 1')
@@ -14216,13 +14082,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_lip_upper_side_02_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_upper_side_02_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_upper_side_02_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -14232,11 +14097,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_upper_side_02_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_upper_side_02_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -14249,7 +14112,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.Lip_R_UpperOuter_Vetex)
-            for i in range(LipUp_vertex_count / 399 + 1):
+            for i in range(int(LipUp_vertex_count / 399 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_lip_upper_outer_jnt 1')
@@ -14264,13 +14127,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_lip_upper_outer_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_upper_outer_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_upper_outer_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -14280,11 +14142,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_upper_outer_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_upper_outer_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -14298,11 +14158,10 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.Lip_L_LowerSide_Vetex)
             if cmds.objExists('Skin_L_lip_lower_side_02_jnt') is False:
-                for i in range(LipDown_vertex_count / 315 + 2):
+                for i in range(int(LipDown_vertex_count / 315 + 2)):
                     mel.eval('GrowPolygonSelectionRegion')
-
             else:
-                for i in range(LipDown_vertex_count / 315 + 1):
+                for i in range(int(LipDown_vertex_count / 315 + 1)):
                     mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_lip_lower_side_jnt 1')
@@ -14317,7 +14176,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_lip_lower_side_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -14332,11 +14191,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_lower_side_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_lower_side_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -14350,7 +14207,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.Lip_L_LowerSide_02_Vetex)
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_lip_lower_side_02_jnt 1')
@@ -14366,13 +14223,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_lip_lower_side_02_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_lower_side_02_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_lower_side_02_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -14382,11 +14238,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_lower_side_02_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_lower_side_02_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -14399,7 +14253,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.Lip_L_LowerOuter_Vetex)
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_lip_lower_outer_jnt 1')
@@ -14414,13 +14268,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_lip_lower_outer_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_lower_outer_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_lower_outer_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -14430,11 +14283,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_lower_outer_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_lower_outer_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -14448,11 +14299,10 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.Lip_R_LowerSide_Vetex)
             if cmds.objExists('Skin_R_lip_lower_side_02_jnt') is False:
-                for i in range(LipDown_vertex_count / 315 + 2):
+                for i in range(int(LipDown_vertex_count / 315 + 2)):
                     mel.eval('GrowPolygonSelectionRegion')
-
             else:
-                for i in range(LipDown_vertex_count / 315 + 1):
+                for i in range(int(LipDown_vertex_count / 315 + 1)):
                     mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_lip_lower_side_jnt 1')
@@ -14467,7 +14317,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_lip_lower_side_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -14482,11 +14332,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_lower_side_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_lower_side_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -14500,7 +14348,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.Lip_R_LowerSide_02_Vetex)
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_lip_lower_side_02_jnt 1')
@@ -14516,13 +14364,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_lip_lower_side_02_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_lower_side_02_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_lower_side_02_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -14532,11 +14379,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_lower_side_02_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_lower_side_02_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -14549,7 +14394,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.Lip_R_LowerOuter_Vetex)
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_lip_lower_outer_jnt 1')
@@ -14564,13 +14409,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_lip_lower_outer_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_lower_outer_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_lower_outer_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -14580,11 +14424,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_lower_outer_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_lower_outer_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -14596,13 +14438,11 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
         cmds.select(self.LipUpper_Vetex)
-        if cmds.objExists('Skin_L_lip_upper_side_02_jnt') == False and cmds.objExists(
-                'Skin_R_lip_upper_side_02_jnt') == False:
-            for i in range(LipUp_vertex_count / 399 + 2):
+        if cmds.objExists('Skin_L_lip_upper_side_02_jnt') == False and cmds.objExists('Skin_R_lip_upper_side_02_jnt') == False:
+            for i in range(int(LipUp_vertex_count / 399 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
-
         else:
-            for i in range(LipUp_vertex_count / 399 + 1):
+            for i in range(int(LipUp_vertex_count / 399 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
         mel.eval('artSkinInflListChanging Skin_upper_lip_jnt 1')
@@ -14617,7 +14457,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('artSkinInflListChanging Skin_upper_lip_jnt 1')
         mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
         mel.eval('mayaHasRenderSetup')
-        for i in range(LipDown_vertex_count / 315 + 1):
+        for i in range(int(LipDown_vertex_count / 315 + 1)):
             mel.eval('GrowPolygonSelectionRegion')
 
         max_weight = 0
@@ -14635,7 +14475,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_upper_lip_jnt', query=True)
                 if vertex_weight >= max_weight2:
                     max_weight2 = vertex_weight
-
             max_weight = max_weight2
             if max_weight == max_weight_check:
                 max_count = max_count + 1
@@ -14647,13 +14486,11 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
         cmds.select(self.LipLower_Vetex)
-        if cmds.objExists('Skin_L_lip_lower_side_02_jnt') == False and cmds.objExists(
-                'Skin_R_lip_lower_side_02_jnt') == False:
-            for i in range(LipDown_vertex_count / 315 + 2):
+        if cmds.objExists('Skin_L_lip_lower_side_02_jnt') == False and cmds.objExists('Skin_R_lip_lower_side_02_jnt') == False:
+            for i in range(int(LipDown_vertex_count / 315 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
-
         else:
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
         mel.eval('artSkinInflListChanging Skin_Lower_lip_jnt 1')
@@ -14668,7 +14505,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('artSkinInflListChanging Skin_Lower_lip_jnt 1')
         mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
         mel.eval('mayaHasRenderSetup')
-        for i in range(LipDown_vertex_count / 315 + 1):
+        for i in range(int(LipDown_vertex_count / 315 + 1)):
             mel.eval('GrowPolygonSelectionRegion')
 
         max_weight = 0
@@ -14686,7 +14523,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_Lower_lip_jnt', query=True)
                 if vertex_weight >= max_weight2:
                     max_weight2 = vertex_weight
-
             max_weight = max_weight2
             if max_weight == max_weight_check:
                 max_count = max_count + 1
@@ -14699,7 +14535,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.6)
             cmds.select(self.LipLower_Outer_Vetex)
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_Lower_lip_outer_jnt 1')
@@ -14714,7 +14550,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_Lower_lip_outer_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
@@ -14729,11 +14565,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_Lower_lip_outer_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_Lower_lip_outer_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -14750,7 +14584,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 mel.eval('artSkinInflListChanging ' + a + ' 1')
                 mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                 mel.eval('mayaHasRenderSetup')
-                for i in range(LipUp_vertex_count / 399 * 2 + 1):
+                for i in range(int(LipUp_vertex_count / 399 * 2 + 1)):
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=a, clear=1)
 
         cmds.skinPercent(Head_SkinCluster, self.HeadMesh, pruneWeights=0.01)
@@ -14758,7 +14592,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
         cmds.select(self.LipCorner_L_Vetex)
         cmds.select(self.LipDownVetex, d=True)
-        for i in range(LipUp_vertex_count / 399 + 1):
+        for i in range(int(LipUp_vertex_count / 399 + 1)):
             mel.eval('GrowPolygonSelectionRegion')
 
         mel.eval('artSkinInflListChanging Skin_L_lip_corner_jnt 1')
@@ -14774,7 +14608,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('artSkinInflListChanging Skin_L_lip_corner_jnt 1')
         mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
         mel.eval('mayaHasRenderSetup')
-        for i in range(LipDown_vertex_count / 315 + 1):
+        for i in range(int(LipDown_vertex_count / 315 + 1)):
             mel.eval('GrowPolygonSelectionRegion')
 
         max_weight = 0
@@ -14792,7 +14626,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_corner_jnt', query=True)
                 if vertex_weight >= max_weight2:
                     max_weight2 = vertex_weight
-
             max_weight = max_weight2
             if max_weight == max_weight_check:
                 max_count = max_count + 1
@@ -14814,7 +14647,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.LipCorner_lower_L_Vetex)
             cmds.select(self.LipUpVetex, d=True)
-            for i in range(LipUp_vertex_count / 399 + 2):
+            for i in range(int(LipUp_vertex_count / 399 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_L_lip_lower_corner_jnt 1')
@@ -14830,13 +14663,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_lip_lower_corner_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_lower_corner_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_lower_corner_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -14846,11 +14678,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_lower_corner_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_L_lip_lower_corner_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -14871,7 +14701,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
         cmds.select(self.LipCorner_R_Vetex)
         cmds.select(self.LipDownVetex, d=True)
-        for i in range(LipUp_vertex_count / 399 + 1):
+        for i in range(int(LipUp_vertex_count / 399 + 1)):
             mel.eval('GrowPolygonSelectionRegion')
 
         mel.eval('artSkinInflListChanging Skin_R_lip_corner_jnt 1')
@@ -14887,7 +14717,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('artSkinInflListChanging Skin_R_lip_corner_jnt 1')
         mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
         mel.eval('mayaHasRenderSetup')
-        for i in range(LipDown_vertex_count / 315 + 1):
+        for i in range(int(LipDown_vertex_count / 315 + 1)):
             mel.eval('GrowPolygonSelectionRegion')
 
         max_weight = 0
@@ -14905,7 +14735,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_corner_jnt', query=True)
                 if vertex_weight >= max_weight2:
                     max_weight2 = vertex_weight
-
             max_weight = max_weight2
             if max_weight == max_weight_check:
                 max_count = max_count + 1
@@ -14927,7 +14756,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.8)
             cmds.select(self.LipCorner_lower_R_Vetex)
             cmds.select(self.LipUpVetex, d=True)
-            for i in range(LipUp_vertex_count / 399 + 2):
+            for i in range(int(LipUp_vertex_count / 399 + 2)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             mel.eval('artSkinInflListChanging Skin_R_lip_lower_corner_jnt 1')
@@ -14943,13 +14772,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_R_lip_lower_corner_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(LipDown_vertex_count / 315 + 1):
+            for i in range(int(LipDown_vertex_count / 315 + 1)):
                 mel.eval('GrowPolygonSelectionRegion')
 
             max_weight = 0
             for a in each_Siv:
-                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_lower_corner_jnt',
-                                                 query=True)
+                vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_lower_corner_jnt', query=True)
                 if vertex_weight >= max_weight:
                     max_weight = vertex_weight
 
@@ -14959,11 +14787,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 max_weight_check = max_weight
                 max_weight2 = 0
                 for a in each_Siv:
-                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_lower_corner_jnt',
-                                                     query=True)
+                    vertex_weight = cmds.skinPercent(Head_SkinCluster, a, transform='Skin_R_lip_lower_corner_jnt', query=True)
                     if vertex_weight >= max_weight2:
                         max_weight2 = vertex_weight
-
                 max_weight = max_weight2
                 if max_weight == max_weight_check:
                     max_count = max_count + 1
@@ -14988,7 +14814,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 mel.eval('artSkinInflListChanging ' + a + ' 1')
                 mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                 mel.eval('mayaHasRenderSetup')
-                for i in range(LipDown_vertex_count / 315 * 2 + 2):
+                for i in range(int(LipDown_vertex_count / 315 * 2 + 2)):
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=each, clear=1)
 
         for each in R_lip_corner_jnt_sel:
@@ -14997,7 +14823,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 mel.eval('artSkinInflListChanging ' + a + ' 1')
                 mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                 mel.eval('mayaHasRenderSetup')
-                for i in range(LipDown_vertex_count / 315 * 2 + 2):
+                for i in range(int(LipDown_vertex_count / 315 * 2 + 2)):
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=each, clear=1)
 
         if cmds.objExists('Skin_L_lip_lower_side_02_jnt') and cmds.objExists('Skin_R_lip_lower_side_02_jnt'):
@@ -15007,24 +14833,24 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanging Skin_L_lip_lower_side_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(LipUp_vertex_count / 399 * 2 + 1):
+            for i in range(int(LipUp_vertex_count / 399 * 2 + 1)):
                 cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=a, clear=1)
 
             cmds.skinCluster(Head_SkinCluster, edit=True, siv='Skin_R_lip_lower_side_02_jnt')
             mel.eval('artSkinInflListChanging Skin_R_lip_lower_side_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(LipUp_vertex_count / 399 * 2 + 1):
+            for i in range(int(LipUp_vertex_count / 399 * 2 + 1)):
                 cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=a, clear=1)
 
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='smooth')
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.25)
         for each in LipAllselect:
             cmds.skinCluster(Head_SkinCluster, edit=True, siv=each)
-            mel.eval('artSkinInflListChanging' + SKIN_HEAD_MASTER_JOINT_NAME + '1')
+            mel.eval('artSkinInflListChanging Skin_Head_master_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(LipUp_vertex_count / 399 * 2 + 1):
+            for i in range(int(LipUp_vertex_count / 399 * 2 + 1)):
                 cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=a, clear=1)
 
         cmds.skinPercent(Head_SkinCluster, self.HeadMesh, pruneWeights=0.01)
@@ -15052,7 +14878,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 mel.eval('mayaHasRenderSetup')
                 cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=each, clear=1)
 
-    def JawAllSkin(self):
+    def jaw_all_skin(self):
         Head_SkinCluster = mel.eval('findRelatedSkinCluster ' + self.HeadMesh)
         HeadFullVertex = self.HeadMesh + '.vtx[*]'
         cmds.select(HeadFullVertex)
@@ -15116,14 +14942,14 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('artSkinInflListChanging Skin_Jaw_master_jnt 1')
         mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
         mel.eval('mayaHasRenderSetup')
-        for i in range(Jaw_vertex_count / 786 * 4 + 4):
+        for i in range(int(Jaw_vertex_count / 786 * 4 + 4)):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_JAW_MASTER_JOINT_NAME, clear=1)
 
         cmds.skinCluster(Head_SkinCluster, edit=True, siv=SKIN_HEAD_MASTER_JOINT_NAME)
-        mel.eval('artSkinInflListChanging' + SKIN_HEAD_MASTER_JOINT_NAME + '1')
+        mel.eval('artSkinInflListChanging Skin_Head_master_jnt 1')
         mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
         mel.eval('mayaHasRenderSetup')
-        for i in range(HeadFullCount / 3744 * 2 + 2):
+        for i in range(int(HeadFullCount / 3744 * 2 + 2)):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_HEAD_MASTER_JOINT_NAME, clear=1)
 
         if cmds.objExists('Skin_L_lip_corner_jnt'):
@@ -15144,13 +14970,13 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                         cmds.setAttr(each_liw, 0)
 
                 cmds.select(self.LipCorner_L_Vetex)
-                for i in range(Jaw_vertex_count / 786 + 1):
+                for i in range(int(Jaw_vertex_count / 786 + 1)):
                     mel.eval('GrowPolygonSelectionRegion')
 
                 mel.eval('artSkinInflListChanging Skin_Jaw_master_jnt 1')
                 mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                 mel.eval('mayaHasRenderSetup')
-                for i in range(Jaw_vertex_count / 786 + 2):
+                for i in range(int(Jaw_vertex_count / 786 + 2)):
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_JAW_MASTER_JOINT_NAME, clear=1)
 
                 for each in LipAllselect:
@@ -15176,13 +15002,13 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                         cmds.setAttr(each_liw, 0)
 
                 cmds.select(self.LipCorner_R_Vetex)
-                for i in range(Jaw_vertex_count / 786 + 1):
+                for i in range(int(Jaw_vertex_count / 786 + 1)):
                     mel.eval('GrowPolygonSelectionRegion')
 
                 mel.eval('artSkinInflListChanging Skin_Jaw_master_jnt 1')
                 mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                 mel.eval('mayaHasRenderSetup')
-                for i in range(Jaw_vertex_count / 786 + 2):
+                for i in range(int(Jaw_vertex_count / 786 + 2)):
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_JAW_MASTER_JOINT_NAME, clear=1)
 
                 for each in LipAllselect:
@@ -15207,114 +15033,114 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
 
         if cmds.objExists('Skin_L_lower_liplid_jnt'):
             cmds.skinCluster(Head_SkinCluster, edit=True, siv='Skin_L_lower_liplid_jnt')
-            mel.eval('artSkinInflListChanging' + SKIN_HEAD_MASTER_JOINT_NAME + '1')
+            mel.eval('artSkinInflListChanging Skin_Head_master_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(HeadFullCount / 3744 * 2 + 2):
+            for i in range(int(HeadFullCount / 3744 * 2 + 2)):
                 cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_HEAD_MASTER_JOINT_NAME, clear=1)
 
             mel.eval('artSkinInflListChanging Skin_Jaw_master_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(HeadFullCount / 3744 * 2 + 2):
+            for i in range(int(HeadFullCount / 3744 * 2 + 2)):
                 cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_JAW_MASTER_JOINT_NAME, clear=1)
 
             if cmds.objExists('Skin_L_lip_corner_jnt'):
                 mel.eval('artSkinInflListChanging Skin_L_lip_corner_jnt 1')
                 mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                 mel.eval('mayaHasRenderSetup')
-                for i in range(HeadFullCount / 3744 * 2 + 2):
+                for i in range(int(HeadFullCount / 3744 * 2 + 2)):
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_L_lip_corner_jnt', clear=1)
 
             if cmds.objExists('Skin_L_lip_lower_corner_jnt'):
                 mel.eval('artSkinInflListChanging Skin_L_lip_lower_corner_jnt 1')
                 mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                 mel.eval('mayaHasRenderSetup')
-                for i in range(HeadFullCount / 3744 * 2 + 2):
+                for i in range(int(HeadFullCount / 3744 * 2 + 2)):
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_L_lip_lower_corner_jnt', clear=1)
 
             if cmds.objExists('Skin_L_lip_upper_side_jnt'):
                 mel.eval('artSkinInflListChanging Skin_L_lip_upper_side_jnt 1')
                 mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                 mel.eval('mayaHasRenderSetup')
-                for i in range(HeadFullCount / 3744 * 2 + 2):
+                for i in range(int(HeadFullCount / 3744 * 2 + 2)):
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_L_lip_upper_side_jnt', clear=1)
 
             if cmds.objExists('Skin_L_lip_lower_side_jnt'):
                 mel.eval('artSkinInflListChanging Skin_L_lip_lower_side_jnt 1')
                 mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                 mel.eval('mayaHasRenderSetup')
-                for i in range(HeadFullCount / 3744 * 2 + 2):
+                for i in range(int(HeadFullCount / 3744 * 2 + 2)):
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_L_lip_lower_side_jnt', clear=1)
 
             if cmds.objExists('Skin_L_lip_upper_side_02_jnt'):
                 mel.eval('artSkinInflListChanging Skin_L_lip_upper_side_02_jnt 1')
                 mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                 mel.eval('mayaHasRenderSetup')
-                for i in range(HeadFullCount / 3744 * 2 + 2):
+                for i in range(int(HeadFullCount / 3744 * 2 + 2)):
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_L_lip_upper_side_02_jnt', clear=1)
 
             if cmds.objExists('Skin_L_lip_lower_side_02_jnt'):
                 mel.eval('artSkinInflListChanging Skin_L_lip_lower_side_02_jnt 1')
                 mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                 mel.eval('mayaHasRenderSetup')
-                for i in range(HeadFullCount / 3744 * 2 + 2):
+                for i in range(int(HeadFullCount / 3744 * 2 + 2)):
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_L_lip_lower_side_02_jnt', clear=1)
 
         if cmds.objExists('Skin_R_lower_liplid_jnt'):
             cmds.skinCluster(Head_SkinCluster, edit=True, siv='Skin_R_lower_liplid_jnt')
-            mel.eval('artSkinInflListChanging' + SKIN_HEAD_MASTER_JOINT_NAME + '1')
+            mel.eval('artSkinInflListChanging Skin_Head_master_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(HeadFullCount / 3744 * 2 + 2):
+            for i in range(int(HeadFullCount / 3744 * 2 + 2)):
                 cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_HEAD_MASTER_JOINT_NAME, clear=1)
 
             mel.eval('artSkinInflListChanging Skin_Jaw_master_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
-            for i in range(HeadFullCount / 3744 * 2 + 2):
+            for i in range(int(HeadFullCount / 3744 * 2 + 2)):
                 cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_JAW_MASTER_JOINT_NAME, clear=1)
 
             if cmds.objExists('Skin_R_lip_corner_jnt'):
                 mel.eval('artSkinInflListChanging Skin_R_lip_corner_jnt 1')
                 mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                 mel.eval('mayaHasRenderSetup')
-                for i in range(HeadFullCount / 3744 * 2 + 2):
+                for i in range(int(HeadFullCount / 3744 * 2 + 2)):
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_R_lip_corner_jnt', clear=1)
 
             if cmds.objExists('Skin_R_lip_lower_corner_jnt'):
                 mel.eval('artSkinInflListChanging Skin_R_lip_lower_corner_jnt 1')
                 mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                 mel.eval('mayaHasRenderSetup')
-                for i in range(HeadFullCount / 3744 * 2 + 2):
+                for i in range(int(HeadFullCount / 3744 * 2 + 2)):
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_R_lip_lower_corner_jnt', clear=1)
 
             if cmds.objExists('Skin_R_lip_upper_side_jnt'):
                 mel.eval('artSkinInflListChanging Skin_R_lip_upper_side_jnt 1')
                 mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                 mel.eval('mayaHasRenderSetup')
-                for i in range(HeadFullCount / 3744 * 2 + 2):
+                for i in range(int(HeadFullCount / 3744 * 2 + 2)):
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_R_lip_upper_side_jnt', clear=1)
 
             if cmds.objExists('Skin_R_lip_lower_side_jnt'):
                 mel.eval('artSkinInflListChanging Skin_R_lip_lower_side_jnt 1')
                 mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                 mel.eval('mayaHasRenderSetup')
-                for i in range(HeadFullCount / 3744 * 2 + 2):
+                for i in range(int(HeadFullCount / 3744 * 2 + 2)):
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_R_lip_lower_side_jnt', clear=1)
 
             if cmds.objExists('Skin_R_lip_upper_side_02_jnt'):
                 mel.eval('artSkinInflListChanging Skin_R_lip_upper_side_02_jnt 1')
                 mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                 mel.eval('mayaHasRenderSetup')
-                for i in range(HeadFullCount / 3744 * 2 + 2):
+                for i in range(int(HeadFullCount / 3744 * 2 + 2)):
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_R_lip_upper_side_02_jnt', clear=1)
 
             if cmds.objExists('Skin_R_lip_lower_side_02_jnt'):
                 mel.eval('artSkinInflListChanging Skin_R_lip_lower_side_02_jnt 1')
                 mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
                 mel.eval('mayaHasRenderSetup')
-                for i in range(HeadFullCount / 3744 * 2 + 2):
+                for i in range(int(HeadFullCount / 3744 * 2 + 2)):
                     cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf='Skin_R_lip_lower_side_02_jnt', clear=1)
 
         if len(Skin_joint) != 0:
@@ -15334,7 +15160,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='absolute')
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=1)
         cmds.select(self.JawVetex[0])
-        for i in range(Jaw_vertex_count / 786 * 2 + 2):
+        for i in range(int(Jaw_vertex_count / 786 * 2 + 2)):
             mel.eval('GrowPolygonSelectionRegion')
 
         # JAW_MASTER_JOINT_NAME
@@ -15344,10 +15170,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_JAW_MASTER_JOINT_NAME, clear=1)
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='smooth')
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=1)
-        for i in range(Jaw_vertex_count / 786 + 2):
+        for i in range(int(Jaw_vertex_count / 786 + 2)):
             mel.eval('GrowPolygonSelectionRegion')
-
-        for i in range(Jaw_vertex_count / 786 * 2 + 2):
+        for i in range(int(Jaw_vertex_count / 786 * 2 + 2)):
             cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=SKIN_JAW_MASTER_JOINT_NAME, clear=1)
 
         if cmds.objExists('Skin*lip*lower*jnt'):
@@ -15356,7 +15181,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 cmds.setAttr(each_liw, 1)
 
         cmds.select(self.JawVetex)
-        for i in range(Jaw_vertex_count / 786 + 1):
+        for i in range(int(Jaw_vertex_count / 786 + 1)):
             mel.eval('GrowPolygonSelectionRegion')
 
         jaw_part = cmds.ls(sl=True)
@@ -15371,7 +15196,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.select(cl=True)
         cmds.setAttr('Skin_Jaw_master_jnt.liw', 1)
 
-    def UpperTeethSkin(self):
+    def upper_teeth_skin(self):
         if cmds.objExists('Skin_Upper_teeth_jnt'):
             UpperTeeth_SkinCluster = mel.eval('findRelatedSkinCluster ' + self.UpperTeethMesh)
             if UpperTeeth_SkinCluster != '':
@@ -15382,7 +15207,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             print("You don't have 'Skin_Upper_teeth_jnt'")
 
-    def LowerTeethSkin(self):
+    def lower_teeth_skin(self):
         if cmds.objExists('Skin_Lower_teeth_jnt'):
             LowerTeeth_SkinCluster = mel.eval('findRelatedSkinCluster ' + self.LowerTeethMesh)
             if LowerTeeth_SkinCluster != '':
@@ -15393,7 +15218,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             print("You don't have 'Skin_Lower_teeth_jnt'")
 
-    def TongueSkin(self):
+    def tongue_skin(self):
         if cmds.objExists('Skin_Tongue_jnt'):
             Tongue_SkinCluster = mel.eval('findRelatedSkinCluster ' + self.TongueMesh)
             if Tongue_SkinCluster != '':
@@ -15404,7 +15229,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             print("You don't have 'Skin_Tongue_jnt'")
 
-    def EyeBallLSkin(self):
+    def eye_ball_left_skin(self):
         if cmds.objExists('Skin_L_eye_ball_jnt'):
             L_Eyeball_SkinCluster = mel.eval('findRelatedSkinCluster ' + self.L_EyeballMesh)
             if L_Eyeball_SkinCluster != '':
@@ -15415,7 +15240,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             print("You don't have 'Skin_L_eye_ball_jnt'")
 
-    def EyeBallRSkin(self):
+    def eye_ball_right_skin(self):
         if cmds.objExists('Skin_R_eye_ball_jnt'):
             R_Eyeball_SkinCluster = mel.eval('findRelatedSkinCluster ' + self.R_EyeballMesh)
             if R_Eyeball_SkinCluster != '':
@@ -15839,7 +15664,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.create_rig_system()
             self.Create_Rig_Skin()
 
-    # todo
+    # todo parent constraint
     def create_rig_system(self):
         self.rig_check = True
 

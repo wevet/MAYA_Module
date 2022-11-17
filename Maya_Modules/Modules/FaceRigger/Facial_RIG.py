@@ -107,7 +107,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.init_ui()
         self.create_layout()
         self.create_connections()
-        self.LockParts()
+        self.lock_parts()
         self.scrollArea = ''
         self.jntRadius = 1.0
         self.ctrl_scale = 0.0
@@ -260,8 +260,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         maxTime = str(int(cmds.playbackOptions(q=True, maxTime=True)))
         self.ui.TimeStart_pathText.setText(minTime)
         self.ui.TimeEnd_pathText.setText(maxTime)
-        self.ui.Neck_pathText.returnPressed.connect(self.returnNeck)
-        self.ui.set_min_Btn.clicked.connect(self.SetMaxInfluenceBtnCmd)
+        self.ui.Neck_pathText.returnPressed.connect(self.return_neck)
+        self.ui.set_min_Btn.clicked.connect(self.set_max_influence_command)
         self.ui.centralwidget.setStyle(QtWidgets.QStyleFactory.create(self.styles))
         self.ui.FacialSetOptionGrp.setStyle(QtWidgets.QStyleFactory.create(self.styles))
         self.ui.groupBox.setStyle(QtWidgets.QStyleFactory.create(self.styles))
@@ -298,53 +298,53 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.ui.JawTopolCheckBox.setStyleSheet(self.color_property)
         self.ui.UnrealCheckBox.setVisible(False)
 
-    def returnNeck(self):
+    def return_neck(self):
         self.Neck_pathTemp = self.ui.Neck_pathText.text()
 
     def create_connections(self):
-        self.ui.TopolDefineBtn.clicked.connect(self.TopolDefineBtnCmd)
-        self.ui.TopolDefineBtn_02.clicked.connect(self.TopolDefineBtnCmd)
+        self.ui.TopolDefineBtn.clicked.connect(self.topology_define_command)
+        self.ui.TopolDefineBtn_02.clicked.connect(self.topology_define_command)
         self.ui.closeBtn.clicked.connect(self.close)
-        self.ui.Create_jnt_Btn.clicked.connect(self.Create_jnt_BtnCmd)
-        self.ui.HeadJointBtn.clicked.connect(self.HeadJointBtnCmd)
-        self.ui.SymBtn.clicked.connect(self.SymBtnCmd)
+        self.ui.Create_jnt_Btn.clicked.connect(self.create_joint_command)
+        self.ui.HeadJointBtn.clicked.connect(self.head_joint_command)
+        self.ui.SymBtn.clicked.connect(self.symmetry_command)
         self.ui.Create_Rig_Btn.clicked.connect(self.create_rig_command)
         self.ui.Connect_jnt_Btn.clicked.connect(self.connect_joint_command)
         self.ui.LabelBtn.clicked.connect(self.label_command)
-        self.ui.LabelAllBtn.clicked.connect(self.LabelAllBtnCmd)
-        self.ui.LipCheckBox.stateChanged.connect(self.Lip_CheckBox_function)
-        self.ui.LipOption.currentTextChanged.connect(self.LipOption_Cmd)
-        self.ui.Rebuild_CtrlBtn.clicked.connect(self.Rebuild_CtrlBtnCmd)
-        self.ui.Rebuild_SkinBtn.clicked.connect(self.Rebuild_SkinBtnCmd)
-        self.ui.RebuildSymBtn.clicked.connect(self.RebuildSymBtnCmd)
-        self.ui.PickerBtn.clicked.connect(self.PickerBtnCmd)
+        self.ui.LabelAllBtn.clicked.connect(self.label_all_command)
+        self.ui.LipCheckBox.stateChanged.connect(self.lip_checkbox_function)
+        self.ui.LipOption.currentTextChanged.connect(self.lip_option_command)
+        self.ui.Rebuild_CtrlBtn.clicked.connect(self.rebuild_control_command)
+        self.ui.Rebuild_SkinBtn.clicked.connect(self.rebuild_skin_command)
+        self.ui.RebuildSymBtn.clicked.connect(self.rebuild_symmetry_command)
+        self.ui.PickerBtn.clicked.connect(self.picker_command)
 
         # save setting start
-        self.ui.actionReset_Settings.triggered.connect(self.editMenuResetCmd)
-        self.ui.actionSave_Settings.triggered.connect(self.editMenuSaveCmd)
-        self.ui.actionLoad_Settings.triggered.connect(self.editMenuLoadCmd)
+        self.ui.actionReset_Settings.triggered.connect(self.edit_menu_reset_command)
+        self.ui.actionSave_Settings.triggered.connect(self.edit_menu_save_command)
+        self.ui.actionLoad_Settings.triggered.connect(self.edit_menu_load_command)
         # save setting end
 
-        self.ui.BrowLockCheckBtn.clicked.connect(self.BrowLockCheckBtnCmd)
+        self.ui.BrowLockCheckBtn.clicked.connect(self.brow_lock_check_command)
         self.ui.EyeLockCheckBtn.clicked.connect(self.EyeLockCheckBtnCmd)
         self.ui.NoseLockCheckBtn.clicked.connect(self.NoseLockCheckBtnCmd)
         self.ui.CheekLockCheckBtn.clicked.connect(self.CheekLockCheckBtnCmd)
-        self.ui.LipLockCheckBtn.clicked.connect(self.LipLockCheckBtnCmd)
-        self.ui.JawLockCheckBtn.clicked.connect(self.JawLockCheckBtnCmd)
+        self.ui.LipLockCheckBtn.clicked.connect(self.lip_lock_check_command)
+        self.ui.JawLockCheckBtn.clicked.connect(self.jaw_lock_check_command)
 
         # joint location button
-        self.ui.JointLocationBtn.clicked.connect(self.joint_locationBtnCmd)
+        self.ui.JointLocationBtn.clicked.connect(self.joint_location_command)
 
         self.ui.BrowTopolLBtn.clicked.connect(self.BrowTopolLBtnCmd)
         self.ui.BrowTopolRBtn.clicked.connect(self.BrowTopolRBtnCmd)
-        self.ui.EyeTopolLBtn.clicked.connect(self.EyeTopolLBtnCmd)
-        self.ui.EyeTopolRBtn.clicked.connect(self.EyeTopolRBtnCmd)
+        self.ui.EyeTopolLBtn.clicked.connect(self.eye_topology_left_command)
+        self.ui.EyeTopolRBtn.clicked.connect(self.eye_topology_right_command)
         self.ui.NoseTopolBtn.clicked.connect(self.NoseTopolBtnCmd)
         self.ui.CheekTopolLBtn.clicked.connect(self.CheekTopolLBtnCmd)
         self.ui.CheekTopolRBtn.clicked.connect(self.CheekTopolRBtnCmd)
-        self.ui.LipTopolUpBtn.clicked.connect(self.LipTopolUpBtnCmd)
-        self.ui.LipTopolDownBtn.clicked.connect(self.LipTopolDownBtnCmd)
-        self.ui.JawTopolBtn.clicked.connect(self.JawTopolBtnCmd)
+        self.ui.LipTopolUpBtn.clicked.connect(self.lip_topology_up_command)
+        self.ui.LipTopolDownBtn.clicked.connect(self.lip_topology_down_command)
+        self.ui.JawTopolBtn.clicked.connect(self.jaw_topology_command)
         self.ui.SkinBuildBtn.clicked.connect(self.skin_build_command)
         self.ui.BrowTopolLBtn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         BrowTopolLBtn_all_action = QtWidgets.QAction('Select the All Vertex', self.ui.BrowTopolLBtn)
@@ -421,12 +421,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         JawTopolBtn_reset_action.triggered.connect(self.Jaw_Reset_PopupCmd)
         self.ui.EyeGrowBtn.clicked.connect(self.EyeGrowBtnCmd)
         self.ui.EyeResetGrowBtn.clicked.connect(self.EyeResetGrowBtnCmd)
-        self.ui.AttachNeckBtn.clicked.connect(self.AttachNeckBtnCmd)
-        self.ui.CopyNeckSkinBtn.clicked.connect(self.CopyNeckSkinBtnCmd)
-        self.ui.SetToBindBtn.clicked.connect(self.SetToBindBtnCmd)
-        self.ui.ReadyToExportBtn.clicked.connect(self.ReadyToExportBtnCmd)
+        self.ui.AttachNeckBtn.clicked.connect(self.attach_neck_command)
+        self.ui.CopyNeckSkinBtn.clicked.connect(self.copy_neck_skin_command)
+        self.ui.SetToBindBtn.clicked.connect(self.set_to_bind_command)
+        self.ui.ReadyToExportBtn.clicked.connect(self.ready_to_export_command)
 
-    def joint_locationBtnCmd(self):
+    def joint_location_command(self):
         filepath = self.current_dir + '/icon/joint_location_guide.jpg'
         pixmap = QtGui.QPixmap(filepath)
         label = QtWidgets.QLabel()
@@ -443,7 +443,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         text = self.ui.Neck_pathText.text()
         print(text)
 
-    def editMenuResetCmd(self, *args):
+    def edit_menu_reset_command(self, *args):
         self.Eye_C_Grow_vertex = ''
         print('Grow vertex reset')
         if len(self.BrowLVetex) != 0 and len(self.BrowRVetex) != 0:
@@ -512,7 +512,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.ui.JawTopolCheckBox.setChecked(False)
             self.ui.JawTopolCheckBox.setEnabled(False)
 
-        self.LockParts()
+        self.lock_parts()
         print('Auto Skinning prograss reset')
         if cmds.objExists('FitScale_ctrl_grp'):
             if cmds.objExists('Facial_System_joint_grp'):
@@ -549,7 +549,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.ui.OralOption.setCurrentText('Teeth & Tongue joint')
             self.ui.OralOption.setEnabled(True)
 
-    def editMenuSaveCmd(self, *args):
+    def edit_menu_save_command(self, *args):
         mel.eval('$currentDir = `workspace -q -fn`')
         mel.eval('$dir = `workspace -dir $currentDir`')
         mel.eval('string $scnName = `file -q -ns`')
@@ -1464,7 +1464,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('fprint $fileId "\\n\\n"')
         mel.eval('fclose $fileId')
 
-    def editMenuLoadCmd(self, *args):
+    def edit_menu_load_command(self, *args):
         mel.eval('$currentDir = `workspace -q -fn`')
         mel.eval('$dir = `workspace -dir $currentDir`')
         mel.eval('string $scnName = `file -q -ns`')
@@ -1473,12 +1473,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('string $sub=""')
         mel.eval('$fileId=`fopen $exampleFileName "r"`')
         mel.eval('string $nextLine = `fgetline $fileId`')
-        self.TopolDefineBtnCmd()
+        self.topology_define_command()
         cmds.select(cl=True)
         mel.eval(
             'if ($nextLine == "--LipCorner_L_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "LipCorner_L_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.LipCorner_L_BtnCmd()
+            self.lip_corner_left_command()
         else:
             self.LipCorner_L_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1487,7 +1487,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--LipCorner_lower_L_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "LipCorner_lower_L_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.LipCorner_lower_L_BtnCmd()
+            self.lip_corner_lower_left_command()
         else:
             self.LipCorner_lower_L_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1496,7 +1496,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--LipCorner_R_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "LipCorner_R_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.LipCorner_R_BtnCmd()
+            self.lip_corner_right_command()
         else:
             self.LipCorner_R_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1505,7 +1505,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--LipCorner_lower_R_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "LipCorner_lower_R_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.LipCorner_lower_R_BtnCmd()
+            self.lip_corner_lower_right_command()
         else:
             self.LipCorner_lower_R_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1514,7 +1514,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--LipUpper_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "LipUpper_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.LipUpper_BtnCmd()
+            self.lip_upper_command()
         else:
             self.LipUpper_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1523,7 +1523,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--LipLower_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "LipLower_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.LipLower_BtnCmd()
+            self.lip_lower_command()
         else:
             self.LipLower_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1532,7 +1532,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--LipLower_Outer_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "LipLower_Outer_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.LipLower_Outer_BtnCmd()
+            self.lip_lower_outer_command()
         else:
             self.LipLower_Outer_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1541,7 +1541,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Lip_L_UpperSide_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Lip_L_UpperSide_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Lip_L_UpperSide_BtnCmd()
+            self.lip_left_upper_side_command()
         else:
             self.Lip_L_UpperSide_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1550,7 +1550,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Lip_L_UpperSide_02_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Lip_L_UpperSide_02_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Lip_L_UpperSide_02_BtnCmd()
+            self.lip_left_upper_side_02_command()
         else:
             self.Lip_L_UpperSide_02_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1559,7 +1559,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Lip_L_UpperOuter_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Lip_L_UpperOuter_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Lip_L_UpperOuter_BtnCmd()
+            self.lip_left_upper_outer_command()
         else:
             self.Lip_L_UpperOuter_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1568,7 +1568,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Lip_L_LowerSide_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Lip_L_LowerSide_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Lip_L_LowerSide_BtnCmd()
+            self.lip_left_lower_side_command()
         else:
             self.Lip_L_LowerSide_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1577,7 +1577,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Lip_L_LowerSide_02_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Lip_L_LowerSide_02_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Lip_L_LowerSide_02_BtnCmd()
+            self.lip_left_lower_side_02_command()
         else:
             self.Lip_L_LowerSide_02_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1586,7 +1586,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Lip_L_LowerOuter_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Lip_L_LowerOuter_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Lip_L_LowerOuter_BtnCmd()
+            self.lip_left_lower_outer_command()
         else:
             self.Lip_L_LowerOuter_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1595,7 +1595,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Lip_R_UpperSide_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Lip_R_UpperSide_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Lip_R_UpperSide_BtnCmd()
+            self.lip_right_upper_side_command()
         else:
             self.Lip_R_UpperSide_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1604,7 +1604,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Lip_R_UpperSide_02_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Lip_R_UpperSide_02_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Lip_R_UpperSide_02_BtnCmd()
+            self.lip_right_upper_side_02_command()
         else:
             self.Lip_R_UpperSide_02_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1613,7 +1613,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Lip_R_UpperOuter_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Lip_R_UpperOuter_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Lip_R_UpperOuter_BtnCmd()
+            self.lip_right_upper_outer_command()
         else:
             self.Lip_R_UpperOuter_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1622,7 +1622,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Lip_R_LowerSide_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Lip_R_LowerSide_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Lip_R_LowerSide_BtnCmd()
+            self.lip_right_lower_side_command()
         else:
             self.Lip_R_LowerSide_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1631,7 +1631,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Lip_R_LowerSide_02_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Lip_R_LowerSide_02_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Lip_R_LowerSide_02_BtnCmd()
+            self.lip_right_lower_side_02_command()
         else:
             self.Lip_R_LowerSide_02_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1640,7 +1640,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Lip_R_LowerOuter_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Lip_R_LowerOuter_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Lip_R_LowerOuter_BtnCmd()
+            self.lip_right_lower_outer_command()
         else:
             self.Lip_R_LowerOuter_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1649,7 +1649,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--LipUpVetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "LipUpVetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.LipTopolUpBtnCmd()
+            self.lip_topology_up_command()
         else:
             self.LipUpVetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1658,7 +1658,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--LipDownVetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "LipDownVetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.LipTopolDownBtnCmd()
+            self.lip_topology_down_command()
         else:
             self.LipDownVetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1667,7 +1667,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Lip_Jaw_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Lip_Jaw_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Lip_Jaw_BtnCmd()
+            self.lip_jaw_command()
         else:
             self.Lip_Jaw_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1676,7 +1676,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--JawVetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "JawVetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.JawTopolBtnCmd()
+            self.jaw_topology_command()
         else:
             self.JawVetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1685,7 +1685,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Eye_L_blink_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Eye_L_blink_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Eye_L_blink_BtnCmd()
+            self.eye_left_blink_command()
         else:
             self.Eye_L_blink_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1694,7 +1694,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Eye_R_blink_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Eye_R_blink_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Eye_R_blink_BtnCmd()
+            self.eye_right_blink_command()
         else:
             self.Eye_R_blink_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1703,7 +1703,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Eye_L_lower_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Eye_L_lower_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Eye_L_lower_BtnCmd()
+            self.eye_left_lower_command()
         else:
             self.Eye_L_lower_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1712,7 +1712,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Eye_R_lower_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Eye_R_lower_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Eye_R_lower_BtnCmd()
+            self.eye_right_lower_command()
         else:
             self.Eye_R_lower_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1847,7 +1847,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--EyeLVetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "EyeLVetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.EyeTopolLBtnCmd()
+            self.eye_topology_left_command()
         else:
             self.EyeLVetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -1856,7 +1856,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--EyeRVetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "EyeRVetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.EyeTopolRBtnCmd()
+            self.eye_topology_right_command()
         else:
             self.EyeRVetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -2207,7 +2207,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Brow_Center_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Brow_Center_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Brow_Center_BtnCmd()
+            self.brow_center_command()
         else:
             self.Brow_Center_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -2234,7 +2234,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Oral_Upper_teeth_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Oral_Upper_teeth_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Oral_Upper_teeth_BtnCmd()
+            self.oral_upper_teeth_command()
         else:
             self.Oral_Upper_teeth_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -2243,7 +2243,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Oral_Lower_teeth_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Oral_Lower_teeth_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Oral_Lower_teeth_BtnCmd()
+            self.oral_lower_teeth_command()
         else:
             self.Oral_Lower_teeth_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -2252,7 +2252,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Oral_Tongue_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Oral_Tongue_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Oral_Tongue_BtnCmd()
+            self.oral_tongue_command()
         else:
             self.Oral_Tongue_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -2261,7 +2261,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Oral_Tongue_02_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Oral_Tongue_02_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Oral_Tongue_02_BtnCmd()
+            self.oral_tongue_02_command()
         else:
             self.Oral_Tongue_02_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -2270,7 +2270,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--Oral_Tongue_03_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "Oral_Tongue_03_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.Oral_Tongue_03_BtnCmd()
+            self.oral_tongue_03_command()
         else:
             self.Oral_Tongue_03_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -2279,7 +2279,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--EyeBall_L_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "EyeBall_L_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.EyeBall_L_BtnCmd()
+            self.eye_ball_left_command()
         else:
             self.EyeBall_L_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
@@ -2288,21 +2288,21 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval(
             'if ($nextLine == "--EyeBall_R_Vetex--\\n"){' + '$nextLine = `fgetline $fileId`;' + 'while ( size( $nextLine ) > 0 ) {' + 'if ($nextLine != "\\n"){' + 'select -add $nextLine;\n}' + 'else {print "EyeBall_R_Vetex EndValue\\n"; break;}' + '$nextLine = `fgetline $fileId`;' + '}}')
         if len(cmds.ls(sl=True)) != 0:
-            self.EyeBall_R_BtnCmd()
+            self.eye_ball_right_command()
         else:
             self.EyeBall_R_Vetex = ''
             mel.eval('string $nextLine = `fgetline $fileId`')
         mel.eval('string $nextLine = `fgetline $fileId`')
         mel.eval('fclose $fileId')
 
-    def PickerBtnCmd(self, *args):
+    def picker_command(self, *args):
         import Facial_Picker
         importlib.reload(Facial_Picker)
         from Facial_Picker import Facial_Picker_window
         Facial_Picker_window.main()
         print('call Picker')
 
-    def AttachNeckBtnCmd(self, *args):
+    def attach_neck_command(self, *args):
         cmds.select(cl=True)
         self.Neck_pathTemp = self.ui.Neck_pathText.text()
         if cmds.objExists('Root_Skin_Neck_Bone'):
@@ -2382,7 +2382,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.parent('Head_value', 'Neck_value')
         return
 
-    def CopyNeckSkinBtnCmd(self, *args):
+    def copy_neck_skin_command(self, *args):
         self.Neck_pathTemp = self.ui.Neck_pathText.text()
         MeshSel = cmds.ls(sl=True)
         cmds.select(cl=True)
@@ -2456,7 +2456,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             print("Please click the 'Attach Neck Hierarchy' Button first!")
 
-    def SetToBindBtnCmd(self, *args):
+    def set_to_bind_command(self, *args):
         MeshSel = cmds.ls(sl=True)
         if len(MeshSel) != 0:
             for each in MeshSel:
@@ -2487,7 +2487,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         return
 
     # Issue
-    def ReadyToExportBtnCmd(self, *args):
+    def ready_to_export_command(self, *args):
         with UndoContext():
             TimeStart_before = self.ui.TimeStart_pathText.text()
             TimeStart_pathTemp = self.ui.TimeStart_pathText.text()
@@ -2576,7 +2576,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                             cmds.bakeResults(head_joint_all, t=(TimeStart_pathTemp, TimeEnd_pathTemp), simulation=True)
                     else:
                         cmds.bakeResults(head_joint_all, t=(TimeStart_pathTemp, TimeEnd_pathTemp), simulation=True)
-                    self.findMultMatixDelete()
+                    self.find_mult_matix_delete()
                     cmds.select(head_joint_all)
                     cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, hi=True, tgl=True)
                     cmds.delete()
@@ -2665,7 +2665,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 cmds.error("Please Select 'Root_Skin_Neck_Bone' or NameSpace:'Root_Skin_Neck_Bone'. You can choose one and select the 'Root_Skin_Neck_Bone' or 'Facial_Master_Ctrl_grp' object and click the button")
         return
 
-    def findMultMatixDelete(self, *args):
+    def find_mult_matix_delete(self, *args):
         cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, hi=True)
         all_jnt = cmds.ls(sl=True)
         for each in all_jnt:
@@ -2673,8 +2673,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             if multMat_node:
                 cmds.delete(multMat_node)
 
-    def Create_jnt_BtnCmd(self, *args):
-        self.Create_joint()
+    def create_joint_command(self, *args):
+        self.create_joint()
 
     def connect_joint_command(self, *args):
         if len(self.head_joint) != 0:
@@ -2695,32 +2695,33 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             if cmds.objExists('Facial_System_joint_grp'):
                 print('you already generated Rig System')
             else:
-                self.Label_Check()
+                self.label_check()
         elif cmds.objExists('Facial_System_joint_grp'):
             print('you already generated Rig System')
         else:
             print('please Create Joint first!')
 
-    def LabelAllBtnCmd(self, *args):
+    def label_all_command(self, *args):
         if cmds.objExists('FitScale_ctrl_grp'):
             if cmds.objExists('Facial_System_joint_grp'):
                 print('you already generated Rig System')
             else:
                 cmds.select('*_jnt')
-                self.Label_Check()
+                self.label_check()
         elif cmds.objExists('Facial_System_joint_grp'):
             print('you already generated Rig System')
         else:
             print('please Create Joint first!')
 
-    def LipCorner_L_First_PopupCmd(self, *args):
+    # lip left setup
+    def lip_corner_left_first_popup_command(self, *args):
         if self.LipCorner_L_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.LipCorner_L_Vetex is not define!')
             cmds.error('self.LipCorner_L_Vetex is not define!')
         cmds.select(self.LipCorner_L_Vetex[0])
         return
 
-    def LipCorner_L_All_PopupCmd(self, *args):
+    def lip_corner_left_all_popup_command(self, *args):
         if self.LipCorner_L_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.LipCorner_L_Vetex is not define!')
             cmds.error('self.LipCorner_L_Vetex is not define!')
@@ -2739,18 +2740,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def LipCorner_L_Reset_PopupCmd(self, *args):
+    def lip_corner_left_reset_popup_command(self, *args):
         self.LipCorner_L_Vetex = ''
         self.TopolDefine_window.LipCorner_L_Btn.setStyleSheet(self.red_color)
 
-    def LipCorner_lower_L_First_PopupCmd(self, *args):
+    def lip_corner_lower_left_first_popup_command(self, *args):
         if self.LipCorner_lower_L_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.LipCorner_lower_L_Vetex is not define!')
             cmds.error('self.LipCorner_lower_L_Vetex is not define!')
         cmds.select(self.LipCorner_lower_L_Vetex[0])
         return
 
-    def LipCorner_lower_L_All_PopupCmd(self, *args):
+    def lip_corner_lower_left_all_popup_command(self, *args):
         if self.LipCorner_lower_L_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.LipCorner_lower_L_Vetex is not define!')
             cmds.error('self.LipCorner_lower_L_Vetex is not define!')
@@ -2769,18 +2770,19 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def LipCorner_lower_L_Reset_PopupCmd(self, *args):
+    def lip_corner_lower_left_reset_popup_command(self, *args):
         self.LipCorner_lower_L_Vetex = ''
         self.TopolDefine_window.LipCorner_lower_L_Btn.setStyleSheet(self.red_color)
 
-    def LipCorner_R_First_PopupCmd(self, *args):
+    # lip right setup
+    def lip_corner_right_first_popup_command(self, *args):
         if self.LipCorner_R_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.LipCorner_R_Vetex is not define!')
             cmds.error('self.LipCorner_R_Vetex is not define!')
         cmds.select(self.LipCorner_R_Vetex[0])
         return
 
-    def LipCorner_R_All_PopupCmd(self, *args):
+    def lip_corner_right_all_popup_command(self, *args):
         if self.LipCorner_R_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.LipCorner_R_Vetex is not define!')
             cmds.error('self.LipCorner_R_Vetex is not define!')
@@ -2799,18 +2801,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def LipCorner_R_Reset_PopupCmd(self, *args):
+    def lip_corner_right_reset_popup_command(self, *args):
         self.LipCorner_R_Vetex = ''
         self.TopolDefine_window.LipCorner_R_Btn.setStyleSheet(self.red_color)
 
-    def LipCorner_lower_R_First_PopupCmd(self, *args):
+    def lip_corner_lower_right_first_popup_command(self, *args):
         if self.LipCorner_lower_R_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.LipCorner_lower_R_Vetex is not define!')
             cmds.error('self.LipCorner_lower_R_Vetex is not define!')
         cmds.select(self.LipCorner_lower_R_Vetex[0])
         return
 
-    def LipCorner_lower_R_All_PopupCmd(self, *args):
+    def lip_corner_lower_right_all_popup_command(self, *args):
         if self.LipCorner_lower_R_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.LipCorner_lower_R_Vetex is not define!')
             cmds.error('self.LipCorner_lower_R_Vetex is not define!')
@@ -2829,18 +2831,19 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def LipCorner_lower_R_Reset_PopupCmd(self, *args):
+    def lip_corner_lower_right_reset_popup_command(self, *args):
         self.LipCorner_lower_R_Vetex = ''
         self.TopolDefine_window.LipCorner_lower_R_Btn.setStyleSheet(self.red_color)
 
-    def LipUpper_First_PopupCmd(self, *args):
+    # lip first setup
+    def lip_upper_first_popup_command(self, *args):
         if self.LipUpper_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.LipUpper_Vetex is not define!')
             cmds.error('self.LipUpper_Vetex is not define!')
         cmds.select(self.LipUpper_Vetex[0])
         return
 
-    def LipUpper_All_PopupCmd(self, *args):
+    def lip_upper_all_popup_command(self, *args):
         if self.LipUpper_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.LipUpper_Vetex is not define!')
             cmds.error('self.LipUpper_Vetex is not define!')
@@ -2859,18 +2862,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def LipUpper_Reset_PopupCmd(self, *args):
+    def lip_upper_reset_popup_command(self, *args):
         self.LipUpper_Vetex = ''
         self.TopolDefine_window.LipUpper_Btn.setStyleSheet(self.red_color)
 
-    def LipLower_First_PopupCmd(self, *args):
+    def lip_lower_first_popup_command(self, *args):
         if self.LipLower_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.LipLower_Vetex is not define!')
             cmds.error('self.LipLower_Vetex is not define!')
         cmds.select(self.LipLower_Vetex[0])
         return
 
-    def LipLower_All_PopupCmd(self, *args):
+    def lip_lower_all_popup_command(self, *args):
         if self.LipLower_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.LipLower_Vetex is not define!')
             cmds.error('self.LipLower_Vetex is not define!')
@@ -2889,18 +2892,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def LipLower_Reset_PopupCmd(self, *args):
+    def lip_lower_reset_popup_command(self, *args):
         self.LipLower_Vetex = ''
         self.TopolDefine_window.LipLower_Btn.setStyleSheet(self.red_color)
 
-    def LipLower_Outer_First_PopupCmd(self, *args):
+    def lip_lower_outer_first_popup_command(self, *args):
         if self.LipLower_Outer_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.LipLower_Outer_Vetex is not define!')
             cmds.error('self.LipLower_Outer_Vetex is not define!')
         cmds.select(self.LipLower_Outer_Vetex[0])
         return
 
-    def LipLower_Outer_All_PopupCmd(self, *args):
+    def lip_lower_outer_all_popup_command(self, *args):
         if self.LipLower_Outer_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.LipLower_Outer_Vetex is not define!')
             cmds.error('self.LipLower_Outer_Vetex is not define!')
@@ -2919,18 +2922,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def LipLower_Outer_Reset_PopupCmd(self, *args):
+    def lip_lower_outer_reset_popup_command(self, *args):
         self.LipLower_Outer_Vetex = ''
         self.TopolDefine_window.LipLower_Outer_Btn.setStyleSheet(self.red_color)
 
-    def Lip_L_UpperSide_First_PopupCmd(self, *args):
+    def lip_left_upper_side_first_popup_command(self, *args):
         if self.Lip_L_UpperSide_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_L_UpperSide_Vetex is not define!')
             cmds.error('self.Lip_L_UpperSide_Vetex is not define!')
         cmds.select(self.Lip_L_UpperSide_Vetex[0])
         return
 
-    def Lip_L_UpperSide_All_PopupCmd(self, *args):
+    def lip_left_upper_side_all_popup_command(self, *args):
         if self.Lip_L_UpperSide_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_L_UpperSide_Vetex is not define!')
             cmds.error('self.Lip_L_UpperSide_Vetex is not define!')
@@ -2949,18 +2952,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Lip_L_UpperSide_Reset_PopupCmd(self, *args):
+    def lip_left_upper_side_reset_popup_command(self, *args):
         self.Lip_L_UpperSide_Vetex = ''
         self.TopolDefine_window.Lip_L_UpperSide_Btn.setStyleSheet(self.red_color)
 
-    def Lip_L_UpperSide_02_First_PopupCmd(self, *args):
+    def lip_left_upper_side_02_first_popup_command(self, *args):
         if self.Lip_L_UpperSide_02_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_L_UpperSide_02_Vetex is not define!')
             cmds.error('self.Lip_L_UpperSide_02_Vetex is not define!')
         cmds.select(self.Lip_L_UpperSide_02_Vetex[0])
         return
 
-    def Lip_L_UpperSide_02_All_PopupCmd(self, *args):
+    def lip_left_upper_side_02_all_popup_command(self, *args):
         if self.Lip_L_UpperSide_02_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_L_UpperSide_02_Vetex is not define!')
             cmds.error('self.Lip_L_UpperSide_02_Vetex is not define!')
@@ -2979,18 +2982,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Lip_L_UpperSide_02_Reset_PopupCmd(self, *args):
+    def lip_left_upper_side_02_reset_popup_command(self, *args):
         self.Lip_L_UpperSide_02_Vetex = ''
         self.TopolDefine_window.Lip_L_UpperSide_02_Btn.setStyleSheet(self.red_color)
 
-    def Lip_L_UpperOuter_First_PopupCmd(self, *args):
+    def lip_left_upper_outer_first_popup_command(self, *args):
         if self.Lip_L_UpperOuter_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_L_UpperOuter_Vetex is not define!')
             cmds.error('self.Lip_L_UpperOuter_Vetex is not define!')
         cmds.select(self.Lip_L_UpperOuter_Vetex[0])
         return
 
-    def Lip_L_UpperOuter_All_PopupCmd(self, *args):
+    def lip_left_upper_outer_all_popup_command(self, *args):
         if self.Lip_L_UpperOuter_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_L_UpperOuter_Vetex is not define!')
             cmds.error('self.Lip_L_UpperOuter_Vetex is not define!')
@@ -3009,18 +3012,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Lip_L_UpperOuter_Reset_PopupCmd(self, *args):
+    def lip_left_upper_outer_reset_popup_command(self, *args):
         self.Lip_L_UpperOuter_Vetex = ''
         self.TopolDefine_window.Lip_L_UpperOuter_Btn.setStyleSheet(self.red_color)
 
-    def Lip_L_LowerSide_First_PopupCmd(self, *args):
+    def lip_left_lower_side_first_popup_command(self, *args):
         if self.Lip_L_LowerSide_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_L_LowerSide_Vetex is not define!')
             cmds.error('self.Lip_L_LowerSide_Vetex is not define!')
         cmds.select(self.Lip_L_LowerSide_Vetex[0])
         return
 
-    def Lip_L_LowerSide_All_PopupCmd(self, *args):
+    def lip_left_lower_side_all_popup_command(self, *args):
         if self.Lip_L_LowerSide_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_L_LowerSide_Vetex is not define!')
             cmds.error('self.Lip_L_LowerSide_Vetex is not define!')
@@ -3039,18 +3042,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Lip_L_LowerSide_Reset_PopupCmd(self, *args):
+    def lip_left_lower_side_reset_popup_command(self, *args):
         self.Lip_L_LowerSide_Vetex = ''
         self.TopolDefine_window.Lip_L_LowerSide_Btn.setStyleSheet(self.red_color)
 
-    def Lip_L_LowerSide_02_First_PopupCmd(self, *args):
+    def lip_left_lower_side_02_first_popup_command(self, *args):
         if self.Lip_L_LowerSide_02_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_L_LowerSide_02_Vetex is not define!')
             cmds.error('self.Lip_L_LowerSide_02_Vetex is not define!')
         cmds.select(self.Lip_L_LowerSide_02_Vetex[0])
         return
 
-    def Lip_L_LowerSide_02_All_PopupCmd(self, *args):
+    def lip_left_lower_side_02_all_popup_command(self, *args):
         if self.Lip_L_LowerSide_02_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_L_LowerSide_02_Vetex is not define!')
             cmds.error('self.Lip_L_LowerSide_02_Vetex is not define!')
@@ -3069,18 +3072,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Lip_L_LowerSide_02_Reset_PopupCmd(self, *args):
+    def lip_left_lower_side_02_reset_popup_command(self, *args):
         self.Lip_L_LowerSide_02_Vetex = ''
         self.TopolDefine_window.Lip_L_LowerSide_02_Btn.setStyleSheet(self.red_color)
 
-    def Lip_L_LowerOuter_First_PopupCmd(self, *args):
+    def lip_left_lower_outer_first_popup_command(self, *args):
         if self.Lip_L_LowerOuter_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_L_LowerOuter_Vetex is not define!')
             cmds.error('self.Lip_L_LowerOuter_Vetex is not define!')
         cmds.select(self.Lip_L_LowerOuter_Vetex[0])
         return
 
-    def Lip_L_LowerOuter_All_PopupCmd(self, *args):
+    def lip_left_lower_outer_all_popup_command(self, *args):
         if self.Lip_L_LowerOuter_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_L_LowerOuter_Vetex is not define!')
             cmds.error('self.Lip_L_LowerOuter_Vetex is not define!')
@@ -3099,18 +3102,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Lip_L_LowerOuter_Reset_PopupCmd(self, *args):
+    def lip_left_lower_outer_reset_popup_command(self, *args):
         self.Lip_L_LowerOuter_Vetex = ''
         self.TopolDefine_window.Lip_L_LowerOuter_Btn.setStyleSheet(self.red_color)
 
-    def Lip_R_UpperSide_First_PopupCmd(self, *args):
+    def lip_right_upper_side_first_popup_command(self, *args):
         if self.Lip_R_UpperSide_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_R_UpperSide_Vetex is not define!')
             cmds.error('self.Lip_R_UpperSide_Vetex is not define!')
         cmds.select(self.Lip_R_UpperSide_Vetex[0])
         return
 
-    def Lip_R_UpperSide_All_PopupCmd(self, *args):
+    def lip_right_upper_side_all_popup_command(self, *args):
         if self.Lip_R_UpperSide_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_R_UpperSide_Vetex is not define!')
             cmds.error('self.Lip_R_UpperSide_Vetex is not define!')
@@ -3129,18 +3132,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Lip_R_UpperSide_Reset_PopupCmd(self, *args):
+    def lip_right_upper_side_reset_popup_command(self, *args):
         self.Lip_R_UpperSide_Vetex = ''
         self.TopolDefine_window.Lip_R_UpperSide_Btn.setStyleSheet(self.red_color)
 
-    def Lip_R_UpperSide_02_First_PopupCmd(self, *args):
+    def lip_right_upper_side_02_first_popup_command(self, *args):
         if self.Lip_R_UpperSide_02_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_R_UpperSide_02_Vetex is not define!')
             cmds.error('self.Lip_R_UpperSide_02_Vetex is not define!')
         cmds.select(self.Lip_R_UpperSide_02_Vetex[0])
         return
 
-    def Lip_R_UpperSide_02_All_PopupCmd(self, *args):
+    def lip_right_upper_side_02_all_popup_command(self, *args):
         if self.Lip_R_UpperSide_02_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_R_UpperSide_02_Vetex is not define!')
             cmds.error('self.Lip_R_UpperSide_02_Vetex is not define!')
@@ -3159,18 +3162,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Lip_R_UpperSide_02_Reset_PopupCmd(self, *args):
+    def lip_right_upper_side_02_reset_popup_command(self, *args):
         self.Lip_R_UpperSide_02_Vetex = ''
         self.TopolDefine_window.Lip_R_UpperSide_02_Btn.setStyleSheet(self.red_color)
 
-    def Lip_R_UpperOuter_First_PopupCmd(self, *args):
+    def lip_right_upper_outer_first_popup_command(self, *args):
         if self.Lip_R_UpperOuter_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_R_UpperOuter_Vetex is not define!')
             cmds.error('self.Lip_R_UpperOuter_Vetex is not define!')
         cmds.select(self.Lip_R_UpperOuter_Vetex[0])
         return
 
-    def Lip_R_UpperOuter_All_PopupCmd(self, *args):
+    def lip_right_upper_outer_all_popup_command(self, *args):
         if self.Lip_R_UpperOuter_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_R_UpperOuter_Vetex is not define!')
             cmds.error('self.Lip_R_UpperOuter_Vetex is not define!')
@@ -3189,18 +3192,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Lip_R_UpperOuter_Reset_PopupCmd(self, *args):
+    def lip_right_upper_outer_reset_popup_command(self, *args):
         self.Lip_R_UpperOuter_Vetex = ''
         self.TopolDefine_window.Lip_R_UpperOuter_Btn.setStyleSheet(self.red_color)
 
-    def Lip_R_LowerSide_First_PopupCmd(self, *args):
+    def lip_right_lower_side_first_popup_command(self, *args):
         if self.Lip_R_LowerSide_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_R_LowerSide_Vetex is not define!')
             cmds.error('self.Lip_R_LowerSide_Vetex is not define!')
         cmds.select(self.Lip_R_LowerSide_Vetex[0])
         return
 
-    def Lip_R_LowerSide_All_PopupCmd(self, *args):
+    def lip_right_lower_side_all_popup_command(self, *args):
         if self.Lip_R_LowerSide_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_R_LowerSide_Vetex is not define!')
             cmds.error('self.Lip_R_LowerSide_Vetex is not define!')
@@ -3219,18 +3222,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Lip_R_LowerSide_Reset_PopupCmd(self, *args):
+    def lip_right_lower_side_reset_popup_command(self, *args):
         self.Lip_R_LowerSide_Vetex = ''
         self.TopolDefine_window.Lip_R_LowerSide_Btn.setStyleSheet(self.red_color)
 
-    def Lip_R_LowerSide_02_First_PopupCmd(self, *args):
+    def lip_right_lower_side_02_first_popup_command(self, *args):
         if self.Lip_R_LowerSide_02_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_R_LowerSide_02_Vetex is not define!')
             cmds.error('self.Lip_R_LowerSide_02_Vetex is not define!')
         cmds.select(self.Lip_R_LowerSide_02_Vetex[0])
         return
 
-    def Lip_R_LowerSide_02_All_PopupCmd(self, *args):
+    def lip_right_lower_side_02_all_popup_command(self, *args):
         if self.Lip_R_LowerSide_02_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_R_LowerSide_02_Vetex is not define!')
             cmds.error('self.Lip_R_LowerSide_02_Vetex is not define!')
@@ -3249,18 +3252,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Lip_R_LowerSide_02_Reset_PopupCmd(self, *args):
+    def lip_right_lower_side_02_reset_popup_command(self, *args):
         self.Lip_R_LowerSide_02_Vetex = ''
         self.TopolDefine_window.Lip_R_LowerSide_02_Btn.setStyleSheet(self.red_color)
 
-    def Lip_R_LowerOuter_First_PopupCmd(self, *args):
+    def lip_right_lower_outer_first_popup_command(self, *args):
         if self.Lip_R_LowerOuter_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_R_LowerOuter_Vetex is not define!')
             cmds.error('self.Lip_R_LowerOuter_Vetex is not define!')
         cmds.select(self.Lip_R_LowerOuter_Vetex[0])
         return
 
-    def Lip_R_LowerOuter_All_PopupCmd(self, *args):
+    def lip_right_lower_outer_all_popup_command(self, *args):
         if self.Lip_R_LowerOuter_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_R_LowerOuter_Vetex is not define!')
             cmds.error('self.Lip_R_LowerOuter_Vetex is not define!')
@@ -3279,18 +3282,19 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Lip_R_LowerOuter_Reset_PopupCmd(self, *args):
+    def lip_right_lower_outer_reset_popup_command(self, *args):
         self.Lip_R_LowerOuter_Vetex = ''
         self.TopolDefine_window.Lip_R_LowerOuter_Btn.setStyleSheet(self.red_color)
 
-    def Lip_Jaw_First_PopupCmd(self, *args):
+    # todo jaw setup
+    def lip_jaw_first_popup_command(self, *args):
         if self.Lip_Jaw_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_Jaw_Vetex is not define!')
             cmds.error('self.Lip_Jaw_Vetex is not define!')
         cmds.select(self.Lip_Jaw_Vetex[0])
         return
 
-    def Lip_Jaw_All_PopupCmd(self, *args):
+    def lip_jaw_all_popup_command(self, *args):
         if self.Lip_Jaw_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_Jaw_Vetex is not define!')
             cmds.error('self.Lip_Jaw_Vetex is not define!')
@@ -3309,11 +3313,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Lip_Jaw_Reset_PopupCmd(self, *args):
+    def lip_jaw_reset_popup_command(self, *args):
         self.Lip_Jaw_Vetex = ''
         self.TopolDefine_window.Lip_Jaw_Btn.setStyleSheet(self.red_color)
 
-    def Eye_L_blink_First_PopupCmd(self, *args):
+    # todo eye setup
+    def eye_left_blink_first_popup_command(self, *args):
         if self.Eye_L_blink_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Eye_L_blink_Vetex is not define!')
             cmds.error('self.Eye_L_blink_Vetex is not define!')
@@ -3853,6 +3858,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.Eye_R_double_Vetex = ''
         self.TopolDefine_window.Eye_R_double_Btn.setStyleSheet(self.red_color)
 
+    # todo cheek setup
     def Cheek_L_First_PopupCmd(self, *args):
         if self.Cheek_L_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Cheek_L_Vetex is not define!')
@@ -4213,6 +4219,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.Cheek_R_lip_lid_Vetex = ''
         self.TopolDefine_window.Cheek_R_lip_lid_Btn.setStyleSheet(self.red_color)
 
+    # todo nose setup
     def Nose_L_First_PopupCmd(self, *args):
         if self.Nose_L_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Nose_L_Vetex is not define!')
@@ -5390,7 +5397,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.ui.JawTopolBtn.setStyleSheet(None)
         return
 
-    def RebuildSymBtnCmd(self, *args):
+    def rebuild_symmetry_command(self, *args):
         source_jnt = cmds.ls(sl=True)
         if len(source_jnt) != 0:
             for each in source_jnt:
@@ -5415,10 +5422,10 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                         cmds.setAttr(left_name + '.translateZ', eachZ)
                         print(each + "'s position is set to " + left_name)
 
-    def Rebuild_SkinBtnCmd(self, *args):
-        self.Rebuild_Skin()
+    def rebuild_skin_command(self, *args):
+        self.rebuild_skin()
 
-    def Rebuild_CtrlBtnCmd(self, *args):
+    def rebuild_control_command(self, *args):
         scaleX = cmds.getAttr('scale_check_grp.scaleX')
         scaleY = cmds.getAttr('scale_check_grp.scaleY')
         scaleZ = cmds.getAttr('scale_check_grp.scaleZ')
@@ -5499,11 +5506,11 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             new_name = 'Rebuild_' + each + '_Rebuild'
             cmds.rename(each, new_name)
 
-        self.Create_jnt_BtnCmd()
+        self.create_joint_command()
         cmds.setAttr('FitScale_ctrl.scaleX', scaleX)
         cmds.setAttr('FitScale_ctrl.scaleY', scaleY)
         cmds.setAttr('FitScale_ctrl.scaleZ', scaleZ)
-        self.SymBtnCmd()
+        self.symmetry_command()
         cmds.select('*_jnt')
         jnt_sel = cmds.ls(selection=True)
         for each in jnt_sel:
@@ -5521,13 +5528,13 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.cutKey('Rebuild_Skin_*_jnt_Rebuild', s=True)
         return
 
-    def Lip_CheckBox_function(self, *args):
+    def lip_checkbox_function(self, *args):
         if self.ui.LipCheckBox.isChecked() is True:
-            self.Lip_CheckBox_on()
+            self.lip_checkbox_on()
         elif self.ui.LipCheckBox.isChecked() is False:
-            self.Lip_CheckBox_off()
+            self.lip_checkbox_off()
 
-    def Lip_CheckBox_off(self, *args):
+    def lip_checkbox_off(self, *args):
         self.ui.CheekCheckBox.setEnabled(False)
         self.ui.CheekCheckBox.setChecked(False)
         self.ui.CheekOption.setEnabled(False)
@@ -5535,7 +5542,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.ui.OralCavityCheckBox.setChecked(False)
         self.ui.OralOption.setEnabled(False)
 
-    def Lip_CheckBox_on(self, *args):
+    def lip_checkbox_on(self, *args):
         self.ui.CheekOption.setEnabled(True)
         self.ui.OralCavityCheckBox.setEnabled(True)
         self.ui.OralOption.setEnabled(True)
@@ -5545,7 +5552,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             self.ui.CheekCheckBox.setEnabled(True)
 
-    def LipOption_Cmd(self, *args):
+    def lip_option_command(self, *args):
         if 'Jaw joint Only' == self.ui.LipOption.currentText():
             self.ui.CheekCheckBox.setEnabled(False)
             self.ui.CheekCheckBox.setChecked(False)
@@ -5554,7 +5561,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.ui.CheekCheckBox.setEnabled(True)
             self.ui.CheekOption.setEnabled(True)
 
-    def createTopology(self):
+    def create_topology(self):
         try:
             self.TopolDefine_window.close()
             self.TopolDefine_window.deleteLater()
@@ -5731,31 +5738,31 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.EyeBall_L_Btn.setStyleSheet(self.green_color)
         if len(self.EyeBall_R_Vetex) != 0:
             self.TopolDefine_window.EyeBall_R_Btn.setStyleSheet(self.green_color)
-        self.TopolDefine_window.Match_joint_Btn.clicked.connect(self.Match_joint_BtnCmd)
-        self.TopolDefine_window.LipCorner_L_Btn.clicked.connect(self.LipCorner_L_BtnCmd)
-        self.TopolDefine_window.LipCorner_lower_L_Btn.clicked.connect(self.LipCorner_lower_L_BtnCmd)
-        self.TopolDefine_window.LipCorner_R_Btn.clicked.connect(self.LipCorner_R_BtnCmd)
-        self.TopolDefine_window.LipCorner_lower_R_Btn.clicked.connect(self.LipCorner_lower_R_BtnCmd)
-        self.TopolDefine_window.LipUpper_Btn.clicked.connect(self.LipUpper_BtnCmd)
-        self.TopolDefine_window.LipLower_Btn.clicked.connect(self.LipLower_BtnCmd)
-        self.TopolDefine_window.LipLower_Outer_Btn.clicked.connect(self.LipLower_Outer_BtnCmd)
-        self.TopolDefine_window.Lip_L_UpperSide_Btn.clicked.connect(self.Lip_L_UpperSide_BtnCmd)
-        self.TopolDefine_window.Lip_L_UpperSide_02_Btn.clicked.connect(self.Lip_L_UpperSide_02_BtnCmd)
-        self.TopolDefine_window.Lip_L_UpperOuter_Btn.clicked.connect(self.Lip_L_UpperOuter_BtnCmd)
-        self.TopolDefine_window.Lip_L_LowerSide_Btn.clicked.connect(self.Lip_L_LowerSide_BtnCmd)
-        self.TopolDefine_window.Lip_L_LowerSide_02_Btn.clicked.connect(self.Lip_L_LowerSide_02_BtnCmd)
-        self.TopolDefine_window.Lip_L_LowerOuter_Btn.clicked.connect(self.Lip_L_LowerOuter_BtnCmd)
-        self.TopolDefine_window.Lip_R_UpperSide_Btn.clicked.connect(self.Lip_R_UpperSide_BtnCmd)
-        self.TopolDefine_window.Lip_R_UpperSide_02_Btn.clicked.connect(self.Lip_R_UpperSide_02_BtnCmd)
-        self.TopolDefine_window.Lip_R_UpperOuter_Btn.clicked.connect(self.Lip_R_UpperOuter_BtnCmd)
-        self.TopolDefine_window.Lip_R_LowerSide_Btn.clicked.connect(self.Lip_R_LowerSide_BtnCmd)
-        self.TopolDefine_window.Lip_R_LowerSide_02_Btn.clicked.connect(self.Lip_R_LowerSide_02_BtnCmd)
-        self.TopolDefine_window.Lip_R_LowerOuter_Btn.clicked.connect(self.Lip_R_LowerOuter_BtnCmd)
-        self.TopolDefine_window.Lip_Jaw_Btn.clicked.connect(self.Lip_Jaw_BtnCmd)
-        self.TopolDefine_window.Eye_L_blink_Btn.clicked.connect(self.Eye_L_blink_BtnCmd)
-        self.TopolDefine_window.Eye_R_blink_Btn.clicked.connect(self.Eye_R_blink_BtnCmd)
-        self.TopolDefine_window.Eye_L_lower_Btn.clicked.connect(self.Eye_L_lower_BtnCmd)
-        self.TopolDefine_window.Eye_R_lower_Btn.clicked.connect(self.Eye_R_lower_BtnCmd)
+        self.TopolDefine_window.Match_joint_Btn.clicked.connect(self.match_joint_command)
+        self.TopolDefine_window.LipCorner_L_Btn.clicked.connect(self.lip_corner_left_command)
+        self.TopolDefine_window.LipCorner_lower_L_Btn.clicked.connect(self.lip_corner_lower_left_command)
+        self.TopolDefine_window.LipCorner_R_Btn.clicked.connect(self.lip_corner_right_command)
+        self.TopolDefine_window.LipCorner_lower_R_Btn.clicked.connect(self.lip_corner_lower_right_command)
+        self.TopolDefine_window.LipUpper_Btn.clicked.connect(self.lip_upper_command)
+        self.TopolDefine_window.LipLower_Btn.clicked.connect(self.lip_lower_command)
+        self.TopolDefine_window.LipLower_Outer_Btn.clicked.connect(self.lip_lower_outer_command)
+        self.TopolDefine_window.Lip_L_UpperSide_Btn.clicked.connect(self.lip_left_upper_side_command)
+        self.TopolDefine_window.Lip_L_UpperSide_02_Btn.clicked.connect(self.lip_left_upper_side_02_command)
+        self.TopolDefine_window.Lip_L_UpperOuter_Btn.clicked.connect(self.lip_left_upper_outer_command)
+        self.TopolDefine_window.Lip_L_LowerSide_Btn.clicked.connect(self.lip_left_lower_side_command)
+        self.TopolDefine_window.Lip_L_LowerSide_02_Btn.clicked.connect(self.lip_left_lower_side_02_command)
+        self.TopolDefine_window.Lip_L_LowerOuter_Btn.clicked.connect(self.lip_left_lower_outer_command)
+        self.TopolDefine_window.Lip_R_UpperSide_Btn.clicked.connect(self.lip_right_upper_side_command)
+        self.TopolDefine_window.Lip_R_UpperSide_02_Btn.clicked.connect(self.lip_right_upper_side_02_command)
+        self.TopolDefine_window.Lip_R_UpperOuter_Btn.clicked.connect(self.lip_right_upper_outer_command)
+        self.TopolDefine_window.Lip_R_LowerSide_Btn.clicked.connect(self.lip_right_lower_side_command)
+        self.TopolDefine_window.Lip_R_LowerSide_02_Btn.clicked.connect(self.lip_right_lower_side_02_command)
+        self.TopolDefine_window.Lip_R_LowerOuter_Btn.clicked.connect(self.lip_right_lower_outer_command)
+        self.TopolDefine_window.Lip_Jaw_Btn.clicked.connect(self.lip_jaw_command)
+        self.TopolDefine_window.Eye_L_blink_Btn.clicked.connect(self.eye_left_blink_command)
+        self.TopolDefine_window.Eye_R_blink_Btn.clicked.connect(self.eye_right_blink_command)
+        self.TopolDefine_window.Eye_L_lower_Btn.clicked.connect(self.eye_left_lower_command)
+        self.TopolDefine_window.Eye_R_lower_Btn.clicked.connect(self.eye_right_lower_command)
         self.TopolDefine_window.Eye_L_lacrimal_Btn.clicked.connect(self.Eye_L_lacrimal_BtnCmd)
         self.TopolDefine_window.Eye_L_lacrimal_upper_Btn.clicked.connect(self.Eye_L_lacrimal_upper_BtnCmd)
         self.TopolDefine_window.Eye_L_lacrimal_lower_Btn.clicked.connect(self.Eye_L_lacrimal_lower_BtnCmd)
@@ -5805,14 +5812,14 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Brow_R_02_Btn.clicked.connect(self.Brow_R_02_BtnCmd)
         self.TopolDefine_window.Brow_L_03_Btn.clicked.connect(self.Brow_L_03_BtnCmd)
         self.TopolDefine_window.Brow_R_03_Btn.clicked.connect(self.Brow_R_03_BtnCmd)
-        self.TopolDefine_window.Brow_Center_Btn.clicked.connect(self.Brow_Center_BtnCmd)
-        self.TopolDefine_window.Oral_Upper_teeth_Btn.clicked.connect(self.Oral_Upper_teeth_BtnCmd)
-        self.TopolDefine_window.Oral_Lower_teeth_Btn.clicked.connect(self.Oral_Lower_teeth_BtnCmd)
-        self.TopolDefine_window.Oral_Tongue_Btn.clicked.connect(self.Oral_Tongue_BtnCmd)
-        self.TopolDefine_window.Oral_Tongue_02_Btn.clicked.connect(self.Oral_Tongue_02_BtnCmd)
-        self.TopolDefine_window.Oral_Tongue_03_Btn.clicked.connect(self.Oral_Tongue_03_BtnCmd)
-        self.TopolDefine_window.EyeBall_L_Btn.clicked.connect(self.EyeBall_L_BtnCmd)
-        self.TopolDefine_window.EyeBall_R_Btn.clicked.connect(self.EyeBall_R_BtnCmd)
+        self.TopolDefine_window.Brow_Center_Btn.clicked.connect(self.brow_center_command)
+        self.TopolDefine_window.Oral_Upper_teeth_Btn.clicked.connect(self.oral_upper_teeth_command)
+        self.TopolDefine_window.Oral_Lower_teeth_Btn.clicked.connect(self.oral_lower_teeth_command)
+        self.TopolDefine_window.Oral_Tongue_Btn.clicked.connect(self.oral_tongue_command)
+        self.TopolDefine_window.Oral_Tongue_02_Btn.clicked.connect(self.oral_tongue_02_command)
+        self.TopolDefine_window.Oral_Tongue_03_Btn.clicked.connect(self.oral_tongue_03_command)
+        self.TopolDefine_window.EyeBall_L_Btn.clicked.connect(self.eye_ball_left_command)
+        self.TopolDefine_window.EyeBall_R_Btn.clicked.connect(self.eye_ball_right_command)
         self.TopolDefine_window.LipCorner_L_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         LipCorner_L_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.LipCorner_L_Btn)
         LipCorner_L_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.LipCorner_L_Btn)
@@ -5820,9 +5827,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.LipCorner_L_Btn.addAction(LipCorner_L_Btn_first_action)
         self.TopolDefine_window.LipCorner_L_Btn.addAction(LipCorner_L_Btn_all_action)
         self.TopolDefine_window.LipCorner_L_Btn.addAction(LipCorner_L_Btn_reset_action)
-        LipCorner_L_Btn_first_action.triggered.connect(self.LipCorner_L_First_PopupCmd)
-        LipCorner_L_Btn_all_action.triggered.connect(self.LipCorner_L_All_PopupCmd)
-        LipCorner_L_Btn_reset_action.triggered.connect(self.LipCorner_L_Reset_PopupCmd)
+        LipCorner_L_Btn_first_action.triggered.connect(self.lip_corner_left_first_popup_command)
+        LipCorner_L_Btn_all_action.triggered.connect(self.lip_corner_left_all_popup_command)
+        LipCorner_L_Btn_reset_action.triggered.connect(self.lip_corner_left_reset_popup_command)
         self.TopolDefine_window.LipCorner_lower_L_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         LipCorner_lower_L_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.LipCorner_lower_L_Btn)
         LipCorner_lower_L_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.LipCorner_lower_L_Btn)
@@ -5830,9 +5837,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.LipCorner_lower_L_Btn.addAction(LipCorner_lower_L_Btn_first_action)
         self.TopolDefine_window.LipCorner_lower_L_Btn.addAction(LipCorner_lower_L_Btn_all_action)
         self.TopolDefine_window.LipCorner_lower_L_Btn.addAction(LipCorner_lower_L_Btn_reset_action)
-        LipCorner_lower_L_Btn_first_action.triggered.connect(self.LipCorner_lower_L_First_PopupCmd)
-        LipCorner_lower_L_Btn_all_action.triggered.connect(self.LipCorner_lower_L_All_PopupCmd)
-        LipCorner_lower_L_Btn_reset_action.triggered.connect(self.LipCorner_lower_L_Reset_PopupCmd)
+        LipCorner_lower_L_Btn_first_action.triggered.connect(self.lip_corner_lower_left_first_popup_command)
+        LipCorner_lower_L_Btn_all_action.triggered.connect(self.lip_corner_lower_left_all_popup_command)
+        LipCorner_lower_L_Btn_reset_action.triggered.connect(self.lip_corner_lower_left_reset_popup_command)
         self.TopolDefine_window.LipCorner_R_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         LipCorner_R_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.LipCorner_R_Btn)
         LipCorner_R_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.LipCorner_R_Btn)
@@ -5840,9 +5847,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.LipCorner_R_Btn.addAction(LipCorner_R_Btn_first_action)
         self.TopolDefine_window.LipCorner_R_Btn.addAction(LipCorner_R_Btn_all_action)
         self.TopolDefine_window.LipCorner_R_Btn.addAction(LipCorner_R_Btn_reset_action)
-        LipCorner_R_Btn_first_action.triggered.connect(self.LipCorner_R_First_PopupCmd)
-        LipCorner_R_Btn_all_action.triggered.connect(self.LipCorner_R_All_PopupCmd)
-        LipCorner_R_Btn_reset_action.triggered.connect(self.LipCorner_R_Reset_PopupCmd)
+        LipCorner_R_Btn_first_action.triggered.connect(self.lip_corner_right_first_popup_command)
+        LipCorner_R_Btn_all_action.triggered.connect(self.lip_corner_right_all_popup_command)
+        LipCorner_R_Btn_reset_action.triggered.connect(self.lip_corner_right_reset_popup_command)
         self.TopolDefine_window.LipCorner_lower_R_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         LipCorner_lower_R_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.LipCorner_lower_R_Btn)
         LipCorner_lower_R_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.LipCorner_lower_R_Btn)
@@ -5850,9 +5857,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.LipCorner_lower_R_Btn.addAction(LipCorner_lower_R_Btn_first_action)
         self.TopolDefine_window.LipCorner_lower_R_Btn.addAction(LipCorner_lower_R_Btn_all_action)
         self.TopolDefine_window.LipCorner_lower_R_Btn.addAction(LipCorner_lower_R_Btn_reset_action)
-        LipCorner_lower_R_Btn_first_action.triggered.connect(self.LipCorner_lower_R_First_PopupCmd)
-        LipCorner_lower_R_Btn_all_action.triggered.connect(self.LipCorner_lower_R_All_PopupCmd)
-        LipCorner_lower_R_Btn_reset_action.triggered.connect(self.LipCorner_lower_R_Reset_PopupCmd)
+        LipCorner_lower_R_Btn_first_action.triggered.connect(self.lip_corner_lower_right_first_popup_command)
+        LipCorner_lower_R_Btn_all_action.triggered.connect(self.lip_corner_lower_right_all_popup_command)
+        LipCorner_lower_R_Btn_reset_action.triggered.connect(self.lip_corner_lower_right_reset_popup_command)
         self.TopolDefine_window.LipUpper_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         LipUpper_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.LipUpper_Btn)
         LipUpper_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.LipUpper_Btn)
@@ -5860,9 +5867,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.LipUpper_Btn.addAction(LipUpper_Btn_first_action)
         self.TopolDefine_window.LipUpper_Btn.addAction(LipUpper_Btn_all_action)
         self.TopolDefine_window.LipUpper_Btn.addAction(LipUpper_Btn_reset_action)
-        LipUpper_Btn_first_action.triggered.connect(self.LipUpper_First_PopupCmd)
-        LipUpper_Btn_all_action.triggered.connect(self.LipUpper_All_PopupCmd)
-        LipUpper_Btn_reset_action.triggered.connect(self.LipUpper_Reset_PopupCmd)
+        LipUpper_Btn_first_action.triggered.connect(self.lip_upper_first_popup_command)
+        LipUpper_Btn_all_action.triggered.connect(self.lip_upper_all_popup_command)
+        LipUpper_Btn_reset_action.triggered.connect(self.lip_upper_reset_popup_command)
         self.TopolDefine_window.LipLower_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         LipLower_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.LipLower_Btn)
         LipLower_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.LipLower_Btn)
@@ -5870,9 +5877,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.LipLower_Btn.addAction(LipLower_Btn_first_action)
         self.TopolDefine_window.LipLower_Btn.addAction(LipLower_Btn_all_action)
         self.TopolDefine_window.LipLower_Btn.addAction(LipLower_Btn_reset_action)
-        LipLower_Btn_first_action.triggered.connect(self.LipLower_First_PopupCmd)
-        LipLower_Btn_all_action.triggered.connect(self.LipLower_All_PopupCmd)
-        LipLower_Btn_reset_action.triggered.connect(self.LipLower_Reset_PopupCmd)
+        LipLower_Btn_first_action.triggered.connect(self.lip_lower_first_popup_command)
+        LipLower_Btn_all_action.triggered.connect(self.lip_lower_all_popup_command)
+        LipLower_Btn_reset_action.triggered.connect(self.lip_lower_reset_popup_command)
         self.TopolDefine_window.LipLower_Outer_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         LipLower_Outer_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.LipLower_Outer_Btn)
         LipLower_Outer_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.LipLower_Outer_Btn)
@@ -5880,9 +5887,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.LipLower_Outer_Btn.addAction(LipLower_Outer_Btn_first_action)
         self.TopolDefine_window.LipLower_Outer_Btn.addAction(LipLower_Outer_Btn_all_action)
         self.TopolDefine_window.LipLower_Outer_Btn.addAction(LipLower_Outer_Btn_reset_action)
-        LipLower_Outer_Btn_first_action.triggered.connect(self.LipLower_Outer_First_PopupCmd)
-        LipLower_Outer_Btn_all_action.triggered.connect(self.LipLower_Outer_All_PopupCmd)
-        LipLower_Outer_Btn_reset_action.triggered.connect(self.LipLower_Outer_Reset_PopupCmd)
+        LipLower_Outer_Btn_first_action.triggered.connect(self.lip_lower_outer_first_popup_command)
+        LipLower_Outer_Btn_all_action.triggered.connect(self.lip_lower_outer_all_popup_command)
+        LipLower_Outer_Btn_reset_action.triggered.connect(self.lip_lower_outer_reset_popup_command)
         self.TopolDefine_window.Lip_L_UpperSide_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Lip_L_UpperSide_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Lip_L_UpperSide_Btn)
         Lip_L_UpperSide_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Lip_L_UpperSide_Btn)
@@ -5890,9 +5897,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Lip_L_UpperSide_Btn.addAction(Lip_L_UpperSide_Btn_first_action)
         self.TopolDefine_window.Lip_L_UpperSide_Btn.addAction(Lip_L_UpperSide_Btn_all_action)
         self.TopolDefine_window.Lip_L_UpperSide_Btn.addAction(Lip_L_UpperSide_Btn_reset_action)
-        Lip_L_UpperSide_Btn_first_action.triggered.connect(self.Lip_L_UpperSide_First_PopupCmd)
-        Lip_L_UpperSide_Btn_all_action.triggered.connect(self.Lip_L_UpperSide_All_PopupCmd)
-        Lip_L_UpperSide_Btn_reset_action.triggered.connect(self.Lip_L_UpperSide_Reset_PopupCmd)
+        Lip_L_UpperSide_Btn_first_action.triggered.connect(self.lip_left_upper_side_first_popup_command)
+        Lip_L_UpperSide_Btn_all_action.triggered.connect(self.lip_left_upper_side_all_popup_command)
+        Lip_L_UpperSide_Btn_reset_action.triggered.connect(self.lip_left_upper_side_reset_popup_command)
         self.TopolDefine_window.Lip_L_UpperSide_02_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Lip_L_UpperSide_02_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Lip_L_UpperSide_02_Btn)
         Lip_L_UpperSide_02_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Lip_L_UpperSide_02_Btn)
@@ -5900,9 +5907,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Lip_L_UpperSide_02_Btn.addAction(Lip_L_UpperSide_02_Btn_first_action)
         self.TopolDefine_window.Lip_L_UpperSide_02_Btn.addAction(Lip_L_UpperSide_02_Btn_all_action)
         self.TopolDefine_window.Lip_L_UpperSide_02_Btn.addAction(Lip_L_UpperSide_02_Btn_reset_action)
-        Lip_L_UpperSide_02_Btn_first_action.triggered.connect(self.Lip_L_UpperSide_02_First_PopupCmd)
-        Lip_L_UpperSide_02_Btn_all_action.triggered.connect(self.Lip_L_UpperSide_02_All_PopupCmd)
-        Lip_L_UpperSide_02_Btn_reset_action.triggered.connect(self.Lip_L_UpperSide_02_Reset_PopupCmd)
+        Lip_L_UpperSide_02_Btn_first_action.triggered.connect(self.lip_left_upper_side_02_first_popup_command)
+        Lip_L_UpperSide_02_Btn_all_action.triggered.connect(self.lip_left_upper_side_02_all_popup_command)
+        Lip_L_UpperSide_02_Btn_reset_action.triggered.connect(self.lip_left_upper_side_02_reset_popup_command)
         self.TopolDefine_window.Lip_L_UpperOuter_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Lip_L_UpperOuter_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Lip_L_UpperOuter_Btn)
         Lip_L_UpperOuter_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Lip_L_UpperOuter_Btn)
@@ -5910,9 +5917,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Lip_L_UpperOuter_Btn.addAction(Lip_L_UpperOuter_Btn_first_action)
         self.TopolDefine_window.Lip_L_UpperOuter_Btn.addAction(Lip_L_UpperOuter_Btn_all_action)
         self.TopolDefine_window.Lip_L_UpperOuter_Btn.addAction(Lip_L_UpperOuter_Btn_reset_action)
-        Lip_L_UpperOuter_Btn_first_action.triggered.connect(self.Lip_L_UpperOuter_First_PopupCmd)
-        Lip_L_UpperOuter_Btn_all_action.triggered.connect(self.Lip_L_UpperOuter_All_PopupCmd)
-        Lip_L_UpperOuter_Btn_reset_action.triggered.connect(self.Lip_L_UpperOuter_Reset_PopupCmd)
+        Lip_L_UpperOuter_Btn_first_action.triggered.connect(self.lip_left_upper_outer_first_popup_command)
+        Lip_L_UpperOuter_Btn_all_action.triggered.connect(self.lip_left_upper_outer_all_popup_command)
+        Lip_L_UpperOuter_Btn_reset_action.triggered.connect(self.lip_left_upper_outer_reset_popup_command)
         self.TopolDefine_window.Lip_L_LowerSide_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Lip_L_LowerSide_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Lip_L_LowerSide_Btn)
         Lip_L_LowerSide_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Lip_L_LowerSide_Btn)
@@ -5920,9 +5927,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Lip_L_LowerSide_Btn.addAction(Lip_L_LowerSide_Btn_first_action)
         self.TopolDefine_window.Lip_L_LowerSide_Btn.addAction(Lip_L_LowerSide_Btn_all_action)
         self.TopolDefine_window.Lip_L_LowerSide_Btn.addAction(Lip_L_LowerSide_Btn_reset_action)
-        Lip_L_LowerSide_Btn_first_action.triggered.connect(self.Lip_L_LowerSide_First_PopupCmd)
-        Lip_L_LowerSide_Btn_all_action.triggered.connect(self.Lip_L_LowerSide_All_PopupCmd)
-        Lip_L_LowerSide_Btn_reset_action.triggered.connect(self.Lip_L_LowerSide_Reset_PopupCmd)
+        Lip_L_LowerSide_Btn_first_action.triggered.connect(self.lip_left_lower_side_first_popup_command)
+        Lip_L_LowerSide_Btn_all_action.triggered.connect(self.lip_left_lower_side_all_popup_command)
+        Lip_L_LowerSide_Btn_reset_action.triggered.connect(self.lip_left_lower_side_reset_popup_command)
         self.TopolDefine_window.Lip_L_LowerSide_02_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Lip_L_LowerSide_02_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Lip_L_LowerSide_02_Btn)
         Lip_L_LowerSide_02_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Lip_L_LowerSide_02_Btn)
@@ -5930,9 +5937,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Lip_L_LowerSide_02_Btn.addAction(Lip_L_LowerSide_02_Btn_first_action)
         self.TopolDefine_window.Lip_L_LowerSide_02_Btn.addAction(Lip_L_LowerSide_02_Btn_all_action)
         self.TopolDefine_window.Lip_L_LowerSide_02_Btn.addAction(Lip_L_LowerSide_02_Btn_reset_action)
-        Lip_L_LowerSide_02_Btn_first_action.triggered.connect(self.Lip_L_LowerSide_02_First_PopupCmd)
-        Lip_L_LowerSide_02_Btn_all_action.triggered.connect(self.Lip_L_LowerSide_02_All_PopupCmd)
-        Lip_L_LowerSide_02_Btn_reset_action.triggered.connect(self.Lip_L_LowerSide_02_Reset_PopupCmd)
+        Lip_L_LowerSide_02_Btn_first_action.triggered.connect(self.lip_left_lower_side_02_first_popup_command)
+        Lip_L_LowerSide_02_Btn_all_action.triggered.connect(self.lip_left_lower_side_02_all_popup_command)
+        Lip_L_LowerSide_02_Btn_reset_action.triggered.connect(self.lip_left_lower_side_02_reset_popup_command)
         self.TopolDefine_window.Lip_L_LowerOuter_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Lip_L_LowerOuter_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Lip_L_LowerOuter_Btn)
         Lip_L_LowerOuter_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Lip_L_LowerOuter_Btn)
@@ -5940,9 +5947,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Lip_L_LowerOuter_Btn.addAction(Lip_L_LowerOuter_Btn_first_action)
         self.TopolDefine_window.Lip_L_LowerOuter_Btn.addAction(Lip_L_LowerOuter_Btn_all_action)
         self.TopolDefine_window.Lip_L_LowerOuter_Btn.addAction(Lip_L_LowerOuter_Btn_reset_action)
-        Lip_L_LowerOuter_Btn_first_action.triggered.connect(self.Lip_L_LowerOuter_First_PopupCmd)
-        Lip_L_LowerOuter_Btn_all_action.triggered.connect(self.Lip_L_LowerOuter_All_PopupCmd)
-        Lip_L_LowerOuter_Btn_reset_action.triggered.connect(self.Lip_L_LowerOuter_Reset_PopupCmd)
+        Lip_L_LowerOuter_Btn_first_action.triggered.connect(self.lip_left_lower_outer_first_popup_command)
+        Lip_L_LowerOuter_Btn_all_action.triggered.connect(self.lip_left_lower_outer_all_popup_command)
+        Lip_L_LowerOuter_Btn_reset_action.triggered.connect(self.lip_left_lower_outer_reset_popup_command)
         self.TopolDefine_window.Lip_R_UpperSide_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Lip_R_UpperSide_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Lip_R_UpperSide_Btn)
         Lip_R_UpperSide_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Lip_R_UpperSide_Btn)
@@ -5950,9 +5957,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Lip_R_UpperSide_Btn.addAction(Lip_R_UpperSide_Btn_first_action)
         self.TopolDefine_window.Lip_R_UpperSide_Btn.addAction(Lip_R_UpperSide_Btn_all_action)
         self.TopolDefine_window.Lip_R_UpperSide_Btn.addAction(Lip_R_UpperSide_Btn_reset_action)
-        Lip_R_UpperSide_Btn_first_action.triggered.connect(self.Lip_R_UpperSide_First_PopupCmd)
-        Lip_R_UpperSide_Btn_all_action.triggered.connect(self.Lip_R_UpperSide_All_PopupCmd)
-        Lip_R_UpperSide_Btn_reset_action.triggered.connect(self.Lip_R_UpperSide_Reset_PopupCmd)
+        Lip_R_UpperSide_Btn_first_action.triggered.connect(self.lip_right_upper_side_first_popup_command)
+        Lip_R_UpperSide_Btn_all_action.triggered.connect(self.lip_right_upper_side_all_popup_command)
+        Lip_R_UpperSide_Btn_reset_action.triggered.connect(self.lip_right_upper_side_reset_popup_command)
         self.TopolDefine_window.Lip_R_UpperSide_02_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Lip_R_UpperSide_02_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Lip_R_UpperSide_02_Btn)
         Lip_R_UpperSide_02_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Lip_R_UpperSide_02_Btn)
@@ -5960,9 +5967,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Lip_R_UpperSide_02_Btn.addAction(Lip_R_UpperSide_02_Btn_first_action)
         self.TopolDefine_window.Lip_R_UpperSide_02_Btn.addAction(Lip_R_UpperSide_02_Btn_all_action)
         self.TopolDefine_window.Lip_R_UpperSide_02_Btn.addAction(Lip_R_UpperSide_02_Btn_reset_action)
-        Lip_R_UpperSide_02_Btn_first_action.triggered.connect(self.Lip_R_UpperSide_02_First_PopupCmd)
-        Lip_R_UpperSide_02_Btn_all_action.triggered.connect(self.Lip_R_UpperSide_02_All_PopupCmd)
-        Lip_R_UpperSide_02_Btn_reset_action.triggered.connect(self.Lip_R_UpperSide_02_Reset_PopupCmd)
+        Lip_R_UpperSide_02_Btn_first_action.triggered.connect(self.lip_right_upper_side_02_first_popup_command)
+        Lip_R_UpperSide_02_Btn_all_action.triggered.connect(self.lip_right_upper_side_02_all_popup_command)
+        Lip_R_UpperSide_02_Btn_reset_action.triggered.connect(self.lip_right_upper_side_02_reset_popup_command)
         self.TopolDefine_window.Lip_R_UpperOuter_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Lip_R_UpperOuter_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Lip_R_UpperOuter_Btn)
         Lip_R_UpperOuter_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Lip_R_UpperOuter_Btn)
@@ -5970,9 +5977,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Lip_R_UpperOuter_Btn.addAction(Lip_R_UpperOuter_Btn_first_action)
         self.TopolDefine_window.Lip_R_UpperOuter_Btn.addAction(Lip_R_UpperOuter_Btn_all_action)
         self.TopolDefine_window.Lip_R_UpperOuter_Btn.addAction(Lip_R_UpperOuter_Btn_reset_action)
-        Lip_R_UpperOuter_Btn_first_action.triggered.connect(self.Lip_R_UpperOuter_First_PopupCmd)
-        Lip_R_UpperOuter_Btn_all_action.triggered.connect(self.Lip_R_UpperOuter_All_PopupCmd)
-        Lip_R_UpperOuter_Btn_reset_action.triggered.connect(self.Lip_R_UpperOuter_Reset_PopupCmd)
+        Lip_R_UpperOuter_Btn_first_action.triggered.connect(self.lip_right_upper_outer_first_popup_command)
+        Lip_R_UpperOuter_Btn_all_action.triggered.connect(self.lip_right_upper_outer_all_popup_command)
+        Lip_R_UpperOuter_Btn_reset_action.triggered.connect(self.lip_right_upper_outer_reset_popup_command)
         self.TopolDefine_window.Lip_R_LowerSide_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Lip_R_LowerSide_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Lip_R_LowerSide_Btn)
         Lip_R_LowerSide_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Lip_R_LowerSide_Btn)
@@ -5980,9 +5987,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Lip_R_LowerSide_Btn.addAction(Lip_R_LowerSide_Btn_first_action)
         self.TopolDefine_window.Lip_R_LowerSide_Btn.addAction(Lip_R_LowerSide_Btn_all_action)
         self.TopolDefine_window.Lip_R_LowerSide_Btn.addAction(Lip_R_LowerSide_Btn_reset_action)
-        Lip_R_LowerSide_Btn_first_action.triggered.connect(self.Lip_R_LowerSide_First_PopupCmd)
-        Lip_R_LowerSide_Btn_all_action.triggered.connect(self.Lip_R_LowerSide_All_PopupCmd)
-        Lip_R_LowerSide_Btn_reset_action.triggered.connect(self.Lip_R_LowerSide_Reset_PopupCmd)
+        Lip_R_LowerSide_Btn_first_action.triggered.connect(self.lip_right_lower_side_first_popup_command)
+        Lip_R_LowerSide_Btn_all_action.triggered.connect(self.lip_right_lower_side_all_popup_command)
+        Lip_R_LowerSide_Btn_reset_action.triggered.connect(self.lip_right_lower_side_reset_popup_command)
         self.TopolDefine_window.Lip_R_LowerSide_02_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Lip_R_LowerSide_02_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Lip_R_LowerSide_02_Btn)
         Lip_R_LowerSide_02_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Lip_R_LowerSide_02_Btn)
@@ -5990,9 +5997,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Lip_R_LowerSide_02_Btn.addAction(Lip_R_LowerSide_02_Btn_first_action)
         self.TopolDefine_window.Lip_R_LowerSide_02_Btn.addAction(Lip_R_LowerSide_02_Btn_all_action)
         self.TopolDefine_window.Lip_R_LowerSide_02_Btn.addAction(Lip_R_LowerSide_02_Btn_reset_action)
-        Lip_R_LowerSide_02_Btn_first_action.triggered.connect(self.Lip_R_LowerSide_02_First_PopupCmd)
-        Lip_R_LowerSide_02_Btn_all_action.triggered.connect(self.Lip_R_LowerSide_02_All_PopupCmd)
-        Lip_R_LowerSide_02_Btn_reset_action.triggered.connect(self.Lip_R_LowerSide_02_Reset_PopupCmd)
+        Lip_R_LowerSide_02_Btn_first_action.triggered.connect(self.lip_right_lower_side_02_first_popup_command)
+        Lip_R_LowerSide_02_Btn_all_action.triggered.connect(self.lip_right_lower_side_02_all_popup_command)
+        Lip_R_LowerSide_02_Btn_reset_action.triggered.connect(self.lip_right_lower_side_02_reset_popup_command)
         self.TopolDefine_window.Lip_R_LowerOuter_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Lip_R_LowerOuter_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Lip_R_LowerOuter_Btn)
         Lip_R_LowerOuter_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Lip_R_LowerOuter_Btn)
@@ -6000,9 +6007,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Lip_R_LowerOuter_Btn.addAction(Lip_R_LowerOuter_Btn_first_action)
         self.TopolDefine_window.Lip_R_LowerOuter_Btn.addAction(Lip_R_LowerOuter_Btn_all_action)
         self.TopolDefine_window.Lip_R_LowerOuter_Btn.addAction(Lip_R_LowerOuter_Btn_reset_action)
-        Lip_R_LowerOuter_Btn_first_action.triggered.connect(self.Lip_R_LowerOuter_First_PopupCmd)
-        Lip_R_LowerOuter_Btn_all_action.triggered.connect(self.Lip_R_LowerOuter_All_PopupCmd)
-        Lip_R_LowerOuter_Btn_reset_action.triggered.connect(self.Lip_R_LowerOuter_Reset_PopupCmd)
+        Lip_R_LowerOuter_Btn_first_action.triggered.connect(self.lip_right_lower_outer_first_popup_command)
+        Lip_R_LowerOuter_Btn_all_action.triggered.connect(self.lip_right_lower_outer_all_popup_command)
+        Lip_R_LowerOuter_Btn_reset_action.triggered.connect(self.lip_right_lower_outer_reset_popup_command)
         self.TopolDefine_window.Lip_Jaw_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Lip_Jaw_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Lip_Jaw_Btn)
         Lip_Jaw_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Lip_Jaw_Btn)
@@ -6010,9 +6017,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Lip_Jaw_Btn.addAction(Lip_Jaw_Btn_first_action)
         self.TopolDefine_window.Lip_Jaw_Btn.addAction(Lip_Jaw_Btn_all_action)
         self.TopolDefine_window.Lip_Jaw_Btn.addAction(Lip_Jaw_Btn_reset_action)
-        Lip_Jaw_Btn_first_action.triggered.connect(self.Lip_Jaw_First_PopupCmd)
-        Lip_Jaw_Btn_all_action.triggered.connect(self.Lip_Jaw_All_PopupCmd)
-        Lip_Jaw_Btn_reset_action.triggered.connect(self.Lip_Jaw_Reset_PopupCmd)
+        Lip_Jaw_Btn_first_action.triggered.connect(self.lip_jaw_first_popup_command)
+        Lip_Jaw_Btn_all_action.triggered.connect(self.lip_jaw_all_popup_command)
+        Lip_Jaw_Btn_reset_action.triggered.connect(self.lip_jaw_reset_popup_command)
         self.TopolDefine_window.Eye_L_blink_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Eye_L_blink_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Eye_L_blink_Btn)
         Eye_L_blink_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Eye_L_blink_Btn)
@@ -6020,7 +6027,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Eye_L_blink_Btn.addAction(Eye_L_blink_Btn_first_action)
         self.TopolDefine_window.Eye_L_blink_Btn.addAction(Eye_L_blink_Btn_all_action)
         self.TopolDefine_window.Eye_L_blink_Btn.addAction(Eye_L_blink_Btn_reset_action)
-        Eye_L_blink_Btn_first_action.triggered.connect(self.Eye_L_blink_First_PopupCmd)
+        Eye_L_blink_Btn_first_action.triggered.connect(self.eye_left_blink_first_popup_command)
         Eye_L_blink_Btn_all_action.triggered.connect(self.Eye_L_blink_All_PopupCmd)
         Eye_L_blink_Btn_reset_action.triggered.connect(self.Eye_L_blink_Reset_PopupCmd)
         self.TopolDefine_window.Eye_L_lower_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
@@ -6625,8 +6632,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         EyeBall_R_Btn_reset_action.triggered.connect(self.EyeBall_R_Reset_PopupCmd)
         self.TopolDefine_window.show()
 
-    def TopolDefineBtnCmd(self, *args):
-        self.createTopology()
+    def topology_define_command(self, *args):
+        self.create_topology()
         if cmds.objExists('Skin_L_lip_corner_jnt') or cmds.objExists('L_lip_corner_jnt'):
             self.TopolDefine_window.LipCorner_L_Btn.setVisible(True)
         else:
@@ -6957,7 +6964,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             self.TopolDefine_window.EyeBall_R_Btn.setVisible(False)
 
-    def LipTopolUpBtnCmd(self, *args):
+    def lip_topology_up_command(self, *args):
         LipTopolUpSel = cmds.ls(sl=True, fl=True)
         if len(LipTopolUpSel) != 0:
             self.HeadMesh = LipTopolUpSel[0].split('.')[0]
@@ -6975,7 +6982,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.ui.JawTopolCheckBox.setChecked(True)
         return
 
-    def LipTopolDownBtnCmd(self, *args):
+    def lip_topology_down_command(self, *args):
         LipTopolDownSel = cmds.ls(sl=True, fl=True)
         if len(LipTopolDownSel) != 0:
             self.HeadMesh = LipTopolDownSel[0].split('.')[0]
@@ -6993,7 +7000,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.ui.JawTopolCheckBox.setChecked(True)
         return
 
-    def LockParts(self):
+    def lock_parts(self):
         if cmds.objExists('Brow_All_Ctrl_grp'):
             self.ui.BrowTopolCheckBox.setEnabled(True)
         else:
@@ -7022,7 +7029,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                                 self.ui.LipTopolCheckBox.setChecked(False)
                                 self.ui.JawTopolCheckBox.setEnabled(True)
 
-    def UnLockCheck(self):
+    def unlock_check(self):
         if self.ui.BrowTopolCheckBox.isEnabled() is True:
             self.Skin_Brow_vetex_UnLock = 1
         else:
@@ -7048,7 +7055,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             self.Skin_Jaw_vetex_UnLock = 0
 
-    def All_vetex_Check(self):
+    def all_vertex_check(self):
         L_lip_corner = 0
         R_lip_corner = 0
         L_lip_lower_corner = 0
@@ -7720,7 +7727,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         if R_eyeball >= 1:
             self.Skin_EyeBall_R_vetex_Check = 1
 
-    def LipCorner_L_BtnCmd(self, *args):
+    def lip_corner_left_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         LipCorner_L = cmds.ls(os=True, fl=True)
         if len(LipCorner_L) != 0:
@@ -7735,7 +7742,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.LipCorner_L_Btn.setStyleSheet(self.red_color)
         return
 
-    def LipCorner_lower_L_BtnCmd(self, *args):
+    def lip_corner_lower_left_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         LipCorner_lower_L = cmds.ls(os=True, fl=True)
         if len(LipCorner_lower_L) != 0:
@@ -7750,7 +7757,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.LipCorner_lower_L_Btn.setStyleSheet(self.red_color)
         return
 
-    def LipCorner_R_BtnCmd(self, *args):
+    def lip_corner_right_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         LipCorner_R = cmds.ls(os=True, fl=True)
         if len(LipCorner_R) != 0:
@@ -7765,7 +7772,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.LipCorner_R_Btn.setStyleSheet(self.red_color)
         return
 
-    def LipCorner_lower_R_BtnCmd(self, *args):
+    def lip_corner_lower_right_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         LipCorner_lower_R = cmds.ls(os=True, fl=True)
         if len(LipCorner_lower_R) != 0:
@@ -7780,7 +7787,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.LipCorner_lower_R_Btn.setStyleSheet(self.red_color)
         return
 
-    def LipUpper_BtnCmd(self, *args):
+    def lip_upper_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         LipUpper = cmds.ls(os=True, fl=True)
         if len(LipUpper) != 0:
@@ -7796,7 +7803,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.LipUpper_Btn.setStyleSheet(self.red_color)
         return
 
-    def LipLower_BtnCmd(self, *args):
+    def lip_lower_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         LipLower = cmds.ls(os=True, fl=True)
         if len(LipLower) != 0:
@@ -7811,7 +7818,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.LipLower_Btn.setStyleSheet(self.red_color)
         return
 
-    def LipLower_Outer_BtnCmd(self, *args):
+    def lip_lower_outer_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         LipLower_Outer = cmds.ls(os=True, fl=True)
         if len(LipLower_Outer) != 0:
@@ -7826,7 +7833,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.LipLower_Outer_Btn.setStyleSheet(self.red_color)
         return
 
-    def Lip_L_UpperSide_BtnCmd(self, *args):
+    def lip_left_upper_side_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         Lip_L_UpperSide = cmds.ls(os=True, fl=True)
         if len(Lip_L_UpperSide) != 0:
@@ -7841,7 +7848,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Lip_L_UpperSide_Btn.setStyleSheet(self.red_color)
         return
 
-    def Lip_L_UpperSide_02_BtnCmd(self, *args):
+    def lip_left_upper_side_02_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         Lip_L_UpperSide_02 = cmds.ls(os=True, fl=True)
         if len(Lip_L_UpperSide_02) != 0:
@@ -7856,7 +7863,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Lip_L_UpperSide_02_Btn.setStyleSheet(self.red_color)
         return
 
-    def Lip_L_UpperOuter_BtnCmd(self, *args):
+    def lip_left_upper_outer_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         Lip_L_UpperOuter = cmds.ls(os=True, fl=True)
         if len(Lip_L_UpperOuter) != 0:
@@ -7871,7 +7878,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Lip_L_UpperOuter_Btn.setStyleSheet(self.red_color)
         return
 
-    def Lip_L_LowerSide_BtnCmd(self, *args):
+    def lip_left_lower_side_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         Lip_L_LowerSide = cmds.ls(os=True, fl=True)
         if len(Lip_L_LowerSide) != 0:
@@ -7886,7 +7893,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Lip_L_LowerSide_Btn.setStyleSheet(self.red_color)
         return
 
-    def Lip_L_LowerSide_02_BtnCmd(self, *args):
+    def lip_left_lower_side_02_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         Lip_L_LowerSide_02 = cmds.ls(os=True, fl=True)
         if len(Lip_L_LowerSide_02) != 0:
@@ -7901,7 +7908,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Lip_L_LowerSide_02_Btn.setStyleSheet(self.red_color)
         return
 
-    def Lip_L_LowerOuter_BtnCmd(self, *args):
+    def lip_left_lower_outer_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         Lip_L_LowerOuter = cmds.ls(os=True, fl=True)
         if len(Lip_L_LowerOuter) != 0:
@@ -7916,7 +7923,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Lip_L_LowerOuter_Btn.setStyleSheet(self.red_color)
         return
 
-    def Lip_R_UpperSide_BtnCmd(self, *args):
+    def lip_right_upper_side_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         Lip_R_UpperSide = cmds.ls(os=True, fl=True)
         if len(Lip_R_UpperSide) != 0:
@@ -7931,7 +7938,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Lip_R_UpperSide_Btn.setStyleSheet(self.red_color)
         return
 
-    def Lip_R_UpperSide_02_BtnCmd(self, *args):
+    def lip_right_upper_side_02_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         Lip_R_UpperSide_02 = cmds.ls(os=True, fl=True)
         if len(Lip_R_UpperSide_02) != 0:
@@ -7946,7 +7953,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Lip_R_UpperSide_02_Btn.setStyleSheet(self.red_color)
         return
 
-    def Lip_R_UpperOuter_BtnCmd(self, *args):
+    def lip_right_upper_outer_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         Lip_R_UpperOuter = cmds.ls(os=True, fl=True)
         if len(Lip_R_UpperOuter) != 0:
@@ -7961,7 +7968,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Lip_R_UpperOuter_Btn.setStyleSheet(self.red_color)
         return
 
-    def Lip_R_LowerSide_BtnCmd(self, *args):
+    def lip_right_lower_side_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         Lip_R_LowerSide = cmds.ls(os=True, fl=True)
         if len(Lip_R_LowerSide) != 0:
@@ -7976,7 +7983,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Lip_R_LowerSide_Btn.setStyleSheet(self.red_color)
         return
 
-    def Lip_R_LowerSide_02_BtnCmd(self, *args):
+    def lip_right_lower_side_02_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         Lip_R_LowerSide_02 = cmds.ls(os=True, fl=True)
         if len(Lip_R_LowerSide_02) != 0:
@@ -7991,7 +7998,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Lip_R_LowerSide_02_Btn.setStyleSheet(self.red_color)
         return
 
-    def Lip_R_LowerOuter_BtnCmd(self, *args):
+    def lip_right_lower_outer_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         Lip_R_LowerOuter = cmds.ls(os=True, fl=True)
         if len(Lip_R_LowerOuter) != 0:
@@ -8006,13 +8013,13 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Lip_R_LowerOuter_Btn.setStyleSheet(self.red_color)
         return
 
-    def LipLockCheckBtnCmd(self, *args):
+    def lip_lock_check_command(self, *args):
         if self.ui.LipTopolCheckBox.isChecked() is True:
             self.ui.LipTopolCheckBox.setChecked(False)
         else:
             self.ui.LipTopolCheckBox.setChecked(True)
 
-    def JawTopolBtnCmd(self, *args):
+    def jaw_topology_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         JawTopolSel = cmds.ls(os=True, fl=True)
         if len(JawTopolSel) != 0:
@@ -8028,7 +8035,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.ui.JawTopolCheckBox.setChecked(True)
         return
 
-    def Lip_Jaw_BtnCmd(self, *args):
+    def lip_jaw_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         Lip_Jaw = cmds.ls(os=True, fl=True)
         if len(Lip_Jaw) != 0:
@@ -8043,13 +8050,13 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Lip_Jaw_Btn.setStyleSheet(self.red_color)
         return
 
-    def JawLockCheckBtnCmd(self, *args):
+    def jaw_lock_check_command(self, *args):
         if self.ui.JawTopolCheckBox.isChecked() is True:
             self.ui.JawTopolCheckBox.setChecked(False)
         else:
             self.ui.JawTopolCheckBox.setChecked(True)
 
-    def EyeTopolLBtnCmd(self, *args):
+    def eye_topology_left_command(self, *args):
         EyeTopolLSel = cmds.ls(sl=True, fl=True)
         if len(EyeTopolLSel) != 0:
             self.HeadMesh = EyeTopolLSel[0].split('.')[0]
@@ -8065,7 +8072,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.ui.EyeTopolCheckBox.setChecked(True)
         return
 
-    def EyeTopolRBtnCmd(self, *args):
+    def eye_topology_right_command(self, *args):
         EyeTopolRSel = cmds.ls(sl=True, fl=True)
         if len(EyeTopolRSel) != 0:
             self.HeadMesh = EyeTopolRSel[0].split('.')[0]
@@ -8081,7 +8088,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.ui.EyeTopolCheckBox.setChecked(True)
         return
 
-    def Eye_L_blink_BtnCmd(self, *args):
+    def eye_left_blink_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         Eye_L_blink = cmds.ls(os=True, fl=True)
         if len(Eye_L_blink) != 0:
@@ -8096,7 +8103,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Eye_L_blink_Btn.setStyleSheet(self.red_color)
         return
 
-    def Eye_R_blink_BtnCmd(self, *args):
+    def eye_right_blink_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         Eye_R_blink = cmds.ls(os=True, fl=True)
         if len(Eye_R_blink) != 0:
@@ -8111,7 +8118,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Eye_R_blink_Btn.setStyleSheet(self.red_color)
         return
 
-    def Eye_L_lower_BtnCmd(self, *args):
+    def eye_left_lower_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         Eye_L_lower = cmds.ls(os=True, fl=True)
         if len(Eye_L_lower) != 0:
@@ -8126,7 +8133,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Eye_L_lower_Btn.setStyleSheet(self.red_color)
         return
 
-    def Eye_R_lower_BtnCmd(self, *args):
+    def eye_right_lower_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         Eye_R_lower = cmds.ls(os=True, fl=True)
         if len(Eye_R_lower) != 0:
@@ -9070,7 +9077,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Brow_R_03_Btn.setStyleSheet(self.red_color)
         return
 
-    def Brow_Center_BtnCmd(self, *args):
+    def brow_center_command(self, *args):
         mel.eval('ConvertSelectionToVertices')
         Brow_Center = cmds.ls(os=True, fl=True)
         if len(Brow_Center) != 0:
@@ -9085,13 +9092,14 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Brow_Center_Btn.setStyleSheet(self.red_color)
         return
 
-    def BrowLockCheckBtnCmd(self, *args):
+    def brow_lock_check_command(self, *args):
         if self.ui.BrowTopolCheckBox.isChecked() is True:
             self.ui.BrowTopolCheckBox.setChecked(False)
         else:
             self.ui.BrowTopolCheckBox.setChecked(True)
 
-    def Oral_Upper_teeth_BtnCmd(self, *args):
+    # todo oral setup command
+    def oral_upper_teeth_command(self, *args):
         Oral_Upper_teeth = cmds.ls(os=True, fl=True)
         if len(Oral_Upper_teeth) != 0:
             self.UpperTeethMesh = Oral_Upper_teeth[0].split('.')[0]
@@ -9105,7 +9113,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Oral_Upper_teeth_Btn.setStyleSheet(self.red_color)
         return
 
-    def Oral_Lower_teeth_BtnCmd(self, *args):
+    def oral_lower_teeth_command(self, *args):
         Oral_Lower_teeth = cmds.ls(os=True, fl=True)
         if len(Oral_Lower_teeth) != 0:
             self.LowerTeethMesh = Oral_Lower_teeth[0].split('.')[0]
@@ -9119,7 +9127,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Oral_Lower_teeth_Btn.setStyleSheet(self.red_color)
         return
 
-    def Oral_Tongue_BtnCmd(self, *args):
+    def oral_tongue_command(self, *args):
         Oral_Tongue = cmds.ls(os=True, fl=True)
         if len(Oral_Tongue) != 0:
             self.TongueMesh = Oral_Tongue[0].split('.')[0]
@@ -9133,7 +9141,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Oral_Tongue_Btn.setStyleSheet(self.red_color)
         return
 
-    def Oral_Tongue_02_BtnCmd(self, *args):
+    def oral_tongue_02_command(self, *args):
         Oral_Tongue_02 = cmds.ls(os=True, fl=True)
         if len(Oral_Tongue_02) != 0:
             self.TongueMesh = Oral_Tongue_02[0].split('.')[0]
@@ -9147,7 +9155,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Oral_Tongue_02_Btn.setStyleSheet(self.red_color)
         return
 
-    def Oral_Tongue_03_BtnCmd(self, *args):
+    def oral_tongue_03_command(self, *args):
         Oral_Tongue_03 = cmds.ls(os=True, fl=True)
         if len(Oral_Tongue_03) != 0:
             self.TongueMesh = Oral_Tongue_03[0].split('.')[0]
@@ -9161,7 +9169,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Oral_Tongue_03_Btn.setStyleSheet(self.red_color)
         return
 
-    def EyeBall_L_BtnCmd(self, *args):
+    # todo eye ball setup command
+    def eye_ball_left_command(self, *args):
         EyeBall_L = cmds.ls(os=True, fl=True)
         if len(EyeBall_L) != 0:
             self.L_EyeballMesh = EyeBall_L[0].split('.')[0]
@@ -9175,7 +9184,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.EyeBall_L_Btn.setStyleSheet(self.red_color)
         return
 
-    def EyeBall_R_BtnCmd(self, *args):
+    def eye_ball_right_command(self, *args):
         EyeBall_R = cmds.ls(os=True, fl=True)
         if len(EyeBall_R) != 0:
             self.R_EyeballMesh = EyeBall_R[0].split('.')[0]
@@ -9189,7 +9198,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.EyeBall_R_Btn.setStyleSheet(self.red_color)
         return
 
-    def Match_joint_BtnCmd(self, *args):
+    def match_joint_command(self, *args):
         Joint_Sel = cmds.ls(sl=True)
         if len(Joint_Sel) == 0:
             QtWidgets.QMessageBox.warning(None, 'Warning', 'No selection Object exists!')
@@ -9927,10 +9936,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                     cmds.pointConstraint(self.R_EyeballMesh, each)
                     cmds.delete(each + '_pointConstraint1')
                     cmds.select(each)
-
         return
 
-    def HeadJointBtnCmd(self, *args):
+    def head_joint_command(self, *args):
         sel = cmds.ls(sl=True)
         if len(sel) != 0:
             if len(sel) == 1:
@@ -9944,7 +9952,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.error('キャラクターボディのヘッドジョイントを選択してください')
         return
 
-    def SetMaxInfluenceBtnCmd(self, *args):
+    def set_max_influence_command(self, *args):
         sel = cmds.ls(sl=True)
         for each in sel:
             each_skincluster = mel.eval('findRelatedSkinCluster ' + each)
@@ -9977,10 +9985,10 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                     cmds.skinCluster(tsb=True, dr=4, mi=8, omi=True, rui=True)
                 else:
                     cmds.skinCluster(tsb=True, dr=4, mi=max_influence_value, omi=True, rui=True)
-        self.All_vetex_Check()
-        self.UnLockCheck()
+        self.all_vertex_check()
+        self.unlock_check()
         if self.ui.BrowTopolCheckBox.isChecked() is True and len(self.BrowLVetex) != 0 and len(self.BrowRVetex) != 0:
-            self.LockParts()
+            self.lock_parts()
             if self.Skin_Brow_vetex_Check == 1 and self.Skin_Brow_vetex_UnLock == 1:
                 self.brow_all_skin()
                 self.ui.BrowTopolCheckBox.setChecked(False)
@@ -10012,9 +10020,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 pass
         elif self.ui.BrowTopolCheckBox.isChecked() is True and len(self.BrowLVetex) == 0 and len(self.BrowRVetex) == 0:
             QtWidgets.QMessageBox.warning(None, 'Warning', "キャラクター上でBrow Topologyを選択し、'L Boundary' または 'R Boundary' ボタンをチェックボックスにチェックが入るまでクリックしてください。")
-        self.UnLockCheck()
+        self.unlock_check()
         if self.ui.EyeTopolCheckBox.isChecked() is True and len(self.EyeLVetex) != 0 and len(self.EyeRVetex) != 0:
-            self.LockParts()
+            self.lock_parts()
             if self.Skin_Eye_vetex_Check == 1 and self.Skin_Eye_vetex_UnLock == 1:
                 self.eye_all_skin()
                 self.ui.EyeTopolCheckBox.setChecked(False)
@@ -10043,9 +10051,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 pass
         elif self.ui.EyeTopolCheckBox.isChecked() is True and len(self.EyeLVetex) == 0 and len(self.EyeRVetex) == 0:
             QtWidgets.QMessageBox.warning(None, 'Warning', "キャラクター上でBrow Topologyを選択し、'L Boundary' または 'R Boundary' ボタンをチェックボックスにチェックが入るまでクリックしてください。")
-        self.UnLockCheck()
+        self.unlock_check()
         if self.ui.NoseTopolCheckBox.isChecked() is True and len(self.NoseVetex) != 0:
-            self.LockParts()
+            self.lock_parts()
             if self.Skin_Nose_vetex_Check == 1 and self.Skin_Nose_vetex_UnLock == 1:
                 self.nose_all_skin()
                 self.ui.NoseTopolCheckBox.setChecked(False)
@@ -10071,9 +10079,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 pass
         elif self.ui.NoseTopolCheckBox.isChecked() is True and len(self.NoseVetex) == 0:
             QtWidgets.QMessageBox.warning(None, 'Warning', "キャラクターの鼻のトポロジーを選択し、チェックボックスにチェックが入るまで「Boundary」ボタンをクリックしてください。")
-        self.UnLockCheck()
+        self.unlock_check()
         if self.ui.CheekTopolCheckBox.isChecked() is True and len(self.CheekLVetex) != 0 and len(self.CheekRVetex) != 0:
-            self.LockParts()
+            self.lock_parts()
             if self.Skin_Cheek_vetex_Check == 1 and self.Skin_Cheek_vetex_UnLock == 1:
                 self.cheek_all_skin()
                 self.ui.CheekTopolCheckBox.setChecked(False)
@@ -10096,9 +10104,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 pass
         elif self.ui.CheekTopolCheckBox.isChecked() is True and len(self.CheekLVetex) == 0 and len(self.CheekRVetex) == 0:
             QtWidgets.QMessageBox.warning(None, 'Warning', "キャラクターのチークトポロジーを選択し、チェックボックスにチェックが入るまで「Lバウンダリー」または「Rバウンダリー」ボタンをクリックしてください。")
-        self.UnLockCheck()
+        self.unlock_check()
         if self.ui.LipTopolCheckBox.isChecked() is True and len(self.LipUpVetex) != 0 and len(self.LipDownVetex) != 0:
-            self.LockParts()
+            self.lock_parts()
             if self.Skin_Lip_vetex_Check == 1 and self.Skin_Lip_vetex_UnLock == 1:
                 self.lip_all_skin()
                 self.ui.LipTopolCheckBox.setChecked(False)
@@ -10121,9 +10129,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 pass
         elif self.ui.LipTopolCheckBox.isChecked() is True and len(self.LipUpVetex) == 0 and len(self.LipDownVetex) == 0:
             QtWidgets.QMessageBox.warning(None, 'Warning', "キャラクターのリップトポロジーを選択し、チェックボックスにチェックが入るまで「LipUp」または「LipDown」ボタンをクリックしてください。")
-        self.UnLockCheck()
+        self.unlock_check()
         if self.ui.JawTopolCheckBox.isChecked() is True and len(self.JawVetex) != 0 and len(self.LipUpVetex) != 0 and len(self.LipDownVetex) != 0:
-            self.LockParts()
+            self.lock_parts()
             if self.Skin_Jaw_vetex_Check == 1 and self.Skin_Jaw_vetex_UnLock == 1:
                 self.jaw_all_skin()
                 self.ui.JawTopolCheckBox.setChecked(False)
@@ -10181,11 +10189,11 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.create_facial_mesh_group()
         return
 
-    def SymBtnCmd(self, *args):
+    def symmetry_command(self, *args):
         self.create_symmetry_joint()
         self.non_symmetry_check = True
 
-    def Symmetry_joint(self):
+    def symmetry_joint(self):
         cmds.parent('FitScale_ctrl_grp', w=True)
         cmds.hide('FitScale_ctrl')
         self.ctrl_scale = (cmds.getAttr('FitScale_ctrl_grp.scaleX') + cmds.getAttr('FitScale_ctrl_grp.scaleY') + cmds.getAttr('FitScale_ctrl_grp.scaleZ')) / 3
@@ -11033,7 +11041,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 if max_count > 8:
                     break
                 print(max_weight)
-
             cmds.setAttr('Skin_R_brow_03_jnt.liw', 1)
 
         for each in Brow_sel:
@@ -13385,20 +13392,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 if max_count > 8:
                     break
                 print(max_weight)
-
             if len(Skin_joint) != 0:
                 for each in Skin_joint:
                     if each == 'Skin_R_eye_lower_jnt':
                         each_liw = each + '.liw'
                         cmds.setAttr(each_liw, 1)
-
             if len(Skin_joint) != 0:
                 for each in Skin_joint:
                     if each == 'Skin_R_nose_jnt':
                         each_liw = each + '.liw'
                         cmds.setAttr(each_liw, 1)
-
             cmds.setAttr('Skin_R_upper_cheek_jnt.liw', 1)
+
         if cmds.objExists('Skin_R_outer_orbicularis_cheek_jnt'):
             cmds.setAttr('Skin_R_upper_cheek_jnt.liw', 0)
             if cmds.currentCtx() != 'artAttrSkinContext':
@@ -13600,7 +13605,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 if max_count > 8:
                     break
                 print(max_weight)
-
             cmds.setAttr('Skin_R_lower_liplid_jnt.liw', 1)
 
     def lip_all_skin(self):
@@ -14834,14 +14838,16 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
             for i in range(int(LipUp_vertex_count / 399 * 2 + 1)):
-                cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=a, clear=1)
+                #cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=a, clear=1)
+                cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=i, clear=1)
 
             cmds.skinCluster(Head_SkinCluster, edit=True, siv='Skin_R_lip_lower_side_02_jnt')
             mel.eval('artSkinInflListChanging Skin_R_lip_lower_side_jnt 1')
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
             for i in range(int(LipUp_vertex_count / 399 * 2 + 1)):
-                cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=a, clear=1)
+                #cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=a, clear=1)
+                cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=i, clear=1)
 
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, selectedattroper='smooth')
         cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=True, value=1, op=0.25)
@@ -14851,7 +14857,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             mel.eval('artSkinInflListChanged artAttrSkinPaintCtx')
             mel.eval('mayaHasRenderSetup')
             for i in range(int(LipUp_vertex_count / 399 * 2 + 1)):
-                cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=a, clear=1)
+                #cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=a, clear=1)
+                cmds.artAttrSkinPaintCtx(cmds.currentCtx(), e=1, inf=i, clear=1)
 
         cmds.skinPercent(Head_SkinCluster, self.HeadMesh, pruneWeights=0.01)
         for each in LipAllselect:
@@ -15251,7 +15258,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             print("You don't have 'Skin_R_eye_ball_jnt'")
 
-    def Create_joint(self):
+    def create_joint(self):
         self.create_joint_check = True
         cmds.select(clear=True)
         if len(self.head_joint) != 0:
@@ -15277,19 +15284,19 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.setAttr(HEAD_MASTER_JOINT_NAME + '.type', 18)
         mel.eval('setAttr -type "string" ' + HEAD_MASTER_JOINT_NAME + '.otherType "Head"')
         if self.ui.BrowCheckBox.isChecked() is True:
-            self.Create_Brow_joint()
+            self.create_brow_joint()
         if self.ui.EyeCheckBox.isChecked() is True:
-            self.Create_Eye_joint()
+            self.create_eye_joint()
         if self.ui.EyeTargetCheckBox.isChecked() is True:
-            self.Create_EyeTarget_joint()
+            self.create_eye_target_joint()
         if self.ui.NoseCheckBox.isChecked() is True:
-            self.Create_Nose_joint()
+            self.create_nose_joint()
         if self.ui.CheekCheckBox.isChecked() is True:
-            self.Create_Cheek_joint()
+            self.create_cheek_joint()
         if self.ui.LipCheckBox.isChecked() is True:
-            self.Create_Lip_joint()
+            self.create_lip_joint()
         if self.ui.OralCavityCheckBox.isChecked() is True:
-            self.Create_OralCavity_joint()
+            self.create_oral_cavity_joint()
         self.ui.BrowCheckBox.setEnabled(False)
         self.ui.EyeCheckBox.setEnabled(False)
         self.ui.EyeTargetCheckBox.setEnabled(False)
@@ -15341,13 +15348,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.xform(sel[0], ws=True, rp=position, piv=position)
         return
 
-    def Create_Brow_joint(self):
+    def create_brow_joint(self):
         if 'Brow 05 joint' == self.ui.BrowOption.currentText() or 'Brow 04 joint' == self.ui.BrowOption.currentText():
             cmds.select(clear=True)
             cmds.joint(n='L_brow_jnt', p=(3.583, 192.301, 14.633), rad=self.jntRadius)
             cmds.select(clear=True)
             cmds.joint(n='L_brow_02_jnt', p=(5.06, 192.24, 13.965), rad=self.jntRadius)
-
         elif 'Brow 07 joint' == self.ui.BrowOption.currentText() or 'Brow 13 joint' == self.ui.BrowOption.currentText() or 'Brow 04 joint' == self.ui.BrowOption.currentText():
             cmds.select(clear=True)
             cmds.joint(n='L_brow_jnt', p=(2.742, 192.301, 14.869), rad=self.jntRadius)
@@ -15384,7 +15390,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.setAttr('center_brow_jnt.type', 18)
             mel.eval('setAttr -type "string" center_brow_jnt.otherType "center_brow"')
 
-    def Create_Eye_joint(self):
+    def create_eye_joint(self):
         cmds.select(clear=True)
         cmds.joint(n='L_eye_blink_jnt', p=(3.588, 191.398, 13.91), rad=self.jntRadius)
         if 'Eye 08 joint' == self.ui.EyeOption.currentText() or 'Eye 08 joint (D eyelid)' == self.ui.EyeOption.currentText() or 'Eye 16 joint (D eyelid)' == self.ui.EyeOption.currentText():
@@ -15428,13 +15434,13 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.setAttr('L_eye_double_jnt.type', 18)
             mel.eval('setAttr -type "string" L_eye_double_jnt.otherType "eye_double_eyelid"')
 
-    def Create_EyeTarget_joint(self):
+    def create_eye_target_joint(self):
         cmds.select(clear=True)
         cmds.joint(n='L_eye_ball_jnt', p=(3.36, 191.309, 11.512), rad=self.jntRadius)
         cmds.setAttr('L_eye_ball_jnt.type', 18)
         mel.eval('setAttr -type "string" L_eye_ball_jnt.otherType "eye_ball"')
 
-    def Create_Nose_joint(self):
+    def create_nose_joint(self):
         if 'Nose 01 joint' == self.ui.NoseOption.currentText() or 'Nose 04 joint' == self.ui.NoseOption.currentText() or 'Nose 11 joint' == self.ui.NoseOption.currentText():
             cmds.select(clear=True)
             cmds.joint(n='nose_jnt', p=(0, 187.174, 17.017), rad=self.jntRadius)
@@ -15472,7 +15478,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.setAttr('depressor_septi_nose_jnt.type', 18)
             mel.eval('setAttr -type "string" depressor_septi_nose_jnt.otherType "depressor_septi_nose"')
 
-    def Create_Cheek_joint(self):
+    def create_cheek_joint(self):
         cmds.select(clear=True)
         cmds.joint(n='L_cheek_jnt', p=(3.876, 186.941, 13.504), rad=self.jntRadius)
         if 'Cheek 08 joint' == self.ui.CheekOption.currentText() or 'Cheek 12 joint' == self.ui.CheekOption.currentText():
@@ -15502,7 +15508,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.setAttr('L_inner_orbicularis_cheek_jnt.type', 18)
             mel.eval('setAttr -type "string" L_inner_orbicularis_cheek_jnt.otherType "inner_orbicularis_cheek"')
 
-    def Create_Lip_joint(self):
+    def create_lip_joint(self):
         if 'Lip 04 joint' == self.ui.LipOption.currentText() or 'Lip 10 joint' == self.ui.LipOption.currentText() or 'Lip 14 joint' == self.ui.LipOption.currentText() or 'Lip 14 & Lip Outer 5 joint' == self.ui.LipOption.currentText():
             cmds.select(clear=True)
             cmds.joint(n='upper_lip_jnt', p=(0, 183.915, 15.479), rad=self.jntRadius)
@@ -15578,7 +15584,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.setAttr('Jaw_master_jnt.type', 18)
         mel.eval('setAttr -type "string" Jaw_master_jnt.otherType "Jaw"')
 
-    def Create_OralCavity_joint(self):
+    def create_oral_cavity_joint(self):
         cmds.select(clear=True)
         cmds.joint(n='Lower_teeth_jnt', p=(0, 183.021, 11.975), rad=self.jntRadius)
         cmds.select(clear=True)
@@ -15603,7 +15609,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.setAttr('Tongue_03_jnt.type', 18)
             mel.eval('setAttr -type "string" Tongue_03_jnt.otherType "Tongue_03"')
 
-    def Label_Check(self):
+    def label_check(self):
         Label_sel = cmds.ls(selection=True)
         for each in Label_sel:
             new_label = each + '.drawLabel'
@@ -15656,13 +15662,13 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         if self.non_symmetry_check is True:
             print('non_symmetry_check is true')
             self.create_rig_system()
-            self.Create_Rig_Skin()
+            self.create_rig_skin()
             self.non_symmetry_check = False
         else:
             print('non_symmetry_check is false')
             self.create_symmetry_joint()
             self.create_rig_system()
-            self.Create_Rig_Skin()
+            self.create_rig_skin()
 
     # todo parent constraint
     def create_rig_system(self):
@@ -15727,33 +15733,33 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         if cmds.objExists(SKIN_JAW_MASTER_JOINT_NAME):
             cmds.setAttr('Skin_Jaw_master_jnt.tx', lock=False)
         if self.ui.LipCheckBox.isChecked() is True:
-            self.Lip_All_System()
+            self.lip_all_system()
         if self.ui.CheekCheckBox.isChecked() is True and self.ui.LipCheckBox.isChecked() is True:
-            self.Cheek_All_System()
+            self.cheek_all_system()
         if self.ui.NoseCheckBox.isChecked() is True:
-            self.Nose_All_System()
+            self.nose_all_system()
         if self.ui.NoseCheckBox.isChecked() is True and self.ui.LipCheckBox.isChecked() is True:
             if 'Lip 04 joint' == self.ui.LipOption.currentText() or 'Lip 10 joint' == self.ui.LipOption.currentText() or 'Lip 14 joint' == self.ui.LipOption.currentText() or 'Lip 14 & Lip Outer 5 joint' == self.ui.LipOption.currentText():
-                self.Lip_Nose_Connect_System()
+                self.lip_nose_connect_system()
         if self.ui.NoseCheckBox.isChecked() is True and self.ui.CheekCheckBox.isChecked() is True:
-            self.Cheek_Nose_Connect_System()
+            self.cheek_nose_connect_system()
         if self.ui.BrowCheckBox.isChecked() is True:
-            self.Brow_All_System()
+            self.brow_all_system()
         if self.ui.EyeCheckBox.isChecked() is True:
-            self.Eye_All_System()
+            self.eye_all_system()
         if self.ui.EyeCheckBox.isChecked() is True and self.ui.BrowCheckBox.isChecked() is True:
             if 'Brow 05 joint' == self.ui.BrowOption.currentText() or 'Brow 07 joint' == self.ui.BrowOption.currentText() or 'Brow 13 joint' == self.ui.BrowOption.currentText() or 'Brow 04 joint' == self.ui.BrowOption.currentText():
-                self.Brow_Eye_Connect_System()
+                self.brow_eye_connect_system()
         if self.ui.EyeTargetCheckBox.isChecked() is True:
-            self.Eye_Target_System()
+            self.eye_target_system()
         if self.ui.EyeTargetCheckBox.isChecked() is True and self.ui.EyeCheckBox.isChecked() is True:
-            self.Eye_Eye_Target_Connect_System()
+            self.eye_eye_target_connect_system()
         if self.ui.EyeCheckBox.isChecked() is True and self.ui.CheekCheckBox.isChecked() is True:
             if 'Eye 08 joint' == self.ui.EyeOption.currentText() or 'Eye 08 joint (D eyelid)' == self.ui.EyeOption.currentText() or 'Eye 16 joint (D eyelid)' == self.ui.EyeOption.currentText():
-                self.Cheek_Eye_Connect_System()
+                self.cheek_eye_connect_system()
         if self.ui.OralCavityCheckBox.isChecked() is True:
-            self.Oral_Cavity_System()
-        self.Facial_Set_Ctrl()
+            self.oral_cavity_system()
+        self.facial_set_control()
         cmds.delete('FitScale_ctrl_grp')
         cmds.hide('Facial_System_joint_grp')
         cmds.group('Facial_System_joint_grp', 'Facial_Skin_joint_grp', '*_All_Ctrl_grp', 'scale_check_grp', n='Facial_Master_Ctrl_grp')
@@ -15770,7 +15776,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, -13 * self.ctrl_scale, 'Facial_Master_Ctrl.cv[4]', 'Facial_Master_Ctrl.cv[6]', r=True)
         cmds.setAttr('Facial_Master_CtrlShape.overrideEnabled', 1)
         cmds.setAttr('Facial_Master_CtrlShape.overrideColor', 17)
-        self.ForGameHi()
+        self.for_game_high_group()
         self.create_facial_mesh_group()
 
     def create_facial_mesh_group(self):
@@ -15842,7 +15848,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                     cmds.parent(self.TongueMesh, FACIAL_MESH_GROUP_NAME)
         return
 
-    def Rebuild_Skin(self):
+    def rebuild_skin(self):
         if self.RebuildCheck == 1:
             selection = cmds.ls(sl=True)
             for each in selection:
@@ -15882,7 +15888,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
 
                 for c in clusters:
                     mel.eval('skinCluster -e -moveJointsMode 0 ' + c)
-
                 cmds.copySkinWeights(ss=OG_Skin, ds=New_Skin, nm=True)
                 Name = each
                 cmds.delete(each)
@@ -15891,17 +15896,16 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 mel.eval('removeUnusedInfluences')
                 cmds.rename(New_Skin, OG_Skin)
                 new_clusters = cmds.ls(type='skinCluster')
-
             cmds.delete('Rebuild_Facial_Master_Ctrl_grp_Rebuild')
 
-    def ForGameHi(self):
+    def for_game_high_group(self):
         cmds.parent('Facial_Skin_joint_grp', 'Facial_Master_Ctrl_grp')
         cmds.select('Skin_*_jnt')
         cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, d=True)
         cmds.select(SKIN_HEAD_MASTER_JOINT_NAME, add=True)
         cmds.parent()
 
-    def Facial_Set_Ctrl(self):
+    def facial_set_control(self):
         cmds.curve(d=1, n='Facial_Set_Ctrl', p=[(-0.5, 0, 0), (0, 0, -0.5), (0.5, 0, 0), (0.3, 0, 0), (0, 0, -0.3), (-0.3, 0, 0), (-0.5, 0, 0)], k=(0, 1, 2, 3, 4, 5, 6))
         facial_set_ctrl_shape = cmds.listRelatives('Facial_Set_Ctrl', s=True)
         if facial_set_ctrl_shape[0] != 'Facial_Set_CtrlShape':
@@ -16222,10 +16226,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             new_Set = each + '.visibility'
             cmds.connectAttr('Facial_Set_Ctrl.Joint_Visible', new_Set, f=True)
 
-    def Cube_Ctrl_maker(self, color):
+    def create_cube_control(self, color):
         cmds.polyCube(n='edg')
-        cmds.select('edg.e[1]', 'edg.e[2]', 'edg.e[3]', 'edg.e[4]', 'edg.e[5]', 'edg.e[6]', 'edg.e[7]', 'edg.e[8]',
-                    'edg.e[9]', 'edg.e[10]', 'edg.e[11]', 'edg.e[12]')
+        cmds.select('edg.e[1]', 'edg.e[2]', 'edg.e[3]', 'edg.e[4]', 'edg.e[5]', 'edg.e[6]', 'edg.e[7]', 'edg.e[8]', 'edg.e[9]', 'edg.e[10]', 'edg.e[11]', 'edg.e[12]')
         cmds.polyToCurve(form=2, degree=1, conformToSmoothMeshPreview=1)
         cmds.select('edg.e[0]')
         cmds.polyToCurve(form=2, degree=1, conformToSmoothMeshPreview=1)
@@ -16257,7 +16260,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.setAttr('Cube_ShapeShape4.overrideEnabled', 1)
         cmds.setAttr('Cube_ShapeShape4.overrideColor', color)
 
-    def Lip_All_System(self):
+    def lip_all_system(self):
         if 'Lip 10 joint' == self.ui.LipOption.currentText() or 'Lip 14 joint' == self.ui.LipOption.currentText() or 'Lip 14 & Lip Outer 5 joint' == self.ui.LipOption.currentText():
             cmds.group('System_L_lip_lower_side_jnt', n='System_L_lip_lower_side_Jaw_follow_grp')
             cmds.group('System_R_lip_lower_side_jnt', n='System_R_lip_lower_side_Jaw_follow_grp')
@@ -16406,7 +16409,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.group('Jaw_Master_Ctrl', n='Jaw_Master_Ctrl_grp')
         cmds.parentConstraint('System_Jaw_master_follow_grp', 'Jaw_Master_Ctrl_grp', mo=True)
         if 'Lip 04 joint' == self.ui.LipOption.currentText() or 'Lip 10 joint' == self.ui.LipOption.currentText() or 'Lip 14 joint' == self.ui.LipOption.currentText() or 'Lip 14 & Lip Outer 5 joint' == self.ui.LipOption.currentText():
-            self.Cube_Ctrl_maker(23)
+            self.create_cube_control(23)
             cmds.scale(0.7 * self.ctrl_scale, 0.7 * self.ctrl_scale, 0.7 * self.ctrl_scale, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'L_lip_corner_Ctrl')
             cmds.pointConstraint('System_L_lip_corner_jnt', 'L_lip_corner_Ctrl')
@@ -16471,7 +16474,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.parent('System_L_lip_corner_follow_grp', 'L_lip_corner_Ctrl_grp')
             cmds.parent('System_R_lip_corner_follow_grp', 'R_lip_corner_Ctrl_grp')
         if 'Lip 04 joint' == self.ui.LipOption.currentText() or 'Lip 10 joint' == self.ui.LipOption.currentText() or 'Lip 14 joint' == self.ui.LipOption.currentText() or 'Lip 14 & Lip Outer 5 joint' == self.ui.LipOption.currentText():
-            self.Cube_Ctrl_maker(17)
+            self.create_cube_control(17)
             cmds.scale(0.7 * self.ctrl_scale, 0.7 * self.ctrl_scale, 0.7 * self.ctrl_scale, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'Upper_lip_ctrl')
             cmds.pointConstraint('System_upper_lip_jnt', 'Upper_lip_ctrl')
@@ -16517,7 +16520,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 cmds.group('System_upper_lip_jnt', n='System_Upper_lip_FK_grp')
                 cmds.parentConstraint('Upper_lip_FK_ctrl', 'System_Upper_lip_FK_grp', mo=True)
         if 'Lip 04 joint' == self.ui.LipOption.currentText() or 'Lip 10 joint' == self.ui.LipOption.currentText() or 'Lip 14 joint' == self.ui.LipOption.currentText() or 'Lip 14 & Lip Outer 5 joint' == self.ui.LipOption.currentText():
-            self.Cube_Ctrl_maker(17)
+            self.create_cube_control(17)
             cmds.scale(0.7 * self.ctrl_scale, 0.7 * self.ctrl_scale, 0.7 * self.ctrl_scale, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'Lower_lip_ctrl')
             cmds.pointConstraint('System_Lower_lip_jnt', 'Lower_lip_ctrl')
@@ -16591,7 +16594,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 cmds.parentConstraint('Lower_lip_outer_ctrl', 'System_Lower_lip_outer_jnt_grp', mo=True)
                 cmds.scaleConstraint('Lower_lip_outer_ctrl', 'System_Lower_lip_outer_jnt_grp', mo=True)
         if 'Lip 10 joint' == self.ui.LipOption.currentText() or 'Lip 14 joint' == self.ui.LipOption.currentText() or 'Lip 14 & Lip Outer 5 joint' == self.ui.LipOption.currentText():
-            self.Cube_Ctrl_maker(13)
+            self.create_cube_control(13)
             cmds.scale(0.5 * self.ctrl_scale, 0.5 * self.ctrl_scale, 0.5 * self.ctrl_scale, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'L_lip_upper_side_ctrl')
             cmds.pointConstraint('System_L_lip_upper_side_jnt', 'L_lip_upper_side_ctrl')
@@ -16768,16 +16771,14 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.parentConstraint('L_lip_upper_side_FK_ctrl', 'System_L_lip_upper_side_FK_grp', mo=True)
             cmds.parentConstraint('R_lip_upper_side_FK_ctrl', 'System_R_lip_upper_side_FK_grp', mo=True)
         if 'Lip 10 joint' == self.ui.LipOption.currentText() or 'Lip 14 joint' == self.ui.LipOption.currentText() or 'Lip 14 & Lip Outer 5 joint' == self.ui.LipOption.currentText():
-            self.Cube_Ctrl_maker(13)
+            self.create_cube_control(13)
             cmds.scale(0.5 * self.ctrl_scale, 0.5 * self.ctrl_scale, 0.5 * self.ctrl_scale, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'L_lip_lower_side_ctrl')
             cmds.pointConstraint('System_L_lip_lower_side_jnt', 'L_lip_lower_side_ctrl')
             cmds.delete('L_lip_lower_side_ctrl_pointConstraint1')
-            cmds.select('L_lip_lower_side_ctrlShape3.cv[0:1]', 'L_lip_lower_side_ctrlShape2.cv[0:1]',
-                        'L_lip_lower_side_ctrlShape1.cv[0:1]', 'L_lip_lower_side_ctrlShape.cv[0:9]')
+            cmds.select('L_lip_lower_side_ctrlShape3.cv[0:1]', 'L_lip_lower_side_ctrlShape2.cv[0:1]', 'L_lip_lower_side_ctrlShape1.cv[0:1]', 'L_lip_lower_side_ctrlShape.cv[0:9]')
             cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 1 * self.ctrl_scale, r=True)
-            cmds.select('L_lip_lower_side_ctrlShape3.cv[1]', 'L_lip_lower_side_ctrlShape.cv[0:2]',
-                        'L_lip_lower_side_ctrlShape.cv[6:7]', 'L_lip_lower_side_ctrlShape2.cv[0:1]')
+            cmds.select('L_lip_lower_side_ctrlShape3.cv[1]', 'L_lip_lower_side_ctrlShape.cv[0:2]', 'L_lip_lower_side_ctrlShape.cv[6:7]', 'L_lip_lower_side_ctrlShape2.cv[0:1]')
             cmds.move(0 * self.ctrl_scale, -0.25 * self.ctrl_scale, 0 * self.ctrl_scale, r=True)
             cmds.group('L_lip_lower_side_ctrl', n='L_lip_lower_side_Ctrl_grp')
             cmds.select('L_lip_lower_side_ctrl')
@@ -16996,17 +16997,15 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 s='\n//Side Lip Follow' + '\nSystem_L_side_up_lip_follow_grp.translateX = L_lip_upper_side_ctrl.translateX/2.3;' + '\nSystem_L_side_up_lip_follow_grp.translateY = L_lip_upper_side_ctrl.translateY/2.3;' + '\nSystem_L_side_up_lip_follow_grp.translateZ = L_lip_upper_side_ctrl.translateZ/2.3;' + '\nSystem_R_side_up_lip_follow_grp.translateX = -R_lip_upper_side_ctrl.translateX/2.3;' + '\nSystem_R_side_up_lip_follow_grp.translateY = R_lip_upper_side_ctrl.translateY/2.3;' + '\nSystem_R_side_up_lip_follow_grp.translateZ = R_lip_upper_side_ctrl.translateZ/2.3;\n' + '\nSystem_L_side_down_lip_follow_grp.translateX = L_lip_lower_side_ctrl.translateX/2.3;' + '\nSystem_L_side_down_lip_follow_grp.translateY = L_lip_lower_side_ctrl.translateY/2.3;' + '\nSystem_L_side_down_lip_follow_grp.translateZ = L_lip_lower_side_ctrl.translateZ/2.3;' + '\nSystem_R_side_down_lip_follow_grp.translateX = -R_lip_lower_side_ctrl.translateX/2.3;' + '\nSystem_R_side_down_lip_follow_grp.translateY = R_lip_lower_side_ctrl.translateY/2.3;' + '\nSystem_R_side_down_lip_follow_grp.translateZ = R_lip_lower_side_ctrl.translateZ/2.3;',
                 ae=1, uc=all, alwaysEvaluate=0, n='Side_Lip_expression')
         if 'Lip 04 joint' == self.ui.LipOption.currentText() or 'Lip 10 joint' == self.ui.LipOption.currentText() or 'Lip 14 joint' == self.ui.LipOption.currentText() or 'Lip 14 & Lip Outer 5 joint' == self.ui.LipOption.currentText():
-            self.Cube_Ctrl_maker(13)
+            self.create_cube_control(13)
             cmds.scale(0.4 * self.ctrl_scale, 0.4 * self.ctrl_scale, 0.4 * self.ctrl_scale, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'L_lip_corner_up_Ctrl')
             cmds.pointConstraint('System_L_lip_corner_jnt', 'L_lip_corner_up_Ctrl')
             cmds.delete('L_lip_corner_up_Ctrl_pointConstraint1')
             cmds.makeIdentity('L_lip_corner_up_Ctrl', apply=True, t=True, r=True, scale=True)
-            cmds.select('L_lip_corner_up_CtrlShape3.cv[0:1]', 'L_lip_corner_up_CtrlShape2.cv[0:1]',
-                        'L_lip_corner_up_CtrlShape1.cv[0:1]', 'L_lip_corner_up_CtrlShape.cv[0:9]')
+            cmds.select('L_lip_corner_up_CtrlShape3.cv[0:1]', 'L_lip_corner_up_CtrlShape2.cv[0:1]', 'L_lip_corner_up_CtrlShape1.cv[0:1]', 'L_lip_corner_up_CtrlShape.cv[0:9]')
             cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 1 * self.ctrl_scale, r=True)
-            cmds.select('L_lip_corner_up_CtrlShape3.cv[0]', 'L_lip_corner_up_CtrlShape1.cv[0:1]',
-                        'L_lip_corner_up_CtrlShape.cv[3:5]', 'L_lip_corner_up_CtrlShape.cv[8:9]')
+            cmds.select('L_lip_corner_up_CtrlShape3.cv[0]', 'L_lip_corner_up_CtrlShape1.cv[0:1]', 'L_lip_corner_up_CtrlShape.cv[3:5]', 'L_lip_corner_up_CtrlShape.cv[8:9]')
             cmds.move(0 * self.ctrl_scale, 0.2 * self.ctrl_scale, 0 * self.ctrl_scale, r=True)
             cmds.select(clear=True)
             cmds.select('L_lip_corner_up_Ctrl')
@@ -17032,18 +17031,16 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.delete('L_lip_corner_up_FK_Ctrl_grp_pointConstraint1')
             cmds.makeIdentity('L_lip_corner_up_FK_Ctrl_grp', apply=True, t=True, r=True, scale=True)
             cmds.parent('L_lip_corner_up_FK_Ctrl', 'L_lip_corner_up_FK_Ctrl_grp')
-            self.Cube_Ctrl_maker(13)
+            self.create_cube_control(13)
             cmds.scale(0.4 * self.ctrl_scale, 0.4 * self.ctrl_scale, 0.4 * self.ctrl_scale, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'L_lip_corner_down_Ctrl')
             cmds.group('L_lip_corner_down_Ctrl', n='L_lip_corner_down_Ctrl_grp')
             cmds.pointConstraint('System_L_lip_lower_corner_jnt', 'L_lip_corner_down_Ctrl_grp')
             cmds.delete('L_lip_corner_down_Ctrl_grp_pointConstraint1')
             cmds.makeIdentity('L_lip_corner_down_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.select('L_lip_corner_down_CtrlShape3.cv[0:1]', 'L_lip_corner_down_CtrlShape2.cv[0:1]',
-                        'L_lip_corner_down_CtrlShape1.cv[0:1]', 'L_lip_corner_down_CtrlShape.cv[0:9]')
+            cmds.select('L_lip_corner_down_CtrlShape3.cv[0:1]', 'L_lip_corner_down_CtrlShape2.cv[0:1]', 'L_lip_corner_down_CtrlShape1.cv[0:1]', 'L_lip_corner_down_CtrlShape.cv[0:9]')
             cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 1 * self.ctrl_scale, r=True)
-            cmds.select('L_lip_corner_down_CtrlShape3.cv[1]', 'L_lip_corner_down_CtrlShape.cv[0:2]',
-                        'L_lip_corner_down_CtrlShape.cv[6:7]', 'L_lip_corner_down_CtrlShape2.cv[0:1]')
+            cmds.select('L_lip_corner_down_CtrlShape3.cv[1]', 'L_lip_corner_down_CtrlShape.cv[0:2]', 'L_lip_corner_down_CtrlShape.cv[6:7]', 'L_lip_corner_down_CtrlShape2.cv[0:1]')
             cmds.move(0 * self.ctrl_scale, -0.2 * self.ctrl_scale, 0 * self.ctrl_scale, r=True)
             cmds.select('L_lip_corner_down_Ctrl', 'L_lip_corner_down_Ctrl_grp', add=True)
             cmds.circle(nr=(0, 0, 1), c=(0, 0, 0), sw=360, r=self.ctrl_scale * 0.2, n='L_lip_corner_down_FK_Ctrl')
@@ -17357,8 +17354,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.group('System_R_lip_corner_jnt', n='System_R_lip_upper_part_follow_grp')
             cmds.parent('System_L_lip_corner_jnt', 'System_L_lip_up_corner_jnt_grp')
             cmds.parent('System_R_lip_corner_jnt', 'System_R_lip_up_corner_jnt_grp')
-            cmds.parent('System_L_lip_upper_part_follow_grp', 'System_R_lip_upper_part_follow_grp',
-                        'Upper_lip_follow_grp')
+            cmds.parent('System_L_lip_upper_part_follow_grp', 'System_R_lip_upper_part_follow_grp', 'Upper_lip_follow_grp')
             cmds.parentConstraint('L_lip_corner_Ctrl', 'System_L_lip_upper_part_follow_grp', mo=True)
             cmds.parentConstraint('R_lip_corner_Ctrl', 'System_R_lip_upper_part_follow_grp', mo=True)
         if 'Lip 10 joint' == self.ui.LipOption.currentText() or 'Lip 14 joint' == self.ui.LipOption.currentText() or 'Lip 14 & Lip Outer 5 joint' == self.ui.LipOption.currentText():
@@ -17400,7 +17396,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.group('System_L_side_down_lip_follow_grp', n='L_Lower_lip_ctrl_zip_follow_grp')
             cmds.group('System_Lip_upper_jaw_follow_grp', n='R_Upper_lip_ctrl_zip_follow_grp')
             cmds.group('System_L_side_down_lip_follow_grp', n='R_Lower_lip_ctrl_zip_follow_grp')
-        self.SquareCtrl(13, 'Lip_FACS_Ctrl')
+        self.square_control(13, 'Lip_FACS_Ctrl')
         cmds.scale(7 * self.ctrl_scale, 7 * self.ctrl_scale, 7 * self.ctrl_scale, 'Lip_FACS_Ctrl')
         cmds.pointConstraint('System_Jaw_master_jnt', 'Lip_FACS_Ctrl')
         cmds.delete('Lip_FACS_Ctrl_pointConstraint1')
@@ -17409,7 +17405,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.pointConstraint('Lip_Master_ctrl', 'Lip_FACS_Ctrl', skip=('x', 'z'))
             cmds.delete('Lip_FACS_Ctrl_pointConstraint1')
         cmds.makeIdentity('Lip_FACS_Ctrl', t=True, r=True, s=True, apply=True)
-        self.SquareCtrl(16, 'Lip_FACS_bar_ctrl')
+        self.square_control(16, 'Lip_FACS_bar_ctrl')
         cmds.scale(1 * self.ctrl_scale, 1 * self.ctrl_scale, 1 * self.ctrl_scale, 'Lip_FACS_bar_ctrl')
         cmds.pointConstraint('Lip_FACS_Ctrl', 'Lip_FACS_bar_ctrl')
         cmds.delete('Lip_FACS_bar_ctrl_pointConstraint1')
@@ -17421,7 +17417,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.transformLimits(etx=(True, True), ety=(True, True), etz=(True, True))
         cmds.parent('Lip_FACS_bar_ctrl', 'Lip_FACS_Ctrl')
         if 'Jaw joint Only' != self.ui.LipOption.currentText():
-            self.SquareCtrl(23, 'Lip_FACS_L_bar_ctrl')
+            self.square_control(23, 'Lip_FACS_L_bar_ctrl')
             cmds.scale(0.25 * self.ctrl_scale, 0.25 * self.ctrl_scale, 0.25 * self.ctrl_scale, 'Lip_FACS_L_bar_ctrl')
             cmds.pointConstraint('Lip_FACS_Ctrl', 'Lip_FACS_L_bar_ctrl')
             cmds.delete('Lip_FACS_L_bar_ctrl_pointConstraint1')
@@ -17439,7 +17435,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.delete('System_Lip_FACS_L_bar_follow_grp_pointConstraint1')
             cmds.makeIdentity('System_Lip_FACS_L_bar_follow_grp', t=True, apply=True)
             cmds.pointConstraint('Lip_FACS_L_bar_ctrl', 'System_Lip_FACS_L_bar_follow_grp', mo=True)
-            self.SquareCtrl(29, 'Lip_FACS_R_bar_ctrl')
+            self.square_control(29, 'Lip_FACS_R_bar_ctrl')
             cmds.scale(0.25 * self.ctrl_scale, 0.25 * self.ctrl_scale, 0.25 * self.ctrl_scale, 'Lip_FACS_R_bar_ctrl')
             cmds.pointConstraint('Lip_FACS_Ctrl', 'Lip_FACS_R_bar_ctrl')
             cmds.delete('Lip_FACS_R_bar_ctrl_pointConstraint1')
@@ -17462,7 +17458,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.delete('System_Lip_FACS_R_bar_follow_grp_pointConstraint1')
             cmds.makeIdentity('System_Lip_FACS_R_bar_follow_grp', t=True, apply=True)
             cmds.pointConstraint('Lip_FACS_R_bar_ctrl', 'System_Lip_FACS_R_bar_follow_grp', mo=True)
-            self.SquareCtrl(17, 'Lip_FACS_upper_bar_ctrl')
+            self.square_control(17, 'Lip_FACS_upper_bar_ctrl')
             cmds.scale(0.25 * self.ctrl_scale, 0.25 * self.ctrl_scale, 0.25 * self.ctrl_scale, 'Lip_FACS_upper_bar_ctrl')
             cmds.pointConstraint('Lip_FACS_Ctrl', 'Lip_FACS_upper_bar_ctrl')
             cmds.delete('Lip_FACS_upper_bar_ctrl_pointConstraint1')
@@ -17480,7 +17476,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.delete('System_Lip_FACS_upper_bar_follow_grp_pointConstraint1')
             cmds.makeIdentity('System_Lip_FACS_upper_bar_follow_grp', t=True, apply=True)
             cmds.pointConstraint('Lip_FACS_upper_bar_ctrl', 'System_Lip_FACS_upper_bar_follow_grp', mo=True)
-            self.SquareCtrl(17, 'Lip_FACS_lower_bar_ctrl')
+            self.square_control(17, 'Lip_FACS_lower_bar_ctrl')
             cmds.scale(0.25 * self.ctrl_scale, 0.25 * self.ctrl_scale, 0.25 * self.ctrl_scale, 'Lip_FACS_lower_bar_ctrl')
             cmds.pointConstraint('Lip_FACS_Ctrl', 'Lip_FACS_lower_bar_ctrl')
             cmds.delete('Lip_FACS_lower_bar_ctrl_pointConstraint1')
@@ -17865,23 +17861,23 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             cmds.parent('Jaw_Master_Ctrl_grp', 'Lip_All_Ctrl_grp')
 
-    def SquareCtrl(self, Color, name):
+    def square_control(self, color, name):
         cmds.nurbsSquare(nr=(0, 0, 1), c=(0, 0, 0), n=name)
         cmds.select('top' + name + 'Shape', 'left' + name + 'Shape', 'bottom' + name + 'Shape', 'right' + name + 'Shape', name, add=True)
         mel.eval('parent -r -s')
         cmds.delete('top' + name, 'left' + name, 'bottom' + name, 'right' + name)
         cmds.select(name)
         cmds.setAttr('top' + name + 'Shape.overrideEnabled', 1)
-        cmds.setAttr('top' + name + 'Shape.overrideColor', Color)
+        cmds.setAttr('top' + name + 'Shape.overrideColor', color)
         cmds.setAttr('left' + name + 'Shape.overrideEnabled', 1)
-        cmds.setAttr('left' + name + 'Shape.overrideColor', Color)
+        cmds.setAttr('left' + name + 'Shape.overrideColor', color)
         cmds.setAttr('bottom' + name + 'Shape.overrideEnabled', 1)
-        cmds.setAttr('bottom' + name + 'Shape.overrideColor', Color)
+        cmds.setAttr('bottom' + name + 'Shape.overrideColor', color)
         cmds.setAttr('right' + name + 'Shape.overrideEnabled', 1)
-        cmds.setAttr('right' + name + 'Shape.overrideColor', Color)
+        cmds.setAttr('right' + name + 'Shape.overrideColor', color)
 
-    def Cheek_All_System(self):
-        self.Cube_Ctrl_maker(23)
+    def cheek_all_system(self):
+        self.create_cube_control(23)
         cmds.scale(self.ctrl_scale * 0.7, self.ctrl_scale * 0.7, self.ctrl_scale * 0.7, 'Cube_Shape')
         cmds.rename('Cube_Shape', 'L_cheek_ctrl')
         cmds.group('L_cheek_ctrl', n='L_cheek_Ctrl_grp')
@@ -17936,7 +17932,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.parentConstraint('System_Head_master_jnt', 'L_cheek_Ctrl_grp', mo=True)
         cmds.parentConstraint('System_Head_master_jnt', 'R_cheek_Ctrl_grp', mo=True)
         if 'Cheek 08 joint' == self.ui.CheekOption.currentText() or 'Cheek 12 joint' == self.ui.CheekOption.currentText():
-            self.Cube_Ctrl_maker(13)
+            self.create_cube_control(13)
             cmds.scale(self.ctrl_scale * 0.7, self.ctrl_scale * 0.7, self.ctrl_scale * 0.7, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'L_lower_cheek_ctrl')
             cmds.group('L_lower_cheek_ctrl', n='L_lower_cheek_Ctrl_grp')
@@ -17998,15 +17994,14 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.parentConstraint('System_Head_master_jnt', 'L_lower_cheek_Ctrl_grp', mo=True)
             cmds.parentConstraint('System_Head_master_jnt', 'R_lower_cheek_Ctrl_grp', mo=True)
         if 'Cheek 08 joint' == self.ui.CheekOption.currentText() or 'Cheek 12 joint' == self.ui.CheekOption.currentText():
-            self.Cube_Ctrl_maker(13)
+            self.create_cube_control(13)
             cmds.scale(self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'L_upper_cheek_ctrl')
             cmds.group('L_upper_cheek_ctrl', n='L_upper_cheek_Ctrl_grp')
             cmds.pointConstraint('System_L_upper_cheek_jnt', 'L_upper_cheek_Ctrl_grp')
             cmds.delete('L_upper_cheek_Ctrl_grp_pointConstraint1')
             cmds.makeIdentity('L_upper_cheek_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.select('L_upper_cheek_ctrlShape3.cv[0:1]', 'L_upper_cheek_ctrlShape2.cv[0:1]',
-                        'L_upper_cheek_ctrlShape1.cv[0:1]', 'L_upper_cheek_ctrlShape.cv[0:9]')
+            cmds.select('L_upper_cheek_ctrlShape3.cv[0:1]', 'L_upper_cheek_ctrlShape2.cv[0:1]', 'L_upper_cheek_ctrlShape1.cv[0:1]', 'L_upper_cheek_ctrlShape.cv[0:9]')
             cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 1 * self.ctrl_scale, r=True)
             cmds.select(clear=True)
             cmds.select('L_upper_cheek_ctrl')
@@ -18074,7 +18069,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.group('System_R_outer_orbicularis_cheek_jnt', n='System_R_outer_orbicularis_cheek_jnt_grp')
             cmds.group('System_L_outer_orbicularis_cheek_jnt', n='System_L_outer_orbicularis_cheek_FK_upper_cheek_follow_grp')
             cmds.parent('System_L_outer_orbicularis_cheek_jnt', 'System_L_outer_orbicularis_cheek_jnt_grp')
-
             cmds.group('System_R_outer_orbicularis_cheek_jnt', n='System_R_outer_orbicularis_cheek_FK_upper_cheek_follow_grp')
             cmds.parent('System_R_outer_orbicularis_cheek_jnt', 'System_R_outer_orbicularis_cheek_jnt_grp')
             cmds.parent('System_L_outer_orbicularis_cheek_FK_upper_cheek_follow_grp', 'System_R_outer_orbicularis_cheek_FK_upper_cheek_follow_grp', w=True)
@@ -18199,7 +18193,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                     s='\n//Cheek Follow\n' + '\nif(System_L_lip_upper_part_follow_grp.translateX<0){' + '\nL_cheek_lip_corner_follow_grp.translateX = System_L_lip_upper_part_follow_grp.translateX/6*(L_lip_corner_Ctrl.Cheek_follow);}' + '\nelse{L_cheek_lip_corner_follow_grp.translateX = System_L_lip_upper_part_follow_grp.translateX/1.3*(L_lip_corner_Ctrl.Cheek_follow);}' + '\nL_cheek_lip_corner_follow_grp.translateY = System_L_lip_upper_part_follow_grp.translateY/3*(L_lip_corner_Ctrl.Cheek_follow);' + '\nL_cheek_lip_corner_follow_grp.translateZ = (System_L_lip_upper_part_follow_grp.translateY/6+System_L_lip_upper_part_follow_grp.translateZ/3)*(L_lip_corner_Ctrl.Cheek_follow);' + '\nif(System_R_lip_upper_part_follow_grp.translateX>0){' + '\nR_cheek_lip_corner_follow_grp.translateX = -System_R_lip_upper_part_follow_grp.translateX/6*(R_lip_corner_Ctrl.Cheek_follow);}' + '\nelse{R_cheek_lip_corner_follow_grp.translateX = -System_R_lip_upper_part_follow_grp.translateX/1.3*(R_lip_corner_Ctrl.Cheek_follow);}' + '\nR_cheek_lip_corner_follow_grp.translateY = System_R_lip_upper_part_follow_grp.translateY/3*(R_lip_corner_Ctrl.Cheek_follow);' + '\nR_cheek_lip_corner_follow_grp.translateZ = (System_R_lip_upper_part_follow_grp.translateY/6+System_R_lip_upper_part_follow_grp.translateZ/3)*(R_lip_corner_Ctrl.Cheek_follow);',
                     ae=1, uc=all, alwaysEvaluate=0, n='Cheek_follow_expression')
         if 'Cheek 08 joint' == self.ui.CheekOption.currentText() or 'Cheek 12 joint' == self.ui.CheekOption.currentText():
-            self.Cube_Ctrl_maker(13)
+            self.create_cube_control(13)
             cmds.scale(self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'L_lower_liplid_ctrl')
             cmds.group('L_lower_liplid_ctrl', n='L_lower_liplid_Ctrl_grp')
@@ -18292,9 +18286,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         if 'Cheek 12 joint' == self.ui.CheekOption.currentText():
             cmds.parent('*_*_orbicularis_cheek_FK_Ctrl_grp', 'Cheek_All_Ctrl_grp')
 
-    def Nose_All_System(self):
+    def nose_all_system(self):
         if 'Nose 02 joint' == self.ui.NoseOption.currentText() or 'Nose 04 joint' == self.ui.NoseOption.currentText() or 'Nose 11 joint' == self.ui.NoseOption.currentText():
-            self.Cube_Ctrl_maker(23)
+            self.create_cube_control(23)
             cmds.scale(self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'L_nose_ctrl')
             cmds.group('L_nose_ctrl', n='L_nose_Ctrl_grp')
@@ -18478,7 +18472,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 s='\n//nasalis_transverse_Follow\n' + '\nL_nasalis_transverse_nose_L_nose_follow_grp.translateX = (System_L_nasalis_transverse_nose_L_nose_follow_grp.translateX/3-System_L_nasalis_transverse_nose_L_nose_follow_grp.translateY/6)*(L_nose_ctrl.nasalis_transverse_follow);' + '\nL_nasalis_transverse_nose_L_nose_follow_grp.translateY = System_L_nasalis_transverse_nose_L_nose_follow_grp.translateY/2*(L_nose_ctrl.nasalis_transverse_follow);' + '\nL_nasalis_transverse_nose_L_nose_follow_grp.translateZ = System_L_nasalis_transverse_nose_L_nose_follow_grp.translateZ/3*(L_nose_ctrl.nasalis_transverse_follow);\n' + '\nR_nasalis_transverse_nose_R_nose_follow_grp.translateX = (System_R_nasalis_transverse_nose_R_nose_follow_grp.translateX/3-System_R_nasalis_transverse_nose_R_nose_follow_grp.translateY/6)*(R_nose_ctrl.nasalis_transverse_follow);' + '\nR_nasalis_transverse_nose_R_nose_follow_grp.translateY = System_R_nasalis_transverse_nose_R_nose_follow_grp.translateY/2*(R_nose_ctrl.nasalis_transverse_follow);' + '\nR_nasalis_transverse_nose_R_nose_follow_grp.translateZ = System_R_nasalis_transverse_nose_R_nose_follow_grp.translateZ/3*(R_nose_ctrl.nasalis_transverse_follow);\n' + '\n//procerus_nose_Follow\n' + '\nL_procerus_nose_L_nose_follow_grp.translateX = (System_L_procerus_nose_L_nose_follow_grp.translateX/10-System_L_procerus_nose_L_nose_follow_grp.translateY/6)*(L_nose_ctrl.procerus_follow);' + '\nL_procerus_nose_L_nose_follow_grp.translateY = System_L_procerus_nose_L_nose_follow_grp.translateY/8*(L_nose_ctrl.procerus_follow);' + '\nL_procerus_nose_L_nose_follow_grp.translateZ = (System_L_procerus_nose_L_nose_follow_grp.translateZ/8-System_L_procerus_nose_L_nose_follow_grp.translateY/3)*(L_nose_ctrl.procerus_follow);\n' + '\nR_procerus_nose_R_nose_follow_grp.translateX = (System_R_procerus_nose_R_nose_follow_grp.translateX/10-System_R_procerus_nose_R_nose_follow_grp.translateY/6)*(R_nose_ctrl.procerus_follow);' + '\nR_procerus_nose_R_nose_follow_grp.translateY = System_R_procerus_nose_R_nose_follow_grp.translateY/8*(R_nose_ctrl.procerus_follow);' + '\nR_procerus_nose_R_nose_follow_grp.translateZ = (System_R_procerus_nose_R_nose_follow_grp.translateZ/8-System_R_procerus_nose_R_nose_follow_grp.translateY/3)*(R_nose_ctrl.procerus_follow);\n' + '\n//nasolabial_fold_Follow\n' + '\nL_nasolabial_fold_nose_L_nose_follow_grp.translateX = (System_L_nasolabial_fold_nose_L_nose_follow_grp.translateX/3+System_L_nasolabial_fold_nose_L_nose_follow_grp.translateY/6)*(L_nose_ctrl.nasolabial_fold_follow);' + '\nL_nasolabial_fold_nose_L_nose_follow_grp.translateY = System_L_nasolabial_fold_nose_L_nose_follow_grp.translateY/2*(L_nose_ctrl.nasolabial_fold_follow);' + '\nL_nasolabial_fold_nose_L_nose_follow_grp.translateZ = (System_L_nasolabial_fold_nose_L_nose_follow_grp.translateZ/3-System_L_nasolabial_fold_nose_L_nose_follow_grp.translateY/3)*(L_nose_ctrl.nasolabial_fold_follow);' + '\nR_nasolabial_fold_nose_R_nose_follow_grp.translateX = (System_R_nasolabial_fold_nose_R_nose_follow_grp.translateX/3+System_R_nasolabial_fold_nose_R_nose_follow_grp.translateY/6)*(R_nose_ctrl.nasolabial_fold_follow);' + '\nR_nasolabial_fold_nose_R_nose_follow_grp.translateY = System_R_nasolabial_fold_nose_R_nose_follow_grp.translateY/2*(R_nose_ctrl.nasolabial_fold_follow);' + '\nR_nasolabial_fold_nose_R_nose_follow_grp.translateZ = (System_R_nasolabial_fold_nose_R_nose_follow_grp.translateZ/3-System_R_nasolabial_fold_nose_R_nose_follow_grp.translateY/3)*(R_nose_ctrl.nasolabial_fold_follow);',
                 ae=1, uc=all, alwaysEvaluate=0, n='Nose_nasalis_expression')
         if 'Nose 01 joint' == self.ui.NoseOption.currentText() or 'Nose 04 joint' == self.ui.NoseOption.currentText() or 'Nose 11 joint' == self.ui.NoseOption.currentText():
-            self.Cube_Ctrl_maker(13)
+            self.create_cube_control(13)
             cmds.scale(self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'Nose_ctrl')
             cmds.group('Nose_ctrl', n='Nose_Ctrl_grp')
@@ -18526,15 +18520,14 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 s='\n//Nose Center_Follow\n' + '\nnose_L_nose_follow_grp.translateX = System_nose_L_nose_follow_grp.translateX/3*(L_nose_ctrl.Center_Nose_follow);' + '\nnose_L_nose_follow_grp.translateY = System_nose_L_nose_follow_grp.translateY/3*(L_nose_ctrl.Center_Nose_follow);' + '\nnose_L_nose_follow_grp.translateZ = System_nose_L_nose_follow_grp.translateZ/3*(L_nose_ctrl.Center_Nose_follow);\n' + '\nnose_R_nose_follow_grp.translateX = -System_nose_R_nose_follow_grp.translateX/3*(R_nose_ctrl.Center_Nose_follow);' + '\nnose_R_nose_follow_grp.translateY = System_nose_R_nose_follow_grp.translateY/3*(R_nose_ctrl.Center_Nose_follow);' + '\nnose_R_nose_follow_grp.translateZ = System_nose_R_nose_follow_grp.translateZ/3*(R_nose_ctrl.Center_Nose_follow);\n',
                 ae=1, uc=all, alwaysEvaluate=0, n='Nose_Center_expression')
         if 'Nose 04 joint' == self.ui.NoseOption.currentText() or 'Nose 11 joint' == self.ui.NoseOption.currentText():
-            self.Cube_Ctrl_maker(13)
+            self.create_cube_control(13)
             cmds.scale(self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'Lower_nose_ctrl')
             cmds.group('Lower_nose_ctrl', n='Lower_nose_Ctrl_grp')
             cmds.pointConstraint('System_lower_nose_jnt', 'Lower_nose_Ctrl_grp')
             cmds.delete('Lower_nose_Ctrl_grp_pointConstraint1')
             cmds.makeIdentity('Lower_nose_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.select('Lower_nose_ctrlShape3.cv[0:1]', 'Lower_nose_ctrlShape2.cv[0:1]',
-                        'Lower_nose_ctrlShape1.cv[0:1]', 'Lower_nose_ctrlShape.cv[0:9]')
+            cmds.select('Lower_nose_ctrlShape3.cv[0:1]', 'Lower_nose_ctrlShape2.cv[0:1]', 'Lower_nose_ctrlShape1.cv[0:1]', 'Lower_nose_ctrlShape.cv[0:9]')
             cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 0.7 * self.ctrl_scale, r=True)
             cmds.select(clear=True)
             cmds.select('Lower_nose_ctrl')
@@ -18548,8 +18541,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.pointConstraint('System_depressor_septi_nose_jnt', 'depressor_septi_nose_FK_Ctrl_grp')
             cmds.delete('depressor_septi_nose_FK_Ctrl_grp_pointConstraint1')
             cmds.makeIdentity('depressor_septi_nose_FK_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 0.7 * self.ctrl_scale,
-                      'depressor_septi_nose_FK_ctrl.cv[0:7]', r=True)
+            cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 0.7 * self.ctrl_scale, 'depressor_septi_nose_FK_ctrl.cv[0:7]', r=True)
             cmds.select(clear=True)
             cmds.select('depressor_septi_nose_FK_ctrl')
             cmds.setAttr('depressor_septi_nose_FK_ctrlShape.overrideEnabled', 1)
@@ -18596,11 +18588,10 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         if 'Nose 04 joint' == self.ui.NoseOption.currentText() or 'Nose 11 joint' == self.ui.NoseOption.currentText():
             cmds.parent('*_nose_Ctrl_grp', 'Nose_Ctrl_grp', 'Nose_All_Ctrl_grp')
         if 'Nose 11 joint' == self.ui.NoseOption.currentText():
-            cmds.parent('*_nasalis_transverse_nose_FK_Ctrl_grp', '*_procerus_nose_FK_Ctrl_grp',
-                        '*_nasolabial_fold_nose_FK_Ctrl_grp', 'depressor_septi_nose_FK_Ctrl_grp', 'Nose_All_Ctrl_grp')
+            cmds.parent('*_nasalis_transverse_nose_FK_Ctrl_grp', '*_procerus_nose_FK_Ctrl_grp', '*_nasolabial_fold_nose_FK_Ctrl_grp', 'depressor_septi_nose_FK_Ctrl_grp', 'Nose_All_Ctrl_grp')
 
-    # Issue
-    def Lip_Nose_Connect_System(self):
+    # todo lip connect
+    def lip_nose_connect_system(self):
         if 'Nose 02 joint' == self.ui.NoseOption.currentText() or 'Nose 04 joint' == self.ui.NoseOption.currentText() or 'Nose 11 joint' == self.ui.NoseOption.currentText():
             if 'Lip 10 joint' == self.ui.LipOption.currentText() or 'Lip 14 joint' == self.ui.LipOption.currentText() or 'Lip 14 & Lip Outer 5 joint' == self.ui.LipOption.currentText():
                 cmds.group('System_L_nose_jnt', n='L_nose_upper_side_follow_grp')
@@ -18618,8 +18609,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 cmds.group('System_R_nose_jnt', n='System_R_nose_upper_side_follow_grp')
                 cmds.parent('System_L_nose_jnt', 'System_L_nose_jnt_grp')
                 cmds.parent('System_R_nose_jnt', 'System_R_nose_jnt_grp')
-                cmds.parent('System_L_nose_upper_side_follow_grp', 'System_R_nose_upper_side_follow_grp',
-                            'Upper_lip_follow_grp')
+                cmds.parent('System_L_nose_upper_side_follow_grp', 'System_R_nose_upper_side_follow_grp', 'Upper_lip_follow_grp')
                 cmds.pointConstraint('L_lip_upper_side_ctrl', 'System_L_nose_upper_side_follow_grp', mo=True)
                 cmds.pointConstraint('R_lip_upper_side_ctrl', 'System_R_nose_upper_side_follow_grp', mo=True)
         if 'Nose 04 joint' == self.ui.NoseOption.currentText() or 'Nose 11 joint' == self.ui.NoseOption.currentText():
@@ -18681,19 +18671,15 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 cmds.group('L_nasolabial_fold_nose_FK_ctrl', n='L_nasolabial_fold_nose_upper_side_follow_grp')
                 cmds.group('R_nasolabial_fold_nose_FK_ctrl', n='R_nasolabial_fold_nose_upper_side_follow_grp')
                 cmds.group(em=True, n='System_L_nasolabial_fold_nose_upper_side_follow_grp')
-                cmds.pointConstraint('System_L_nasolabial_fold_nose_jnt',
-                                     'System_L_nasolabial_fold_nose_upper_side_follow_grp')
+                cmds.pointConstraint('System_L_nasolabial_fold_nose_jnt', 'System_L_nasolabial_fold_nose_upper_side_follow_grp')
                 cmds.delete('System_L_nasolabial_fold_nose_upper_side_follow_grp_pointConstraint1')
                 cmds.makeIdentity('System_L_nasolabial_fold_nose_upper_side_follow_grp', t=True, apply=True)
                 cmds.group(em=True, n='System_R_nasolabial_fold_nose_upper_side_follow_grp')
-                cmds.pointConstraint('System_R_nasolabial_fold_nose_jnt',
-                                     'System_R_nasolabial_fold_nose_upper_side_follow_grp')
+                cmds.pointConstraint('System_R_nasolabial_fold_nose_jnt', 'System_R_nasolabial_fold_nose_upper_side_follow_grp')
                 cmds.delete('System_R_nasolabial_fold_nose_upper_side_follow_grp_pointConstraint1')
                 cmds.makeIdentity('System_R_nasolabial_fold_nose_upper_side_follow_grp', t=True, apply=True)
-                cmds.pointConstraint('L_lip_upper_side_ctrl', 'System_L_nasolabial_fold_nose_upper_side_follow_grp',
-                                     mo=True)
-                cmds.pointConstraint('R_lip_upper_side_ctrl', 'System_R_nasolabial_fold_nose_upper_side_follow_grp',
-                                     mo=True)
+                cmds.pointConstraint('L_lip_upper_side_ctrl', 'System_L_nasolabial_fold_nose_upper_side_follow_grp', mo=True)
+                cmds.pointConstraint('R_lip_upper_side_ctrl', 'System_R_nasolabial_fold_nose_upper_side_follow_grp', mo=True)
                 cmds.addAttr('L_lip_upper_side_ctrl', ln='nasolabial_fold', at='double', min=0, max=4)
                 cmds.setAttr('L_lip_upper_side_ctrl.nasolabial_fold', e=1, keyable=True)
                 cmds.setAttr('L_lip_upper_side_ctrl.nasolabial_fold', 1)
@@ -18704,13 +18690,11 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 cmds.group('L_nasolabial_fold_nose_FK_ctrl', n='L_nasolabial_fold_nose_corner_up_follow_grp')
                 cmds.group('R_nasolabial_fold_nose_FK_ctrl', n='R_nasolabial_fold_nose_corner_up_follow_grp')
                 cmds.group(em=True, n='System_L_nasolabial_fold_nose_corner_up_follow_grp')
-                cmds.pointConstraint('System_L_nasolabial_fold_nose_jnt',
-                                     'System_L_nasolabial_fold_nose_corner_up_follow_grp')
+                cmds.pointConstraint('System_L_nasolabial_fold_nose_jnt', 'System_L_nasolabial_fold_nose_corner_up_follow_grp')
                 cmds.delete('System_L_nasolabial_fold_nose_corner_up_follow_grp_pointConstraint1')
                 cmds.makeIdentity('System_L_nasolabial_fold_nose_corner_up_follow_grp', t=True, apply=True)
                 cmds.group(em=True, n='System_R_nasolabial_fold_nose_corner_up_follow_grp')
-                cmds.pointConstraint('System_R_nasolabial_fold_nose_jnt',
-                                     'System_R_nasolabial_fold_nose_corner_up_follow_grp')
+                cmds.pointConstraint('System_R_nasolabial_fold_nose_jnt', 'System_R_nasolabial_fold_nose_corner_up_follow_grp')
                 cmds.delete('System_R_nasolabial_fold_nose_corner_up_follow_grp_pointConstraint1')
                 cmds.makeIdentity('System_R_nasolabial_fold_nose_corner_up_follow_grp', t=True, apply=True)
                 cmds.addAttr('L_lip_corner_up_Ctrl', ln='nasolabial_fold', at='double', min=0, max=4)
@@ -18719,17 +18703,15 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 cmds.addAttr('R_lip_corner_up_Ctrl', ln='nasolabial_fold', at='double', min=0, max=4)
                 cmds.setAttr('R_lip_corner_up_Ctrl.nasolabial_fold', e=1, keyable=True)
                 cmds.setAttr('R_lip_corner_up_Ctrl.nasolabial_fold', 1)
-                cmds.pointConstraint('L_lip_corner_up_Ctrl', 'System_L_nasolabial_fold_nose_corner_up_follow_grp',
-                                     mo=True)
-                cmds.pointConstraint('R_lip_corner_up_Ctrl', 'System_R_nasolabial_fold_nose_corner_up_follow_grp',
-                                     mo=True)
+                cmds.pointConstraint('L_lip_corner_up_Ctrl', 'System_L_nasolabial_fold_nose_corner_up_follow_grp', mo=True)
+                cmds.pointConstraint('R_lip_corner_up_Ctrl', 'System_R_nasolabial_fold_nose_corner_up_follow_grp', mo=True)
                 cmds.parent('System_L_nasolabial_fold_nose_corner_up_follow_grp', 'Upper_lip_follow_grp')
                 cmds.parent('System_R_nasolabial_fold_nose_corner_up_follow_grp', 'Upper_lip_follow_grp')
                 cmds.expression(
                     s='\n//nasolabial_fold upper_side_Follow\n' + '\nL_nasolabial_fold_nose_upper_side_follow_grp.translateX = (System_L_nasolabial_fold_nose_upper_side_follow_grp.translateX/3+System_L_nasolabial_fold_nose_upper_side_follow_grp.translateY/6)*(L_lip_upper_side_ctrl.nasolabial_fold);' + '\nL_nasolabial_fold_nose_upper_side_follow_grp.translateY = (System_L_nasolabial_fold_nose_upper_side_follow_grp.translateY+L_lip_corner_up_Ctrl_grp.translateY)/2*(L_lip_upper_side_ctrl.nasolabial_fold);' + '\nL_nasolabial_fold_nose_upper_side_follow_grp.translateZ = (System_L_nasolabial_fold_nose_upper_side_follow_grp.translateZ/3-System_L_nasolabial_fold_nose_upper_side_follow_grp.translateY/4)*(L_lip_upper_side_ctrl.nasolabial_fold);' + '\nR_nasolabial_fold_nose_upper_side_follow_grp.translateX = (-System_R_nasolabial_fold_nose_upper_side_follow_grp.translateX/3+System_R_nasolabial_fold_nose_upper_side_follow_grp.translateY/6)*(R_lip_upper_side_ctrl.nasolabial_fold);' + '\nR_nasolabial_fold_nose_upper_side_follow_grp.translateY = (System_R_nasolabial_fold_nose_upper_side_follow_grp.translateY+R_lip_corner_up_Ctrl_grp.translateY)/2*(R_lip_upper_side_ctrl.nasolabial_fold);' + '\nR_nasolabial_fold_nose_upper_side_follow_grp.translateZ = (System_R_nasolabial_fold_nose_upper_side_follow_grp.translateZ/3-System_R_nasolabial_fold_nose_upper_side_follow_grp.translateY/4)*(R_lip_upper_side_ctrl.nasolabial_fold);' + '\n//nasolabial_fold corner_up_Follow\n' + '\nL_nasolabial_fold_nose_corner_up_follow_grp.translateX = (System_L_nasolabial_fold_nose_corner_up_follow_grp.translateX/5+System_L_nasolabial_fold_nose_corner_up_follow_grp.translateY/8)*(L_lip_corner_up_Ctrl.nasolabial_fold);' + '\nL_nasolabial_fold_nose_corner_up_follow_grp.translateY = (System_L_nasolabial_fold_nose_corner_up_follow_grp.translateY+L_lip_corner_up_Ctrl_grp.translateY)/3*(L_lip_corner_up_Ctrl.nasolabial_fold);' + '\nL_nasolabial_fold_nose_corner_up_follow_grp.translateZ = (System_L_nasolabial_fold_nose_corner_up_follow_grp.translateZ/3-System_L_nasolabial_fold_nose_corner_up_follow_grp.translateY/6)*(L_lip_corner_up_Ctrl.nasolabial_fold);' + '\nR_nasolabial_fold_nose_corner_up_follow_grp.translateX = (-System_R_nasolabial_fold_nose_corner_up_follow_grp.translateX/5+System_R_nasolabial_fold_nose_corner_up_follow_grp.translateY/8)*(R_lip_corner_up_Ctrl.nasolabial_fold);' + '\nR_nasolabial_fold_nose_corner_up_follow_grp.translateY = (System_R_nasolabial_fold_nose_corner_up_follow_grp.translateY+R_lip_corner_up_Ctrl_grp.translateY)/3*(R_lip_corner_up_Ctrl.nasolabial_fold);' + '\nR_nasolabial_fold_nose_corner_up_follow_grp.translateZ = (System_R_nasolabial_fold_nose_corner_up_follow_grp.translateZ/3-System_R_nasolabial_fold_nose_corner_up_follow_grp.translateY/6)*(R_lip_corner_up_Ctrl.nasolabial_fold);',
                     ae=1, uc=all, alwaysEvaluate=0, n='Nose_nasolabial_fold_expression')
 
-    def Cheek_Nose_Connect_System(self):
+    def cheek_nose_connect_system(self):
         if 'Nose 02 joint' == self.ui.NoseOption.currentText() or 'Nose 04 joint' == self.ui.NoseOption.currentText() or 'Nose 11 joint' == self.ui.NoseOption.currentText():
             cmds.group('L_cheek_upper_side_follow_grp', n='L_cheek_L_nose_follow_grp')
             cmds.group('R_cheek_upper_side_follow_grp', n='R_cheek_R_nose_follow_grp')
@@ -18745,21 +18727,20 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 s='\n//L_R_Nose Cheek Follow\n' + '\nL_cheek_L_nose_follow_grp.translateX = System_L_cheek_L_nose_follow_grp.translateX/3*(L_lip_corner_Ctrl.Cheek_follow);' + '\nL_cheek_L_nose_follow_grp.translateY = System_L_cheek_L_nose_follow_grp.translateY/2*(L_lip_corner_Ctrl.Cheek_follow);' + '\nL_cheek_L_nose_follow_grp.translateZ = System_L_cheek_L_nose_follow_grp.translateZ/10*(L_lip_corner_Ctrl.Cheek_follow);\n' + '\nR_cheek_R_nose_follow_grp.translateX = System_R_cheek_R_nose_follow_grp.translateX/3*(R_lip_corner_Ctrl.Cheek_follow);' + '\nR_cheek_R_nose_follow_grp.translateY = System_R_cheek_R_nose_follow_grp.translateY/2*(R_lip_corner_Ctrl.Cheek_follow);' + '\nR_cheek_R_nose_follow_grp.translateZ = System_R_cheek_R_nose_follow_grp.translateZ/10*(R_lip_corner_Ctrl.Cheek_follow);\n',
                 ae=1, uc=all, alwaysEvaluate=0, n='Nose_Cheek_expression')
 
-    # Issue
-    def Brow_All_System(self):
+    # todo brow all
+    def brow_all_system(self):
         if 'Brow 05 joint' == self.ui.BrowOption.currentText() or 'Brow 07 joint' == self.ui.BrowOption.currentText() or 'Brow 13 joint' == self.ui.BrowOption.currentText() or 'Brow 04 joint' == self.ui.BrowOption.currentText():
             if 'Brow 13 joint' == self.ui.BrowOption.currentText():
-                self.Cube_Ctrl_maker(13)
+                self.create_cube_control(13)
             else:
-                self.Cube_Ctrl_maker(23)
+                self.create_cube_control(23)
             cmds.scale(self.ctrl_scale * 0.7, self.ctrl_scale * 0.7, self.ctrl_scale * 0.7, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'L_brow_ctrl')
             cmds.group('L_brow_ctrl', n='L_brow_Ctrl_grp')
             cmds.pointConstraint('System_L_brow_jnt', 'L_brow_Ctrl_grp')
             cmds.delete('L_brow_Ctrl_grp_pointConstraint1')
             cmds.makeIdentity('L_brow_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.select('L_brow_ctrlShape3.cv[0:1]', 'L_brow_ctrlShape2.cv[0:1]', 'L_brow_ctrlShape1.cv[0:1]',
-                        'L_brow_ctrlShape.cv[0:9]')
+            cmds.select('L_brow_ctrlShape3.cv[0:1]', 'L_brow_ctrlShape2.cv[0:1]', 'L_brow_ctrlShape1.cv[0:1]', 'L_brow_ctrlShape.cv[0:9]')
             cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 1 * self.ctrl_scale, r=True)
             cmds.select(clear=True)
             cmds.select('L_brow_ctrl')
@@ -18809,17 +18790,16 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.parentConstraint('System_L_brow_master_follow_grp', 'L_brow_Ctrl_grp', mo=True)
             cmds.parentConstraint('System_R_brow_master_follow_grp', 'R_brow_Ctrl_grp', mo=True)
             if 'Brow 13 joint' == self.ui.BrowOption.currentText():
-                self.Cube_Ctrl_maker(13)
+                self.create_cube_control(13)
             else:
-                self.Cube_Ctrl_maker(23)
+                self.create_cube_control(23)
             cmds.scale(self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'L_brow_02_ctrl')
             cmds.group('L_brow_02_ctrl', n='L_brow_02_Ctrl_grp')
             cmds.pointConstraint('System_L_brow_02_jnt', 'L_brow_02_Ctrl_grp')
             cmds.delete('L_brow_02_Ctrl_grp_pointConstraint1')
             cmds.makeIdentity('L_brow_02_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.select('L_brow_02_ctrlShape3.cv[0:1]', 'L_brow_02_ctrlShape2.cv[0:1]', 'L_brow_02_ctrlShape1.cv[0:1]',
-                        'L_brow_02_ctrlShape.cv[0:9]')
+            cmds.select('L_brow_02_ctrlShape3.cv[0:1]', 'L_brow_02_ctrlShape2.cv[0:1]', 'L_brow_02_ctrlShape1.cv[0:1]', 'L_brow_02_ctrlShape.cv[0:9]')
             cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 1 * self.ctrl_scale, r=True)
             cmds.select(clear=True)
             cmds.select('L_brow_02_ctrl')
@@ -18870,17 +18850,16 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.parentConstraint('System_R_brow_02_master_follow_grp', 'R_brow_02_Ctrl_grp', mo=True)
         if 'Brow 07 joint' == self.ui.BrowOption.currentText() or 'Brow 13 joint' == self.ui.BrowOption.currentText():
             if 'Brow 13 joint' == self.ui.BrowOption.currentText():
-                self.Cube_Ctrl_maker(13)
+                self.create_cube_control(13)
             else:
-                self.Cube_Ctrl_maker(23)
+                self.create_cube_control(23)
             cmds.scale(self.ctrl_scale * 0.4, self.ctrl_scale * 0.4, self.ctrl_scale * 0.4, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'L_brow_03_ctrl')
             cmds.group('L_brow_03_ctrl', n='L_brow_03_Ctrl_grp')
             cmds.pointConstraint('System_L_brow_03_jnt', 'L_brow_03_Ctrl_grp')
             cmds.delete('L_brow_03_Ctrl_grp_pointConstraint1')
             cmds.makeIdentity('L_brow_03_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.select('L_brow_03_ctrlShape3.cv[0:1]', 'L_brow_03_ctrlShape2.cv[0:1]', 'L_brow_03_ctrlShape1.cv[0:1]',
-                        'L_brow_03_ctrlShape.cv[0:9]')
+            cmds.select('L_brow_03_ctrlShape3.cv[0:1]', 'L_brow_03_ctrlShape2.cv[0:1]', 'L_brow_03_ctrlShape1.cv[0:1]', 'L_brow_03_ctrlShape.cv[0:9]')
             cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 1 * self.ctrl_scale, r=True)
             cmds.select(clear=True)
             cmds.select('L_brow_03_ctrl')
@@ -18929,15 +18908,14 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.parentConstraint('System_L_brow_03_master_follow_grp', 'L_brow_03_Ctrl_grp', mo=True)
             cmds.parentConstraint('System_R_brow_03_master_follow_grp', 'R_brow_03_Ctrl_grp', mo=True)
         if 'Brow 13 joint' == self.ui.BrowOption.currentText():
-            self.Cube_Ctrl_maker(23)
+            self.create_cube_control(23)
             cmds.scale(self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'L_medial_fibers_brow_ctrl')
             cmds.group('L_medial_fibers_brow_ctrl', n='L_medial_fibers_brow_Ctrl_grp')
             cmds.pointConstraint('System_L_medial_fibers_brow_jnt', 'L_medial_fibers_brow_Ctrl_grp')
             cmds.delete('L_medial_fibers_brow_Ctrl_grp_pointConstraint1')
             cmds.makeIdentity('L_medial_fibers_brow_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.select('L_medial_fibers_brow_ctrlShape3.cv[0:1]', 'L_medial_fibers_brow_ctrlShape2.cv[0:1]',
-                        'L_medial_fibers_brow_ctrlShape1.cv[0:1]', 'L_medial_fibers_brow_ctrlShape.cv[0:9]')
+            cmds.select('L_medial_fibers_brow_ctrlShape3.cv[0:1]', 'L_medial_fibers_brow_ctrlShape2.cv[0:1]', 'L_medial_fibers_brow_ctrlShape1.cv[0:1]', 'L_medial_fibers_brow_ctrlShape.cv[0:9]')
             cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 1 * self.ctrl_scale, r=True)
             cmds.select(clear=True)
             cmds.select('L_medial_fibers_brow_ctrl')
@@ -18968,10 +18946,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.scaleConstraint('L_medial_fibers_brow_ctrl', 'System_L_medial_fibers_brow_jnt_grp', mo=True)
             cmds.parentConstraint('R_medial_fibers_brow_ctrl', 'System_R_medial_fibers_brow_jnt_grp', mo=True)
             cmds.scaleConstraint('R_medial_fibers_brow_ctrl', 'System_R_medial_fibers_brow_jnt_grp', mo=True)
-            cmds.parentConstraint('System_L_medial_fibers_brow_brow_follow_grp', 'L_medial_fibers_brow_Ctrl_grp',
-                                  mo=True)
-            cmds.parentConstraint('System_R_medial_fibers_brow_brow_follow_grp', 'R_medial_fibers_brow_Ctrl_grp',
-                                  mo=True)
+            cmds.parentConstraint('System_L_medial_fibers_brow_brow_follow_grp', 'L_medial_fibers_brow_Ctrl_grp', mo=True)
+            cmds.parentConstraint('System_R_medial_fibers_brow_brow_follow_grp', 'R_medial_fibers_brow_Ctrl_grp', mo=True)
             cmds.group('L_brow_ctrl', n='L_brow_medial_fibers_follow_grp')
             cmds.group('R_brow_ctrl', n='R_brow_medial_fibers_follow_grp')
             cmds.group(em=True, n='System_L_brow_medial_fibers_follow_grp')
@@ -18990,15 +18966,14 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.setAttr('R_medial_fibers_brow_ctrl.Brow_follow', 1)
             cmds.parentConstraint('L_medial_fibers_brow_ctrl', 'System_L_brow_medial_fibers_follow_grp', mo=True)
             cmds.parentConstraint('R_medial_fibers_brow_ctrl', 'System_R_brow_medial_fibers_follow_grp', mo=True)
-            self.Cube_Ctrl_maker(23)
+            self.create_cube_control(23)
             cmds.scale(self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'L_lateral_fibers_brow_ctrl')
             cmds.group('L_lateral_fibers_brow_ctrl', n='L_lateral_fibers_brow_Ctrl_grp')
             cmds.pointConstraint('System_L_lateral_fibers_brow_jnt', 'L_lateral_fibers_brow_Ctrl_grp')
             cmds.delete('L_lateral_fibers_brow_Ctrl_grp_pointConstraint1')
             cmds.makeIdentity('L_lateral_fibers_brow_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.select('L_lateral_fibers_brow_ctrlShape3.cv[0:1]', 'L_lateral_fibers_brow_ctrlShape2.cv[0:1]',
-                        'L_lateral_fibers_brow_ctrlShape1.cv[0:1]', 'L_lateral_fibers_brow_ctrlShape.cv[0:9]')
+            cmds.select('L_lateral_fibers_brow_ctrlShape3.cv[0:1]', 'L_lateral_fibers_brow_ctrlShape2.cv[0:1]', 'L_lateral_fibers_brow_ctrlShape1.cv[0:1]', 'L_lateral_fibers_brow_ctrlShape.cv[0:9]')
             cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 1 * self.ctrl_scale, r=True)
             cmds.select(clear=True)
             cmds.select('L_lateral_fibers_brow_ctrl')
@@ -19029,18 +19004,14 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.scaleConstraint('L_lateral_fibers_brow_ctrl', 'System_L_lateral_fibers_brow_jnt_grp', mo=True)
             cmds.parentConstraint('R_lateral_fibers_brow_ctrl', 'System_R_lateral_fibers_brow_jnt_grp', mo=True)
             cmds.scaleConstraint('R_lateral_fibers_brow_ctrl', 'System_R_lateral_fibers_brow_jnt_grp', mo=True)
-            cmds.parentConstraint('System_L_lateral_fibers_brow_brow_02_follow_grp', 'L_lateral_fibers_brow_Ctrl_grp',
-                                  mo=True)
-            cmds.parentConstraint('System_R_lateral_fibers_brow_brow_02_follow_grp', 'R_lateral_fibers_brow_Ctrl_grp',
-                                  mo=True)
+            cmds.parentConstraint('System_L_lateral_fibers_brow_brow_02_follow_grp', 'L_lateral_fibers_brow_Ctrl_grp', mo=True)
+            cmds.parentConstraint('System_R_lateral_fibers_brow_brow_02_follow_grp', 'R_lateral_fibers_brow_Ctrl_grp', mo=True)
             cmds.group('L_lateral_fibers_brow_ctrl', n='L_lateral_fibers_brow_medial_fibers_follow_grp')
             cmds.group('R_lateral_fibers_brow_ctrl', n='R_lateral_fibers_brow_medial_fibers_follow_grp')
             cmds.group(em=True, n='System_L_lateral_fibers_brow_medial_fibers_follow_grp')
             cmds.group(em=True, n='System_R_lateral_fibers_brow_medial_fibers_follow_grp')
-            cmds.pointConstraint('System_L_medial_fibers_brow_jnt',
-                                 'System_L_lateral_fibers_brow_medial_fibers_follow_grp')
-            cmds.pointConstraint('System_R_medial_fibers_brow_jnt',
-                                 'System_R_lateral_fibers_brow_medial_fibers_follow_grp')
+            cmds.pointConstraint('System_L_medial_fibers_brow_jnt', 'System_L_lateral_fibers_brow_medial_fibers_follow_grp')
+            cmds.pointConstraint('System_R_medial_fibers_brow_jnt', 'System_R_lateral_fibers_brow_medial_fibers_follow_grp')
             cmds.delete('System_L_lateral_fibers_brow_medial_fibers_follow_grp_pointConstraint1')
             cmds.delete('System_R_lateral_fibers_brow_medial_fibers_follow_grp_pointConstraint1')
             cmds.makeIdentity('System_L_lateral_fibers_brow_medial_fibers_follow_grp', t=True, apply=True)
@@ -19051,10 +19022,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.addAttr('R_medial_fibers_brow_ctrl', ln='lateral_fibers_follow', at='double', min=0, max=4)
             cmds.setAttr('R_medial_fibers_brow_ctrl.lateral_fibers_follow', e=1, keyable=True)
             cmds.setAttr('R_medial_fibers_brow_ctrl.lateral_fibers_follow', 1)
-            cmds.parentConstraint('L_medial_fibers_brow_ctrl', 'System_L_lateral_fibers_brow_medial_fibers_follow_grp',
-                                  mo=True)
-            cmds.parentConstraint('R_medial_fibers_brow_ctrl', 'System_R_lateral_fibers_brow_medial_fibers_follow_grp',
-                                  mo=True)
+            cmds.parentConstraint('L_medial_fibers_brow_ctrl', 'System_L_lateral_fibers_brow_medial_fibers_follow_grp', mo=True)
+            cmds.parentConstraint('R_medial_fibers_brow_ctrl', 'System_R_lateral_fibers_brow_medial_fibers_follow_grp', mo=True)
             cmds.group('L_brow_02_ctrl', n='L_brow_02_lateral_fibers_follow_grp')
             cmds.group('R_brow_02_ctrl', n='R_brow_02_lateral_fibers_follow_grp')
             cmds.group(em=True, n='System_L_brow_02_lateral_fibers_follow_grp')
@@ -19114,8 +19083,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.pointConstraint('System_L_procerus_brow_jnt', 'L_procerus_brow_FK_Ctrl_grp')
             cmds.delete('L_procerus_brow_FK_Ctrl_grp_pointConstraint1')
             cmds.makeIdentity('L_procerus_brow_FK_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 1 * self.ctrl_scale, 'L_procerus_brow_FK_ctrl.cv[0:7]',
-                      r=True)
+            cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 1 * self.ctrl_scale, 'L_procerus_brow_FK_ctrl.cv[0:7]', r=True)
             cmds.select(clear=True)
             cmds.select('L_procerus_brow_FK_ctrl')
             cmds.setAttr('L_procerus_brow_FK_Ctrl_grp.rotateY', 10)
@@ -19160,10 +19128,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.addAttr('R_medial_fibers_brow_ctrl', ln='procerus_follow', at='double', min=0, max=4)
             cmds.setAttr('R_medial_fibers_brow_ctrl.procerus_follow', e=1, keyable=True)
             cmds.setAttr('R_medial_fibers_brow_ctrl.procerus_follow', 1)
-            cmds.parentConstraint('L_medial_fibers_brow_ctrl', 'System_L_procerus_brow_medial_fibers_follow_grp',
-                                  mo=True)
-            cmds.parentConstraint('R_medial_fibers_brow_ctrl', 'System_R_procerus_brow_medial_fibers_follow_grp',
-                                  mo=True)
+            cmds.parentConstraint('L_medial_fibers_brow_ctrl', 'System_L_procerus_brow_medial_fibers_follow_grp', mo=True)
+            cmds.parentConstraint('R_medial_fibers_brow_ctrl', 'System_R_procerus_brow_medial_fibers_follow_grp', mo=True)
             cmds.addAttr('L_brow_ctrl', ln='medial_fibers_follow', at='double', min=0, max=10)
             cmds.setAttr('L_brow_ctrl.medial_fibers_follow', e=1, keyable=True)
             cmds.setAttr('L_brow_ctrl.medial_fibers_follow', 1)
@@ -19186,15 +19152,14 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 s='\n//medial_fibers brow Follow\n' + '\nSystem_L_medial_fibers_brow_brow_follow_grp.translateX = L_brow_ctrl.translateX/1.3*(L_brow_ctrl.medial_fibers_follow);' + '\nSystem_L_medial_fibers_brow_brow_follow_grp.translateY = L_brow_ctrl.translateY/1.3*(L_brow_ctrl.medial_fibers_follow);' + '\nSystem_L_medial_fibers_brow_brow_follow_grp.translateZ = L_brow_ctrl.translateZ/2*(L_brow_ctrl.medial_fibers_follow);' + '\nSystem_R_medial_fibers_brow_brow_follow_grp.translateX = -R_brow_ctrl.translateX/1.3*(R_brow_ctrl.medial_fibers_follow);' + '\nSystem_R_medial_fibers_brow_brow_follow_grp.translateY = R_brow_ctrl.translateY/1.3*(R_brow_ctrl.medial_fibers_follow);' + '\nSystem_R_medial_fibers_brow_brow_follow_grp.translateZ = R_brow_ctrl.translateZ/2*(R_brow_ctrl.medial_fibers_follow);' + '\n//lateral_fibers brow Follow\n' + '\nSystem_L_lateral_fibers_brow_brow_02_follow_grp.translateX = L_brow_02_ctrl.translateX/1.3*(L_brow_02_ctrl.lateral_fibers_follow);' + '\nSystem_L_lateral_fibers_brow_brow_02_follow_grp.translateY = L_brow_02_ctrl.translateY/1.3*(L_brow_02_ctrl.lateral_fibers_follow);' + '\nSystem_L_lateral_fibers_brow_brow_02_follow_grp.translateZ = L_brow_02_ctrl.translateZ/2*(L_brow_02_ctrl.lateral_fibers_follow);' + '\nSystem_R_lateral_fibers_brow_brow_02_follow_grp.translateX = -R_brow_02_ctrl.translateX/1.3*(R_brow_02_ctrl.lateral_fibers_follow);' + '\nSystem_R_lateral_fibers_brow_brow_02_follow_grp.translateY = R_brow_02_ctrl.translateY/1.3*(R_brow_02_ctrl.lateral_fibers_follow);' + '\nSystem_R_lateral_fibers_brow_brow_02_follow_grp.translateZ = R_brow_02_ctrl.translateZ/2*(R_brow_02_ctrl.lateral_fibers_follow);',
                 ae=1, uc=all, alwaysEvaluate=0, n='Brow_Fibers_brow_follow_expression')
         if 'Brow 04 joint' != self.ui.BrowOption.currentText():
-            self.Cube_Ctrl_maker(13)
+            self.create_cube_control(13)
             cmds.scale(self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'Center_brow_ctrl')
             cmds.group('Center_brow_ctrl', n='Center_brow_Ctrl_grp')
             cmds.pointConstraint('System_center_brow_jnt', 'Center_brow_Ctrl_grp')
             cmds.delete('Center_brow_Ctrl_grp_pointConstraint1')
             cmds.makeIdentity('Center_brow_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.select('Center_brow_ctrlShape3.cv[0:1]', 'Center_brow_ctrlShape2.cv[0:1]',
-                        'Center_brow_ctrlShape1.cv[0:1]', 'Center_brow_ctrlShape.cv[0:9]')
+            cmds.select('Center_brow_ctrlShape3.cv[0:1]', 'Center_brow_ctrlShape2.cv[0:1]', 'Center_brow_ctrlShape1.cv[0:1]', 'Center_brow_ctrlShape.cv[0:9]')
             cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 0.7 * self.ctrl_scale, r=True)
             cmds.select(clear=True)
             cmds.select('Center_brow_ctrl')
@@ -19261,12 +19226,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.setAttr('L_brow_master_Ctrl_grp.scaleX', 1.86)
             cmds.setAttr('L_brow_master_Ctrl_grp.scaleY', 0.6)
             cmds.makeIdentity('L_brow_master_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 1 * self.ctrl_scale, 'L_brow_master_ctrl.cv[0:7]',
-                      r=True)
-            cmds.move(-0.6 * self.ctrl_scale, 0 * self.ctrl_scale, 0 * self.ctrl_scale, 'L_brow_master_ctrl.cv[2]',
-                      'L_brow_master_ctrl.cv[4]', r=True)
-            cmds.move(0.6 * self.ctrl_scale, 0 * self.ctrl_scale, 0 * self.ctrl_scale, 'L_brow_master_ctrl.cv[0]',
-                      'L_brow_master_ctrl.cv[6]', r=True)
+            cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 1 * self.ctrl_scale, 'L_brow_master_ctrl.cv[0:7]', r=True)
+            cmds.move(-0.6 * self.ctrl_scale, 0 * self.ctrl_scale, 0 * self.ctrl_scale, 'L_brow_master_ctrl.cv[2]', 'L_brow_master_ctrl.cv[4]', r=True)
+            cmds.move(0.6 * self.ctrl_scale, 0 * self.ctrl_scale, 0 * self.ctrl_scale, 'L_brow_master_ctrl.cv[0]', 'L_brow_master_ctrl.cv[6]', r=True)
             cmds.select(clear=True)
             cmds.select('L_brow_master_ctrl')
             cmds.setAttr('L_brow_master_Ctrl_grp.rotateY', 22)
@@ -19278,19 +19240,14 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.setAttr('L_brow_master_Ctrl_grp.scaleX', 2.5)
             cmds.setAttr('L_brow_master_Ctrl_grp.scaleY', 0.8)
             cmds.makeIdentity('L_brow_master_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 1 * self.ctrl_scale, 'L_brow_master_ctrl.cv[0:7]',
-                      r=True)
-            cmds.move(-0.6 * self.ctrl_scale, 0 * self.ctrl_scale, 0 * self.ctrl_scale, 'L_brow_master_ctrl.cv[2]',
-                      'L_brow_master_ctrl.cv[4]', r=True)
-            cmds.move(0.6 * self.ctrl_scale, 0 * self.ctrl_scale, 0 * self.ctrl_scale, 'L_brow_master_ctrl.cv[0]',
-                      'L_brow_master_ctrl.cv[6]', r=True)
+            cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 1 * self.ctrl_scale, 'L_brow_master_ctrl.cv[0:7]', r=True)
+            cmds.move(-0.6 * self.ctrl_scale, 0 * self.ctrl_scale, 0 * self.ctrl_scale, 'L_brow_master_ctrl.cv[2]', 'L_brow_master_ctrl.cv[4]', r=True)
+            cmds.move(0.6 * self.ctrl_scale, 0 * self.ctrl_scale, 0 * self.ctrl_scale, 'L_brow_master_ctrl.cv[0]', 'L_brow_master_ctrl.cv[6]', r=True)
             cmds.select(clear=True)
             cmds.select('L_brow_master_ctrl')
             cmds.setAttr('L_brow_master_Ctrl_grp.rotateY', 30)
-            cmds.move(-1 * self.ctrl_scale, 0 * self.ctrl_scale, -0.5 * self.ctrl_scale, 'L_brow_master_ctrl.cv[2:4]',
-                      r=True)
-            cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, -1.2 * self.ctrl_scale, 'L_brow_master_ctrl.cv[0]',
-                      'L_brow_master_ctrl.cv[6:7]', r=True)
+            cmds.move(-1 * self.ctrl_scale, 0 * self.ctrl_scale, -0.5 * self.ctrl_scale, 'L_brow_master_ctrl.cv[2:4]', r=True)
+            cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, -1.2 * self.ctrl_scale, 'L_brow_master_ctrl.cv[0]', 'L_brow_master_ctrl.cv[6:7]', r=True)
         if 'Brow 05 joint' == self.ui.BrowOption.currentText() or 'Brow 07 joint' == self.ui.BrowOption.currentText() or 'Brow 13 joint' == self.ui.BrowOption.currentText() or 'Brow 04 joint' == self.ui.BrowOption.currentText():
             cmds.setAttr('L_brow_master_ctrlShape.overrideEnabled', 1)
             cmds.setAttr('L_brow_master_ctrlShape.overrideColor', 31)
@@ -19329,8 +19286,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.parent('System_R_brow_02_jnt', 'System_R_brow_02_jnt_grp')
             cmds.parent('L_brow_02_master_follow_grp', 'L_brow_master_Ctrl_grp')
             cmds.parent('R_brow_02_master_follow_grp', 'R_brow_master_Ctrl_grp')
-            cmds.makeIdentity('L_brow_02_master_follow_grp', 'R_brow_02_master_follow_grp', apply=True, t=True, r=True,
-                              scale=True)
+            cmds.makeIdentity('L_brow_02_master_follow_grp', 'R_brow_02_master_follow_grp', apply=True, t=True, r=True, scale=True)
             cmds.parentConstraint('L_brow_master_ctrl', 'L_brow_02_master_follow_grp', mo=True)
             cmds.parentConstraint('R_brow_master_ctrl', 'R_brow_02_master_follow_grp', mo=True)
             if 'Brow 07 joint' == self.ui.BrowOption.currentText() or 'Brow 13 joint' == self.ui.BrowOption.currentText():
@@ -19340,8 +19296,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 cmds.parent('System_R_brow_03_jnt', 'System_R_brow_03_jnt_grp')
                 cmds.parent('L_brow_03_master_follow_grp', 'L_brow_master_Ctrl_grp')
                 cmds.parent('R_brow_03_master_follow_grp', 'R_brow_master_Ctrl_grp')
-                cmds.makeIdentity('L_brow_03_master_follow_grp', 'R_brow_03_master_follow_grp', apply=True, t=True,
-                                  r=True, scale=True)
+                cmds.makeIdentity('L_brow_03_master_follow_grp', 'R_brow_03_master_follow_grp', apply=True, t=True, r=True, scale=True)
                 cmds.parentConstraint('L_brow_master_ctrl', 'L_brow_03_master_follow_grp', mo=True)
                 cmds.parentConstraint('R_brow_master_ctrl', 'R_brow_03_master_follow_grp', mo=True)
             cmds.parentConstraint('L_brow_master_ctrl', 'L_brow_02_master_follow_grp', mo=True)
@@ -19430,17 +19385,16 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             cmds.parent('*_brow_Ctrl_grp', 'Brow_All_Ctrl_grp')
 
-    # Issue
-    def Eye_All_System(self):
-        self.Cube_Ctrl_maker(23)
+    # todo eye all
+    def eye_all_system(self):
+        self.create_cube_control(23)
         cmds.scale(self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, 'Cube_Shape')
         cmds.rename('Cube_Shape', 'L_eye_blink_ctrl')
         cmds.group('L_eye_blink_ctrl', n='L_eye_blink_Ctrl_grp')
         cmds.pointConstraint('System_L_eye_blink_jnt', 'L_eye_blink_Ctrl_grp')
         cmds.delete('L_eye_blink_Ctrl_grp_pointConstraint1')
         cmds.makeIdentity('L_eye_blink_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-        cmds.select('L_eye_blink_ctrlShape3.cv[0:1]', 'L_eye_blink_ctrlShape2.cv[0:1]',
-                    'L_eye_blink_ctrlShape1.cv[0:1]', 'L_eye_blink_ctrlShape.cv[0:9]')
+        cmds.select('L_eye_blink_ctrlShape3.cv[0:1]', 'L_eye_blink_ctrlShape2.cv[0:1]', 'L_eye_blink_ctrlShape1.cv[0:1]', 'L_eye_blink_ctrlShape.cv[0:9]')
         cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 0.7 * self.ctrl_scale, r=True)
         cmds.select(clear=True)
         cmds.select('L_eye_blink_ctrl')
@@ -19485,9 +19439,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.group('System_R_eye_blink_jnt', n='System_R_eye_eye_back_follow_grp')
             cmds.parent('System_L_eye_blink_jnt', 'System_L_eye_blink_jnt_grp')
             cmds.parent('System_R_eye_blink_jnt', 'System_R_eye_blink_jnt_grp')
-            cmds.parent('System_L_eye_eye_lacrimal_follow_grp', 'System_R_eye_eye_lacrimal_follow_grp',
-                        'System_L_eye_eye_back_follow_grp', 'System_R_eye_eye_back_follow_grp', w=True)
-        if self.ui.EyeTargetCheckBox.isChecked() == True:
+            cmds.parent('System_L_eye_eye_lacrimal_follow_grp', 'System_R_eye_eye_lacrimal_follow_grp', 'System_L_eye_eye_back_follow_grp', 'System_R_eye_eye_back_follow_grp', w=True)
+        if self.ui.EyeTargetCheckBox.isChecked() is True:
             cmds.spaceLocator(n='L_eyeblink_loc')
             cmds.spaceLocator(n='R_eyeblink_loc')
             cmds.parent('L_eyeblink_loc', 'L_eye_blink_Ctrl_grp')
@@ -19516,15 +19469,14 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.parentConstraint('L_eye_blink_ctrl', 'System_L_eye_blink_jnt_grp', mo=True)
             cmds.parentConstraint('R_eye_blink_ctrl', 'System_R_eye_blink_jnt_grp', mo=True)
         if 'Eye 08 joint' == self.ui.EyeOption.currentText() or 'Eye 08 joint (D eyelid)' == self.ui.EyeOption.currentText() or 'Eye 16 joint (D eyelid)' == self.ui.EyeOption.currentText():
-            self.Cube_Ctrl_maker(23)
+            self.create_cube_control(23)
             cmds.scale(self.ctrl_scale * 0.4, self.ctrl_scale * 0.4, self.ctrl_scale * 0.4, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'L_eye_lower_ctrl')
             cmds.group('L_eye_lower_ctrl', n='L_eye_lower_Ctrl_grp')
             cmds.pointConstraint('System_L_eye_lower_jnt', 'L_eye_lower_Ctrl_grp')
             cmds.delete('L_eye_lower_Ctrl_grp_pointConstraint1')
             cmds.makeIdentity('L_eye_lower_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.select('L_eye_lower_ctrlShape3.cv[0:1]', 'L_eye_lower_ctrlShape2.cv[0:1]',
-                        'L_eye_lower_ctrlShape1.cv[0:1]', 'L_eye_lower_ctrlShape.cv[0:9]')
+            cmds.select('L_eye_lower_ctrlShape3.cv[0:1]', 'L_eye_lower_ctrlShape2.cv[0:1]', 'L_eye_lower_ctrlShape1.cv[0:1]', 'L_eye_lower_ctrlShape.cv[0:9]')
             cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 0.7 * self.ctrl_scale, r=True)
             cmds.select(clear=True)
             cmds.select('L_eye_lower_ctrl')
@@ -19563,7 +19515,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.group('System_R_eye_lower_jnt_grp', n='System_R_eye_lower_master_follow_grp')
             cmds.parentConstraint('System_L_eye_lower_master_follow_grp', 'L_eye_lower_Ctrl_grp', mo=True)
             cmds.parentConstraint('System_R_eye_lower_master_follow_grp', 'R_eye_lower_Ctrl_grp', mo=True)
-        if self.ui.EyeTargetCheckBox.isChecked() == True:
+        if self.ui.EyeTargetCheckBox.isChecked() is True:
             if 'Eye 08 joint' == self.ui.EyeOption.currentText() or 'Eye 08 joint (D eyelid)' == self.ui.EyeOption.currentText() or 'Eye 16 joint (D eyelid)' == self.ui.EyeOption.currentText():
                 cmds.spaceLocator(n='L_eyelower_loc')
                 cmds.spaceLocator(n='R_eyelower_loc')
@@ -19579,10 +19531,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 cmds.scaleConstraint('L_eye_lower_ctrl', 'System_L_eye_lower_jnt_grp', mo=True)
                 cmds.parentConstraint('R_eyelower_loc', 'System_R_eye_lower_jnt_grp', mo=True)
                 cmds.scaleConstraint('R_eye_lower_ctrl', 'System_R_eye_lower_jnt_grp', mo=True)
-                cmds.aimConstraint('L_eye_lower_ctrl', 'L_eyelower_loc', mo=True, wu=(0, 0, 0), aim=(0, 0, 1),
-                                   u=(0, 1, 0))
-                cmds.aimConstraint('R_eye_lower_ctrl', 'R_eyelower_loc', mo=True, wu=(0, 0, 0), aim=(0, 0, 1),
-                                   u=(0, 1, 0))
+                cmds.aimConstraint('L_eye_lower_ctrl', 'L_eyelower_loc', mo=True, wu=(0, 0, 0), aim=(0, 0, 1), u=(0, 1, 0))
+                cmds.aimConstraint('R_eye_lower_ctrl', 'R_eyelower_loc', mo=True, wu=(0, 0, 0), aim=(0, 0, 1), u=(0, 1, 0))
                 cmds.group('System_L_eye_lower_jnt', n='System_L_eye_lower_rotate_follow_grp')
                 cmds.group('System_R_eye_lower_jnt', n='System_R_eye_lower_rotate_follow_grp')
                 cmds.orientConstraint('L_eye_lower_ctrl', 'System_L_eye_lower_rotate_follow_grp', mo=True)
@@ -19593,15 +19543,14 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.parentConstraint('L_eye_lower_ctrl', 'System_L_eye_lower_jnt_grp', mo=True)
             cmds.parentConstraint('R_eye_lower_ctrl', 'System_R_eye_lower_jnt_grp', mo=True)
         if 'Eye 08 joint' == self.ui.EyeOption.currentText() or 'Eye 08 joint (D eyelid)' == self.ui.EyeOption.currentText() or 'Eye 16 joint (D eyelid)' == self.ui.EyeOption.currentText():
-            self.Cube_Ctrl_maker(13)
+            self.create_cube_control(13)
             cmds.scale(self.ctrl_scale * 0.4, self.ctrl_scale * 0.4, self.ctrl_scale * 0.4, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'L_eye_lacrimal_ctrl')
             cmds.group('L_eye_lacrimal_ctrl', n='L_eye_lacrimal_Ctrl_grp')
             cmds.pointConstraint('System_L_eye_lacrimal_jnt', 'L_eye_lacrimal_Ctrl_grp')
             cmds.delete('L_eye_lacrimal_Ctrl_grp_pointConstraint1')
             cmds.makeIdentity('L_eye_lacrimal_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.select('L_eye_lacrimal_ctrlShape3.cv[0:1]', 'L_eye_lacrimal_ctrlShape2.cv[0:1]',
-                        'L_eye_lacrimal_ctrlShape1.cv[0:1]', 'L_eye_lacrimal_ctrlShape.cv[0:9]')
+            cmds.select('L_eye_lacrimal_ctrlShape3.cv[0:1]', 'L_eye_lacrimal_ctrlShape2.cv[0:1]', 'L_eye_lacrimal_ctrlShape1.cv[0:1]', 'L_eye_lacrimal_ctrlShape.cv[0:9]')
             cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 0.7 * self.ctrl_scale, r=True)
             cmds.select(clear=True)
             cmds.select('L_eye_lacrimal_ctrl')
@@ -19639,8 +19588,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.pointConstraint('System_L_eye_lacrimal_upper_jnt', 'L_eye_lacrimal_upper_FK_Ctrl_grp')
             cmds.delete('L_eye_lacrimal_upper_FK_Ctrl_grp_pointConstraint1')
             cmds.makeIdentity('L_eye_lacrimal_upper_FK_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 0.7 * self.ctrl_scale,
-                      'L_eye_lacrimal_upper_FK_ctrl.cv[0:7]', r=True)
+            cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 0.7 * self.ctrl_scale, 'L_eye_lacrimal_upper_FK_ctrl.cv[0:7]', r=True)
             cmds.select(clear=True)
             cmds.select('L_eye_lacrimal_upper_FK_ctrl')
             cmds.setAttr('L_eye_lacrimal_upper_FK_ctrlShape.overrideEnabled', 1)
@@ -19665,10 +19613,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.scaleConstraint('L_eye_lacrimal_upper_FK_ctrl', 'System_L_eye_lacrimal_upper_jnt_grp', mo=True)
             cmds.parentConstraint('R_eye_lacrimal_upper_FK_ctrl', 'System_R_eye_lacrimal_upper_jnt_grp', mo=True)
             cmds.scaleConstraint('R_eye_lacrimal_upper_FK_ctrl', 'System_R_eye_lacrimal_upper_jnt_grp', mo=True)
-            cmds.parentConstraint('System_L_eye_lacrimal_upper_FK_master_follow_grp',
-                                  'L_eye_lacrimal_upper_FK_Ctrl_grp', mo=True)
-            cmds.parentConstraint('System_R_eye_lacrimal_upper_FK_master_follow_grp',
-                                  'R_eye_lacrimal_upper_FK_Ctrl_grp', mo=True)
+            cmds.parentConstraint('System_L_eye_lacrimal_upper_FK_master_follow_grp', 'L_eye_lacrimal_upper_FK_Ctrl_grp', mo=True)
+            cmds.parentConstraint('System_R_eye_lacrimal_upper_FK_master_follow_grp', 'R_eye_lacrimal_upper_FK_Ctrl_grp', mo=True)
             cmds.group('L_eye_lacrimal_upper_FK_ctrl', n='L_eye_lacrimal_upper_FK_blink_follow_grp')
             cmds.group('R_eye_lacrimal_upper_FK_ctrl', n='R_eye_lacrimal_upper_FK_blink_follow_grp')
             cmds.group('L_eye_lacrimal_upper_FK_ctrl', n='L_eye_lacrimal_upper_FK_lacrimal_follow_grp')
@@ -19678,8 +19624,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.pointConstraint('System_L_eye_lacrimal_lower_jnt', 'L_eye_lacrimal_lower_FK_Ctrl_grp')
             cmds.delete('L_eye_lacrimal_lower_FK_Ctrl_grp_pointConstraint1')
             cmds.makeIdentity('L_eye_lacrimal_lower_FK_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 0.7 * self.ctrl_scale,
-                      'L_eye_lacrimal_lower_FK_ctrl.cv[0:7]', r=True)
+            cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 0.7 * self.ctrl_scale, 'L_eye_lacrimal_lower_FK_ctrl.cv[0:7]', r=True)
             cmds.select(clear=True)
             cmds.select('L_eye_lacrimal_lower_FK_ctrl')
             cmds.setAttr('L_eye_lacrimal_lower_FK_ctrlShape.overrideEnabled', 1)
@@ -19704,10 +19649,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.scaleConstraint('L_eye_lacrimal_lower_FK_ctrl', 'System_L_eye_lacrimal_lower_jnt_grp', mo=True)
             cmds.parentConstraint('R_eye_lacrimal_lower_FK_ctrl', 'System_R_eye_lacrimal_lower_jnt_grp', mo=True)
             cmds.scaleConstraint('R_eye_lacrimal_lower_FK_ctrl', 'System_R_eye_lacrimal_lower_jnt_grp', mo=True)
-            cmds.parentConstraint('System_L_eye_lacrimal_lower_FK_master_follow_grp',
-                                  'L_eye_lacrimal_lower_FK_Ctrl_grp', mo=True)
-            cmds.parentConstraint('System_R_eye_lacrimal_lower_FK_master_follow_grp',
-                                  'R_eye_lacrimal_lower_FK_Ctrl_grp', mo=True)
+            cmds.parentConstraint('System_L_eye_lacrimal_lower_FK_master_follow_grp', 'L_eye_lacrimal_lower_FK_Ctrl_grp', mo=True)
+            cmds.parentConstraint('System_R_eye_lacrimal_lower_FK_master_follow_grp', 'R_eye_lacrimal_lower_FK_Ctrl_grp', mo=True)
             cmds.group('L_eye_lacrimal_lower_FK_ctrl', n='L_eye_lacrimal_lower_FK_lower_follow_grp')
             cmds.group('R_eye_lacrimal_lower_FK_ctrl', n='R_eye_lacrimal_lower_FK_lower_follow_grp')
             cmds.group('L_eye_lacrimal_lower_FK_ctrl', n='L_eye_lacrimal_lower_FK_lacrimal_follow_grp')
@@ -19721,15 +19664,14 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.setAttr('R_eye_lower_ctrl.lower_FK_follow', e=1, keyable=True)
             cmds.setAttr('R_eye_lower_ctrl.lower_FK_follow', 1)
         if 'Eye 08 joint' == self.ui.EyeOption.currentText() or 'Eye 08 joint (D eyelid)' == self.ui.EyeOption.currentText() or 'Eye 16 joint (D eyelid)' == self.ui.EyeOption.currentText():
-            self.Cube_Ctrl_maker(13)
+            self.create_cube_control(13)
             cmds.scale(self.ctrl_scale * 0.4, self.ctrl_scale * 0.4, self.ctrl_scale * 0.4, 'Cube_Shape')
             cmds.rename('Cube_Shape', 'L_eye_back_ctrl')
             cmds.group('L_eye_back_ctrl', n='L_eye_back_Ctrl_grp')
             cmds.pointConstraint('System_L_eye_back_jnt', 'L_eye_back_Ctrl_grp')
             cmds.delete('L_eye_back_Ctrl_grp_pointConstraint1')
             cmds.makeIdentity('L_eye_back_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.select('L_eye_back_ctrlShape3.cv[0:1]', 'L_eye_back_ctrlShape2.cv[0:1]',
-                        'L_eye_back_ctrlShape1.cv[0:1]', 'L_eye_back_ctrlShape.cv[0:9]')
+            cmds.select('L_eye_back_ctrlShape3.cv[0:1]', 'L_eye_back_ctrlShape2.cv[0:1]', 'L_eye_back_ctrlShape1.cv[0:1]', 'L_eye_back_ctrlShape.cv[0:9]')
             cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 0.7 * self.ctrl_scale, r=True)
             cmds.select(clear=True)
             cmds.select('L_eye_back_ctrl')
@@ -19773,8 +19715,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.pointConstraint('System_L_eye_back_upper_jnt', 'L_eye_back_upper_FK_Ctrl_grp')
             cmds.delete('L_eye_back_upper_FK_Ctrl_grp_pointConstraint1')
             cmds.makeIdentity('L_eye_back_upper_FK_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 0.7 * self.ctrl_scale,
-                      'L_eye_back_upper_FK_ctrl.cv[0:7]', r=True)
+            cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 0.7 * self.ctrl_scale, 'L_eye_back_upper_FK_ctrl.cv[0:7]', r=True)
             cmds.select(clear=True)
             cmds.select('L_eye_back_upper_FK_ctrl')
             cmds.setAttr('L_eye_back_upper_FK_ctrlShape.overrideEnabled', 1)
@@ -19799,10 +19740,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.scaleConstraint('L_eye_back_upper_FK_ctrl', 'System_L_eye_back_upper_jnt_grp', mo=True)
             cmds.parentConstraint('R_eye_back_upper_FK_ctrl', 'System_R_eye_back_upper_jnt_grp', mo=True)
             cmds.scaleConstraint('R_eye_back_upper_FK_ctrl', 'System_R_eye_back_upper_jnt_grp', mo=True)
-            cmds.parentConstraint('System_L_eye_back_upper_FK_master_follow_grp', 'L_eye_back_upper_FK_Ctrl_grp',
-                                  mo=True)
-            cmds.parentConstraint('System_R_eye_back_upper_FK_master_follow_grp', 'R_eye_back_upper_FK_Ctrl_grp',
-                                  mo=True)
+            cmds.parentConstraint('System_L_eye_back_upper_FK_master_follow_grp', 'L_eye_back_upper_FK_Ctrl_grp', mo=True)
+            cmds.parentConstraint('System_R_eye_back_upper_FK_master_follow_grp', 'R_eye_back_upper_FK_Ctrl_grp', mo=True)
             cmds.group('L_eye_back_upper_FK_ctrl', n='L_eye_back_upper_FK_blink_follow_grp')
             cmds.group('R_eye_back_upper_FK_ctrl', n='R_eye_back_upper_FK_blink_follow_grp')
             cmds.group('L_eye_back_upper_FK_ctrl', n='L_eye_back_upper_FK_back_follow_grp')
@@ -19812,8 +19751,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.pointConstraint('System_L_eye_back_lower_jnt', 'L_eye_back_lower_FK_Ctrl_grp')
             cmds.delete('L_eye_back_lower_FK_Ctrl_grp_pointConstraint1')
             cmds.makeIdentity('L_eye_back_lower_FK_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 0.7 * self.ctrl_scale,
-                      'L_eye_back_lower_FK_ctrl.cv[0:7]', r=True)
+            cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 0.7 * self.ctrl_scale, 'L_eye_back_lower_FK_ctrl.cv[0:7]', r=True)
             cmds.select(clear=True)
             cmds.select('L_eye_back_lower_FK_ctrl')
             cmds.setAttr('L_eye_back_lower_FK_ctrlShape.overrideEnabled', 1)
@@ -19838,10 +19776,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.scaleConstraint('L_eye_back_lower_FK_ctrl', 'System_L_eye_back_lower_jnt_grp', mo=True)
             cmds.parentConstraint('R_eye_back_lower_FK_ctrl', 'System_R_eye_back_lower_jnt_grp', mo=True)
             cmds.scaleConstraint('R_eye_back_lower_FK_ctrl', 'System_R_eye_back_lower_jnt_grp', mo=True)
-            cmds.parentConstraint('System_L_eye_back_lower_FK_master_follow_grp', 'L_eye_back_lower_FK_Ctrl_grp',
-                                  mo=True)
-            cmds.parentConstraint('System_R_eye_back_lower_FK_master_follow_grp', 'R_eye_back_lower_FK_Ctrl_grp',
-                                  mo=True)
+            cmds.parentConstraint('System_L_eye_back_lower_FK_master_follow_grp', 'L_eye_back_lower_FK_Ctrl_grp', mo=True)
+            cmds.parentConstraint('System_R_eye_back_lower_FK_master_follow_grp', 'R_eye_back_lower_FK_Ctrl_grp', mo=True)
             cmds.group('L_eye_back_lower_FK_ctrl', n='L_eye_back_lower_FK_lower_follow_grp')
             cmds.group('R_eye_back_lower_FK_ctrl', n='R_eye_back_lower_FK_lower_follow_grp')
             cmds.group('L_eye_back_lower_FK_ctrl', n='L_eye_back_lower_FK_back_follow_grp')
@@ -19888,12 +19824,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.pointConstraint('System_L_eye_double_jnt', 'L_eye_double_Ctrl_grp')
             cmds.delete('L_eye_double_Ctrl_grp_pointConstraint1')
             cmds.makeIdentity('L_eye_double_Ctrl_grp', apply=True, t=True, r=True, scale=True)
-            cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 0.7 * self.ctrl_scale, 'L_eye_double_ctrl.cv[0:7]',
-                      r=True)
-            cmds.move(0 * self.ctrl_scale, 0.262 * self.ctrl_scale, 0 * self.ctrl_scale, 'L_eye_double_ctrl.cv[4:6]',
-                      r=True)
-            cmds.move(0 * self.ctrl_scale, 0.27 * self.ctrl_scale, 0 * self.ctrl_scale, 'L_eye_double_ctrl.cv[5]',
-                      r=True)
+            cmds.move(0 * self.ctrl_scale, 0 * self.ctrl_scale, 0.7 * self.ctrl_scale, 'L_eye_double_ctrl.cv[0:7]', r=True)
+            cmds.move(0 * self.ctrl_scale, 0.262 * self.ctrl_scale, 0 * self.ctrl_scale, 'L_eye_double_ctrl.cv[4:6]', r=True)
+            cmds.move(0 * self.ctrl_scale, 0.27 * self.ctrl_scale, 0 * self.ctrl_scale, 'L_eye_double_ctrl.cv[5]', r=True)
             cmds.select(clear=True)
             cmds.select('L_eye_double_ctrl')
             cmds.setAttr('L_eye_double_ctrlShape.overrideEnabled', 1)
@@ -19939,17 +19872,15 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 ae=1, uc=all, alwaysEvaluate=0, n='Eye_double_expression')
         cmds.group(em=True, n='Eye_All_Ctrl_grp')
         if 'Eye 08 joint' == self.ui.EyeOption.currentText():
-            cmds.parent('*_eye_blink_Ctrl_grp', '*_eye_lower_Ctrl_grp', '*_eye_lacrimal_Ctrl_grp',
-                        '*_eye_back_Ctrl_grp', 'Eye_All_Ctrl_grp')
+            cmds.parent('*_eye_blink_Ctrl_grp', '*_eye_lower_Ctrl_grp', '*_eye_lacrimal_Ctrl_grp', '*_eye_back_Ctrl_grp', 'Eye_All_Ctrl_grp')
         elif 'Eye 08 joint (D eyelid)' == self.ui.EyeOption.currentText() or 'Eye 16 joint (D eyelid)' == self.ui.EyeOption.currentText():
-            cmds.parent('*_eye_blink_Ctrl_grp', '*_eye_lower_Ctrl_grp', '*_eye_lacrimal_Ctrl_grp',
-                        '*_eye_back_Ctrl_grp', '*_eye_double_Ctrl_grp', 'Eye_All_Ctrl_grp')
+            cmds.parent('*_eye_blink_Ctrl_grp', '*_eye_lower_Ctrl_grp', '*_eye_lacrimal_Ctrl_grp', '*_eye_back_Ctrl_grp', '*_eye_double_Ctrl_grp', 'Eye_All_Ctrl_grp')
             if 'Eye 16 joint (D eyelid)' == self.ui.EyeOption.currentText():
                 cmds.parent('*_eye_lacrimal_*_FK_Ctrl_grp', '*_eye_back_*_FK_Ctrl_grp', 'Eye_All_Ctrl_grp')
         else:
             cmds.parent('*_eye_blink_Ctrl_grp', 'Eye_All_Ctrl_grp')
 
-    def Brow_Eye_Connect_System(self):
+    def brow_eye_connect_system(self):
         cmds.group('L_brow_master_ctrl', n='L_brow_master_eye_blink_follow_grp')
         cmds.group('R_brow_master_ctrl', n='R_brow_master_eye_blink_follow_grp')
         cmds.group('System_L_eye_blink_jnt', n='System_L_brow_master_eye_blink_follow_grp')
@@ -20006,7 +19937,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                             s='\n//Eye_double Follow\n' + '\nif(System_L_eye_blink_jnt_grp.translateY>0){' + '\nL_eye_double_eye_blink_follow_grp.translateY = System_L_eye_blink_jnt_grp.translateY/3*(L_eye_blink_ctrl.Up_Eye_Double_follow);' + '\nL_eye_double_eye_blink_follow_grp.translateX = System_L_eye_blink_jnt_grp.translateX/4;}' + '\nelse{L_eye_double_eye_blink_follow_grp.translateY = System_L_eye_blink_jnt_grp.translateY/6*(L_eye_blink_ctrl.Down_Eye_Double_follow);' + '\nL_eye_double_eye_blink_follow_grp.translateX = System_L_eye_blink_jnt_grp.translateX/4;}' + '\nif(System_R_eye_blink_jnt_grp.translateY>0){' + '\nR_eye_double_eye_blink_follow_grp.translateY = System_R_eye_blink_jnt_grp.translateY/3*(R_eye_blink_ctrl.Up_Eye_Double_follow);' + '\nR_eye_double_eye_blink_follow_grp.translateX = -System_R_eye_blink_jnt_grp.translateX/4;}' + '\nelse{R_eye_double_eye_blink_follow_grp.translateY = System_R_eye_blink_jnt_grp.translateY/6*(R_eye_blink_ctrl.Down_Eye_Double_follow);' + '\nR_eye_double_eye_blink_follow_grp.translateX = -System_R_eye_blink_jnt_grp.translateX/4;}' + '\n//Eye_double Brow_02 Follow\n' + '\nL_eye_double_brow_02_follow_grp.translateY = System_L_eye_double_brow_02_follow_grp.translateY/2.5*(L_brow_02_ctrl.Eye_Double_follow);' + '\nR_eye_double_brow_02_follow_grp.translateY = System_R_eye_double_brow_02_follow_grp.translateY/2.5*(R_brow_02_ctrl.Eye_Double_follow);',
                             ae=1, uc=all, alwaysEvaluate=0)
 
-    def Cheek_Eye_Connect_System(self):
+    def cheek_eye_connect_system(self):
         if 'Eye 08 joint' == self.ui.EyeOption.currentText() or 'Eye 08 joint (D eyelid)' == self.ui.EyeOption.currentText() or 'Eye 16 joint (D eyelid)' == self.ui.EyeOption.currentText():
             if 'Cheek 08 joint' == self.ui.CheekOption.currentText() or 'Cheek 12 joint' == self.ui.CheekOption.currentText():
                 cmds.group('L_eye_lower_ctrl', n='L_eye_upper_cheek_follow_grp')
@@ -20045,7 +19976,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                     s='\n//Eye_upper_cheek Follow\n' + '\nif(System_L_eye_upper_cheek_follow_grp.translateY>0){' + '\nL_eye_upper_cheek_follow_grp.translateY = System_L_eye_upper_cheek_follow_grp.translateY/3*(L_upper_cheek_ctrl.Eye_Lower_follow);}' + '\nelse{L_eye_upper_cheek_follow_grp.translateY = 0;}' + '\nif(System_R_eye_upper_cheek_follow_grp.translateY>0){' + '\nR_eye_upper_cheek_follow_grp.translateY = System_R_eye_upper_cheek_follow_grp.translateY/3*(R_upper_cheek_ctrl.Eye_Lower_follow);}' + '\nelse{R_eye_upper_cheek_follow_grp.translateY = 0;}' + '\n//Orbicularis_cheek Eye lower Follow\n' + '\nL_outer_orbicularis_cheek_FK_eye_lower_follow_grp.translateX = -(L_eye_lower_ctrl.translateY/3+L_eye_lower_blink_follow_grp.translateY/3+L_eye_lower_eye_target_follow_grp.translateY/3+L_eye_lower_blink_side_follow_grp.translateY/3)*(L_eye_lower_ctrl.Orbicularis_cheek_follow);' + '\nL_outer_orbicularis_cheek_FK_eye_lower_follow_grp.translateY = (L_eye_lower_ctrl.translateY/3+L_eye_lower_blink_follow_grp.translateY/3+L_eye_lower_eye_target_follow_grp.translateY/3+L_eye_lower_blink_side_follow_grp.translateY/3)*(L_eye_lower_ctrl.Orbicularis_cheek_follow);' + '\nL_inner_orbicularis_cheek_FK_eye_lower_follow_grp.translateY = (L_eye_lower_ctrl.translateY/3+L_eye_lower_blink_follow_grp.translateY/3+L_eye_lower_eye_target_follow_grp.translateY/3+L_eye_lower_blink_side_follow_grp.translateY/3)*(L_eye_lower_ctrl.Orbicularis_cheek_follow);' + '\nR_outer_orbicularis_cheek_FK_eye_lower_follow_grp.translateX = -(R_eye_lower_ctrl.translateY/3+R_eye_lower_blink_follow_grp.translateY/3+R_eye_lower_eye_target_follow_grp.translateY/3+R_eye_lower_blink_side_follow_grp.translateY/3)*(R_eye_lower_ctrl.Orbicularis_cheek_follow);' + '\nR_outer_orbicularis_cheek_FK_eye_lower_follow_grp.translateY = (R_eye_lower_ctrl.translateY/3+R_eye_lower_blink_follow_grp.translateY/3+R_eye_lower_eye_target_follow_grp.translateY/3+R_eye_lower_blink_side_follow_grp.translateY/3)*(R_eye_lower_ctrl.Orbicularis_cheek_follow);' + '\nR_inner_orbicularis_cheek_FK_eye_lower_follow_grp.translateY = (R_eye_lower_ctrl.translateY/3+R_eye_lower_blink_follow_grp.translateY/3+R_eye_lower_eye_target_follow_grp.translateY/3+R_eye_lower_blink_side_follow_grp.translateY/3)*(R_eye_lower_ctrl.Orbicularis_cheek_follow);',
                     ae=1, uc=all, alwaysEvaluate=0, n='Eye_upper_cheek_expression')
 
-    def Eye_Target_System(self):
+    def eye_target_system(self):
         cmds.circle(nr=(0, 0, 1), c=(0, 0, 0), sw=360, r=self.ctrl_scale * 3, n='L_eye_target_ctrl')
         cmds.group('L_eye_target_ctrl', n='L_eye_target_Ctrl_grp')
         cmds.pointConstraint('System_L_eye_ball_jnt', 'L_eye_target_Ctrl_grp')
@@ -20070,19 +20001,14 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.setAttr('R_eye_target_ctrlShape.overrideColor', 29)
         cmds.group('System_L_eye_ball_jnt', n='System_L_eye_ball_jnt_grp')
         cmds.group('System_R_eye_ball_jnt', n='System_R_eye_ball_jnt_grp')
-        cmds.aimConstraint('L_eye_target_ctrl', 'System_L_eye_ball_jnt_grp', mo=True, wu=(0, 0, 0), aim=(0, 0, 1),
-                           u=(0, 1, 0))
+        cmds.aimConstraint('L_eye_target_ctrl', 'System_L_eye_ball_jnt_grp', mo=True, wu=(0, 0, 0), aim=(0, 0, 1), u=(0, 1, 0))
         cmds.setAttr('System_L_eye_ball_jnt_grp.rotateOrder', 4)
-        cmds.aimConstraint('R_eye_target_ctrl', 'System_R_eye_ball_jnt_grp', mo=True, wu=(0, 0, 0), aim=(0, 0, 1),
-                           u=(0, 1, 0))
+        cmds.aimConstraint('R_eye_target_ctrl', 'System_R_eye_ball_jnt_grp', mo=True, wu=(0, 0, 0), aim=(0, 0, 1), u=(0, 1, 0))
         cmds.setAttr('System_R_eye_ball_jnt_grp.rotateOrder', 4)
         cmds.nurbsSquare(nr=(0, 0, 1), c=(0, 0, 0), n='Eye_target_Master_ctrl')
-        cmds.select('topEye_target_Master_ctrlShape', 'leftEye_target_Master_ctrlShape',
-                    'bottomEye_target_Master_ctrlShape', 'rightEye_target_Master_ctrlShape', 'Eye_target_Master_ctrl',
-                    add=True)
+        cmds.select('topEye_target_Master_ctrlShape', 'leftEye_target_Master_ctrlShape', 'bottomEye_target_Master_ctrlShape', 'rightEye_target_Master_ctrlShape', 'Eye_target_Master_ctrl', add=True)
         mel.eval('parent -r -s')
-        cmds.delete('topEye_target_Master_ctrl', 'leftEye_target_Master_ctrl', 'bottomEye_target_Master_ctrl',
-                    'rightEye_target_Master_ctrl')
+        cmds.delete('topEye_target_Master_ctrl', 'leftEye_target_Master_ctrl', 'bottomEye_target_Master_ctrl', 'rightEye_target_Master_ctrl')
         cmds.select('Eye_target_Master_ctrl')
         cmds.scale(13.8 * self.ctrl_scale, 6.6 * self.ctrl_scale, 13.8 * self.ctrl_scale, r=True)
         cmds.group('Eye_target_Master_ctrl', n='Eye_target_Master_Ctrl_grp')
@@ -20179,15 +20105,13 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.setAttr('Eye_target_Master_ctrl.Target_World', e=1, keyable=True)
         cmds.setAttr('Eye_target_Master_ctrl.Target_World', 0)
         cmds.setAttr('Eye_World_point_Loc_grp.inheritsTransform', 0)
-        cmds.aimConstraint('L_Eye_World_point_ctrl', 'System_L_eye_ball_jnt_grp', mo=True, wu=(0, 0, 0), aim=(0, 0, 1),
-                           u=(0, 1, 0))
-        cmds.aimConstraint('R_Eye_World_point_ctrl', 'System_R_eye_ball_jnt_grp', mo=True, wu=(0, 0, 0), aim=(0, 0, 1),
-                           u=(0, 1, 0))
+        cmds.aimConstraint('L_Eye_World_point_ctrl', 'System_L_eye_ball_jnt_grp', mo=True, wu=(0, 0, 0), aim=(0, 0, 1), u=(0, 1, 0))
+        cmds.aimConstraint('R_Eye_World_point_ctrl', 'System_R_eye_ball_jnt_grp', mo=True, wu=(0, 0, 0), aim=(0, 0, 1), u=(0, 1, 0))
         cmds.expression(
             s='\n//EyeTarget World Follow\n' + '\nSystem_L_eye_ball_jnt_grp_aimConstraint1.L_eye_target_ctrlW0 = 1-(Eye_target_Master_ctrl.Target_World);\n' + '\nSystem_R_eye_ball_jnt_grp_aimConstraint1.R_eye_target_ctrlW0 = 1-(Eye_target_Master_ctrl.Target_World);\n' + '\nSystem_L_eye_ball_jnt_grp_aimConstraint1.L_Eye_World_point_ctrlW1 = (Eye_target_Master_ctrl.Target_World);\n' + '\nSystem_R_eye_ball_jnt_grp_aimConstraint1.R_Eye_World_point_ctrlW1 = (Eye_target_Master_ctrl.Target_World);\n',
             ae=1, uc=all, alwaysEvaluate=0, n='EyeTarget_World_expression')
 
-    def Eye_Eye_Target_Connect_System(self):
+    def eye_eye_target_connect_system(self):
         cmds.group('L_eye_blink_ctrl', n='L_eye_blink_eye_target_follow_grp')
         cmds.group('R_eye_blink_ctrl', n='R_eye_blink_eye_target_follow_grp')
         if 'Eye 08 joint' == self.ui.EyeOption.currentText() or 'Eye 08 joint (D eyelid)' == self.ui.EyeOption.currentText() or 'Eye 16 joint (D eyelid)' == self.ui.EyeOption.currentText():
@@ -20197,8 +20121,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.group('R_eye_target_ctrl', n='System_R_eye_eye_target_follow_grp')
         cmds.parent('L_eye_target_ctrl', 'L_eye_target_Ctrl_grp')
         cmds.parent('R_eye_target_ctrl', 'R_eye_target_Ctrl_grp')
-        cmds.parent('System_L_eye_eye_target_follow_grp', 'System_R_eye_eye_target_follow_grp',
-                    'Eye_target_Master_Ctrl_grp')
+        cmds.parent('System_L_eye_eye_target_follow_grp', 'System_R_eye_eye_target_follow_grp', 'Eye_target_Master_Ctrl_grp')
         cmds.pointConstraint('L_eye_target_ctrl', 'System_L_eye_eye_target_follow_grp', mo=True)
         cmds.pointConstraint('R_eye_target_ctrl', 'System_R_eye_eye_target_follow_grp', mo=True)
         cmds.pointConstraint('L_Eye_World_point_ctrl', 'System_L_eye_eye_target_follow_grp', mo=True)
@@ -20271,7 +20194,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             s='\n//EyeTarget Eyelid World Follow\n' + '\nSystem_L_eye_eye_target_follow_grp_pointConstraint1.L_eye_target_ctrlW0 = 1-(Eye_target_Master_ctrl.Target_World);\n' + '\nSystem_R_eye_eye_target_follow_grp_pointConstraint1.R_eye_target_ctrlW0 = 1-(Eye_target_Master_ctrl.Target_World);\n' + '\nSystem_L_eye_eye_target_follow_grp_pointConstraint1.L_Eye_World_point_ctrlW1 = (Eye_target_Master_ctrl.Target_World);\n' + '\nSystem_R_eye_eye_target_follow_grp_pointConstraint1.R_Eye_World_point_ctrlW1 = (Eye_target_Master_ctrl.Target_World);\n',
             ae=1, uc=all, alwaysEvaluate=0, n='EyeTarget_Eyelid_World_expression')
 
-    def Oral_Cavity_System(self):
+    # 口腔内システム
+    def oral_cavity_system(self):
         cmds.circle(nr=(0, 1, 0), c=(0, 0, 0), sw=360, r=self.ctrl_scale * 3, n='Lower_teeth_ctrl')
         cmds.group('Lower_teeth_ctrl', n='Lower_teeth_Ctrl_grp')
         cmds.pointConstraint('System_Lower_teeth_jnt', 'Lower_teeth_Ctrl_grp')
@@ -20381,15 +20305,15 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             cmds.parent('*_teeth_Ctrl_grp', 'Oral_Cavity_All_Ctrl_grp')
 
-    def Create_Rig_Skin(self):
+    def create_rig_skin(self):
         cmds.select('Skin*_jnt')
         all_skin_jnt = cmds.ls(sl=True)
         for each in all_skin_jnt:
             sys_jnt = each.replace('Skin', 'System')
             if cmds.objExists(sys_jnt):
-                self.ConnectInverseParent(sys_jnt, each)
+                self.connect_inverse_parent(sys_jnt, each)
 
-    def ConnectInverseParent(self, src_obj, trg_obj):
+    def connect_inverse_parent(self, src_obj, trg_obj):
         multMat = cmds.shadingNode('multMatrix', asUtility=True, n=src_obj + '_multMatrix')
         cmds.connectAttr(src_obj + '.worldMatrix[0]', multMat + '.matrixIn[0]', force=True)
         cmds.connectAttr(trg_obj + '.parentInverseMatrix', multMat + '.matrixIn[1]', force=True)

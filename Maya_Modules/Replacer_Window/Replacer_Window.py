@@ -27,13 +27,12 @@ def apply_reference(args):
     print("START---------------------Replaced Reference---------------")
     nodes = cmds.ls(sl=True)
     for node in nodes:
-        #cur_path = mm.FileReference(node).path
-        #print(cur_path)
         _node = cmds.referenceQuery(node, referenceNode=True)
         _path = cmds.referenceQuery(_node, filename=True)
         _is_loaded = cmds.referenceQuery(_node, isLoaded=True)
-        _node_index = _node.find('Rig')
-        if _is_loaded is False and _node_index > -1:
+        _rig_node_index = _node.find('Rig')
+        # loadに失敗している。RigNodeであるか？
+        if _is_loaded is False and _rig_node_index > -1:
             print("_node => {0}".format(_node))
             print("_path => {0}".format(_path))
             cmds.file(rrn, loadReference=node)
@@ -101,7 +100,7 @@ class ReplacerWindow(object):
         cmds.setParent("..")
 
         cmds.checkBox("ReturnSetProject", label="Return Set Project", v=True, annotation=u"連続で処理をしやすいよう、最後にプロジェクトセットを戻します")
-        #cmds.checkBox("save", label="Apply", v=False, annotation=u"保存をする場合はチェックしてください。")
+        cmds.checkBox("save", label="Apply", v=False, annotation=u"保存をする場合はチェックしてください。")
 
         cmds.separator(h=12)
         cmds.text("Scene Name Option")

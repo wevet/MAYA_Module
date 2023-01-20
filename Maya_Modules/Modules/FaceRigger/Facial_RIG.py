@@ -114,7 +114,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.non_symmetry_check = False
         self.rig_check = False
         self.create_joint_check = False
-        self.RebuildCheck = 0
+        self.rebuild_check = False
         self.TopolDefine_window = 'TopolDefine_window'
         self.addNeck = 0
         self.Neck_pathTemp = ''
@@ -351,64 +351,64 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         BrowTopolLBtn_reset_action = QtWidgets.QAction('Reset', self.ui.BrowTopolLBtn)
         self.ui.BrowTopolLBtn.addAction(BrowTopolLBtn_all_action)
         self.ui.BrowTopolLBtn.addAction(BrowTopolLBtn_reset_action)
-        BrowTopolLBtn_all_action.triggered.connect(self.BrowL_All_PopupCmd)
-        BrowTopolLBtn_reset_action.triggered.connect(self.BrowL_Reset_PopupCmd)
+        BrowTopolLBtn_all_action.triggered.connect(self.browL_all_popup_command)
+        BrowTopolLBtn_reset_action.triggered.connect(self.browL_reset_popup_command)
         self.ui.BrowTopolRBtn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         BrowTopolRBtn_all_action = QtWidgets.QAction('Select the All Vertex', self.ui.BrowTopolRBtn)
         BrowTopolRBtn_reset_action = QtWidgets.QAction('Reset', self.ui.BrowTopolRBtn)
         self.ui.BrowTopolRBtn.addAction(BrowTopolRBtn_all_action)
         self.ui.BrowTopolRBtn.addAction(BrowTopolRBtn_reset_action)
-        BrowTopolRBtn_all_action.triggered.connect(self.BrowR_All_PopupCmd)
-        BrowTopolRBtn_reset_action.triggered.connect(self.BrowR_Reset_PopupCmd)
+        BrowTopolRBtn_all_action.triggered.connect(self.browR_all_popup_command)
+        BrowTopolRBtn_reset_action.triggered.connect(self.browR_reset_popup_command)
         self.ui.EyeTopolLBtn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         EyeTopolLBtn_all_action = QtWidgets.QAction('Select the All Vertex', self.ui.EyeTopolLBtn)
         EyeTopolLBtn_reset_action = QtWidgets.QAction('Reset', self.ui.EyeTopolLBtn)
         self.ui.EyeTopolLBtn.addAction(EyeTopolLBtn_all_action)
         self.ui.EyeTopolLBtn.addAction(EyeTopolLBtn_reset_action)
-        EyeTopolLBtn_all_action.triggered.connect(self.EyeL_All_PopupCmd)
-        EyeTopolLBtn_reset_action.triggered.connect(self.EyeL_Reset_PopupCmd)
+        EyeTopolLBtn_all_action.triggered.connect(self.eyeL_all_popup_command)
+        EyeTopolLBtn_reset_action.triggered.connect(self.eyeL_reset_popup_command)
         self.ui.EyeTopolRBtn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         EyeTopolRBtn_all_action = QtWidgets.QAction('Select the All Vertex', self.ui.EyeTopolRBtn)
         EyeTopolRBtn_reset_action = QtWidgets.QAction('Reset', self.ui.EyeTopolRBtn)
         self.ui.EyeTopolRBtn.addAction(EyeTopolRBtn_all_action)
         self.ui.EyeTopolRBtn.addAction(EyeTopolRBtn_reset_action)
-        EyeTopolRBtn_all_action.triggered.connect(self.EyeR_All_PopupCmd)
-        EyeTopolRBtn_reset_action.triggered.connect(self.EyeR_Reset_PopupCmd)
+        EyeTopolRBtn_all_action.triggered.connect(self.eyeR_all_popup_command)
+        EyeTopolRBtn_reset_action.triggered.connect(self.eyeR_reset_popup_command)
         self.ui.NoseTopolBtn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         NoseTopolBtn_all_action = QtWidgets.QAction('Select the All Vertex', self.ui.NoseTopolBtn)
         NoseTopolBtn_reset_action = QtWidgets.QAction('Reset', self.ui.NoseTopolBtn)
         self.ui.NoseTopolBtn.addAction(NoseTopolBtn_all_action)
         self.ui.NoseTopolBtn.addAction(NoseTopolBtn_reset_action)
-        NoseTopolBtn_all_action.triggered.connect(self.Nose_All_PopupCmd)
-        NoseTopolBtn_reset_action.triggered.connect(self.Nose_Reset_PopupCmd)
+        NoseTopolBtn_all_action.triggered.connect(self.nose_all_popup_command)
+        NoseTopolBtn_reset_action.triggered.connect(self.nose_reset_popup_command)
         self.ui.CheekTopolLBtn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         CheekTopolLBtn_all_action = QtWidgets.QAction('Select the All Vertex', self.ui.CheekTopolLBtn)
         CheekTopolLBtn_reset_action = QtWidgets.QAction('Reset', self.ui.CheekTopolLBtn)
         self.ui.CheekTopolLBtn.addAction(CheekTopolLBtn_all_action)
         self.ui.CheekTopolLBtn.addAction(CheekTopolLBtn_reset_action)
-        CheekTopolLBtn_all_action.triggered.connect(self.CheekL_All_PopupCmd)
-        CheekTopolLBtn_reset_action.triggered.connect(self.CheekL_Reset_PopupCmd)
+        CheekTopolLBtn_all_action.triggered.connect(self.cheekL_all_popup_command)
+        CheekTopolLBtn_reset_action.triggered.connect(self.cheekL_reset_popup_command)
         self.ui.CheekTopolRBtn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         CheekTopolRBtn_all_action = QtWidgets.QAction('Select the All Vertex', self.ui.CheekTopolRBtn)
         CheekTopolRBtn_reset_action = QtWidgets.QAction('Reset', self.ui.CheekTopolRBtn)
         self.ui.CheekTopolRBtn.addAction(CheekTopolRBtn_all_action)
         self.ui.CheekTopolRBtn.addAction(CheekTopolRBtn_reset_action)
-        CheekTopolRBtn_all_action.triggered.connect(self.CheekR_All_PopupCmd)
-        CheekTopolRBtn_reset_action.triggered.connect(self.CheekR_Reset_PopupCmd)
+        CheekTopolRBtn_all_action.triggered.connect(self.cheekR_all_popup_command)
+        CheekTopolRBtn_reset_action.triggered.connect(self.cheekR_reset_popup_command)
         self.ui.LipTopolUpBtn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         LipTopolUpBtn_all_action = QtWidgets.QAction('Select the All Vertex', self.ui.LipTopolUpBtn)
         LipTopolUpBtn_reset_action = QtWidgets.QAction('Reset', self.ui.LipTopolUpBtn)
         self.ui.LipTopolUpBtn.addAction(LipTopolUpBtn_all_action)
         self.ui.LipTopolUpBtn.addAction(LipTopolUpBtn_reset_action)
-        LipTopolUpBtn_all_action.triggered.connect(self.LipUp_All_PopupCmd)
-        LipTopolUpBtn_reset_action.triggered.connect(self.LipUp_Reset_PopupCmd)
+        LipTopolUpBtn_all_action.triggered.connect(self.lip_up_all_popup_command)
+        LipTopolUpBtn_reset_action.triggered.connect(self.lip_up_reset_popup_command)
         self.ui.LipTopolDownBtn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         LipTopolDownBtn_all_action = QtWidgets.QAction('Select the All Vertex', self.ui.LipTopolDownBtn)
         LipTopolDownBtn_reset_action = QtWidgets.QAction('Reset', self.ui.LipTopolDownBtn)
         self.ui.LipTopolDownBtn.addAction(LipTopolDownBtn_all_action)
         self.ui.LipTopolDownBtn.addAction(LipTopolDownBtn_reset_action)
-        LipTopolDownBtn_all_action.triggered.connect(self.LipDown_All_PopupCmd)
-        LipTopolDownBtn_reset_action.triggered.connect(self.LipDown_Reset_PopupCmd)
+        LipTopolDownBtn_all_action.triggered.connect(self.lip_down_all_popup_command)
+        LipTopolDownBtn_reset_action.triggered.connect(self.lip_down_reset_popup_command)
         self.ui.JawTopolBtn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         JawTopolBtn_first_action = QtWidgets.QAction('Select the First Vertex', self.ui.JawTopolBtn)
         JawTopolBtn_all_action = QtWidgets.QAction('Select the All Vertex', self.ui.JawTopolBtn)
@@ -416,8 +416,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.ui.JawTopolBtn.addAction(JawTopolBtn_first_action)
         self.ui.JawTopolBtn.addAction(JawTopolBtn_all_action)
         self.ui.JawTopolBtn.addAction(JawTopolBtn_reset_action)
-        JawTopolBtn_first_action.triggered.connect(self.Jaw_First_PopupCmd)
-        JawTopolBtn_all_action.triggered.connect(self.Jaw_All_PopupCmd)
+        JawTopolBtn_first_action.triggered.connect(self.jaw_first_popup_command)
+        JawTopolBtn_all_action.triggered.connect(self.jaw_all_popup_command)
         JawTopolBtn_reset_action.triggered.connect(self.jaw_reset_popup_command)
         self.ui.EyeGrowBtn.clicked.connect(self.eye_grow_command)
         self.ui.EyeResetGrowBtn.clicked.connect(self.eye_reset_grow_command)
@@ -3286,7 +3286,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.Lip_R_LowerOuter_Vetex = ''
         self.TopolDefine_window.Lip_R_LowerOuter_Btn.setStyleSheet(self.red_color)
 
-    # todo jaw setup
     def lip_jaw_first_popup_command(self, *args):
         if self.Lip_Jaw_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Lip_Jaw_Vetex is not define!')
@@ -3317,7 +3316,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.Lip_Jaw_Vetex = ''
         self.TopolDefine_window.Lip_Jaw_Btn.setStyleSheet(self.red_color)
 
-    # todo eye setup
     def eye_left_blink_first_popup_command(self, *args):
         if self.Eye_L_blink_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Eye_L_blink_Vetex is not define!')
@@ -3588,7 +3586,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.Eye_L_double_Vetex = ''
         self.TopolDefine_window.Eye_L_double_Btn.setStyleSheet(self.red_color)
 
-    # todo eye right popup command
     def eye_right_blink_first_popup_command(self, *args):
         if self.Eye_R_blink_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Eye_R_blink_Vetex is not define!')
@@ -3859,7 +3856,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.Eye_R_double_Vetex = ''
         self.TopolDefine_window.Eye_R_double_Btn.setStyleSheet(self.red_color)
 
-    # todo cheek setup
     def cheek_left_first_popup_command(self, *args):
         if self.Cheek_L_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Cheek_L_Vetex is not define!')
@@ -4220,7 +4216,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.Cheek_R_lip_lid_Vetex = ''
         self.TopolDefine_window.Cheek_R_lip_lid_Btn.setStyleSheet(self.red_color)
 
-    # todo nose setup
     def nose_left_first_popup_command(self, *args):
         if self.Nose_L_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Nose_L_Vetex is not define!')
@@ -4438,8 +4433,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         cmds.select(self.Nose_R_nasolabial_fold_Vetex[0])
         return
 
-    # todo start
-    def Nose_R_nasolabial_fold_All_PopupCmd(self, *args):
+    def nose_right_nasolabial_fold_all_popup_command(self, *args):
         if self.Nose_R_nasolabial_fold_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Nose_R_nasolabial_fold_Vetex is not define!')
             cmds.error('self.Nose_R_nasolabial_fold_Vetex is not define!')
@@ -4458,18 +4452,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Nose_R_nasolabial_fold_Reset_PopupCmd(self, *args):
+    def nose_right_nasolabial_fold_reset_popup_command(self, *args):
         self.Nose_R_nasolabial_fold_Vetex = ''
         self.TopolDefine_window.Nose_R_nasolabial_fold_Btn.setStyleSheet(self.red_color)
 
-    def Nose_Center_First_PopupCmd(self, *args):
+    def nose_center_first_popup_command(self, *args):
         if self.Nose_Center_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Nose_Center_Vetex is not define!')
             cmds.error('self.Nose_Center_Vetex is not define!')
         cmds.select(self.Nose_Center_Vetex[0])
         return
 
-    def Nose_Center_All_PopupCmd(self, *args):
+    def nose_center_all_popup_command(self, *args):
         if self.Nose_Center_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Nose_Center_Vetex is not define!')
             cmds.error('self.Nose_Center_Vetex is not define!')
@@ -4488,18 +4482,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Nose_Center_Reset_PopupCmd(self, *args):
+    def nose_center_reset_popup_command(self, *args):
         self.Nose_Center_Vetex = ''
         self.TopolDefine_window.Nose_Center_Btn.setStyleSheet(self.red_color)
 
-    def Nose_Lower_First_PopupCmd(self, *args):
+    def nose_lower_first_popup_command(self, *args):
         if self.Nose_Lower_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Nose_Lower_Vetex is not define!')
             cmds.error('self.Nose_Lower_Vetex is not define!')
         cmds.select(self.Nose_Lower_Vetex[0])
         return
 
-    def Nose_Lower_All_PopupCmd(self, *args):
+    def nose_lower_all_popup_command(self, *args):
         if self.Nose_Lower_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Nose_Lower_Vetex is not define!')
             cmds.error('self.Nose_Lower_Vetex is not define!')
@@ -4518,18 +4512,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Nose_Lower_Reset_PopupCmd(self, *args):
+    def nose_lower_reset_popup_command(self, *args):
         self.Nose_Lower_Vetex = ''
         self.TopolDefine_window.Nose_Lower_Btn.setStyleSheet(self.red_color)
 
-    def Nose_depressor_septi_First_PopupCmd(self, *args):
+    def nose_depressor_septi_first_popup_command(self, *args):
         if self.Nose_depressor_septi_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Nose_depressor_septi_Vetex is not define!')
             cmds.error('self.Nose_depressor_septi_Vetex is not define!')
         cmds.select(self.Nose_depressor_septi_Vetex[0])
         return
 
-    def Nose_depressor_septi_All_PopupCmd(self, *args):
+    def nose_depressor_septi_all_popup_command(self, *args):
         if self.Nose_depressor_septi_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Nose_depressor_septi_Vetex is not define!')
             cmds.error('self.Nose_depressor_septi_Vetex is not define!')
@@ -4548,18 +4542,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Nose_depressor_septi_Reset_PopupCmd(self, *args):
+    def nose_depressor_septi_reset_popup_command(self, *args):
         self.Nose_depressor_septi_Vetex = ''
         self.TopolDefine_window.Nose_depressor_septi_Btn.setStyleSheet(self.red_color)
 
-    def Brow_L_First_PopupCmd(self, *args):
+    def brow_left_first_popup_command(self, *args):
         if self.Brow_L_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_L_Vetex is not define!')
             cmds.error('self.Brow_L_Vetex is not define!')
         cmds.select(self.Brow_L_Vetex[0])
         return
 
-    def Brow_L_All_PopupCmd(self, *args):
+    def brow_left_all_popup_command(self, *args):
         if self.Brow_L_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_L_Vetex is not define!')
             cmds.error('self.Brow_L_Vetex is not define!')
@@ -4578,18 +4572,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Brow_L_Reset_PopupCmd(self, *args):
+    def brow_left_reset_popup_command(self, *args):
         self.Brow_L_Vetex = ''
         self.TopolDefine_window.Brow_L_Btn.setStyleSheet(self.red_color)
 
-    def Brow_L_02_First_PopupCmd(self, *args):
+    def brow_left_02_first_popup_command(self, *args):
         if self.Brow_L_02_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_L_02_Vetex is not define!')
             cmds.error('self.Brow_L_02_Vetex is not define!')
         cmds.select(self.Brow_L_02_Vetex[0])
         return
 
-    def Brow_L_02_All_PopupCmd(self, *args):
+    def brow_left_02_all_popup_command(self, *args):
         if self.Brow_L_02_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_L_02_Vetex is not define!')
             cmds.error('self.Brow_L_02_Vetex is not define!')
@@ -4608,18 +4602,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Brow_L_02_Reset_PopupCmd(self, *args):
+    def brow_left_02_reset_popup_command(self, *args):
         self.Brow_L_02_Vetex = ''
         self.TopolDefine_window.Brow_L_02_Btn.setStyleSheet(self.red_color)
 
-    def Brow_L_03_First_PopupCmd(self, *args):
+    def brow_left_03_first_popup_command(self, *args):
         if self.Brow_L_03_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_L_03_Vetex is not define!')
             cmds.error('self.Brow_L_03_Vetex is not define!')
         cmds.select(self.Brow_L_03_Vetex[0])
         return
 
-    def Brow_L_03_All_PopupCmd(self, *args):
+    def brow_left_03_all_popup_command(self, *args):
         if self.Brow_L_03_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_L_03_Vetex is not define!')
             cmds.error('self.Brow_L_03_Vetex is not define!')
@@ -4638,18 +4632,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Brow_L_03_Reset_PopupCmd(self, *args):
+    def brow_left_03_reset_popup_command(self, *args):
         self.Brow_L_03_Vetex = ''
         self.TopolDefine_window.Brow_L_03_Btn.setStyleSheet(self.red_color)
 
-    def Brow_L_medial_fibers_First_PopupCmd(self, *args):
+    def brow_left_medial_fibers_first_popup_command(self, *args):
         if self.Brow_L_medial_fibers_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_L_medial_fibers_Vetex is not define!')
             cmds.error('self.Brow_L_medial_fibers_Vetex is not define!')
         cmds.select(self.Brow_L_medial_fibers_Vetex[0])
         return
 
-    def Brow_L_medial_fibers_All_PopupCmd(self, *args):
+    def brow_left_medial_fibers_all_popup_command(self, *args):
         if self.Brow_L_medial_fibers_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_L_medial_fibers_Vetex is not define!')
             cmds.error('self.Brow_L_medial_fibers_Vetex is not define!')
@@ -4668,18 +4662,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Brow_L_medial_fibers_Reset_PopupCmd(self, *args):
+    def brow_left_medial_fibers_reset_popup_command(self, *args):
         self.Brow_L_medial_fibers_Vetex = ''
         self.TopolDefine_window.Brow_L_medial_fibers_Btn.setStyleSheet(self.red_color)
 
-    def Brow_L_lateral_fibers_First_PopupCmd(self, *args):
+    def brow_left_lateral_fibers_first_popup_command(self, *args):
         if self.Brow_L_lateral_fibers_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_L_lateral_fibers_Vetex is not define!')
             cmds.error('self.Brow_L_lateral_fibers_Vetex is not define!')
         cmds.select(self.Brow_L_lateral_fibers_Vetex[0])
         return
 
-    def Brow_L_lateral_fibers_All_PopupCmd(self, *args):
+    def brow_left_lateral_fibers_all_popup_command(self, *args):
         if self.Brow_L_lateral_fibers_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_L_lateral_fibers_Vetex is not define!')
             cmds.error('self.Brow_L_lateral_fibers_Vetex is not define!')
@@ -4698,18 +4692,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Brow_L_lateral_fibers_Reset_PopupCmd(self, *args):
+    def brow_left_lateral_fibers_reset_popup_command(self, *args):
         self.Brow_L_lateral_fibers_Vetex = ''
         self.TopolDefine_window.Brow_L_lateral_fibers_Btn.setStyleSheet(self.red_color)
 
-    def Brow_L_procerus_First_PopupCmd(self, *args):
+    def brow_left_procerus_first_popup_command(self, *args):
         if self.Brow_L_procerus_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_L_procerus_Vetex is not define!')
             cmds.error('self.Brow_L_procerus_Vetex is not define!')
         cmds.select(self.Brow_L_procerus_Vetex[0])
         return
 
-    def Brow_L_procerus_All_PopupCmd(self, *args):
+    def brow_left_procerus_all_popup_command(self, *args):
         if self.Brow_L_procerus_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_L_procerus_Vetex is not define!')
             cmds.error('self.Brow_L_procerus_Vetex is not define!')
@@ -4728,18 +4722,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Brow_L_procerus_Reset_PopupCmd(self, *args):
+    def brow_left_procerus_reset_popup_command(self, *args):
         self.Brow_L_procerus_Vetex = ''
         self.TopolDefine_window.Brow_L_procerus_Btn.setStyleSheet(self.red_color)
 
-    def Brow_R_First_PopupCmd(self, *args):
+    def brow_right_first_popup_command(self, *args):
         if self.Brow_R_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_R_Vetex is not define!')
             cmds.error('self.Brow_R_Vetex is not define!')
         cmds.select(self.Brow_R_Vetex[0])
         return
 
-    def Brow_R_All_PopupCmd(self, *args):
+    def brow_right_all_popup_command(self, *args):
         if self.Brow_R_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_R_Vetex is not define!')
             cmds.error('self.Brow_R_Vetex is not define!')
@@ -4758,18 +4752,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Brow_R_Reset_PopupCmd(self, *args):
+    def brow_right_reset_popup_command(self, *args):
         self.Brow_R_Vetex = ''
         self.TopolDefine_window.Brow_R_Btn.setStyleSheet(self.red_color)
 
-    def Brow_R_medial_fibers_First_PopupCmd(self, *args):
+    def brow_right_medial_fibers_first_popup_command(self, *args):
         if self.Brow_R_medial_fibers_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_R_medial_fibers_Vetex is not define!')
             cmds.error('self.Brow_R_medial_fibers_Vetex is not define!')
         cmds.select(self.Brow_R_medial_fibers_Vetex[0])
         return
 
-    def Brow_R_medial_fibers_All_PopupCmd(self, *args):
+    def brow_right_medial_fibers_all_popup_command(self, *args):
         if self.Brow_R_medial_fibers_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_R_medial_fibers_Vetex is not define!')
             cmds.error('self.Brow_R_medial_fibers_Vetex is not define!')
@@ -4788,18 +4782,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Brow_R_medial_fibers_Reset_PopupCmd(self, *args):
+    def brow_right_medial_fibers_reset_popup_command(self, *args):
         self.Brow_R_medial_fibers_Vetex = ''
         self.TopolDefine_window.Brow_R_medial_fibers_Btn.setStyleSheet(self.red_color)
 
-    def Brow_R_lateral_fibers_First_PopupCmd(self, *args):
+    def brow_right_lateral_fibers_first_popup_command(self, *args):
         if self.Brow_R_lateral_fibers_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_R_lateral_fibers_Vetex is not define!')
             cmds.error('self.Brow_R_lateral_fibers_Vetex is not define!')
         cmds.select(self.Brow_R_lateral_fibers_Vetex[0])
         return
 
-    def Brow_R_lateral_fibers_All_PopupCmd(self, *args):
+    def brow_right_lateral_fibers_all_popup_command(self, *args):
         if self.Brow_R_lateral_fibers_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_R_lateral_fibers_Vetex is not define!')
             cmds.error('self.Brow_R_lateral_fibers_Vetex is not define!')
@@ -4818,18 +4812,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Brow_R_lateral_fibers_Reset_PopupCmd(self, *args):
+    def brow_right_lateral_fibers_reset_popup_command(self, *args):
         self.Brow_R_lateral_fibers_Vetex = ''
         self.TopolDefine_window.Brow_R_lateral_fibers_Btn.setStyleSheet(self.red_color)
 
-    def Brow_R_procerus_First_PopupCmd(self, *args):
+    def brow_right_procerus_first_popup_command(self, *args):
         if self.Brow_R_procerus_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_R_procerus_Vetex is not define!')
             cmds.error('self.Brow_R_procerus_Vetex is not define!')
         cmds.select(self.Brow_R_procerus_Vetex[0])
         return
 
-    def Brow_R_procerus_All_PopupCmd(self, *args):
+    def brow_right_procerus_all_popup_command(self, *args):
         if self.Brow_R_procerus_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_R_procerus_Vetex is not define!')
             cmds.error('self.Brow_R_procerus_Vetex is not define!')
@@ -4848,18 +4842,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Brow_R_procerus_Reset_PopupCmd(self, *args):
+    def brow_right_procerus_reset_popup_command(self, *args):
         self.Brow_R_procerus_Vetex = ''
         self.TopolDefine_window.Brow_R_procerus_Btn.setStyleSheet(self.red_color)
 
-    def Brow_R_02_First_PopupCmd(self, *args):
+    def brow_right_02_first_popup_command(self, *args):
         if self.Brow_R_02_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_R_02_Vetex is not define!')
             cmds.error('self.Brow_R_02_Vetex is not define!')
         cmds.select(self.Brow_R_02_Vetex[0])
         return
 
-    def Brow_R_02_All_PopupCmd(self, *args):
+    def brow_right_02_all_popup_command(self, *args):
         if self.Brow_R_02_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_R_02_Vetex is not define!')
             cmds.error('self.Brow_R_02_Vetex is not define!')
@@ -4878,18 +4872,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Brow_R_02_Reset_PopupCmd(self, *args):
+    def brow_right_02_reset_popup_command(self, *args):
         self.Brow_R_02_Vetex = ''
         self.TopolDefine_window.Brow_R_02_Btn.setStyleSheet(self.red_color)
 
-    def Brow_R_03_First_PopupCmd(self, *args):
+    def brow_right_03_first_popup_command(self, *args):
         if self.Brow_R_03_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_R_03_Vetex is not define!')
             cmds.error('self.Brow_R_03_Vetex is not define!')
         cmds.select(self.Brow_R_03_Vetex[0])
         return
 
-    def Brow_R_03_All_PopupCmd(self, *args):
+    def brow_right_03_all_popup_command(self, *args):
         if self.Brow_R_03_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_R_03_Vetex is not define!')
             cmds.error('self.Brow_R_03_Vetex is not define!')
@@ -4908,18 +4902,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Brow_R_03_Reset_PopupCmd(self, *args):
+    def brow_right_03_reset_popup_command(self, *args):
         self.Brow_R_03_Vetex = ''
         self.TopolDefine_window.Brow_R_03_Btn.setStyleSheet(self.red_color)
 
-    def Brow_Center_First_PopupCmd(self, *args):
+    def brow_center_first_popup_command(self, *args):
         if self.Brow_Center_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_Center_Vetex is not define!')
             cmds.error('self.Brow_Center_Vetex is not define!')
         cmds.select(self.Brow_Center_Vetex[0])
         return
 
-    def Brow_Center_All_PopupCmd(self, *args):
+    def brow_center_all_popup_command(self, *args):
         if self.Brow_Center_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Brow_Center_Vetex is not define!')
             cmds.error('self.Brow_Center_Vetex is not define!')
@@ -4938,18 +4932,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Brow_Center_Reset_PopupCmd(self, *args):
+    def brow_center_reset_popup_command(self, *args):
         self.Brow_Center_Vetex = ''
         self.TopolDefine_window.Brow_Center_Btn.setStyleSheet(self.red_color)
 
-    def Oral_Upper_teeth_First_PopupCmd(self, *args):
+    def oral_upper_teeth_first_popup_command(self, *args):
         if self.Oral_Upper_teeth_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Oral_Upper_teeth_Vetex is not define!')
             cmds.error('self.Oral_Upper_teeth_Vetex is not define!')
         cmds.select(self.Oral_Upper_teeth_Vetex[0])
         return
 
-    def Oral_Upper_teeth_All_PopupCmd(self, *args):
+    def oral_upper_teeth_all_popup_command(self, *args):
         if self.Oral_Upper_teeth_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Oral_Upper_teeth_Vetex is not define!')
             cmds.error('self.Oral_Upper_teeth_Vetex is not define!')
@@ -4968,18 +4962,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Oral_Upper_teeth_Reset_PopupCmd(self, *args):
+    def oral_upper_teeth_reset_popup_command(self, *args):
         self.Oral_Upper_teeth_Vetex = ''
         self.TopolDefine_window.Oral_Upper_teeth_Btn.setStyleSheet(self.red_color)
 
-    def Oral_Lower_teeth_First_PopupCmd(self, *args):
+    def oral_lower_teeth_first_popup_command(self, *args):
         if self.Oral_Lower_teeth_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Oral_Lower_teeth_Vetex is not define!')
             cmds.error('self.Oral_Lower_teeth_Vetex is not define!')
         cmds.select(self.Oral_Lower_teeth_Vetex[0])
         return
 
-    def Oral_Lower_teeth_All_PopupCmd(self, *args):
+    def oral_lower_teeth_all_popup_command(self, *args):
         if self.Oral_Lower_teeth_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Oral_Lower_teeth_Vetex is not define!')
             cmds.error('self.Oral_Lower_teeth_Vetex is not define!')
@@ -4998,18 +4992,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Oral_Lower_teeth_Reset_PopupCmd(self, *args):
+    def oral_lower_teeth_reset_popup_command(self, *args):
         self.Oral_Lower_teeth_Vetex = ''
         self.TopolDefine_window.Oral_Lower_teeth_Btn.setStyleSheet(self.red_color)
 
-    def Oral_Tongue_First_PopupCmd(self, *args):
+    def oral_tongue_first_popup_command(self, *args):
         if self.Oral_Tongue_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Oral_Tongue_Vetex is not define!')
             cmds.error('self.Oral_Tongue_Vetex is not define!')
         cmds.select(self.Oral_Tongue_Vetex[0])
         return
 
-    def Oral_Tongue_All_PopupCmd(self, *args):
+    def oral_tongue_all_popup_command(self, *args):
         if self.Oral_Tongue_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Oral_Tongue_Vetex is not define!')
             cmds.error('self.Oral_Tongue_Vetex is not define!')
@@ -5028,18 +5022,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Oral_Tongue_Reset_PopupCmd(self, *args):
+    def oral_tongue_reset_popup_command(self, *args):
         self.Oral_Tongue_Vetex = ''
         self.TopolDefine_window.Oral_Tongue_Btn.setStyleSheet(self.red_color)
 
-    def Oral_Tongue_02_First_PopupCmd(self, *args):
+    def oral_tongue_02_first_popup_command(self, *args):
         if self.Oral_Tongue_02_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Oral_Tongue_02_Vetex is not define!')
             cmds.error('self.Oral_Tongue_02_Vetex is not define!')
         cmds.select(self.Oral_Tongue_02_Vetex[0])
         return
 
-    def Oral_Tongue_02_All_PopupCmd(self, *args):
+    def oral_tongue_02_all_popup_command(self, *args):
         if self.Oral_Tongue_02_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Oral_Tongue_02_Vetex is not define!')
             cmds.error('self.Oral_Tongue_02_Vetex is not define!')
@@ -5058,18 +5052,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Oral_Tongue_02_Reset_PopupCmd(self, *args):
+    def oral_tongue_02_reset_popup_command(self, *args):
         self.Oral_Tongue_02_Vetex = ''
         self.TopolDefine_window.Oral_Tongue_02_Btn.setStyleSheet(self.red_color)
 
-    def Oral_Tongue_03_First_PopupCmd(self, *args):
+    def oral_tongue_03_first_popup_command(self, *args):
         if self.Oral_Tongue_03_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Oral_Tongue_03_Vetex is not define!')
             cmds.error('self.Oral_Tongue_03_Vetex is not define!')
         cmds.select(self.Oral_Tongue_03_Vetex[0])
         return
 
-    def Oral_Tongue_03_All_PopupCmd(self, *args):
+    def oral_tongue_03_all_popup_command(self, *args):
         if self.Oral_Tongue_03_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.Oral_Tongue_03_Vetex is not define!')
             cmds.error('self.Oral_Tongue_03_Vetex is not define!')
@@ -5088,18 +5082,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Oral_Tongue_03_Reset_PopupCmd(self, *args):
+    def oral_tongue_03_reset_popup_command(self, *args):
         self.Oral_Tongue_03_Vetex = ''
         self.TopolDefine_window.Oral_Tongue_03_Btn.setStyleSheet(self.red_color)
 
-    def EyeBall_L_First_PopupCmd(self, *args):
+    def eye_ball_left_first_popup_command(self, *args):
         if self.EyeBall_L_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.EyeBall_L_Vetex is not define!')
             cmds.error('self.EyeBall_L_Vetex is not define!')
         cmds.select(self.EyeBall_L_Vetex[0])
         return
 
-    def EyeBall_L_All_PopupCmd(self, *args):
+    def eye_ball_left_all_popup_command(self, *args):
         if self.EyeBall_L_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.EyeBall_L_Vetex is not define!')
             cmds.error('self.EyeBall_L_Vetex is not define!')
@@ -5118,18 +5112,18 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def EyeBall_L_Reset_PopupCmd(self, *args):
+    def eye_ball_left_reset_popup_command(self, *args):
         self.EyeBall_L_Vetex = ''
         self.TopolDefine_window.EyeBall_L_Btn.setStyleSheet(self.red_color)
 
-    def EyeBall_R_First_PopupCmd(self, *args):
+    def eye_ball_right_first_popup_command(self, *args):
         if self.EyeBall_R_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.EyeBall_R_Vetex is not define!')
             cmds.error('self.EyeBall_R_Vetex is not define!')
         cmds.select(self.EyeBall_R_Vetex[0])
         return
 
-    def EyeBall_R_All_PopupCmd(self, *args):
+    def eye_ball_right_all_popup_command(self, *args):
         if self.EyeBall_R_Vetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.EyeBall_R_Vetex is not define!')
             cmds.error('self.EyeBall_R_Vetex is not define!')
@@ -5148,11 +5142,11 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def EyeBall_R_Reset_PopupCmd(self, *args):
+    def eye_ball_right_reset_popup_command(self, *args):
         self.EyeBall_R_Vetex = ''
         self.TopolDefine_window.EyeBall_R_Btn.setStyleSheet(self.red_color)
 
-    def BrowL_All_PopupCmd(self, *args):
+    def browL_all_popup_command(self, *args):
         if self.BrowLVetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.BrowLVetex is not define!')
             cmds.error('self.BrowLVetex is not define!')
@@ -5171,12 +5165,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def BrowL_Reset_PopupCmd(self, *args):
+    def browL_reset_popup_command(self, *args):
         self.BrowLVetex = ''
         self.ui.BrowTopolLBtn.setStyleSheet(None)
         return
 
-    def BrowR_All_PopupCmd(self, *args):
+    def browR_all_popup_command(self, *args):
         if self.BrowRVetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.BrowRVetex is not define!')
             cmds.error('self.BrowRVetex is not define!')
@@ -5195,12 +5189,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def BrowR_Reset_PopupCmd(self, *args):
+    def browR_reset_popup_command(self, *args):
         self.BrowRVetex = ''
         self.ui.BrowTopolRBtn.setStyleSheet(None)
         return
 
-    def EyeL_All_PopupCmd(self, *args):
+    def eyeL_all_popup_command(self, *args):
         if self.EyeLVetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.EyeLVetex is not define!')
             cmds.error('self.EyeLVetex is not define!')
@@ -5219,12 +5213,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def EyeL_Reset_PopupCmd(self, *args):
+    def eyeL_reset_popup_command(self, *args):
         self.EyeLVetex = ''
         self.ui.EyeTopolLBtn.setStyleSheet(None)
         return
 
-    def EyeR_All_PopupCmd(self, *args):
+    def eyeR_all_popup_command(self, *args):
         if self.EyeRVetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.EyeRVetex is not define!')
             cmds.error('self.EyeRVetex is not define!')
@@ -5243,12 +5237,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def EyeR_Reset_PopupCmd(self, *args):
+    def eyeR_reset_popup_command(self, *args):
         self.EyeRVetex = ''
         self.ui.EyeTopolRBtn.setStyleSheet(None)
         return
 
-    def Nose_All_PopupCmd(self, *args):
+    def nose_all_popup_command(self, *args):
         if self.NoseVetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.NoseVetex is not define!')
             cmds.error('self.NoseVetex is not define!')
@@ -5267,12 +5261,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def Nose_Reset_PopupCmd(self, *args):
+    def nose_reset_popup_command(self, *args):
         self.NoseVetex = ''
         self.ui.NoseTopolBtn.setStyleSheet(None)
         return
 
-    def CheekL_All_PopupCmd(self, *args):
+    def cheekL_all_popup_command(self, *args):
         if self.CheekLVetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.CheekLVetex is not define!')
             cmds.error('self.CheekLVetex is not define!')
@@ -5291,12 +5285,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def CheekL_Reset_PopupCmd(self, *args):
+    def cheekL_reset_popup_command(self, *args):
         self.CheekLVetex = ''
         self.ui.CheekTopolLBtn.setStyleSheet(None)
         return
 
-    def CheekR_All_PopupCmd(self, *args):
+    def cheekR_all_popup_command(self, *args):
         if self.CheekRVetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.CheekRVetex is not define!')
             cmds.error('self.CheekRVetex is not define!')
@@ -5315,12 +5309,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def CheekR_Reset_PopupCmd(self, *args):
+    def cheekR_reset_popup_command(self, *args):
         self.CheekRVetex = ''
         self.ui.CheekTopolRBtn.setStyleSheet(None)
         return
 
-    def LipUp_All_PopupCmd(self, *args):
+    def lip_up_all_popup_command(self, *args):
         if self.LipUpVetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.LipUpVetex is not define!')
             cmds.error('self.LipUpVetex is not define!')
@@ -5339,12 +5333,12 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def LipUp_Reset_PopupCmd(self, *args):
+    def lip_up_reset_popup_command(self, *args):
         self.LipUpVetex = ''
         self.ui.LipTopolUpBtn.setStyleSheet(None)
         return
 
-    def LipDown_All_PopupCmd(self, *args):
+    def lip_down_all_popup_command(self, *args):
         if self.LipDownVetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.LipDownVetex is not define!')
             cmds.error('self.LipDownVetex is not define!')
@@ -5363,19 +5357,19 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             cmds.select(last_sel, add=True)
         return
 
-    def LipDown_Reset_PopupCmd(self, *args):
+    def lip_down_reset_popup_command(self, *args):
         self.LipDownVetex = ''
         self.ui.LipTopolDownBtn.setStyleSheet(None)
         return
 
-    def Jaw_First_PopupCmd(self, *args):
+    def jaw_first_popup_command(self, *args):
         if self.JawVetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.JawVetex is not define!')
             cmds.error('self.JawVetex is not define!')
         cmds.select(self.JawVetex[0])
         return
 
-    def Jaw_All_PopupCmd(self, *args):
+    def jaw_all_popup_command(self, *args):
         if self.JawVetex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.JawVetex is not define!')
             cmds.error('self.JawVetex is not define!')
@@ -5399,6 +5393,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.ui.JawTopolBtn.setStyleSheet(None)
         return
 
+    # todo start command
     def rebuild_symmetry_command(self, *args):
         source_jnt = cmds.ls(sl=True)
         if len(source_jnt) != 0:
@@ -5437,7 +5432,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             QtWidgets.QMessageBox.warning(None, 'Warning', 'Please Define your head joint!')
             cmds.error('Please Define your head joint!')
-        self.RebuildCheck = 1
+        self.rebuild_check = True
         if cmds.objExists('System_jnt_layer') is True:
             cmds.delete('System_jnt_layer')
         if cmds.objExists('Skin_jnt_layer') is True:
@@ -6400,8 +6395,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Nose_R_nasolabial_fold_Btn.addAction(Nose_R_nasolabial_fold_Btn_all_action)
         self.TopolDefine_window.Nose_R_nasolabial_fold_Btn.addAction(Nose_R_nasolabial_fold_Btn_reset_action)
         Nose_R_nasolabial_fold_Btn_first_action.triggered.connect(self.nose_right_nasolabial_fold_first_popup_command)
-        Nose_R_nasolabial_fold_Btn_all_action.triggered.connect(self.Nose_R_nasolabial_fold_All_PopupCmd)
-        Nose_R_nasolabial_fold_Btn_reset_action.triggered.connect(self.Nose_R_nasolabial_fold_Reset_PopupCmd)
+        Nose_R_nasolabial_fold_Btn_all_action.triggered.connect(self.nose_right_nasolabial_fold_all_popup_command)
+        Nose_R_nasolabial_fold_Btn_reset_action.triggered.connect(self.nose_right_nasolabial_fold_reset_popup_command)
         self.TopolDefine_window.Nose_Center_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Nose_Center_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Nose_Center_Btn)
         Nose_Center_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Nose_Center_Btn)
@@ -6409,9 +6404,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Nose_Center_Btn.addAction(Nose_Center_Btn_first_action)
         self.TopolDefine_window.Nose_Center_Btn.addAction(Nose_Center_Btn_all_action)
         self.TopolDefine_window.Nose_Center_Btn.addAction(Nose_Center_Btn_reset_action)
-        Nose_Center_Btn_first_action.triggered.connect(self.Nose_Center_First_PopupCmd)
-        Nose_Center_Btn_all_action.triggered.connect(self.Nose_Center_All_PopupCmd)
-        Nose_Center_Btn_reset_action.triggered.connect(self.Nose_Center_Reset_PopupCmd)
+        Nose_Center_Btn_first_action.triggered.connect(self.nose_center_first_popup_command)
+        Nose_Center_Btn_all_action.triggered.connect(self.nose_center_all_popup_command)
+        Nose_Center_Btn_reset_action.triggered.connect(self.nose_center_reset_popup_command)
         self.TopolDefine_window.Nose_Lower_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Nose_Lower_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Nose_Lower_Btn)
         Nose_Lower_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Nose_Lower_Btn)
@@ -6419,9 +6414,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Nose_Lower_Btn.addAction(Nose_Lower_Btn_first_action)
         self.TopolDefine_window.Nose_Lower_Btn.addAction(Nose_Lower_Btn_all_action)
         self.TopolDefine_window.Nose_Lower_Btn.addAction(Nose_Lower_Btn_reset_action)
-        Nose_Lower_Btn_first_action.triggered.connect(self.Nose_Lower_First_PopupCmd)
-        Nose_Lower_Btn_all_action.triggered.connect(self.Nose_Lower_All_PopupCmd)
-        Nose_Lower_Btn_reset_action.triggered.connect(self.Nose_Lower_Reset_PopupCmd)
+        Nose_Lower_Btn_first_action.triggered.connect(self.nose_lower_first_popup_command)
+        Nose_Lower_Btn_all_action.triggered.connect(self.nose_lower_all_popup_command)
+        Nose_Lower_Btn_reset_action.triggered.connect(self.nose_lower_reset_popup_command)
         self.TopolDefine_window.Nose_depressor_septi_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Nose_depressor_septi_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Nose_depressor_septi_Btn)
         Nose_depressor_septi_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Nose_depressor_septi_Btn)
@@ -6429,9 +6424,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Nose_depressor_septi_Btn.addAction(Nose_depressor_septi_Btn_first_action)
         self.TopolDefine_window.Nose_depressor_septi_Btn.addAction(Nose_depressor_septi_Btn_all_action)
         self.TopolDefine_window.Nose_depressor_septi_Btn.addAction(Nose_depressor_septi_Btn_reset_action)
-        Nose_depressor_septi_Btn_first_action.triggered.connect(self.Nose_depressor_septi_First_PopupCmd)
-        Nose_depressor_septi_Btn_all_action.triggered.connect(self.Nose_depressor_septi_All_PopupCmd)
-        Nose_depressor_septi_Btn_reset_action.triggered.connect(self.Nose_depressor_septi_Reset_PopupCmd)
+        Nose_depressor_septi_Btn_first_action.triggered.connect(self.nose_depressor_septi_first_popup_command)
+        Nose_depressor_septi_Btn_all_action.triggered.connect(self.nose_depressor_septi_all_popup_command)
+        Nose_depressor_septi_Btn_reset_action.triggered.connect(self.nose_depressor_septi_reset_popup_command)
         self.TopolDefine_window.Brow_L_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Brow_L_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Brow_L_Btn)
         Brow_L_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Brow_L_Btn)
@@ -6439,9 +6434,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Brow_L_Btn.addAction(Brow_L_Btn_first_action)
         self.TopolDefine_window.Brow_L_Btn.addAction(Brow_L_Btn_all_action)
         self.TopolDefine_window.Brow_L_Btn.addAction(Brow_L_Btn_reset_action)
-        Brow_L_Btn_first_action.triggered.connect(self.Brow_L_First_PopupCmd)
-        Brow_L_Btn_all_action.triggered.connect(self.Brow_L_All_PopupCmd)
-        Brow_L_Btn_reset_action.triggered.connect(self.Brow_L_Reset_PopupCmd)
+        Brow_L_Btn_first_action.triggered.connect(self.brow_left_first_popup_command)
+        Brow_L_Btn_all_action.triggered.connect(self.brow_left_all_popup_command)
+        Brow_L_Btn_reset_action.triggered.connect(self.brow_left_reset_popup_command)
         self.TopolDefine_window.Brow_L_medial_fibers_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Brow_L_medial_fibers_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Brow_L_medial_fibers_Btn)
         Brow_L_medial_fibers_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Brow_L_medial_fibers_Btn)
@@ -6449,9 +6444,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Brow_L_medial_fibers_Btn.addAction(Brow_L_medial_fibers_Btn_first_action)
         self.TopolDefine_window.Brow_L_medial_fibers_Btn.addAction(Brow_L_medial_fibers_Btn_all_action)
         self.TopolDefine_window.Brow_L_medial_fibers_Btn.addAction(Brow_L_medial_fibers_Btn_reset_action)
-        Brow_L_medial_fibers_Btn_first_action.triggered.connect(self.Brow_L_medial_fibers_First_PopupCmd)
-        Brow_L_medial_fibers_Btn_all_action.triggered.connect(self.Brow_L_medial_fibers_All_PopupCmd)
-        Brow_L_medial_fibers_Btn_reset_action.triggered.connect(self.Brow_L_medial_fibers_Reset_PopupCmd)
+        Brow_L_medial_fibers_Btn_first_action.triggered.connect(self.brow_left_medial_fibers_first_popup_command)
+        Brow_L_medial_fibers_Btn_all_action.triggered.connect(self.brow_left_medial_fibers_all_popup_command)
+        Brow_L_medial_fibers_Btn_reset_action.triggered.connect(self.brow_left_medial_fibers_reset_popup_command)
         self.TopolDefine_window.Brow_L_lateral_fibers_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Brow_L_lateral_fibers_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Brow_L_lateral_fibers_Btn)
         Brow_L_lateral_fibers_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Brow_L_lateral_fibers_Btn)
@@ -6459,9 +6454,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Brow_L_lateral_fibers_Btn.addAction(Brow_L_lateral_fibers_Btn_first_action)
         self.TopolDefine_window.Brow_L_lateral_fibers_Btn.addAction(Brow_L_lateral_fibers_Btn_all_action)
         self.TopolDefine_window.Brow_L_lateral_fibers_Btn.addAction(Brow_L_lateral_fibers_Btn_reset_action)
-        Brow_L_lateral_fibers_Btn_first_action.triggered.connect(self.Brow_L_lateral_fibers_First_PopupCmd)
-        Brow_L_lateral_fibers_Btn_all_action.triggered.connect(self.Brow_L_lateral_fibers_All_PopupCmd)
-        Brow_L_lateral_fibers_Btn_reset_action.triggered.connect(self.Brow_L_lateral_fibers_Reset_PopupCmd)
+        Brow_L_lateral_fibers_Btn_first_action.triggered.connect(self.brow_left_lateral_fibers_first_popup_command)
+        Brow_L_lateral_fibers_Btn_all_action.triggered.connect(self.brow_left_lateral_fibers_all_popup_command)
+        Brow_L_lateral_fibers_Btn_reset_action.triggered.connect(self.brow_left_lateral_fibers_reset_popup_command)
         self.TopolDefine_window.Brow_L_procerus_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Brow_L_procerus_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Brow_L_procerus_Btn)
         Brow_L_procerus_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Brow_L_procerus_Btn)
@@ -6469,9 +6464,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Brow_L_procerus_Btn.addAction(Brow_L_procerus_Btn_first_action)
         self.TopolDefine_window.Brow_L_procerus_Btn.addAction(Brow_L_procerus_Btn_all_action)
         self.TopolDefine_window.Brow_L_procerus_Btn.addAction(Brow_L_procerus_Btn_reset_action)
-        Brow_L_procerus_Btn_first_action.triggered.connect(self.Brow_L_procerus_First_PopupCmd)
-        Brow_L_procerus_Btn_all_action.triggered.connect(self.Brow_L_procerus_All_PopupCmd)
-        Brow_L_procerus_Btn_reset_action.triggered.connect(self.Brow_L_procerus_Reset_PopupCmd)
+        Brow_L_procerus_Btn_first_action.triggered.connect(self.brow_left_procerus_first_popup_command)
+        Brow_L_procerus_Btn_all_action.triggered.connect(self.brow_left_procerus_all_popup_command)
+        Brow_L_procerus_Btn_reset_action.triggered.connect(self.brow_left_procerus_reset_popup_command)
         self.TopolDefine_window.Brow_L_02_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Brow_L_02_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Brow_L_02_Btn)
         Brow_L_02_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Brow_L_02_Btn)
@@ -6479,9 +6474,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Brow_L_02_Btn.addAction(Brow_L_02_Btn_first_action)
         self.TopolDefine_window.Brow_L_02_Btn.addAction(Brow_L_02_Btn_all_action)
         self.TopolDefine_window.Brow_L_02_Btn.addAction(Brow_L_02_Btn_reset_action)
-        Brow_L_02_Btn_first_action.triggered.connect(self.Brow_L_02_First_PopupCmd)
-        Brow_L_02_Btn_all_action.triggered.connect(self.Brow_L_02_All_PopupCmd)
-        Brow_L_02_Btn_reset_action.triggered.connect(self.Brow_L_02_Reset_PopupCmd)
+        Brow_L_02_Btn_first_action.triggered.connect(self.brow_left_02_first_popup_command)
+        Brow_L_02_Btn_all_action.triggered.connect(self.brow_left_02_all_popup_command)
+        Brow_L_02_Btn_reset_action.triggered.connect(self.brow_left_02_reset_popup_command)
         self.TopolDefine_window.Brow_L_03_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Brow_L_03_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Brow_L_03_Btn)
         Brow_L_03_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Brow_L_03_Btn)
@@ -6489,9 +6484,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Brow_L_03_Btn.addAction(Brow_L_03_Btn_first_action)
         self.TopolDefine_window.Brow_L_03_Btn.addAction(Brow_L_03_Btn_all_action)
         self.TopolDefine_window.Brow_L_03_Btn.addAction(Brow_L_03_Btn_reset_action)
-        Brow_L_03_Btn_first_action.triggered.connect(self.Brow_L_03_First_PopupCmd)
-        Brow_L_03_Btn_all_action.triggered.connect(self.Brow_L_03_All_PopupCmd)
-        Brow_L_03_Btn_reset_action.triggered.connect(self.Brow_L_03_Reset_PopupCmd)
+        Brow_L_03_Btn_first_action.triggered.connect(self.brow_left_03_first_popup_command)
+        Brow_L_03_Btn_all_action.triggered.connect(self.brow_left_03_all_popup_command)
+        Brow_L_03_Btn_reset_action.triggered.connect(self.brow_left_03_reset_popup_command)
         self.TopolDefine_window.Brow_R_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Brow_R_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Brow_R_Btn)
         Brow_R_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Brow_R_Btn)
@@ -6499,9 +6494,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Brow_R_Btn.addAction(Brow_R_Btn_first_action)
         self.TopolDefine_window.Brow_R_Btn.addAction(Brow_R_Btn_all_action)
         self.TopolDefine_window.Brow_R_Btn.addAction(Brow_R_Btn_reset_action)
-        Brow_R_Btn_first_action.triggered.connect(self.Brow_R_First_PopupCmd)
-        Brow_R_Btn_all_action.triggered.connect(self.Brow_R_All_PopupCmd)
-        Brow_R_Btn_reset_action.triggered.connect(self.Brow_R_Reset_PopupCmd)
+        Brow_R_Btn_first_action.triggered.connect(self.brow_right_first_popup_command)
+        Brow_R_Btn_all_action.triggered.connect(self.brow_right_all_popup_command)
+        Brow_R_Btn_reset_action.triggered.connect(self.brow_right_reset_popup_command)
         self.TopolDefine_window.Brow_R_medial_fibers_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Brow_R_medial_fibers_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Brow_R_medial_fibers_Btn)
         Brow_R_medial_fibers_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Brow_R_medial_fibers_Btn)
@@ -6509,9 +6504,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Brow_R_medial_fibers_Btn.addAction(Brow_R_medial_fibers_Btn_first_action)
         self.TopolDefine_window.Brow_R_medial_fibers_Btn.addAction(Brow_R_medial_fibers_Btn_all_action)
         self.TopolDefine_window.Brow_R_medial_fibers_Btn.addAction(Brow_R_medial_fibers_Btn_reset_action)
-        Brow_R_medial_fibers_Btn_first_action.triggered.connect(self.Brow_R_medial_fibers_First_PopupCmd)
-        Brow_R_medial_fibers_Btn_all_action.triggered.connect(self.Brow_R_medial_fibers_All_PopupCmd)
-        Brow_R_medial_fibers_Btn_reset_action.triggered.connect(self.Brow_R_medial_fibers_Reset_PopupCmd)
+        Brow_R_medial_fibers_Btn_first_action.triggered.connect(self.brow_right_medial_fibers_first_popup_command)
+        Brow_R_medial_fibers_Btn_all_action.triggered.connect(self.brow_right_medial_fibers_all_popup_command)
+        Brow_R_medial_fibers_Btn_reset_action.triggered.connect(self.brow_right_medial_fibers_reset_popup_command)
         self.TopolDefine_window.Brow_R_lateral_fibers_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Brow_R_lateral_fibers_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Brow_R_lateral_fibers_Btn)
         Brow_R_lateral_fibers_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Brow_R_lateral_fibers_Btn)
@@ -6519,9 +6514,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Brow_R_lateral_fibers_Btn.addAction(Brow_R_lateral_fibers_Btn_first_action)
         self.TopolDefine_window.Brow_R_lateral_fibers_Btn.addAction(Brow_R_lateral_fibers_Btn_all_action)
         self.TopolDefine_window.Brow_R_lateral_fibers_Btn.addAction(Brow_R_lateral_fibers_Btn_reset_action)
-        Brow_R_lateral_fibers_Btn_first_action.triggered.connect(self.Brow_R_lateral_fibers_First_PopupCmd)
-        Brow_R_lateral_fibers_Btn_all_action.triggered.connect(self.Brow_R_lateral_fibers_All_PopupCmd)
-        Brow_R_lateral_fibers_Btn_reset_action.triggered.connect(self.Brow_R_lateral_fibers_Reset_PopupCmd)
+        Brow_R_lateral_fibers_Btn_first_action.triggered.connect(self.brow_right_lateral_fibers_first_popup_command)
+        Brow_R_lateral_fibers_Btn_all_action.triggered.connect(self.brow_right_lateral_fibers_all_popup_command)
+        Brow_R_lateral_fibers_Btn_reset_action.triggered.connect(self.brow_right_lateral_fibers_reset_popup_command)
         self.TopolDefine_window.Brow_R_procerus_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Brow_R_procerus_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Brow_R_procerus_Btn)
         Brow_R_procerus_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Brow_R_procerus_Btn)
@@ -6529,9 +6524,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Brow_R_procerus_Btn.addAction(Brow_R_procerus_Btn_first_action)
         self.TopolDefine_window.Brow_R_procerus_Btn.addAction(Brow_R_procerus_Btn_all_action)
         self.TopolDefine_window.Brow_R_procerus_Btn.addAction(Brow_R_procerus_Btn_reset_action)
-        Brow_R_procerus_Btn_first_action.triggered.connect(self.Brow_R_procerus_First_PopupCmd)
-        Brow_R_procerus_Btn_all_action.triggered.connect(self.Brow_R_procerus_All_PopupCmd)
-        Brow_R_procerus_Btn_reset_action.triggered.connect(self.Brow_R_procerus_Reset_PopupCmd)
+        Brow_R_procerus_Btn_first_action.triggered.connect(self.brow_right_procerus_first_popup_command)
+        Brow_R_procerus_Btn_all_action.triggered.connect(self.brow_right_procerus_all_popup_command)
+        Brow_R_procerus_Btn_reset_action.triggered.connect(self.brow_right_procerus_reset_popup_command)
         self.TopolDefine_window.Brow_R_02_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Brow_R_02_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Brow_R_02_Btn)
         Brow_R_02_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Brow_R_02_Btn)
@@ -6539,9 +6534,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Brow_R_02_Btn.addAction(Brow_R_02_Btn_first_action)
         self.TopolDefine_window.Brow_R_02_Btn.addAction(Brow_R_02_Btn_all_action)
         self.TopolDefine_window.Brow_R_02_Btn.addAction(Brow_R_02_Btn_reset_action)
-        Brow_R_02_Btn_first_action.triggered.connect(self.Brow_R_02_First_PopupCmd)
-        Brow_R_02_Btn_all_action.triggered.connect(self.Brow_R_02_All_PopupCmd)
-        Brow_R_02_Btn_reset_action.triggered.connect(self.Brow_R_02_Reset_PopupCmd)
+        Brow_R_02_Btn_first_action.triggered.connect(self.brow_right_02_first_popup_command)
+        Brow_R_02_Btn_all_action.triggered.connect(self.brow_right_02_all_popup_command)
+        Brow_R_02_Btn_reset_action.triggered.connect(self.brow_right_02_reset_popup_command)
         self.TopolDefine_window.Brow_R_03_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Brow_R_03_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Brow_R_03_Btn)
         Brow_R_03_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Brow_R_03_Btn)
@@ -6549,9 +6544,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Brow_R_03_Btn.addAction(Brow_R_03_Btn_first_action)
         self.TopolDefine_window.Brow_R_03_Btn.addAction(Brow_R_03_Btn_all_action)
         self.TopolDefine_window.Brow_R_03_Btn.addAction(Brow_R_03_Btn_reset_action)
-        Brow_R_03_Btn_first_action.triggered.connect(self.Brow_R_03_First_PopupCmd)
-        Brow_R_03_Btn_all_action.triggered.connect(self.Brow_R_03_All_PopupCmd)
-        Brow_R_03_Btn_reset_action.triggered.connect(self.Brow_R_03_Reset_PopupCmd)
+        Brow_R_03_Btn_first_action.triggered.connect(self.brow_right_03_first_popup_command)
+        Brow_R_03_Btn_all_action.triggered.connect(self.brow_right_03_all_popup_command)
+        Brow_R_03_Btn_reset_action.triggered.connect(self.brow_right_03_reset_popup_command)
         self.TopolDefine_window.Brow_Center_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Brow_Center_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Brow_Center_Btn)
         Brow_Center_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Brow_Center_Btn)
@@ -6559,9 +6554,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Brow_Center_Btn.addAction(Brow_Center_Btn_first_action)
         self.TopolDefine_window.Brow_Center_Btn.addAction(Brow_Center_Btn_all_action)
         self.TopolDefine_window.Brow_Center_Btn.addAction(Brow_Center_Btn_reset_action)
-        Brow_Center_Btn_first_action.triggered.connect(self.Brow_Center_First_PopupCmd)
-        Brow_Center_Btn_all_action.triggered.connect(self.Brow_Center_All_PopupCmd)
-        Brow_Center_Btn_reset_action.triggered.connect(self.Brow_Center_Reset_PopupCmd)
+        Brow_Center_Btn_first_action.triggered.connect(self.brow_center_first_popup_command)
+        Brow_Center_Btn_all_action.triggered.connect(self.brow_center_all_popup_command)
+        Brow_Center_Btn_reset_action.triggered.connect(self.brow_center_reset_popup_command)
         self.TopolDefine_window.Oral_Upper_teeth_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Oral_Upper_teeth_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Oral_Upper_teeth_Btn)
         Oral_Upper_teeth_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Oral_Upper_teeth_Btn)
@@ -6569,9 +6564,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Oral_Upper_teeth_Btn.addAction(Oral_Upper_teeth_Btn_first_action)
         self.TopolDefine_window.Oral_Upper_teeth_Btn.addAction(Oral_Upper_teeth_Btn_all_action)
         self.TopolDefine_window.Oral_Upper_teeth_Btn.addAction(Oral_Upper_teeth_Btn_reset_action)
-        Oral_Upper_teeth_Btn_first_action.triggered.connect(self.Oral_Upper_teeth_First_PopupCmd)
-        Oral_Upper_teeth_Btn_all_action.triggered.connect(self.Oral_Upper_teeth_All_PopupCmd)
-        Oral_Upper_teeth_Btn_reset_action.triggered.connect(self.Oral_Upper_teeth_Reset_PopupCmd)
+        Oral_Upper_teeth_Btn_first_action.triggered.connect(self.oral_upper_teeth_first_popup_command)
+        Oral_Upper_teeth_Btn_all_action.triggered.connect(self.oral_upper_teeth_all_popup_command)
+        Oral_Upper_teeth_Btn_reset_action.triggered.connect(self.oral_upper_teeth_reset_popup_command)
         self.TopolDefine_window.Oral_Lower_teeth_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Oral_Lower_teeth_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Oral_Lower_teeth_Btn)
         Oral_Lower_teeth_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Oral_Lower_teeth_Btn)
@@ -6579,9 +6574,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Oral_Lower_teeth_Btn.addAction(Oral_Lower_teeth_Btn_first_action)
         self.TopolDefine_window.Oral_Lower_teeth_Btn.addAction(Oral_Lower_teeth_Btn_all_action)
         self.TopolDefine_window.Oral_Lower_teeth_Btn.addAction(Oral_Lower_teeth_Btn_reset_action)
-        Oral_Lower_teeth_Btn_first_action.triggered.connect(self.Oral_Lower_teeth_First_PopupCmd)
-        Oral_Lower_teeth_Btn_all_action.triggered.connect(self.Oral_Lower_teeth_All_PopupCmd)
-        Oral_Lower_teeth_Btn_reset_action.triggered.connect(self.Oral_Lower_teeth_Reset_PopupCmd)
+        Oral_Lower_teeth_Btn_first_action.triggered.connect(self.oral_lower_teeth_first_popup_command)
+        Oral_Lower_teeth_Btn_all_action.triggered.connect(self.oral_lower_teeth_all_popup_command)
+        Oral_Lower_teeth_Btn_reset_action.triggered.connect(self.oral_lower_teeth_reset_popup_command)
         self.TopolDefine_window.Oral_Tongue_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Oral_Tongue_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Oral_Tongue_Btn)
         Oral_Tongue_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Oral_Tongue_Btn)
@@ -6589,9 +6584,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Oral_Tongue_Btn.addAction(Oral_Tongue_Btn_first_action)
         self.TopolDefine_window.Oral_Tongue_Btn.addAction(Oral_Tongue_Btn_all_action)
         self.TopolDefine_window.Oral_Tongue_Btn.addAction(Oral_Tongue_Btn_reset_action)
-        Oral_Tongue_Btn_first_action.triggered.connect(self.Oral_Tongue_First_PopupCmd)
-        Oral_Tongue_Btn_all_action.triggered.connect(self.Oral_Tongue_All_PopupCmd)
-        Oral_Tongue_Btn_reset_action.triggered.connect(self.Oral_Tongue_Reset_PopupCmd)
+        Oral_Tongue_Btn_first_action.triggered.connect(self.oral_tongue_first_popup_command)
+        Oral_Tongue_Btn_all_action.triggered.connect(self.oral_tongue_all_popup_command)
+        Oral_Tongue_Btn_reset_action.triggered.connect(self.oral_tongue_reset_popup_command)
         self.TopolDefine_window.Oral_Tongue_02_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Oral_Tongue_02_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Oral_Tongue_02_Btn)
         Oral_Tongue_02_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Oral_Tongue_02_Btn)
@@ -6599,9 +6594,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Oral_Tongue_02_Btn.addAction(Oral_Tongue_02_Btn_first_action)
         self.TopolDefine_window.Oral_Tongue_02_Btn.addAction(Oral_Tongue_02_Btn_all_action)
         self.TopolDefine_window.Oral_Tongue_02_Btn.addAction(Oral_Tongue_02_Btn_reset_action)
-        Oral_Tongue_02_Btn_first_action.triggered.connect(self.Oral_Tongue_02_First_PopupCmd)
-        Oral_Tongue_02_Btn_all_action.triggered.connect(self.Oral_Tongue_02_All_PopupCmd)
-        Oral_Tongue_02_Btn_reset_action.triggered.connect(self.Oral_Tongue_02_Reset_PopupCmd)
+        Oral_Tongue_02_Btn_first_action.triggered.connect(self.oral_tongue_02_first_popup_command)
+        Oral_Tongue_02_Btn_all_action.triggered.connect(self.oral_tongue_02_all_popup_command)
+        Oral_Tongue_02_Btn_reset_action.triggered.connect(self.oral_tongue_02_reset_popup_command)
         self.TopolDefine_window.Oral_Tongue_03_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         Oral_Tongue_03_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.Oral_Tongue_03_Btn)
         Oral_Tongue_03_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.Oral_Tongue_03_Btn)
@@ -6609,9 +6604,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.Oral_Tongue_03_Btn.addAction(Oral_Tongue_03_Btn_first_action)
         self.TopolDefine_window.Oral_Tongue_03_Btn.addAction(Oral_Tongue_03_Btn_all_action)
         self.TopolDefine_window.Oral_Tongue_03_Btn.addAction(Oral_Tongue_03_Btn_reset_action)
-        Oral_Tongue_03_Btn_first_action.triggered.connect(self.Oral_Tongue_03_First_PopupCmd)
-        Oral_Tongue_03_Btn_all_action.triggered.connect(self.Oral_Tongue_03_All_PopupCmd)
-        Oral_Tongue_03_Btn_reset_action.triggered.connect(self.Oral_Tongue_03_Reset_PopupCmd)
+        Oral_Tongue_03_Btn_first_action.triggered.connect(self.oral_tongue_03_first_popup_command)
+        Oral_Tongue_03_Btn_all_action.triggered.connect(self.oral_tongue_03_all_popup_command)
+        Oral_Tongue_03_Btn_reset_action.triggered.connect(self.oral_tongue_03_reset_popup_command)
         self.TopolDefine_window.EyeBall_L_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         EyeBall_L_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.EyeBall_L_Btn)
         EyeBall_L_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.EyeBall_L_Btn)
@@ -6619,9 +6614,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.EyeBall_L_Btn.addAction(EyeBall_L_Btn_first_action)
         self.TopolDefine_window.EyeBall_L_Btn.addAction(EyeBall_L_Btn_all_action)
         self.TopolDefine_window.EyeBall_L_Btn.addAction(EyeBall_L_Btn_reset_action)
-        EyeBall_L_Btn_first_action.triggered.connect(self.EyeBall_L_First_PopupCmd)
-        EyeBall_L_Btn_all_action.triggered.connect(self.EyeBall_L_All_PopupCmd)
-        EyeBall_L_Btn_reset_action.triggered.connect(self.EyeBall_L_Reset_PopupCmd)
+        EyeBall_L_Btn_first_action.triggered.connect(self.eye_ball_left_first_popup_command)
+        EyeBall_L_Btn_all_action.triggered.connect(self.eye_ball_left_all_popup_command)
+        EyeBall_L_Btn_reset_action.triggered.connect(self.eye_ball_left_reset_popup_command)
         self.TopolDefine_window.EyeBall_R_Btn.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         EyeBall_R_Btn_first_action = QtWidgets.QAction('Select the First Vertex', self.TopolDefine_window.EyeBall_R_Btn)
         EyeBall_R_Btn_all_action = QtWidgets.QAction('Select the All Vertex', self.TopolDefine_window.EyeBall_R_Btn)
@@ -6629,9 +6624,9 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.TopolDefine_window.EyeBall_R_Btn.addAction(EyeBall_R_Btn_first_action)
         self.TopolDefine_window.EyeBall_R_Btn.addAction(EyeBall_R_Btn_all_action)
         self.TopolDefine_window.EyeBall_R_Btn.addAction(EyeBall_R_Btn_reset_action)
-        EyeBall_R_Btn_first_action.triggered.connect(self.EyeBall_R_First_PopupCmd)
-        EyeBall_R_Btn_all_action.triggered.connect(self.EyeBall_R_All_PopupCmd)
-        EyeBall_R_Btn_reset_action.triggered.connect(self.EyeBall_R_Reset_PopupCmd)
+        EyeBall_R_Btn_first_action.triggered.connect(self.eye_ball_right_first_popup_command)
+        EyeBall_R_Btn_all_action.triggered.connect(self.eye_ball_right_all_popup_command)
+        EyeBall_R_Btn_reset_action.triggered.connect(self.eye_ball_right_reset_popup_command)
         self.TopolDefine_window.show()
 
     def topology_define_command(self, *args):
@@ -9100,7 +9095,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             self.ui.BrowTopolCheckBox.setChecked(True)
 
-    # todo oral setup command
     def oral_upper_teeth_command(self, *args):
         Oral_Upper_teeth = cmds.ls(os=True, fl=True)
         if len(Oral_Upper_teeth) != 0:
@@ -9171,7 +9165,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
             self.TopolDefine_window.Oral_Tongue_03_Btn.setStyleSheet(self.red_color)
         return
 
-    # todo eye ball setup command
     def eye_ball_left_command(self, *args):
         EyeBall_L = cmds.ls(os=True, fl=True)
         if len(EyeBall_L) != 0:
@@ -9975,7 +9968,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
 
         return
 
-    # todo auto skin build start
     def skin_build_command(self, *args):
         cmds.select(cl=True)
         max_influence_value = self.ui.min_value_edit.value()
@@ -15851,7 +15843,7 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         return
 
     def rebuild_skin(self):
-        if self.RebuildCheck == 1:
+        if self.rebuild_check is True:
             selection = cmds.ls(sl=True)
             for each in selection:
                 clusters = cmds.ls(type='skinCluster')
@@ -18592,7 +18584,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         if 'Nose 11 joint' == self.ui.NoseOption.currentText():
             cmds.parent('*_nasalis_transverse_nose_FK_Ctrl_grp', '*_procerus_nose_FK_Ctrl_grp', '*_nasolabial_fold_nose_FK_Ctrl_grp', 'depressor_septi_nose_FK_Ctrl_grp', 'Nose_All_Ctrl_grp')
 
-    # todo lip connect
     def lip_nose_connect_system(self):
         if 'Nose 02 joint' == self.ui.NoseOption.currentText() or 'Nose 04 joint' == self.ui.NoseOption.currentText() or 'Nose 11 joint' == self.ui.NoseOption.currentText():
             if 'Lip 10 joint' == self.ui.LipOption.currentText() or 'Lip 14 joint' == self.ui.LipOption.currentText() or 'Lip 14 & Lip Outer 5 joint' == self.ui.LipOption.currentText():
@@ -18729,7 +18720,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
                 s='\n//L_R_Nose Cheek Follow\n' + '\nL_cheek_L_nose_follow_grp.translateX = System_L_cheek_L_nose_follow_grp.translateX/3*(L_lip_corner_Ctrl.Cheek_follow);' + '\nL_cheek_L_nose_follow_grp.translateY = System_L_cheek_L_nose_follow_grp.translateY/2*(L_lip_corner_Ctrl.Cheek_follow);' + '\nL_cheek_L_nose_follow_grp.translateZ = System_L_cheek_L_nose_follow_grp.translateZ/10*(L_lip_corner_Ctrl.Cheek_follow);\n' + '\nR_cheek_R_nose_follow_grp.translateX = System_R_cheek_R_nose_follow_grp.translateX/3*(R_lip_corner_Ctrl.Cheek_follow);' + '\nR_cheek_R_nose_follow_grp.translateY = System_R_cheek_R_nose_follow_grp.translateY/2*(R_lip_corner_Ctrl.Cheek_follow);' + '\nR_cheek_R_nose_follow_grp.translateZ = System_R_cheek_R_nose_follow_grp.translateZ/10*(R_lip_corner_Ctrl.Cheek_follow);\n',
                 ae=1, uc=all, alwaysEvaluate=0, n='Nose_Cheek_expression')
 
-    # todo brow all
     def brow_all_system(self):
         if 'Brow 05 joint' == self.ui.BrowOption.currentText() or 'Brow 07 joint' == self.ui.BrowOption.currentText() or 'Brow 13 joint' == self.ui.BrowOption.currentText() or 'Brow 04 joint' == self.ui.BrowOption.currentText():
             if 'Brow 13 joint' == self.ui.BrowOption.currentText():
@@ -19387,7 +19377,6 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         else:
             cmds.parent('*_brow_Ctrl_grp', 'Brow_All_Ctrl_grp')
 
-    # todo eye all
     def eye_all_system(self):
         self.create_cube_control(23)
         cmds.scale(self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, self.ctrl_scale * 0.5, 'Cube_Shape')

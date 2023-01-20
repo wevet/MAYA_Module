@@ -1,0 +1,60 @@
+
+global proc installModule()
+{
+	global string $gShelfTopLevel;
+	string $currentShelf = `tabLayout -query -selectTab $gShelfTopLevel`;
+	setParent $currentShelf;
+	string $iconExt="png";
+	string $asInstallScriptLocation=`asInstallScriptLocation`;
+
+	string $scriptName2="Replacer_Window";
+	string $sourceFile2=$asInstallScriptLocation+$scriptName2+".py";
+	string $command2="import os\nimport sys\nsys.path.append('"+$asInstallScriptLocation+"')\nimport Replacer_Window as RWindow\nimport importlib\nimportlib.reload(RWindow)\nmain_window = RWindow.ReplacerWindow()";
+	string $icon2=$asInstallScriptLocation+"/icon/Replacer_Window_icon."+$iconExt;
+
+	if (!`file -q -ex $sourceFile2`)
+	{
+		error ("Something went wrong, can not find: \""+$sourceFile2+"\"");
+	}
+
+	shelfButton
+		-command $command2
+		-annotation $scriptName2
+		-label $scriptName2
+		-image $icon2
+		-image1 $icon2
+		-sourceType "python";
+
+	string $osTypeFile;
+	string $operatingSystem = `about -os`;
+	if ($operatingSystem=="win64") 
+	{
+		$osTypeFile="py";		
+	}
+
+	string $srcWindows=$asInstallScriptLocation;
+	string $version = `about -environmentFile`;
+	string $verPath =`substring $version 1 (size($version)-8)`;
+	string $destWindows=$verPath;
+	sysFile -makeDir ($verPath);
+	sysFile -copy $destWindows $srcWindows;
+	print ("\n// "+$scriptName2+" has been added to current shelf.\n");
+}
+
+global proc asInstallScriptLocator ()
+{
+}
+
+global proc string asInstallScriptLocation ()
+{
+	string $whatIs=`whatIs asInstallScriptLocator`;
+	string $fullPath=`substring $whatIs 25 999`;
+	string $buffer[];
+	int $numTok=`tokenize $fullPath "/" $buffer`;
+	int $numLetters=size($fullPath);
+	int $numLettersLastFolder=size($buffer[$numTok-1]);
+	string $scriptLocation=`substring $fullPath 1 ($numLetters-$numLettersLastFolder)`;
+	return $scriptLocation;
+}
+installModule;
+

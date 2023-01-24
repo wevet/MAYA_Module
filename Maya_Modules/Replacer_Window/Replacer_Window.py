@@ -45,14 +45,10 @@ def apply_reference(args):
         if optionSel == "CurrentName":
             savePath = savePath + "/" + currentName
 
-        is_binary = False
         if optionSel == "ChangeName":
             newName = cmds.textFieldButtonGrp("sceneName", q=True, text=True)
             if "." in newName:
                 savePath = savePath + "/" + newName
-
-                if newName == "mb":
-                    is_binary = True
             else:
                 cmds.error(u"拡張子をつけてください")
         """
@@ -68,10 +64,7 @@ def apply_reference(args):
         print("savePath => {0}".format(savePath))
         print("projectPath => {0}".format(projectPath))
         cmds.file(rename=savePath)
-        if is_binary:
-            cmds.file(save=True, force=True, type='mayaBinary')
-        else:
-            cmds.file(save=True, force=True, type='mayaAscii')
+        cmds.file(save=True, force=True, type='mayaBinary')
     else:
         print(u"保存を省略しました")
 

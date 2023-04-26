@@ -1,6 +1,4 @@
 """
-digetMirrorControl.py - Python Script
-
 Description:
     A tool for mirroring the controllers from one side to the other
     or to flip the pose
@@ -58,14 +56,14 @@ def maya_main_menu():
     else:
         return wrapInstance(long(main_window_ptr), QtWidgets.QWidget)  # type: ignore
 
-class diget_mirror_control(QtWidgets.QDialog):
+class Mirror_Pose_Window(QtWidgets.QDialog):
 
     dlg_instance = None
 
     @classmethod
     def show_dialog(cls):
         if not cls.dlg_instance:
-            cls.dlg_instance = diget_mirror_control()
+            cls.dlg_instance = Mirror_Pose_Window()
         if cls.dlg_instance.isHidden():
             cls.dlg_instance.show()
         else:
@@ -73,9 +71,9 @@ class diget_mirror_control(QtWidgets.QDialog):
             cls.dlg_instance.activateWindow()
 
     def __init__(self, parent=maya_main_menu()):
-        super(diget_mirror_control, self).__init__(parent)
+        super(Mirror_Pose_Window, self).__init__(parent)
 
-        self.setWindowTitle("digetMirrorControl")
+        self.setWindowTitle("Mirror Pose Window")
 
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowMinimizeButtonHint)
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowMaximizeButtonHint)
@@ -1131,13 +1129,13 @@ class diget_mirror_control(QtWidgets.QDialog):
         cmds.undoInfo(closeChunk=True)
 
     def showEvent(self, event):
-        super(diget_mirror_control, self).showEvent(event)
+        super(Mirror_Pose_Window, self).showEvent(event)
         if self.geometry:
             self.restoreGeometry(self.geometry)
 
     def closeEvent(self, event):
-        if isinstance(self, diget_mirror_control):
-            super(diget_mirror_control, self).closeEvent(event)
+        if isinstance(self, Mirror_Pose_Window):
+            super(Mirror_Pose_Window, self).closeEvent(event)
             self.geometry = self.saveGeometry()
 
 #if __name__ == "__main__":
@@ -1147,6 +1145,6 @@ def show_main_window():
         mirror_control.deleteLater()  # type: ignore
     except:
         pass
-    mirror_control = diget_mirror_control()
+    mirror_control = Mirror_Pose_Window()
     mirror_control.show()
 

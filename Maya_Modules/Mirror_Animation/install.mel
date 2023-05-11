@@ -7,9 +7,9 @@ global proc installModule()
 	string $iconExt="png";
 	string $asInstallScriptLocation=`asInstallScriptLocation`;
 
-	string $scriptName2="Mirror_Pose_Window";
+	string $scriptName2="Animation_Mirror";
 	string $sourceFile2=$asInstallScriptLocation+$scriptName2+".py";
-	string $command2="import os\nimport sys\nsys.path.append('"+$asInstallScriptLocation+"')\nimport Mirror_Pose_Window as Mirror\nimport importlib\nimportlib.reload(Mirror)\nmain_window = Mirror.show_main_window()";
+	string $command2="import os\nimport sys\nsys.path.append('"+$asInstallScriptLocation+"')\nimport Animation_Mirror as Mirror\nimport importlib\nimportlib.reload(Mirror)\nMirror.Initialize()";
 	string $icon2=$asInstallScriptLocation+"/icon/Mirror_Animation_icon."+$iconExt;
 
 	if (!`file -q -ex $sourceFile2`)

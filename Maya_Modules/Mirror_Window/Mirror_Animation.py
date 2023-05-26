@@ -22,10 +22,10 @@ outputOffsetList = []
 for j in jointList:
     #あらかじめ反転対象のジョイントを探しておく
     mirrorJoint = j
-    if 'Left' in j:
-        mirrorJoint = j.replace('Left', 'Right')
-    elif 'Right' in j:
-        mirrorJoint = j.replace('Right', 'Left')
+    if '_L' in j:
+        mirrorJoint = j.replace('_L', '_R')
+    elif '_R' in j:
+        mirrorJoint = j.replace('_R', '_L')
     #ミラー対象が見当たらなければ処理をスキップ
     if not mirrorJoint in jointList:
         continue
@@ -153,11 +153,9 @@ for j in jointList:
     cmds.pointConstraint(j, loc)
     cmds.orientConstraint(j, loc, mo=True)
 
-
 st = cmds.playbackOptions(q=True, min=True)
 et = cmds.playbackOptions(q=True, max=True)
 cmds.bakeResults(outputOffsetList, sm=True, t=(st, et), at=('tx', 'ty', 'tz', 'rx', 'ry', 'rz'))
-
 
 for node in inputLocList:
     if cmds.objExists(node):
@@ -165,7 +163,6 @@ for node in inputLocList:
 for node in culNodeList:
     if cmds.objExists(node):
         cmds.delete(node)
-
 
 for j in jointList:
     scsJoint = j

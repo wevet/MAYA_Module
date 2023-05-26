@@ -3,9 +3,6 @@ Description:
     A tool for mirroring the controllers from one side to the other
     or to flip the pose
 
-Requires:
-    Nothing
-
 Usage:
 1. Select what the mirror axis direction is in the "mirror axis" dropdown menu.
 
@@ -262,7 +259,7 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
     def get_flip_frame(self):
         """
         Returns:
-            Returns the userdefined value in frame double spin box
+            ユーザー定義値をフレームダブルスピンボックスで返す
         """
         return self.mirror_frame_dsb.value()
 
@@ -275,8 +272,8 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
             ctrl_list: A list of all controllers
 
         Returns:
-            Returns a dictionay with controllers as keys and its different
-            axis vectors as its value
+            コントローラをキーとし、その異なる軸ベクトルを値とするdictionaryを返します。
+            軸ベクトルを値とする辞書
         """
         vector_dict = {}
         cur_pos = {}
@@ -304,15 +301,13 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
     def get_attribute_data(self, ctrl_list):
         """
         Description:
-            Gets the data on the key table attributes visible in the channel box
-            of all controllers
+            すべてのコントローラのチャンネルボックスに表示されるキーテーブル属性のデータを取得する
 
         Args:
             ctrl_list: A list of controllers
 
         Returns:
-            Returns a dictionary with controllers as keys and its key table
-            attributes visible in the channel box as its values
+            コントローラをキーとするdictionaryとそのキーテーブルを返します。チャンネルボックスで表示される属性を値として返す。
         """
         data = {}
         for ctrl in ctrl_list:
@@ -354,7 +349,7 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
     def get_selected_controls(self, ctrl_list, left_ctrl_list, right_ctrl_list, middle_ctrl_list):
         """
         Description:
-            Gets what controllers are selected in the viewport
+            ビューポートで選択されているコントローラを取得する
 
         Args:
             ctrl_list: A list of all controllers
@@ -363,7 +358,7 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
             middle_ctrl_list: A list of all middle controllers
 
         Returns:
-            Returns a nested list with the selected controllers
+            選択されたコントローラを含むネストされたリストを返す
         """
         sel_controls = cmds.ls(selection=True)
         left_sel_controls = []
@@ -607,19 +602,17 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
     def get_controllers(self, side_con=["L", "R", "l", "r", "Left", "Right"]):
         """
         Args:
-            side_con: A list of naming conventions for the sides.
-                This list must have the same naming convention next
-                to eachother with the right name being the higher index.
-                We have when upper ("L") is used the left is at index 0
-                and the right ("R") is one above at index 1.
-                When lower naming is used left is at index 2, with the
-                right being one above at index 3. So left must always be
-                an even number and right must always an odd number one higher.
+            side_con: サイドの命名規約のリストです。
+                このリストは、同じ命名規則が隣り合っている必要があります。
+                を隣り合わせにし、右の名前が高いインデックスである必要があります。
+                例えば、アッパー（"L"）が使用される場合、左はインデックス0であり
+                で、右（"R"）は一つ上のインデックス1である。
+                下段のネーミングを使用した場合、左がインデックス2で、右が1つ上のインデックス3です。
+                右は1つ上のインデックス3です。つまり、左は常に偶数でなければならず
+                は偶数、右は1つ上の奇数でなければならない。
 
-        Return: Returns a dictionary with keys for left, right, middle and all
-            controllers. Also returns a pair dictionary that contains what
-            controllers is a pair in the sense of what is the left side and
-            what is the right side. And then the pair is assigned a number.
+        Return: 左、右、真ん中、すべてのコントローラのキーを持つdictionaryを返します。
+            コントローラを返します。また、どのようなコントローラがペアなのかを含むpairも返します。そして、そのペアには番号が割り振られます。
         """
         # Finding all the nurb curves to get the shape node on the controllers
         nurbs_curve_list = cmds.ls(type="nurbsCurve")

@@ -10,28 +10,30 @@ import os
 import sys
 import webbrowser
 import maya.mel
+import pymel.core as pm
 import maya.cmds as cmds
 from functools import partial
 import maya.OpenMayaUI as omui
 from shiboken2 import wrapInstance
 from PySide2 import QtCore, QtGui, QtWidgets
+from PySide2.QtWidgets import *
+from PySide2.QtCore import *
 
 def maya_main_window():
-    """
-    Return the Maya main window widget as a Python object
-    """
+
     main_window = omui.MQtUtil.mainWindow()
     if sys.version_info.major >= 3:
-        return wrapInstance(int(main_window), QtWidgets.QWidget)
+        return wrapInstance(int(main_window), QtWidgets.QDialog)
     else:
-        return wrapInstance(long(main_window), QtWidgets.QWidget) # type: ignore
+        return wrapInstance(long(main_window), QtWidgets.QDialog) # type: ignore
 
 
 class RetargetingTool(QtWidgets.QDialog):
 
     WINDOW_TITLE = "Animation Retargeting Tool"
+    PROJECT_ARRAY = ["UE4Mannequin", "MetaHuman"]
 
-    def __init__(self):
+    def __init__(self, parent=None, *args, **kwargs):
         super(RetargetingTool, self).__init__(maya_main_window())
 
         self.refresh_button = None
@@ -39,21 +41,36 @@ class RetargetingTool(QtWidgets.QDialog):
         self.ik_conn_button = None
         self.bake_button = None
         self.batch_bake_button = None
-        self.help_button = None
         self.rot_checkbox = None
         self.pos_checkbox = None
-        self.mo_checkbox = None
+        #self.mo_checkbox = None
         self.snap_checkbox = None
         self.connection_layout = None
+
+        # start --------------------- Automation
+        self.auto_connection_button = None
+        self.source_joints_button= None
+        self.target_curves_button = None
+        self.source_joints = []
+        self.target_joints = []
+        # end
+
+        # start --------------------- Project setting
+        self.source_model_text_name = None
+        self.source_model_text = None
+        self.target_model_text_name = None
+        self.target_model_text = None
+        # end
 
         self.script_job_ids = []
         self.connection_ui_widgets = []
         self.color_counter = 0
+        self.setStyleSheet('background-color:#004280;')
         self.maya_color_index = OrderedDict([(13, "red"), (18, "cyan"), (14, "lime"), (17, "yellow")])
         self.cached_connect_nodes = []
         self.setWindowTitle(self.WINDOW_TITLE)
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
-        self.resize(400, 300)
+        self.resize(400, 500)
         self.create_ui_widgets()
         self.create_ui_layout()
         self.create_ui_connections()
@@ -62,30 +79,85 @@ class RetargetingTool(QtWidgets.QDialog):
     def create_ui_widgets(self):
         self.refresh_button = QtWidgets.QPushButton(QtGui.QIcon(":refresh.png"), "")
         self.simple_conn_button = QtWidgets.QPushButton("Create Connection")
+        self.auto_connection_button = QtWidgets.QPushButton("Create Auto Connect")
         self.ik_conn_button = QtWidgets.QPushButton("Create IK Connection")
+        self.source_joints_button = QtWidgets.QPushButton("Get Source Joint All")
+        self.target_curves_button = QtWidgets.QPushButton("Get Target Ctrls All")
+
         self.bake_button = QtWidgets.QPushButton("Bake Animation")
         self.bake_button.setStyleSheet("background-color: lightgreen; color: black")
-        self.batch_bake_button = QtWidgets.QPushButton("Batch Bake And Export ...")
-        self.help_button = QtWidgets.QPushButton("?")
-        self.help_button.setFixedWidth(25)
+        #self.batch_bake_button = QtWidgets.QPushButton("Batch Bake And Export ...")
+
         self.rot_checkbox = QtWidgets.QCheckBox("Rotation")
         self.pos_checkbox = QtWidgets.QCheckBox("Translation")
-        self.mo_checkbox = QtWidgets.QCheckBox("Maintain Offset")
         self.snap_checkbox = QtWidgets.QCheckBox("Align To Position")
 
+    def apply_source_model_name(self, project_name):
+        if self.source_model_text_name is not None:
+            self.source_model_text.clear()
+        self.source_model_text_name = project_name
+        print("select source {0}".format(self.source_model_text_name))
+        self.source_model_text.append("Source : " + self.source_model_text_name)
+
+    def apply_target_model_name(self, project_name):
+        if self.target_model_text_name is not None:
+            self.target_model_text.clear()
+        self.target_model_text_name = project_name
+        print("select target {0}".format(self.target_model_text_name))
+        self.target_model_text.append("Target : " + self.target_model_text_name)
+
     def create_ui_layout(self):
+        horizontal_layout_checkbox = QtWidgets.QHBoxLayout()
+        horizontal_layout_checkbox.addWidget(self.pos_checkbox)
+        horizontal_layout_checkbox.addWidget(self.rot_checkbox)
+        horizontal_layout_checkbox.addWidget(self.snap_checkbox)
+        horizontal_layout_checkbox.addStretch()
+
+        X = 200
+        Y = 40
+        # select source model
         horizontal_layout_1 = QtWidgets.QHBoxLayout()
-        horizontal_layout_1.addWidget(self.pos_checkbox)
-        horizontal_layout_1.addWidget(self.rot_checkbox)
-        horizontal_layout_1.addWidget(self.snap_checkbox)
-        horizontal_layout_1.addStretch()
-        horizontal_layout_1.addWidget(self.help_button)
+        source_menu_list = QtWidgets.QMenu(self)
+        for item in self.PROJECT_ARRAY:
+            select_action = QtWidgets.QAction(item, self)
+            select_action.triggered.connect(partial(self.apply_source_model_name, item))
+            source_menu_list.addAction(select_action)
+        source_menu_button = QtWidgets.QPushButton("Source", self)
+        source_menu_button.setMenu(source_menu_list)
+        self.source_model_text = QtWidgets.QTextEdit(self)
+        self.source_model_text.setReadOnly(True)
+        self.source_model_text.setFixedSize(X, Y)
+        horizontal_layout_1.addWidget(source_menu_button)
+        horizontal_layout_1.addWidget(self.source_model_text)
+
+        # select target model
+        horizontal_layout_1_1 = QtWidgets.QHBoxLayout()
+        target_menu_list = QtWidgets.QMenu(self)
+        for item in self.PROJECT_ARRAY:
+            select_action = QtWidgets.QAction(item, self)
+            select_action.triggered.connect(partial(self.apply_target_model_name, item))
+            target_menu_list.addAction(select_action)
+        target_menu_button = QtWidgets.QPushButton("Target", self)
+        target_menu_button.setMenu(target_menu_list)
+        self.target_model_text = QtWidgets.QTextEdit(self)
+        self.target_model_text.setReadOnly(True)
+        self.target_model_text.setFixedSize(X, Y)
+        horizontal_layout_1_1.addWidget(target_menu_button)
+        horizontal_layout_1_1.addWidget(self.target_model_text)
+
+        # button layout
         horizontal_layout_2 = QtWidgets.QHBoxLayout()
         horizontal_layout_2.addWidget(self.simple_conn_button)
         horizontal_layout_2.addWidget(self.ik_conn_button)
         horizontal_layout_3 = QtWidgets.QHBoxLayout()
-        horizontal_layout_3.addWidget(self.batch_bake_button)
-        horizontal_layout_3.addWidget(self.bake_button)
+        horizontal_layout_3.addWidget(self.source_joints_button)
+        horizontal_layout_3.addWidget(self.target_curves_button)
+        horizontal_layout_3.addWidget(self.auto_connection_button)
+        horizontal_layout_4 = QtWidgets.QHBoxLayout()
+        #horizontal_layout_4.addWidget(self.batch_bake_button)
+        horizontal_layout_4.addWidget(self.bake_button)
+
+        # main layout
         connection_list_widget = QtWidgets.QWidget()
         self.connection_layout = QtWidgets.QVBoxLayout(connection_list_widget)
         self.connection_layout.setContentsMargins(2, 2, 2, 2)
@@ -94,24 +166,52 @@ class RetargetingTool(QtWidgets.QDialog):
         list_scroll_area = QtWidgets.QScrollArea()
         list_scroll_area.setWidgetResizable(True)
         list_scroll_area.setWidget(connection_list_widget)
-        separator_line = QtWidgets.QFrame(parent=None)
-        separator_line.setFrameShape(QtWidgets.QFrame.HLine)
-        separator_line.setFrameShadow(QtWidgets.QFrame.Sunken)
+
+        separator_line_1 = QtWidgets.QFrame(parent=None)
+        separator_line_1.setFrameShape(QtWidgets.QFrame.HLine)
+        separator_line_1.setFrameShadow(QtWidgets.QFrame.Sunken)
+        separator_line_1_1 = QtWidgets.QFrame(parent=None)
+        separator_line_1_1.setFrameShape(QtWidgets.QFrame.HLine)
+        separator_line_1_1.setFrameShadow(QtWidgets.QFrame.Sunken)
+        separator_line_2 = QtWidgets.QFrame(parent=None)
+        separator_line_2.setFrameShape(QtWidgets.QFrame.HLine)
+        separator_line_2.setFrameShadow(QtWidgets.QFrame.Sunken)
+        separator_line_3 = QtWidgets.QFrame(parent=None)
+        separator_line_3.setFrameShape(QtWidgets.QFrame.HLine)
+        separator_line_3.setFrameShadow(QtWidgets.QFrame.Sunken)
+        separator_line_4 = QtWidgets.QFrame(parent=None)
+        separator_line_4.setFrameShape(QtWidgets.QFrame.HLine)
+        separator_line_4.setFrameShadow(QtWidgets.QFrame.Sunken)
+
         main_layout = QtWidgets.QVBoxLayout(self)
         main_layout.setContentsMargins(10, 10, 10, 10)
         main_layout.addWidget(list_scroll_area)
+        main_layout.addLayout(horizontal_layout_checkbox)
+        main_layout.addWidget(separator_line_1)
         main_layout.addLayout(horizontal_layout_1)
+        main_layout.addWidget(separator_line_1_1)
+        main_layout.addLayout(horizontal_layout_1_1)
+        main_layout.addWidget(separator_line_2)
         main_layout.addLayout(horizontal_layout_2)
-        main_layout.addWidget(separator_line)
+        main_layout.addWidget(separator_line_3)
         main_layout.addLayout(horizontal_layout_3)
+        main_layout.addWidget(separator_line_4)
+        main_layout.addLayout(horizontal_layout_4)
+
+    def exitAction(self):
+        print("exit action")
 
     def create_ui_connections(self):
         self.simple_conn_button.clicked.connect(self.create_connection_node)
         self.ik_conn_button.clicked.connect(self.create_ik_connection_node)
         self.refresh_button.clicked.connect(self.refresh_ui_list)
         self.bake_button.clicked.connect(self.bake_animation_confirm)
-        self.batch_bake_button.clicked.connect(self.open_batch_window)
-        self.help_button.clicked.connect(self.help_dialog)
+        #self.batch_bake_button.clicked.connect(self.open_batch_window)
+
+        self.source_joints_button.clicked.connect(self.find_source_joints)
+        self.target_curves_button.clicked.connect(self.find_target_curves)
+        self.auto_connection_button.clicked.connect(self.automation_create_connection_node)
+
         self.rot_checkbox.setChecked(True)
         self.pos_checkbox.setChecked(True)
         self.snap_checkbox.setChecked(True)
@@ -152,6 +252,43 @@ class RetargetingTool(QtWidgets.QDialog):
         self.kill_script_jobs()
         self.clear_list()
 
+    def find_source_joints(self):
+        source_root_joint = pm.selected()
+        if source_root_joint is not None:
+            self.source_joints = []
+            for i in source_root_joint:
+                l = self._get_joint_list(i, self.source_joints)
+        for source in self.source_joints:
+            print(source)
+        print(len(self.source_joints))
+
+    def find_target_curves(self) :
+        source_root_joint = pm.selected()
+        if source_root_joint is not None:
+            self.target_joints = []
+            for i in source_root_joint:
+                l = self._get_all_nurbs_curve(i, self.target_joints, True)
+        for source in self.target_joints:
+            print(source)
+        print(len(self.target_joints))
+
+    def _get_all_nurbs_curve(self, node, item_array, is_find_FK):
+        children = node.getChildren()
+        for child in children:
+            type = child.nodeType()
+            if str(type).find("nurbsCurve") > -1:
+                if is_find_FK:
+                    if child.name().find("FK") > -1:
+                        item_array.append(child)
+                else:
+                    item_array.append(child)
+            self._get_all_nurbs_curve(child, item_array, is_find_FK)
+        return item_array
+
+    def automation_create_connection_node(self):
+        print("automation_create_connection_node")
+        pass
+
     def create_connection_node(self):
         try:
             selected_joint = cmds.ls(selection=True)[0]
@@ -185,10 +322,8 @@ class RetargetingTool(QtWidgets.QDialog):
         # Select the type of constraint based on the ui checkboxes
         if self.rot_checkbox.isChecked() is True and self.pos_checkbox.isChecked() is True:
             cmds.parentConstraint(locator, selected_ctrl, maintainOffset=True)
-
         elif self.rot_checkbox.isChecked() is True and self.pos_checkbox.isChecked() is False:
             cmds.orientConstraint(locator, selected_ctrl, maintainOffset=True)
-
         elif self.pos_checkbox.isChecked() is True and self.rot_checkbox.isChecked() is False:
             cmds.pointConstraint(locator, selected_ctrl, maintainOffset=True)
         else:
@@ -297,12 +432,43 @@ class RetargetingTool(QtWidgets.QDialog):
         cmds.delete(shapes)
         return output_node
 
+    def _automation_bone_mapping(self):
+        if self.source_skeleton is None or self.target_skeleton is None:
+            cmds.warning("Please target skeleton or source skeleton selected ..")
+            return
+
+        self.source_joints = []
+        for i in self.source_skeleton:
+            tempList = []
+            l = self._get_joint_list(i, tempList)
+            self.source_joints.append(l)
+            for item in self.source_joints:
+                print(item)
+
+        self.target_joints = []
+        for i in self.target_skeleton:
+            tempList = []
+            l = self._get_joint_list(i, tempList)
+            self.target_joints.append(l)
+            for item in self.target_joints:
+                print(item)
+        pass
+
+    def _get_joint_list(self, node, item_array):
+        children = node.getChildren()
+        for child in children:
+            type = child.nodeType()
+            if str(type).find("joint") > -1:
+                item_array.append(child)
+            self._get_joint_list(child, item_array)
+        return item_array
+
     def bake_animation_confirm(self):
         confirm = cmds.confirmDialog(title="Confirm",
-                                     message="アニメーションをベイクすると、すべての接続ノードが削除されます。続行しますか？",
+                                     message="Animation Bake will delete all connected nodes. Do you want to continue?",
                                      button=["Yes", "No"], defaultButton="Yes", cancelButton="No")
         if confirm == "Yes":
-            progress_dialog = QtWidgets.QProgressDialog("Baking animation", None, 0, -1, self)
+            progress_dialog = QtWidgets.QProgressDialog("Bake animation", None, 0, -1, self)
             progress_dialog.setWindowFlags(progress_dialog.windowFlags() ^ QtCore.Qt.WindowCloseButtonHint)
             progress_dialog.setWindowFlags(progress_dialog.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
             progress_dialog.setWindowTitle("Progress...")
@@ -310,21 +476,39 @@ class RetargetingTool(QtWidgets.QDialog):
             progress_dialog.show()
             QtCore.QCoreApplication.processEvents()
             # Bake animation
+
+            # constraintを削除する
+            # undo処理を監視
+            self.remove_constraint_and_controller()
             self.bake_animation()
+
+            cmds.undo()
+
             progress_dialog.close()
         if confirm == "No":
             pass
         self.refresh_ui_list()
 
-    def help_dialog(self):
-        confirm = cmds.confirmDialog(
-            title="How to use",
-            message="To create a connection simply select the driver and then the driven and click 'Create connection'. For IK hands and IK feet controllers you can use 'Create IK Connection' for more complex retargeting. "
-                    "\n \nAs an example: if you want to transfer animation from a skeleton to a rig, first select the animated joint and then select the controller before you create a connection.",
-            button=["Cancel"],
-            defaultButton="Cancel",
-            cancelButton="Cancel",
-            dismissString="Cancel")
+    def get_constraint_list(self, node, target_list):
+        # 選択したノードの子供をリストで返す
+        children = node.getChildren()
+        for child in children:
+            type = child.nodeType()
+
+            if str(type).find("Constraint") > -1:
+                target_list.append(child)
+            else:
+                self.get_constraint_list(child, target_list)
+        return target_list
+
+    def get_end_joints(self, root):
+        end_joints = []
+        children = cmds.listRelatives(root, c=True, type="joint")
+        if children is None:
+            return [root]
+        for child in children:
+            end_joints.extend(self.get_end_joints(child))
+        return end_joints
 
     def open_batch_window(self):
         try:
@@ -351,6 +535,7 @@ class RetargetingTool(QtWidgets.QDialog):
             # Delete the connect nodes
             for node in cls.get_connect_nodes():
                 try:
+                    print("delete connect node")
                     cmds.delete(node)
                 except:
                     pass
@@ -358,9 +543,11 @@ class RetargetingTool(QtWidgets.QDialog):
             # Remove the message attribute from the controllers
             for ctrl in cls.get_connected_ctrls():
                 try:
+                    print("delete connect controller")
                     cmds.deleteAttr(ctrl, attribute="ConnectedCtrl")
                 except:
                     pass
+            pass
 
     @classmethod
     def get_connect_nodes(cls):
@@ -386,7 +573,7 @@ class RetargetingTool(QtWidgets.QDialog):
 class ListItemWidget(QtWidgets.QWidget):
     """
     UI list item class.
-    When a new List Item is created it gets added to the connection_list_widget in the RetargetingTool class.
+    新しいリスト・アイテムが作成されると、それはRetargetingToolクラスのconnection_list_widgetに追加されます。
     """
 
     def __init__(self, connection_node, parent_instance):
@@ -403,6 +590,9 @@ class ListItemWidget(QtWidgets.QWidget):
         self.create_ui_widgets()
         self.create_ui_layout()
         self.create_ui_connections()
+
+        #print("selected {0}".format(self.main))
+        #print("connection_node {0}".format(self.connection_node))
 
         # If there is already connection nodes in the scene update the color counter
         try:
@@ -467,11 +657,11 @@ class ListItemWidget(QtWidgets.QWidget):
         # Set the color on the connection node and button
         connection_nodes = self.main.cached_connect_nodes
         color = list(self.main.maya_color_index.keys())
-
-        if self.main.color_counter < 3:
-            self.main.color_counter += 1
-        else:
+        length = len(self.main.maya_color_index)
+        if self.main.color_counter >= length - 1:
             self.main.color_counter = 0
+        else:
+            self.main.color_counter += 1
 
         for node in connection_nodes:
             cmds.setAttr(node + ".overrideEnabled", 1)
@@ -524,14 +714,16 @@ class BatchExport(QtWidgets.QDialog):
         self.export_button = QtWidgets.QPushButton("Batch Export Animations")
         self.export_button.setStyleSheet("background-color: lightgreen; color: black")
         self.connection_file_line = QtWidgets.QLineEdit()
-        self.connection_file_line.setToolTip("接続リグファイルのファイルパスを入力します。")
+        # 接続リグファイルのファイルパスを入力します。
+        self.connection_file_line.setToolTip("Enter the file path of the connection rig file.")
         self.connection_filepath_button = QtWidgets.QPushButton()
         self.connection_filepath_button.setIcon(QtGui.QIcon(":fileOpen.png"))
         self.connection_filepath_button.setFixedSize(24, 24)
 
         self.export_selected_label = QtWidgets.QLabel("Export Selected (Optional):")
         self.export_selected_line = QtWidgets.QLineEdit()
-        self.export_selected_line.setToolTip("エクスポートするノードの名前を入力します。すべてエクスポートする場合は空白のままにします。")
+        # エクスポートするノードの名前を入力します。すべてエクスポートする場合は空白のままにします。
+        self.export_selected_line.setToolTip("Enter the name of the node to be exported. Leave blank if you want to export all.")
         self.export_selected_button = QtWidgets.QPushButton()
         self.export_selected_button.setIcon(QtGui.QIcon(":addClip.png"))
         self.export_selected_button.setFixedSize(24, 24)
@@ -625,9 +817,11 @@ class BatchExport(QtWidgets.QDialog):
 
     def batch_action(self):
         if self.connection_file_line.text() == "":
-            cmds.warning("接続ファイルのテキストフィールドが空です。エクスポートできるように、接続リグファイルを追加します。このファイルには、リグとスケルトンへの接続が含まれている必要があります。")
+            # 接続ファイルのテキストフィールドが空です。エクスポートできるように、接続リグファイルを追加します。このファイルには、リグとスケルトンへの接続が含まれている必要があります。
+            cmds.warning("The text field in the connection file is empty. Add a connection rig file so that it can be exported. This file must contain the connections to the rig and skeleton.")
         elif self.file_list_widget.count() == 0:
-            cmds.warning("アニメーションクリップのリストが空です。エクスポートできるようにアニメーションクリップをリストに追加してください！")
+            # アニメーションクリップのリストが空です。エクスポートできるようにアニメーションクリップをリストに追加してください！
+            cmds.warning("The list of animation clips is empty. Please add animation clips to the list so that they can be exported!")
         else:
             confirm_dialog = self.output_filepath_dialog()
             if confirm_dialog is True:

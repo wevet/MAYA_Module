@@ -369,9 +369,17 @@ class RetargetingTool(QtWidgets.QDialog):
         try:
             selected_joint = cmds.ls(sl=True)[0]
             selected_ctrl = cmds.ls(sl=True)[1]
+            self._create_connection_node(selected_joint, selected_ctrl)
         except:
-            return cmds.warning("No selections!")
-        self._create_connection_node(selected_joint, selected_ctrl)
+            cmds.warning("create_connection_node No selections!")
+
+    def create_ik_connection_node(self):
+        try:
+            selected_joint = cmds.ls(selection=True)[0]
+            selected_ctrl = cmds.ls(selection=True)[1]
+            self._create_ik_connection_node(selected_joint, selected_ctrl)
+        except:
+            cmds.warning("create_ik_connection_node No selections!")
 
     def _create_connection_node(self, selected_joint, selected_ctrl):
         print("source => {0}, target => {1}".format(selected_joint, selected_ctrl))
@@ -418,14 +426,6 @@ class RetargetingTool(QtWidgets.QDialog):
             self.refresh_ui_list()
         except:
             pass
-
-    def create_ik_connection_node(self):
-        try:
-            selected_joint = cmds.ls(selection=True)[0]
-            selected_ctrl = cmds.ls(selection=True)[1]
-        except:
-            return cmds.warning("No selections!")
-        self._create_ik_connection_node(selected_joint, selected_ctrl)
 
     def _create_ik_connection_node(self, selected_joint, selected_ctrl):
         self.rot_checkbox.setChecked(True)
@@ -532,25 +532,12 @@ class RetargetingTool(QtWidgets.QDialog):
             # constraintを削除する
             # undo処理を監視
             self.bake_animation()
-
             cmds.undo()
 
             progress_dialog.close()
         if confirm == "No":
             pass
         self.refresh_ui_list()
-
-    def get_constraint_list(self, node, target_list):
-        # 選択したノードの子供をリストで返す
-        children = node.getChildren()
-        for child in children:
-            type = child.nodeType()
-
-            if str(type).find("Constraint") > -1:
-                target_list.append(child)
-            else:
-                self.get_constraint_list(child, target_list)
-        return target_list
 
     def open_batch_window(self):
         try:

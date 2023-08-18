@@ -1,24 +1,10 @@
 
-import pymel.core as pm
 import maya.cmds as cmds
 
-def get_item_list(node, item_array):
-    children = node.getChildren()
-    for child in children:
-        type = child.nodeType()
-        if str(type).find("nurbsCurve") > -1:
-            if child.name().find("FK") > -1:
-                item_array.append(child)
-        get_item_list(child, item_array)
-    return item_array
-
-sel = pm.selected()
-item_list = []
-
-for i in sel:
-    l = get_item_list(i, item_list)
-
-print(item_list)
+curves = cmds.ls(selection=True, dag=True, type="transform")
+for curve in curves:
+    if curve.find("FK") > -1:
+        print(curve)
 
 #-----------------------------------------------------------------------------------------------------------
 

@@ -18,6 +18,8 @@ from shiboken2 import wrapInstance
 from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtWidgets import *
 from PySide2.QtCore import *
+import json
+import os
 
 def maya_main_window():
 
@@ -31,7 +33,7 @@ def maya_main_window():
 class RetargetingTool(QtWidgets.QDialog):
 
     WINDOW_TITLE = "Animation Retargeting Tool"
-    PROJECT_ARRAY = ["UE4Mannequin", "MetaHuman"]
+    PROJECT_PATH = "json/Projects/"
 
     def __init__(self, parent=None, *args, **kwargs):
         super(RetargetingTool, self).__init__(maya_main_window())
@@ -48,18 +50,18 @@ class RetargetingTool(QtWidgets.QDialog):
         self.connection_layout = None
 
         # start --------------------- Automation
+        self.project_names = []
         self.auto_connection_button = None
-        self.source_joints_button= None
-        self.target_curves_button = None
-        self.source_joints = []
-        self.target_joints = []
-        # end
 
-        # start --------------------- Project setting
+        self.source_joints_button= None
         self.source_model_text_name = None
         self.source_model_text = None
+        self.source_joints = []
+
+        self.target_curves_button = None
         self.target_model_text_name = None
         self.target_model_text = None
+        self.target_joints = []
         # end
 
         self.script_job_ids = []
@@ -71,6 +73,7 @@ class RetargetingTool(QtWidgets.QDialog):
         self.setWindowTitle(self.WINDOW_TITLE)
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
         self.resize(400, 500)
+
         self.create_ui_widgets()
         self.create_ui_layout()
         self.create_ui_connections()
@@ -113,12 +116,19 @@ class RetargetingTool(QtWidgets.QDialog):
         horizontal_layout_checkbox.addWidget(self.snap_checkbox)
         horizontal_layout_checkbox.addStretch()
 
+        dir_name = os.path.dirname(__file__)
+        file_name = os.path.join(dir_name, 'json/Project.json')
+        with open(file_name) as f:
+            data = json.load(f)
+            for name in data['name']:
+                self.project_names.append(name)
+
         X = 200
         Y = 40
         # select source model
         horizontal_layout_1 = QtWidgets.QHBoxLayout()
         source_menu_list = QtWidgets.QMenu(self)
-        for item in self.PROJECT_ARRAY:
+        for item in self.project_names:
             select_action = QtWidgets.QAction(item, self)
             select_action.triggered.connect(partial(self.apply_source_model_name, item))
             source_menu_list.addAction(select_action)
@@ -133,7 +143,7 @@ class RetargetingTool(QtWidgets.QDialog):
         # select target model
         horizontal_layout_1_1 = QtWidgets.QHBoxLayout()
         target_menu_list = QtWidgets.QMenu(self)
-        for item in self.PROJECT_ARRAY:
+        for item in self.project_names:
             select_action = QtWidgets.QAction(item, self)
             select_action.triggered.connect(partial(self.apply_target_model_name, item))
             target_menu_list.addAction(select_action)
@@ -198,9 +208,6 @@ class RetargetingTool(QtWidgets.QDialog):
         main_layout.addWidget(separator_line_4)
         main_layout.addLayout(horizontal_layout_4)
 
-    def exitAction(self):
-        print("exit action")
-
     def create_ui_connections(self):
         self.simple_conn_button.clicked.connect(self.create_connection_node)
         self.ik_conn_button.clicked.connect(self.create_ik_connection_node)
@@ -211,10 +218,9 @@ class RetargetingTool(QtWidgets.QDialog):
         self.source_joints_button.clicked.connect(self.find_source_joints)
         self.target_curves_button.clicked.connect(self.find_target_curves)
         self.auto_connection_button.clicked.connect(self.automation_create_connection_node)
-
         self.rot_checkbox.setChecked(True)
         self.pos_checkbox.setChecked(True)
-        self.snap_checkbox.setChecked(True)
+        self.snap_checkbox.setChecked(False)
 
     def create_script_jobs(self):
         self.script_job_ids.append(cmds.scriptJob(event=["SelectionChanged", partial(self.refresh_ui_list)]))
@@ -253,6 +259,7 @@ class RetargetingTool(QtWidgets.QDialog):
         self.clear_list()
 
     def find_source_joints(self):
+        """
         source_root_joint = pm.selected()
         if source_root_joint is not None:
             self.source_joints = []
@@ -261,13 +268,28 @@ class RetargetingTool(QtWidgets.QDialog):
         for source in self.source_joints:
             print(source)
         print(len(self.source_joints))
+        """
+        self.source_joints = []
+        joints = cmds.ls(selection=True,dag=True,type="joint")
+        for joint in joints:
+            self.source_joints.append(joint)
+        for source in self.source_joints:
+            print(source)
+        print(len(self.source_joints))
 
     def find_target_curves(self) :
+        """
         source_root_joint = pm.selected()
         if source_root_joint is not None:
             self.target_joints = []
             for i in source_root_joint:
-                l = self._get_all_nurbs_curve(i, self.target_joints, True)
+                l = self._get_all_nurbs_curve(i, self.target_joints, False)
+        """
+        self.target_joints = []
+        curves = cmds.ls(selection=True, dag=True, type="transform")
+        for curve in curves:
+            if curve.find("FK") > -1 or curve.find("IK") > -1:
+                self.target_joints.append(curve)
         for source in self.target_joints:
             print(source)
         print(len(self.target_joints))
@@ -285,22 +307,78 @@ class RetargetingTool(QtWidgets.QDialog):
             self._get_all_nurbs_curve(child, item_array, is_find_FK)
         return item_array
 
+    def _get_joint_list(self, node, item_array):
+        children = node.getChildren()
+        for child in children:
+            type = child.nodeType()
+            if str(type).find("joint") > -1:
+                item_array.append(child)
+            self._get_joint_list(child, item_array)
+        return item_array
+    def _get_project_json_data(self, path_name):
+        dir_name = os.path.dirname(__file__)
+        file_name = os.path.join(dir_name, self.PROJECT_PATH + path_name + '.json')
+        with open(file_name) as f:
+            return json.load(f)
     def automation_create_connection_node(self):
-        print("automation_create_connection_node")
-        pass
+        if len(self.source_joints) <= 0 or len(self.target_joints) <= 0:
+            cmds.warning("source joints is empty !")
+            return
+
+        source_joint_data = self._get_project_json_data(self.source_model_text_name)
+        target_joint_data = self._get_project_json_data(self.target_model_text_name)
+        source_joints = source_joint_data['joint']
+        target_joints = target_joint_data['joint']
+        source_curves = source_joint_data['ctrl']
+        target_curves = target_joint_data['ctrl']
+
+        # @TODO
+        # Retarget先のjsonファイルを読み込み、Bone Mappingを行う。
+        # Source元のBoneMappingを確認し、同じKeyでControllerのValueを取得する
+        joint_dict = {}
+        for source in self.source_joints:
+            joint_name = source
+            # jsonにjoint名をctrl名が両方ある
+            if joint_name in source_joints and joint_name in target_curves:
+                target = self._find_curve_object(target_curves[joint_name])
+                if target is not None:
+                    joint_dict[source] = target
+            else:
+                print("not found key names => {0}".format(joint_name))
+
+        self._automation_create_connection_node(joint_dict)
+
+    def _find_curve_object(self, joint_name):
+        for source in self.target_joints:
+            if source == joint_name:
+                return source
+        return None
+
+    def _automation_create_connection_node(self, joint_dict):
+        for key, value in joint_dict.items():
+            try:
+                if value.find("FK") > -1:
+                    self._create_connection_node(key, value)
+                elif value.find("IK") > -1:
+                    self._create_ik_connection_node(key, value)
+                    pass
+            except:
+                pass
 
     def create_connection_node(self):
         try:
-            selected_joint = cmds.ls(selection=True)[0]
-            selected_ctrl = cmds.ls(selection=True)[1]
+            selected_joint = cmds.ls(sl=True)[0]
+            selected_ctrl = cmds.ls(sl=True)[1]
         except:
             return cmds.warning("No selections!")
+        self._create_connection_node(selected_joint, selected_ctrl)
 
+    def _create_connection_node(self, selected_joint, selected_ctrl):
+        print("source => {0}, target => {1}".format(selected_joint, selected_ctrl))
         if self.snap_checkbox.isChecked() is True:
             cmds.matchTransform(selected_ctrl, selected_joint, pos=True)
         else:
             pass
-
         if self.rot_checkbox.isChecked() is True and self.pos_checkbox.isChecked() is False:
             suffix = "_ROT"
         elif self.pos_checkbox.isChecked() is True and self.rot_checkbox.isChecked() is False:
@@ -308,30 +386,38 @@ class RetargetingTool(QtWidgets.QDialog):
         else:
             suffix = "_TRAN_ROT"
 
-        locator = self.create_ctrl_sphere(selected_joint + suffix)
+        try:
+            # Add message attr
+            locator = self.create_ctrl_sphere(selected_joint + suffix)
+            cmds.addAttr(locator, longName="ConnectNode", attributeType="message")
 
-        # Add message attr
-        cmds.addAttr(locator, longName="ConnectNode", attributeType="message")
-        cmds.addAttr(selected_ctrl, longName="ConnectedCtrl", attributeType="message")
-        cmds.connectAttr(locator + ".ConnectNode", selected_ctrl + ".ConnectedCtrl")
+            # @TODO
+            # attributeがあった場合は削除
+            if cmds.attributeQuery("ConnectedCtrl", node=selected_ctrl, exists=True):
+                # cmds.deleteAttr("ConnectedCtrl", node=selected_ctrl)
+                pass
+            else:
+                cmds.addAttr(selected_ctrl, longName="ConnectedCtrl", attributeType="message")
 
-        cmds.parent(locator, selected_joint)
-        cmds.xform(locator, rotation=(0, 0, 0))
-        cmds.xform(locator, translation=(0, 0, 0))
+            cmds.connectAttr(locator + ".ConnectNode", selected_ctrl + ".ConnectedCtrl")
+            cmds.parent(locator, selected_joint)
+            cmds.xform(locator, rotation=(0, 0, 0))
+            cmds.xform(locator, translation=(0, 0, 0))
 
-        # Select the type of constraint based on the ui checkboxes
-        if self.rot_checkbox.isChecked() is True and self.pos_checkbox.isChecked() is True:
-            cmds.parentConstraint(locator, selected_ctrl, maintainOffset=True)
-        elif self.rot_checkbox.isChecked() is True and self.pos_checkbox.isChecked() is False:
-            cmds.orientConstraint(locator, selected_ctrl, maintainOffset=True)
-        elif self.pos_checkbox.isChecked() is True and self.rot_checkbox.isChecked() is False:
-            cmds.pointConstraint(locator, selected_ctrl, maintainOffset=True)
-        else:
-            cmds.warning("Select translation and/or rotation!")
-            cmds.delete(locator)
-            cmds.deleteAttr(selected_ctrl, at="ConnectedCtrl")
-
-        self.refresh_ui_list()
+            # uiのチェックボックスに基づいて制約のタイプを選択する
+            if self.rot_checkbox.isChecked() is True and self.pos_checkbox.isChecked() is True:
+                cmds.parentConstraint(locator, selected_ctrl, maintainOffset=True)
+            elif self.rot_checkbox.isChecked() is True and self.pos_checkbox.isChecked() is False:
+                cmds.orientConstraint(locator, selected_ctrl, maintainOffset=True)
+            elif self.pos_checkbox.isChecked() is True and self.rot_checkbox.isChecked() is False:
+                cmds.pointConstraint(locator, selected_ctrl, maintainOffset=True)
+            else:
+                cmds.warning("Select translation and/or rotation!")
+                cmds.delete(locator)
+                cmds.deleteAttr(selected_ctrl, at="ConnectedCtrl")
+            self.refresh_ui_list()
+        except:
+            pass
 
     def create_ik_connection_node(self):
         try:
@@ -339,7 +425,9 @@ class RetargetingTool(QtWidgets.QDialog):
             selected_ctrl = cmds.ls(selection=True)[1]
         except:
             return cmds.warning("No selections!")
+        self._create_ik_connection_node(selected_joint, selected_ctrl)
 
+    def _create_ik_connection_node(self, selected_joint, selected_ctrl):
         self.rot_checkbox.setChecked(True)
         self.pos_checkbox.setChecked(True)
 
@@ -348,40 +436,35 @@ class RetargetingTool(QtWidgets.QDialog):
         else:
             pass
 
-        tran_locator = self.create_ctrl_sphere(selected_joint + "_TRAN")
-
-        cmds.parent(tran_locator, selected_joint)
-        cmds.xform(tran_locator, rotation=(0, 0, 0))
-        cmds.xform(tran_locator, translation=(0, 0, 0))
-
-        rot_locator = self.create_ctrl_locator(selected_joint + "_ROT")
-
-        # Add message attributes and connect them
-        cmds.addAttr(tran_locator, longName="ConnectNode", attributeType="message")
-        cmds.addAttr(rot_locator, longName="ConnectNode", attributeType="message")
-        cmds.addAttr(selected_ctrl, longName="ConnectedCtrl", attributeType="message")
-        cmds.connectAttr(tran_locator + ".ConnectNode", selected_ctrl + ".ConnectedCtrl")
-
-        cmds.parent(rot_locator, tran_locator)
-        cmds.xform(rot_locator, rotation=(0, 0, 0))
-        cmds.xform(rot_locator, translation=(0, 0, 0))
-
-        joint_parent = cmds.listRelatives(selected_joint, parent=True)[0]
-        cmds.parent(tran_locator, joint_parent)
-        cmds.makeIdentity(tran_locator, apply=True, translate=True)
-
-        cmds.orientConstraint(selected_joint, tran_locator, maintainOffset=False)
-        cmds.parentConstraint(rot_locator, selected_ctrl, maintainOffset=True)
-
-        # Lock and hide attributes
-        cmds.setAttr(rot_locator + ".tx", lock=True, keyable=False)
-        cmds.setAttr(rot_locator + ".ty", lock=True, keyable=False)
-        cmds.setAttr(rot_locator + ".tz", lock=True, keyable=False)
-        cmds.setAttr(tran_locator + ".rx", lock=True, keyable=False)
-        cmds.setAttr(tran_locator + ".ry", lock=True, keyable=False)
-        cmds.setAttr(tran_locator + ".rz", lock=True, keyable=False)
-
-        self.refresh_ui_list()
+        try:
+            tran_locator = self.create_ctrl_sphere(selected_joint + "_TRAN")
+            cmds.parent(tran_locator, selected_joint)
+            cmds.xform(tran_locator, rotation=(0, 0, 0))
+            cmds.xform(tran_locator, translation=(0, 0, 0))
+            rot_locator = self.create_ctrl_locator(selected_joint + "_ROT")
+            # Add message attributes and connect them
+            cmds.addAttr(tran_locator, longName="ConnectNode", attributeType="message")
+            cmds.addAttr(rot_locator, longName="ConnectNode", attributeType="message")
+            cmds.addAttr(selected_ctrl, longName="ConnectedCtrl", attributeType="message")
+            cmds.connectAttr(tran_locator + ".ConnectNode", selected_ctrl + ".ConnectedCtrl")
+            cmds.parent(rot_locator, tran_locator)
+            cmds.xform(rot_locator, rotation=(0, 0, 0))
+            cmds.xform(rot_locator, translation=(0, 0, 0))
+            joint_parent = cmds.listRelatives(selected_joint, parent=True)[0]
+            cmds.parent(tran_locator, joint_parent)
+            cmds.makeIdentity(tran_locator, apply=True, translate=True)
+            cmds.orientConstraint(selected_joint, tran_locator, maintainOffset=False)
+            cmds.parentConstraint(rot_locator, selected_ctrl, maintainOffset=True)
+            # Lock and hide attributes
+            cmds.setAttr(rot_locator + ".tx", lock=True, keyable=False)
+            cmds.setAttr(rot_locator + ".ty", lock=True, keyable=False)
+            cmds.setAttr(rot_locator + ".tz", lock=True, keyable=False)
+            cmds.setAttr(tran_locator + ".rx", lock=True, keyable=False)
+            cmds.setAttr(tran_locator + ".ry", lock=True, keyable=False)
+            cmds.setAttr(tran_locator + ".rz", lock=True, keyable=False)
+            self.refresh_ui_list()
+        except:
+            pass
 
     def scale_ctrl_shape(self, controller, size):
         cmds.select(self.get_curves(controller), replace=True)
@@ -432,37 +515,6 @@ class RetargetingTool(QtWidgets.QDialog):
         cmds.delete(shapes)
         return output_node
 
-    def _automation_bone_mapping(self):
-        if self.source_skeleton is None or self.target_skeleton is None:
-            cmds.warning("Please target skeleton or source skeleton selected ..")
-            return
-
-        self.source_joints = []
-        for i in self.source_skeleton:
-            tempList = []
-            l = self._get_joint_list(i, tempList)
-            self.source_joints.append(l)
-            for item in self.source_joints:
-                print(item)
-
-        self.target_joints = []
-        for i in self.target_skeleton:
-            tempList = []
-            l = self._get_joint_list(i, tempList)
-            self.target_joints.append(l)
-            for item in self.target_joints:
-                print(item)
-        pass
-
-    def _get_joint_list(self, node, item_array):
-        children = node.getChildren()
-        for child in children:
-            type = child.nodeType()
-            if str(type).find("joint") > -1:
-                item_array.append(child)
-            self._get_joint_list(child, item_array)
-        return item_array
-
     def bake_animation_confirm(self):
         confirm = cmds.confirmDialog(title="Confirm",
                                      message="Animation Bake will delete all connected nodes. Do you want to continue?",
@@ -479,7 +531,6 @@ class RetargetingTool(QtWidgets.QDialog):
 
             # constraintを削除する
             # undo処理を監視
-            self.remove_constraint_and_controller()
             self.bake_animation()
 
             cmds.undo()
@@ -500,15 +551,6 @@ class RetargetingTool(QtWidgets.QDialog):
             else:
                 self.get_constraint_list(child, target_list)
         return target_list
-
-    def get_end_joints(self, root):
-        end_joints = []
-        children = cmds.listRelatives(root, c=True, type="joint")
-        if children is None:
-            return [root]
-        for child in children:
-            end_joints.extend(self.get_end_joints(child))
-        return end_joints
 
     def open_batch_window(self):
         try:
@@ -674,7 +716,6 @@ class ListItemWidget(QtWidgets.QWidget):
         current_color_index = cmds.getAttr(self.connection_node + ".overrideColor")
         color_name = self.main.maya_color_index.get(current_color_index, "grey")
         return color_name
-
 
 class BatchExport(QtWidgets.QDialog):
     """
@@ -899,7 +940,6 @@ class BatchExport(QtWidgets.QDialog):
 
         progress_dialog.setValue(number_of_operations)
         progress_dialog.close()
-
 
 def show_main_window():
     global retarget_tool_ui

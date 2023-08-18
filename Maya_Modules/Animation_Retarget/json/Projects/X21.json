@@ -1,0 +1,56 @@
+
+
+{
+	"joint" : {
+		"root" : "root",
+		"pelvis" : "Hips",
+		"spine_01" : "Spine0",
+		"spine_02" : "Spine",
+		"spine_03" : "Spine1",
+		"clavicle_l" : "LeftShoulder",
+		"upperarm_l" : "LeftArm",
+		"lowerarm_l" : "LeftForeArm",
+		"hand_l" : "LeftHand",
+		"clavicle_r" : "RightShoulder",
+		"upperarm_r" : "RightArm",
+		"lowerarm_r" : "RightForeArm",
+		"hand_r" : "RightHand",
+		"neck_01" : "Neck",
+		"head" : "Head",
+		"thigh_l" : "LeftUpLeg",
+		"calf_l" : "LeftLeg",
+		"foot_l" : "LeftFoot",
+		"ball_l" : "LeftToeBase",
+		"thigh_r" : "RightUpLeg",
+		"calf_r" : "RightLeg",
+		"foot_r" : "RightFoot",
+		"ball_r" : "RightToeBase"
+	},
+	"ctrl" : {
+		"root" : "FKRoot_M",
+		"pelvis" : "FKSpine1_M",
+		"spine_01" : "FKSpine2_M",
+		"spine_02" : "FKChest_M",
+		"spine_03" : "",
+		"clavicle_l" : "FKScapula_L",
+		"upperarm_l" : "FKShoulder_L",
+		"lowerarm_l" : "FKElbow_L",
+		"hand_l" : "FKWrist_L",
+		"clavicle_r" : "FKScapula_R",
+		"upperarm_r" : "FKShoulder_R",
+		"lowerarm_r" : "FKElbow_R",
+		"hand_r" : "FKWrist_R",
+		"neck_01" : "FKNeck_M",
+		"head" : "FKHead_M",
+		"thigh_l" : "",
+		"calf_l" : "",
+		"foot_l" : "IKLeg_L",
+		"ball_l" : "",
+		"thigh_r" : "",
+		"calf_r" : "",
+		"foot_r" : "IKLeg_R",
+		"ball_r" : ""
+	}
+}
+
+

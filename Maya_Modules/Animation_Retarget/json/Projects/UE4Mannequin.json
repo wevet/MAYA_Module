@@ -1,0 +1,33 @@
+
+
+{
+	"joint" : {
+		"root" : "root",
+		"pelvis" : "pelvis",
+		"spine_01" : "spine_01",
+		"spine_02" : "spine_02",
+		"spine_03" : "spine_03",
+		"clavicle_l" : "clavicle_l",
+		"upperarm_l" : "upperarm_l",
+		"lowerarm_l" : "lowerarm_l",
+		"hand_l" : "hand_l",
+		"clavicle_r" : "clavicle_r",
+		"upperarm_r" : "upperarm_r",
+		"lowerarm_r" : "lowerarm_r",
+		"hand_r" : "hand_r",
+		"neck_01" : "neck_01",
+		"head" : "head",
+		"thigh_l" : "thigh_l",
+		"calf_l" : "calf_l",
+		"foot_l" : "foot_l",
+		"ball_l" : "ball_l",
+		"thigh_r" : "thigh_r",
+		"calf_r" : "calf_r",
+		"foot_r" : "foot_r",
+		"ball_r" : "ball_r"
+	},
+	"ctrl" : {
+	}
+}
+
+

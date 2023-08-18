@@ -1,0 +1,41 @@
+
+
+{
+	"joint" : {
+		"root" : "root",
+		"pelvis" : "pelvis",
+		"spine_01" : "spine_01",
+		"spine_02" : "spine_02",
+		"spine_03" : "spine_03",
+		"clavicle_l" : "clavicle_l",
+		"upperarm_l" : "upperarm_l",
+		"lowerarm_l" : "lowerarm_l",
+		"hand_l" : "hand_l",
+		"lowerarm_twist_01_l" : "lowerarm_twist_01_l",
+		"upperarm_twist_01_l" : "upperarm_twist_01_l",
+		"clavicle_r" : "clavicle_r",
+		"upperarm_r" : "upperarm_r",
+		"lowerarm_r" : "lowerarm_r",
+		"hand_r" : "hand_r",
+		"lowerarm_twist_01_r" : "lowerarm_twist_01_r",
+		"upperarm_twist_01_r" : "upperarm_twist_01_r",
+		"neck_01" : "neck_01",
+		"head" : "head",
+		"thigh_l" : "thigh_l",
+		"calf_l" : "calf_l",
+		"foot_l" : "foot_l",
+		"ball_l" : "ball_l",
+		"calf_twist_01_l" : "calf_twist_01_l",
+		"thigh_twist_01_l" : "thigh_twist_01_l",
+		"thigh_r" : "thigh_r",
+		"calf_r" : "calf_r",
+		"foot_r" : "foot_r",
+		"ball_r" : "ball_r",
+		"calf_twist_01_r" : "calf_twist_01_r",
+		"thigh_twist_01_r" : "thigh_twist_01_r"
+	},
+	"ctrl" : {
+	}
+}
+
+

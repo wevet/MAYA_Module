@@ -34,6 +34,7 @@ class RetargetingTool(QtWidgets.QDialog):
 
     WINDOW_TITLE = "Animation Retargeting Tool"
     PROJECT_PATH = "json/Projects/"
+    MODULE_VERSION = "1.0.0"
 
     def __init__(self, parent=None, *args, **kwargs):
         super(RetargetingTool, self).__init__(maya_main_window())
@@ -67,7 +68,7 @@ class RetargetingTool(QtWidgets.QDialog):
         self.script_job_ids = []
         self.connection_ui_widgets = []
         self.color_counter = 0
-        self.setStyleSheet('background-color:#004280;')
+        self.setStyleSheet('background-color:#262f38;')
         self.maya_color_index = OrderedDict([(13, "red"), (18, "cyan"), (14, "lime"), (17, "yellow")])
         self.cached_connect_nodes = []
         self.setWindowTitle(self.WINDOW_TITLE)
@@ -79,13 +80,18 @@ class RetargetingTool(QtWidgets.QDialog):
         self.create_ui_connections()
         self.create_script_jobs()
 
+        print("RTG Module Version {0}".format(self.MODULE_VERSION))
+
     def create_ui_widgets(self):
         self.refresh_button = QtWidgets.QPushButton(QtGui.QIcon(":refresh.png"), "")
         self.simple_conn_button = QtWidgets.QPushButton("Create Connection")
-        self.auto_connection_button = QtWidgets.QPushButton("Create Auto Connect")
         self.ik_conn_button = QtWidgets.QPushButton("Create IK Connection")
+        self.auto_connection_button = QtWidgets.QPushButton("Create Auto Connect")
         self.source_joints_button = QtWidgets.QPushButton("Get Source Joint All")
         self.target_curves_button = QtWidgets.QPushButton("Get Target Ctrls All")
+        self.auto_connection_button.setStyleSheet("background-color: #34d8ed; color: black")
+        self.source_joints_button.setStyleSheet("background-color: #34d8ed; color: black")
+        self.target_curves_button.setStyleSheet("background-color: #34d8ed; color: black")
 
         self.bake_button = QtWidgets.QPushButton("Bake Animation")
         self.bake_button.setStyleSheet("background-color: lightgreen; color: black")
@@ -259,70 +265,40 @@ class RetargetingTool(QtWidgets.QDialog):
         self.clear_list()
 
     def find_source_joints(self):
-        """
-        source_root_joint = pm.selected()
-        if source_root_joint is not None:
-            self.source_joints = []
-            for i in source_root_joint:
-                l = self._get_joint_list(i, self.source_joints)
-        for source in self.source_joints:
-            print(source)
-        print(len(self.source_joints))
-        """
         self.source_joints = []
         joints = cmds.ls(selection=True,dag=True,type="joint")
         for joint in joints:
             self.source_joints.append(joint)
         for source in self.source_joints:
             print(source)
-        print(len(self.source_joints))
+        print("found joint count => {0}".format(len(self.source_joints)))
 
     def find_target_curves(self) :
-        """
-        source_root_joint = pm.selected()
-        if source_root_joint is not None:
-            self.target_joints = []
-            for i in source_root_joint:
-                l = self._get_all_nurbs_curve(i, self.target_joints, False)
-        """
         self.target_joints = []
         curves = cmds.ls(selection=True, dag=True, type="transform")
         for curve in curves:
-            if curve.find("FK") > -1 or curve.find("IK") > -1:
+            if cmds.nodeType(curve) == "transform" :
                 self.target_joints.append(curve)
+                """
+                has_fk = curve.find("FK") > -1 or curve.find("fk") > -1
+                has_ik = curve.find("IK") > -1 or curve.find("ik") > -1
+                if has_fk or has_ik:
+                    self.target_joints.append(curve)
+                """
         for source in self.target_joints:
             print(source)
-        print(len(self.target_joints))
+        print("found object count => {0}".format(len(self.target_joints)))
 
-    def _get_all_nurbs_curve(self, node, item_array, is_find_FK):
-        children = node.getChildren()
-        for child in children:
-            type = child.nodeType()
-            if str(type).find("nurbsCurve") > -1:
-                if is_find_FK:
-                    if child.name().find("FK") > -1:
-                        item_array.append(child)
-                else:
-                    item_array.append(child)
-            self._get_all_nurbs_curve(child, item_array, is_find_FK)
-        return item_array
-
-    def _get_joint_list(self, node, item_array):
-        children = node.getChildren()
-        for child in children:
-            type = child.nodeType()
-            if str(type).find("joint") > -1:
-                item_array.append(child)
-            self._get_joint_list(child, item_array)
-        return item_array
     def _get_project_json_data(self, path_name):
         dir_name = os.path.dirname(__file__)
         file_name = os.path.join(dir_name, self.PROJECT_PATH + path_name + '.json')
         with open(file_name) as f:
             return json.load(f)
+
     def automation_create_connection_node(self):
         if len(self.source_joints) <= 0 or len(self.target_joints) <= 0:
-            cmds.warning("source joints is empty !")
+            #cmds.warning("source joints is empty or target joints is empty !")
+            cmds.confirmDialog(title='Failed', message='source joints is empty or target joints is empty !', button=['Ok'], defaultButton='Ok')
             return
 
         source_joint_data = self._get_project_json_data(self.source_model_text_name)
@@ -335,32 +311,53 @@ class RetargetingTool(QtWidgets.QDialog):
         # @TODO
         # Retarget先のjsonファイルを読み込み、Bone Mappingを行う。
         # Source元のBoneMappingを確認し、同じKeyでControllerのValueを取得する
-        joint_dict = {}
-        for source in self.source_joints:
-            joint_name = source
-            # jsonにjoint名をctrl名が両方ある
-            if joint_name in source_joints and joint_name in target_curves:
-                target = self._find_curve_object(target_curves[joint_name])
+        source_dict = {}
+        # 1. source元のmappingを作成
+        for key, value in source_joints.items():
+            for source in self.source_joints:
+                # remove RTG: import group
+                # RTG:pelvis => pelvis
+                source_name = source[4:]
+                joint_name = source_name
+                if joint_name == value:
+                    source_dict[key] = source
+
+        for key, value in source_dict.items():
+            print("source_dict => {0} : {1}".format(key, value))
+
+        retarget_dict = {}
+        for key, value in source_dict.items():
+            # jsonにjoint名とctrl名が両方ある
+            if key in source_joints and key in target_curves:
+                target = self._find_curve_object(target_curves[key])
                 if target is not None:
-                    joint_dict[source] = target
+                    retarget_dict[value] = target
             else:
-                print("not found key names => {0}".format(joint_name))
+                print("json data doesn't have this key => {0}".format(key))
 
-        self._automation_create_connection_node(joint_dict)
+        self._automation_create_connection_node(retarget_dict)
 
-    def _find_curve_object(self, joint_name):
+    def _find_curve_object(self, curve_name):
         for source in self.target_joints:
-            if source == joint_name:
+            if source == curve_name:
                 return source
         return None
 
     def _automation_create_connection_node(self, joint_dict):
+        # key => joint_name
+        # value => controller_name
         for key, value in joint_dict.items():
             try:
-                if value.find("FK") > -1:
+                has_fk = value.find("FK") > -1
+                has_ik = value.find("IK") > -1
+                """
+                if has_fk:
                     self._create_connection_node(key, value)
-                elif value.find("IK") > -1:
+                """
+                if has_ik:
                     self._create_ik_connection_node(key, value)
+                else:
+                    self._create_connection_node(key, value)
                     pass
             except:
                 pass
@@ -372,6 +369,7 @@ class RetargetingTool(QtWidgets.QDialog):
             self._create_connection_node(selected_joint, selected_ctrl)
         except:
             cmds.warning("create_connection_node No selections!")
+            cmds.confirmDialog(title='Warning', message='create_connection_node No selections!', button=['Ok'], defaultButton='Ok')
 
     def create_ik_connection_node(self):
         try:
@@ -380,6 +378,7 @@ class RetargetingTool(QtWidgets.QDialog):
             self._create_ik_connection_node(selected_joint, selected_ctrl)
         except:
             cmds.warning("create_ik_connection_node No selections!")
+            cmds.confirmDialog(title='Warning', message='create_ik_connection_node No selections!', button=['Ok'], defaultButton='Ok')
 
     def _create_connection_node(self, selected_joint, selected_ctrl):
         print("source => {0}, target => {1}".format(selected_joint, selected_ctrl))

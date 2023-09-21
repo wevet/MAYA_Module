@@ -35,6 +35,8 @@ class RetargetingTool(QtWidgets.QDialog):
     WINDOW_TITLE = "Animation Retargeting Tool"
     PROJECT_PATH = "json/Projects/"
     MODULE_VERSION = "1.0.0"
+    #TRANSFORM_ATTRIBUTE = ["tx", "ty", "tz", "rx", "ry", "rz"]
+    TRANSFORM_ATTRIBUTE = ["rx", "ry", "rz"]
 
     def __init__(self, parent=None, *args, **kwargs):
         super(RetargetingTool, self).__init__(maya_main_window())
@@ -65,6 +67,11 @@ class RetargetingTool(QtWidgets.QDialog):
         self.target_joints = []
         # end
 
+        # start ------------------- initial pose
+        self.copy_initial_pose_button = None
+        self.reset_initial_pose_button = None
+        #end
+
         self.script_job_ids = []
         self.connection_ui_widgets = []
         self.color_counter = 0
@@ -86,6 +93,8 @@ class RetargetingTool(QtWidgets.QDialog):
         self.refresh_button = QtWidgets.QPushButton(QtGui.QIcon(":refresh.png"), "")
         self.simple_conn_button = QtWidgets.QPushButton("Create Connection")
         self.ik_conn_button = QtWidgets.QPushButton("Create IK Connection")
+
+        # automation retarget function
         self.auto_connection_button = QtWidgets.QPushButton("Create Auto Connect")
         self.source_joints_button = QtWidgets.QPushButton("Get Source Joint All")
         self.target_curves_button = QtWidgets.QPushButton("Get Target Ctrls All")
@@ -93,6 +102,13 @@ class RetargetingTool(QtWidgets.QDialog):
         self.source_joints_button.setStyleSheet("background-color: #34d8ed; color: black")
         self.target_curves_button.setStyleSheet("background-color: #34d8ed; color: black")
 
+        # reset pose function
+        self.copy_initial_pose_button = QtWidgets.QPushButton("Copy Init Pose (Experimental)")
+        self.copy_initial_pose_button.setStyleSheet("background-color: #c4221a; color: white")
+        self.reset_initial_pose_button = QtWidgets.QPushButton("Reset Pose")
+        self.reset_initial_pose_button.setStyleSheet("background-color: #34d8ed; color: black")
+
+        # bake animation function
         self.bake_button = QtWidgets.QPushButton("Bake Animation")
         self.bake_button.setStyleSheet("background-color: lightgreen; color: black")
         #self.batch_bake_button = QtWidgets.QPushButton("Batch Bake And Export ...")
@@ -165,13 +181,22 @@ class RetargetingTool(QtWidgets.QDialog):
         horizontal_layout_2 = QtWidgets.QHBoxLayout()
         horizontal_layout_2.addWidget(self.simple_conn_button)
         horizontal_layout_2.addWidget(self.ik_conn_button)
+
+        # automation layout
         horizontal_layout_3 = QtWidgets.QHBoxLayout()
         horizontal_layout_3.addWidget(self.source_joints_button)
         horizontal_layout_3.addWidget(self.target_curves_button)
         horizontal_layout_3.addWidget(self.auto_connection_button)
+
+        # copy pose layout
         horizontal_layout_4 = QtWidgets.QHBoxLayout()
-        #horizontal_layout_4.addWidget(self.batch_bake_button)
-        horizontal_layout_4.addWidget(self.bake_button)
+        horizontal_layout_4.addWidget(self.reset_initial_pose_button)
+        horizontal_layout_4.addWidget(self.copy_initial_pose_button)
+
+        # bake layout
+        horizontal_layout_5 = QtWidgets.QHBoxLayout()
+        #horizontal_layout_5.addWidget(self.batch_bake_button)
+        horizontal_layout_5.addWidget(self.bake_button)
 
         # main layout
         connection_list_widget = QtWidgets.QWidget()
@@ -198,6 +223,9 @@ class RetargetingTool(QtWidgets.QDialog):
         separator_line_4 = QtWidgets.QFrame(parent=None)
         separator_line_4.setFrameShape(QtWidgets.QFrame.HLine)
         separator_line_4.setFrameShadow(QtWidgets.QFrame.Sunken)
+        separator_line_5 = QtWidgets.QFrame(parent=None)
+        separator_line_5.setFrameShape(QtWidgets.QFrame.HLine)
+        separator_line_5.setFrameShadow(QtWidgets.QFrame.Sunken)
 
         main_layout = QtWidgets.QVBoxLayout(self)
         main_layout.setContentsMargins(10, 10, 10, 10)
@@ -213,6 +241,8 @@ class RetargetingTool(QtWidgets.QDialog):
         main_layout.addLayout(horizontal_layout_3)
         main_layout.addWidget(separator_line_4)
         main_layout.addLayout(horizontal_layout_4)
+        main_layout.addWidget(separator_line_5)
+        main_layout.addLayout(horizontal_layout_5)
 
     def create_ui_connections(self):
         self.simple_conn_button.clicked.connect(self.create_connection_node)
@@ -224,6 +254,10 @@ class RetargetingTool(QtWidgets.QDialog):
         self.source_joints_button.clicked.connect(self.find_source_joints)
         self.target_curves_button.clicked.connect(self.find_target_curves)
         self.auto_connection_button.clicked.connect(self.automation_create_connection_node)
+
+        self.copy_initial_pose_button.clicked.connect(self._copy_initial_pose_function)
+        self.reset_initial_pose_button.clicked.connect(self._reset_pose_function)
+
         self.rot_checkbox.setChecked(True)
         self.pos_checkbox.setChecked(True)
         self.snap_checkbox.setChecked(False)
@@ -264,6 +298,29 @@ class RetargetingTool(QtWidgets.QDialog):
         self.kill_script_jobs()
         self.clear_list()
 
+    def _copy_initial_pose_function(self):
+        retarget_dict = self._get_bone_mapping_dict()
+        for source, target in retarget_dict.items():
+            for attr in self.TRANSFORM_ATTRIBUTE:
+                lock_check = cmds.getAttr(target + "." + attr, lock=True)
+                if lock_check is False:
+                    attribute_value = cmds.getAttr(source + "." + attr)
+                    cmds.setAttr(target + "." + attr, attribute_value)
+                    print("set pose {0}, value {1}".format(target + "." + attr, attribute_value))
+                else:
+                    print("lock attr => {0}".format(target + "." + attr))
+
+    def _reset_pose_function(self):
+        retarget_dict = self._get_bone_mapping_dict()
+        for source, target in retarget_dict.items():
+            for attr in self.TRANSFORM_ATTRIBUTE:
+                lock_check = cmds.getAttr(target + "." + attr, lock=True)
+                if lock_check is False:
+                    cmds.setAttr(target + "." + attr, 0)
+                    print("reset attr {0}".format(target + "." + attr))
+                else:
+                    print("lock attr => {0}".format(target + "." + attr))
+
     def find_source_joints(self):
         self.source_joints = []
         joints = cmds.ls(selection=True,dag=True,type="joint")
@@ -295,7 +352,7 @@ class RetargetingTool(QtWidgets.QDialog):
         with open(file_name) as f:
             return json.load(f)
 
-    def automation_create_connection_node(self):
+    def _get_bone_mapping_dict(self):
         if len(self.source_joints) <= 0 or len(self.target_joints) <= 0:
             #cmds.warning("source joints is empty or target joints is empty !")
             cmds.confirmDialog(title='Failed', message='source joints is empty or target joints is empty !', button=['Ok'], defaultButton='Ok')
@@ -335,10 +392,10 @@ class RetargetingTool(QtWidgets.QDialog):
                     retarget_dict[value] = target
             else:
                 print("json data doesn't have this key => {0}".format(key))
+        return retarget_dict
 
-        # @TODO
-        # 最初のPoseをCopyする
-
+    def automation_create_connection_node(self):
+        retarget_dict = self._get_bone_mapping_dict()
         self._automation_create_connection_node(retarget_dict)
 
     def _find_curve_object(self, curve_name):
@@ -725,6 +782,7 @@ class BatchExport(QtWidgets.QDialog):
         self.remove_selected_button = None
         self.load_anim_button = None
         self.export_button = None
+
         self.connection_file_line = None
         self.connection_filepath_button = None
         self.export_selected_label = None

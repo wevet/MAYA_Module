@@ -310,9 +310,10 @@ class RetargetingTool(QtWidgets.QDialog):
 
         # @TODO
         # Retarget先のjsonファイルを読み込み、Bone Mappingを行う。
-        # Source元のBoneMappingを確認し、同じKeyでControllerのValueを取得する
-        source_dict = {}
         # 1. source元のmappingを作成
+        # 2. keyを元にtargetのjointを検索
+        # 3. source dictのvalueをkeyにしvalueをtargetのjointにmapping
+        source_dict = {}
         for key, value in source_joints.items():
             for source in self.source_joints:
                 # remove RTG: import group
@@ -334,6 +335,9 @@ class RetargetingTool(QtWidgets.QDialog):
                     retarget_dict[value] = target
             else:
                 print("json data doesn't have this key => {0}".format(key))
+
+        # @TODO
+        # 最初のPoseをCopyする
 
         self._automation_create_connection_node(retarget_dict)
 

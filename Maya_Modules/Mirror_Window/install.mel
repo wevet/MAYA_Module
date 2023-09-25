@@ -1,35 +1,47 @@
 
-global proc installModule()
+global proc install_module()
 {
 	global string $gShelfTopLevel;
 	string $currentShelf = `tabLayout -query -selectTab $gShelfTopLevel`;
 	setParent $currentShelf;
-	string $iconExt="png";
+	string $icon_prefix = "png";
 	string $asInstallScriptLocation=`asInstallScriptLocation`;
 
-	string $scriptName2="Mirror_Pose_Window";
-	string $sourceFile2=$asInstallScriptLocation+$scriptName2+".py";
-	string $command2="import os\nimport sys\nsys.path.append('"+$asInstallScriptLocation+"')\nimport Mirror_Pose_Window as Mirror\nimport importlib\nimportlib.reload(Mirror)\nmain_window = Mirror.show_main_window()";
-	string $icon2=$asInstallScriptLocation+"/icon/Mirror_Animation_icon."+$iconExt;
+	string $script_name = "Mirror_Pose_Window";
+	string $source_file = $asInstallScriptLocation+$script_name+".py";
+	string $icon2 = $asInstallScriptLocation+"/icon/Mirror_Animation_icon."+$icon_prefix;
+	string $maya_version[] = stringToStringArray(`about -v`, " ");
+	string $import_base_text = "import os\nimport sys\nsys.path.append('"+$asInstallScriptLocation+"')\n";
+	string $command_name;
 
-	if (!`file -q -ex $sourceFile2`)
+	int $version_number = $maya_version[0];
+    if ($version_number >= 2022)
+    {
+    	$command_name = $import_base_text + "import Mirror_Pose_Window as Mirror\nimport importlib\nimportlib.reload(Mirror)\nmain_window = Mirror.show_main_window()";
+    }
+    else
+    {
+    	$command_name = $import_base_text + "import Mirror_Pose_Window as Mirror\nreload(Mirror)\nmain_window = Mirror.show_main_window()";
+    }
+
+	if (!`file -q -ex $source_file`)
 	{
-		error ("Something went wrong, can not find: \""+$sourceFile2+"\"");
+		error ("Something went wrong, can not find: \""+$source_file+"\"");
 	}
 
 	shelfButton
-		-command $command2
-		-annotation $scriptName2
-		-label $scriptName2
+		-command $command_name
+		-annotation $script_name
+		-label $script_name
 		-image $icon2
 		-image1 $icon2
 		-sourceType "python";
 
 	string $osTypeFile;
 	string $operatingSystem = `about -os`;
-	if ($operatingSystem=="win64") 
+	if ($operatingSystem == "win64") 
 	{
-		$osTypeFile="py";		
+		$osTypeFile = "py";
 	}
 
 	string $srcWindows=$asInstallScriptLocation;
@@ -38,23 +50,25 @@ global proc installModule()
 	string $destWindows=$verPath;
 	sysFile -makeDir ($verPath);
 	sysFile -copy $destWindows $srcWindows;
-	print ("\n// "+$scriptName2+" has been added to current shelf.\n");
+
+	print ("\n// "+ $maya_version[0] + " is the current MAYA version.\n");
+	print ("\n// "+ $script_name + " has been added to current shelf.\n");
 }
 
-global proc asInstallScriptLocator ()
+global proc as_install_script_locator ()
 {
 }
 
 global proc string asInstallScriptLocation ()
 {
-	string $whatIs=`whatIs asInstallScriptLocator`;
-	string $fullPath=`substring $whatIs 25 999`;
+	string $whatIs = `whatIs as_install_script_locator`;
+	string $fullPath = `substring $whatIs 25 999`;
 	string $buffer[];
-	int $numTok=`tokenize $fullPath "/" $buffer`;
-	int $numLetters=size($fullPath);
-	int $numLettersLastFolder=size($buffer[$numTok-1]);
-	string $scriptLocation=`substring $fullPath 1 ($numLetters-$numLettersLastFolder)`;
+	int $numTok = `tokenize $fullPath "/" $buffer`;
+	int $numLetters = size($fullPath);
+	int $numLettersLastFolder = size($buffer[$numTok-1]);
+	string $scriptLocation = `substring $fullPath 1 ($numLetters-$numLettersLastFolder)`;
 	return $scriptLocation;
 }
-installModule;
+install_module;
 

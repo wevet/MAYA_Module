@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
 """
-supported version MAYA 2020
-Auther : Shunji-Nagasawa
+supported version MAYA 2019, 2020, 2022
+Auther : Shunji_Nagasawa
 """
 
 from collections import OrderedDict
 import os
 import sys
-import webbrowser
+import json
 import maya.mel
 import pymel.core as pm
 import maya.cmds as cmds
@@ -18,8 +18,6 @@ from shiboken2 import wrapInstance
 from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtWidgets import *
 from PySide2.QtCore import *
-import json
-import os
 
 def maya_main_window():
 
@@ -32,11 +30,11 @@ def maya_main_window():
 
 class RetargetingTool(QtWidgets.QDialog):
 
-    WINDOW_TITLE = "Animation Retargeting Tool"
+    WINDOW_TITLE = "Animation Retarget"
     PROJECT_PATH = "json/Projects/"
     MODULE_VERSION = "1.0.0"
-    #TRANSFORM_ATTRIBUTE = ["tx", "ty", "tz", "rx", "ry", "rz"]
-    TRANSFORM_ATTRIBUTE = ["rx", "ry", "rz"]
+
+    SOURCE_TRANSFORM_ATTRIBUTE = ["tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz"]
 
     def __init__(self, parent=None, *args, **kwargs):
         super(RetargetingTool, self).__init__(maya_main_window())
@@ -65,11 +63,17 @@ class RetargetingTool(QtWidgets.QDialog):
         self.target_model_text_name = None
         self.target_model_text = None
         self.target_joints = []
+        self.source_reference_prefix = None
+        self.target_reference_prefix = None
         # end
+
+        # start ------------------- reset pose
+        self.reset_initial_pose_button = None
+        #end
 
         # start ------------------- initial pose
         self.copy_initial_pose_button = None
-        self.reset_initial_pose_button = None
+        self.controller_data = []
         #end
 
         self.script_job_ids = []
@@ -78,16 +82,13 @@ class RetargetingTool(QtWidgets.QDialog):
         self.setStyleSheet('background-color:#262f38;')
         self.maya_color_index = OrderedDict([(13, "red"), (18, "cyan"), (14, "lime"), (17, "yellow")])
         self.cached_connect_nodes = []
-        self.setWindowTitle(self.WINDOW_TITLE)
+        self.setWindowTitle(self.WINDOW_TITLE + " v" + self.MODULE_VERSION)
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
-        self.resize(400, 500)
-
+        self.resize(420, 520)
         self.create_ui_widgets()
         self.create_ui_layout()
-        self.create_ui_connections()
-        self.create_script_jobs()
-
-        print("RTG Module Version {0}".format(self.MODULE_VERSION))
+        self._create_ui_connections()
+        self._create_script_jobs()
 
     def create_ui_widgets(self):
         self.refresh_button = QtWidgets.QPushButton(QtGui.QIcon(":refresh.png"), "")
@@ -117,20 +118,6 @@ class RetargetingTool(QtWidgets.QDialog):
         self.pos_checkbox = QtWidgets.QCheckBox("Translation")
         self.snap_checkbox = QtWidgets.QCheckBox("Align To Position")
 
-    def apply_source_model_name(self, project_name):
-        if self.source_model_text_name is not None:
-            self.source_model_text.clear()
-        self.source_model_text_name = project_name
-        print("select source {0}".format(self.source_model_text_name))
-        self.source_model_text.append("Source : " + self.source_model_text_name)
-
-    def apply_target_model_name(self, project_name):
-        if self.target_model_text_name is not None:
-            self.target_model_text.clear()
-        self.target_model_text_name = project_name
-        print("select target {0}".format(self.target_model_text_name))
-        self.target_model_text.append("Target : " + self.target_model_text_name)
-
     def create_ui_layout(self):
         horizontal_layout_checkbox = QtWidgets.QHBoxLayout()
         horizontal_layout_checkbox.addWidget(self.pos_checkbox)
@@ -152,7 +139,7 @@ class RetargetingTool(QtWidgets.QDialog):
         source_menu_list = QtWidgets.QMenu(self)
         for item in self.project_names:
             select_action = QtWidgets.QAction(item, self)
-            select_action.triggered.connect(partial(self.apply_source_model_name, item))
+            select_action.triggered.connect(partial(self._apply_source_model_name, item))
             source_menu_list.addAction(select_action)
         source_menu_button = QtWidgets.QPushButton("Source", self)
         source_menu_button.setMenu(source_menu_list)
@@ -167,7 +154,7 @@ class RetargetingTool(QtWidgets.QDialog):
         target_menu_list = QtWidgets.QMenu(self)
         for item in self.project_names:
             select_action = QtWidgets.QAction(item, self)
-            select_action.triggered.connect(partial(self.apply_target_model_name, item))
+            select_action.triggered.connect(partial(self._apply_target_model_name, item))
             target_menu_list.addAction(select_action)
         target_menu_button = QtWidgets.QPushButton("Target", self)
         target_menu_button.setMenu(target_menu_list)
@@ -244,25 +231,36 @@ class RetargetingTool(QtWidgets.QDialog):
         main_layout.addWidget(separator_line_5)
         main_layout.addLayout(horizontal_layout_5)
 
-    def create_ui_connections(self):
+    def _create_ui_connections(self):
         self.simple_conn_button.clicked.connect(self.create_connection_node)
         self.ik_conn_button.clicked.connect(self.create_ik_connection_node)
         self.refresh_button.clicked.connect(self.refresh_ui_list)
         self.bake_button.clicked.connect(self.bake_animation_confirm)
         #self.batch_bake_button.clicked.connect(self.open_batch_window)
 
-        self.source_joints_button.clicked.connect(self.find_source_joints)
-        self.target_curves_button.clicked.connect(self.find_target_curves)
+        self.source_joints_button.clicked.connect(self._find_source_joints)
+        self.target_curves_button.clicked.connect(self._find_target_curves)
         self.auto_connection_button.clicked.connect(self.automation_create_connection_node)
 
         self.copy_initial_pose_button.clicked.connect(self._copy_initial_pose_function)
         self.reset_initial_pose_button.clicked.connect(self._reset_pose_function)
-
         self.rot_checkbox.setChecked(True)
         self.pos_checkbox.setChecked(True)
         self.snap_checkbox.setChecked(False)
 
-    def create_script_jobs(self):
+    def _apply_source_model_name(self, project_name):
+        if self.source_model_text_name is not None:
+            self.source_model_text.clear()
+        self.source_model_text_name = project_name
+        self.source_model_text.append("Selected Source : " + self.source_model_text_name)
+
+    def _apply_target_model_name(self, project_name):
+        if self.target_model_text_name is not None:
+            self.target_model_text.clear()
+        self.target_model_text_name = project_name
+        self.target_model_text.append("Selected Target : " + self.target_model_text_name)
+
+    def _create_script_jobs(self):
         self.script_job_ids.append(cmds.scriptJob(event=["SelectionChanged", partial(self.refresh_ui_list)]))
         self.script_job_ids.append(cmds.scriptJob(event=["NameChanged", partial(self.refresh_ui_list)]))
 
@@ -275,7 +273,6 @@ class RetargetingTool(QtWidgets.QDialog):
 
     def refresh_ui_list(self):
         self.clear_list()
-
         connect_nodes_in_scene = RetargetingTool.get_connect_nodes()
         self.cached_connect_nodes = connect_nodes_in_scene
         for node in connect_nodes_in_scene:
@@ -283,68 +280,150 @@ class RetargetingTool(QtWidgets.QDialog):
             self.connection_layout.addWidget(connection_ui_item)
             self.connection_ui_widgets.append(connection_ui_item)
 
+
     def clear_list(self):
         self.connection_ui_widgets = []
-
         while self.connection_layout.count() > 0:
             connection_ui_item = self.connection_layout.takeAt(0)
             if connection_ui_item.widget():
                 connection_ui_item.widget().deleteLater()
 
+
     def showEvent(self, event):
         self.refresh_ui_list()
+
 
     def closeEvent(self, event):
         self.kill_script_jobs()
         self.clear_list()
 
+    # TODO
+    # This function is under development and not available !!
     def _copy_initial_pose_function(self):
         retarget_dict = self._get_bone_mapping_dict()
-        for source, target in retarget_dict.items():
-            for attr in self.TRANSFORM_ATTRIBUTE:
-                lock_check = cmds.getAttr(target + "." + attr, lock=True)
-                if lock_check is False:
-                    attribute_value = cmds.getAttr(source + "." + attr)
-                    cmds.setAttr(target + "." + attr, attribute_value)
-                    print("set pose {0}, value {1}".format(target + "." + attr, attribute_value))
-                else:
-                    print("lock attr => {0}".format(target + "." + attr))
+        #for source, target in retarget_dict.items():
+            #self._copy_transform(source, target)
+        cmds.warning("This function is under development and not available !!")
 
+    def _copy_transform(self, source, target):
+        print("copy transform. source => {0}, target => {1}".format(source, target))
+        for attr in self.SOURCE_TRANSFORM_ATTRIBUTE:
+            lock_check = cmds.getAttr(target + "." + attr, lock=True)
+            if lock_check is False:
+                attribute_value = cmds.getAttr(source + "." + attr)
+                # cmds.setAttr(target + "." + attr, attribute_value)
+                print("set pose {0}, value {1}".format(target + "." + attr, attribute_value))
+            else:
+                print("can't modify lock attribute => {0}".format(target + "." + attr))
+
+
+    # Restore Pose to pre-edit state.
     def _reset_pose_function(self):
         retarget_dict = self._get_bone_mapping_dict()
         for source, target in retarget_dict.items():
-            for attr in self.TRANSFORM_ATTRIBUTE:
+            # poseの初期値にresetする
+            for attr in self.SOURCE_TRANSFORM_ATTRIBUTE:
                 lock_check = cmds.getAttr(target + "." + attr, lock=True)
                 if lock_check is False:
+                    if attr in ["sx", "sy", "sz"]:
+                        continue
                     cmds.setAttr(target + "." + attr, 0)
-                    print("reset attr {0}".format(target + "." + attr))
+                    #print("reset attribute {0}".format(target + "." + attr))
                 else:
-                    print("lock attr => {0}".format(target + "." + attr))
+                    print("can't modify lock attribute => {0}".format(target + "." + attr))
 
-    def find_source_joints(self):
+
+    # Retrieve the retarget original joint
+    def _find_source_joints(self):
         self.source_joints = []
+        self.source_reference_prefix = None
         joints = cmds.ls(selection=True,dag=True,type="joint")
         for joint in joints:
-            self.source_joints.append(joint)
-        for source in self.source_joints:
-            print(source)
+            # 編集可能にする
+            for attr in self.SOURCE_TRANSFORM_ATTRIBUTE:
+                lock_check = cmds.getAttr(joint + "." + attr, lock=True)
+                if lock_check is True:
+                    cmds.setAttr(joint, lock=0)
+
+            # @MEMO
+            # 文字列を一文字ずる書き出しprefixを調べる
+            # 例　RTG:root => RTG
+            if self.source_reference_prefix is None:
+                string_array = []
+                for str in list(joint):
+                    if str == ":":
+                        break
+                    string_array.append(str)
+                self.source_reference_prefix = "".join(string_array)
+                print("source_reference_prefix => {0}".format(self.source_reference_prefix))
+
+            source_joint_data = self._get_project_json_data(self.source_model_text_name)
+            source_joints = source_joint_data['joint']
+            for key, value in source_joints.items():
+                real_joint_name = self.source_reference_prefix + ":" + value
+                if real_joint_name == joint:
+                    self.source_joints.append(joint)
+                    print("added joint => {0}".format(joint))
+
         print("found joint count => {0}".format(len(self.source_joints)))
 
-    def find_target_curves(self) :
+    # Retrieve the nurbs curve of the retarget destination
+    def _find_target_curves(self):
         self.target_joints = []
+        self.target_reference_prefix = None
         curves = cmds.ls(selection=True, dag=True, type="transform")
         for curve in curves:
             if cmds.nodeType(curve) == "transform" :
-                self.target_joints.append(curve)
+                # @MEMO
+                # 文字列を一文字ずる書き出しprefixを調べる
+                # 例　XXX_P001_Rig_20220905:Group => XXX_P001_Rig_20220905
+                if self.target_reference_prefix is None:
+                    string_array = []
+                    for str in list(curve):
+                        if str == ":":
+                            break
+                        string_array.append(str)
+                    self.target_reference_prefix = "".join(string_array)
+                    print("target_reference_prefix => {0}".format(self.target_reference_prefix))
+
+                target_joint_data = self._get_project_json_data(self.target_model_text_name)
+                target_curves = target_joint_data['ctrl']
+                for key, value in target_curves.items():
+                    real_curve_name = self.target_reference_prefix + ":" + value
+                    if real_curve_name == curve:
+                        self.target_joints.append(curve)
+                        print("added curve => {0}".format(curve))
+
                 """
                 has_fk = curve.find("FK") > -1 or curve.find("fk") > -1
                 has_ik = curve.find("IK") > -1 or curve.find("ik") > -1
                 if has_fk or has_ik:
                     self.target_joints.append(curve)
                 """
+
+        """
         for source in self.target_joints:
-            print(source)
+            for attr in self.SOURCE_TRANSFORM_ATTRIBUTE:
+                attribute_value = cmds.getAttr(source + "." + attr)
+                print("cur pose {0}, value {1}".format(source + "." + attr, attribute_value))
+        """
         print("found object count => {0}".format(len(self.target_joints)))
+
+
+    def _get_animated_attributes(self, node):
+        keyable_attributes = cmds.listAttr(node, keyable=True)
+        animated_attributes = []
+        if not keyable_attributes:
+            return animated_attributes
+        for attr in keyable_attributes:
+            isTL = cmds.listConnections('%s.%s' % (node, attr), type='animCurveTL')
+            isTA = cmds.listConnections('%s.%s' % (node, attr), type='animCurveTA')
+            isTU = cmds.listConnections('%s.%s' % (node, attr), type='animCurveTU')
+            isTT = cmds.listConnections('%s.%s' % (node, attr), type='animCurveTT')
+            if isTL is not None or isTA is not None or isTU is not None or isTT is not None:
+                animated_attributes.append(attr)
+        return animated_attributes
+
 
     def _get_project_json_data(self, path_name):
         dir_name = os.path.dirname(__file__)
@@ -352,6 +431,7 @@ class RetargetingTool(QtWidgets.QDialog):
         with open(file_name) as f:
             return json.load(f)
 
+    # Calculate BoneMapping load json file
     def _get_bone_mapping_dict(self):
         if len(self.source_joints) <= 0 or len(self.target_joints) <= 0:
             #cmds.warning("source joints is empty or target joints is empty !")
@@ -365,11 +445,12 @@ class RetargetingTool(QtWidgets.QDialog):
         source_curves = source_joint_data['ctrl']
         target_curves = target_joint_data['ctrl']
 
-        # @TODO
+        # TODO
         # Retarget先のjsonファイルを読み込み、Bone Mappingを行う。
         # 1. source元のmappingを作成
         # 2. keyを元にtargetのjointを検索
         # 3. source dictのvalueをkeyにしvalueをtargetのjointにmapping
+        # 4. reference rigの場合は文字が含まれているか確認
         source_dict = {}
         for key, value in source_joints.items():
             for source in self.source_joints:
@@ -379,10 +460,10 @@ class RetargetingTool(QtWidgets.QDialog):
                 joint_name = source_name
                 if joint_name == value:
                     source_dict[key] = source
-
+        """
         for key, value in source_dict.items():
             print("source_dict => {0} : {1}".format(key, value))
-
+        """
         retarget_dict = {}
         for key, value in source_dict.items():
             # jsonにjoint名とctrl名が両方ある
@@ -390,19 +471,30 @@ class RetargetingTool(QtWidgets.QDialog):
                 target = self._find_curve_object(target_curves[key])
                 if target is not None:
                     retarget_dict[value] = target
+                else:
+                    print("target is None => {0}".format(target_curves[key]))
             else:
                 print("json data doesn't have this key => {0}".format(key))
+        for key, value in retarget_dict.items():
+            print("retarget_dict => {0} : {1}".format(key, value))
         return retarget_dict
 
+
     def automation_create_connection_node(self):
+        if self.target_reference_prefix is None:
+            cmds.warning("Mapping cannot be performed . information in the reference file could not be obtained. !")
+            return
         retarget_dict = self._get_bone_mapping_dict()
         self._automation_create_connection_node(retarget_dict)
 
+
     def _find_curve_object(self, curve_name):
+        real_joint_name = self.target_reference_prefix + ":" + curve_name
         for source in self.target_joints:
-            if source == curve_name:
+            if source == real_joint_name:
                 return source
         return None
+
 
     def _automation_create_connection_node(self, joint_dict):
         # key => joint_name
@@ -456,19 +548,23 @@ class RetargetingTool(QtWidgets.QDialog):
 
         try:
             # Add message attr
-            locator = self.create_ctrl_sphere(selected_joint + suffix)
+            locator = self.create_ctrl_sphere(selected_ctrl + suffix)
             cmds.addAttr(locator, longName="ConnectNode", attributeType="message")
 
-            # @TODO
             # attributeがあった場合は削除
             if cmds.attributeQuery("ConnectedCtrl", node=selected_ctrl, exists=True):
-                # cmds.deleteAttr("ConnectedCtrl", node=selected_ctrl)
-                pass
+                cmds.deleteAttr("ConnectedCtrl", node=selected_ctrl)
+                print("Delete ConnectedCtrl since it already exists.")
             else:
-                cmds.addAttr(selected_ctrl, longName="ConnectedCtrl", attributeType="message")
+                pass
 
+            cmds.addAttr(selected_ctrl, longName="ConnectedCtrl", attributeType="message")
             cmds.connectAttr(locator + ".ConnectNode", selected_ctrl + ".ConnectedCtrl")
             cmds.parent(locator, selected_joint)
+
+            position = cmds.xform(selected_joint, q=True, t=True, ws=True)
+            print("position => {0}".format(position))
+
             cmds.xform(locator, rotation=(0, 0, 0))
             cmds.xform(locator, translation=(0, 0, 0))
 
@@ -497,12 +593,12 @@ class RetargetingTool(QtWidgets.QDialog):
             pass
 
         try:
-            tran_locator = self.create_ctrl_sphere(selected_joint + "_TRAN")
+            tran_locator = self.create_ctrl_sphere(selected_ctrl + "_TRAN")
             cmds.parent(tran_locator, selected_joint)
             cmds.xform(tran_locator, rotation=(0, 0, 0))
             cmds.xform(tran_locator, translation=(0, 0, 0))
-            rot_locator = self.create_ctrl_locator(selected_joint + "_ROT")
-            # Add message attributes and connect them
+            rot_locator = self.create_ctrl_locator(selected_ctrl + "_ROT")
+            # メッセージ属性を追加し、それらを接続する
             cmds.addAttr(tran_locator, longName="ConnectNode", attributeType="message")
             cmds.addAttr(rot_locator, longName="ConnectNode", attributeType="message")
             cmds.addAttr(selected_ctrl, longName="ConnectedCtrl", attributeType="message")
@@ -659,6 +755,34 @@ class RetargetingTool(QtWidgets.QDialog):
         return connected_ctrls_in_scene
 
 
+class InitialCtrlData:
+    # TODO
+    # this class delete later
+    def __init__(self, source_name):
+        self.controller_name = source_name
+        self.tx = cmds.getAttr(source_name + ".tx")
+        self.ty = cmds.getAttr(source_name + ".ty")
+        self.tz = cmds.getAttr(source_name + ".tz")
+        self.rx = cmds.getAttr(source_name + ".rx")
+        self.ry = cmds.getAttr(source_name + ".ry")
+        self.rz = cmds.getAttr(source_name + ".rz")
+        self.sx = cmds.getAttr(source_name + ".sx")
+        self.sy = cmds.getAttr(source_name + ".sy")
+        self.sz = cmds.getAttr(source_name + ".sz")
+        print("cache transform {0}".format(self.controller_name))
+
+    def reset_pose(self):
+        if self.controller_name is not None:
+            cmds.setAttr( self.controller_name + ".tx", self.tx)
+            cmds.setAttr( self.controller_name + ".ty", self.ty)
+            cmds.setAttr( self.controller_name + ".tz", self.tz)
+            cmds.setAttr( self.controller_name + ".rx", self.rz)
+            cmds.setAttr( self.controller_name + ".ry", self.ry)
+            cmds.setAttr( self.controller_name + ".rz", self.rz)
+            cmds.setAttr( self.controller_name + ".sx", self.sx)
+            cmds.setAttr( self.controller_name + ".sy", self.sy)
+            cmds.setAttr( self.controller_name + ".sz", self.sz)
+
 class ListItemWidget(QtWidgets.QWidget):
     """
     UI list item class.
@@ -679,9 +803,6 @@ class ListItemWidget(QtWidgets.QWidget):
         self.create_ui_widgets()
         self.create_ui_layout()
         self.create_ui_connections()
-
-        #print("selected {0}".format(self.main))
-        #print("connection_node {0}".format(self.connection_node))
 
         # If there is already connection nodes in the scene update the color counter
         try:

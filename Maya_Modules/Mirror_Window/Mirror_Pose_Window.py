@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Description:
     A tool for mirroring the controllers from one side to the other
@@ -99,13 +101,13 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
         )
         self.operation_cb.setToolTip(
             "Mirror operation:\n\n"
-            "Left to Right: 右のコントローラーを左と同じ値にする\n"
-            "Right to Left: 左のコントローラーを右と同じ値にする\n"
-            "Flip: ポーズ全体を反転させる\n"
-            "Flip to Frame: 指定したフレームにポーズ全体を反転させる\n"
-            "Mirror Middle: ミドルコントローラーを反転させる\n"
-            "Selected: 選択したコントローラーを反対側へミラーリングする\n"
-            "Not Selected: 選択されていないコントローラをすべて反転させる\n"
+            "Left to Right: Set right controllers to same values as the left\n"
+            "Right to Left: Set left controllers to same values as the right\n"
+            "Flip: Flips the entire pose\n"
+            "Flip to Frame: Flips the entire pose to specified frame\n"
+            "Mirror Middle: Flips the middle controllers\n"
+            "Selected: Mirrors the selected controllers to opposite side\n"
+            "Not Selected: Flips all controllers that is not selected\n"
         )
 
         self.mirror_frame_dsb = QtWidgets.QDoubleSpinBox()
@@ -319,17 +321,9 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
                 for attr in attributes:
                     # Seeing if attribute has incoming connection,
                     # and there cannot be modified
-                    source_con = cmds.listConnections(
-                        "{}.{}".format(ctrl, attr),
-                        source=True,
-                        destination=False,
-                    )
+                    source_con = cmds.listConnections("{}.{}".format(ctrl, attr), source=True, destination=False)
                     # Checking if source connenction is a key
-                    key_source = cmds.listConnections(
-                        "{}.{}".format(ctrl, attr),
-                        source=True,
-                        type="animCurve",
-                    )
+                    key_source = cmds.listConnections("{}.{}".format(ctrl, attr), source=True, type="animCurve")
                     if not source_con:
                         # Getting the value on the controller
                         # and storing it in data dict
@@ -444,9 +438,7 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
             auto_key: Boolean to disable auto key
         """
         for attr in ["X", "Y", "Z"]:
-            if cmds.listAttr(
-                "{}.rotate{}".format(ctrl, attr), keyable=True, unlocked=True
-            ):
+            if cmds.listAttr("{}.rotate{}".format(ctrl, attr), keyable=True, unlocked=True):
                 auto_key = cmds.autoKeyframe(state=True, query=True)
                 if auto_key:
                     cmds.autoKeyframe(state=False)
@@ -469,10 +461,7 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
                 auto_key = cmds.autoKeyframe(state=True, query=True)
                 if auto_key:
                     cmds.autoKeyframe(state=False)
-                cmds.setAttr(
-                    "{}.rotate{}".format(ctrl, attr),
-                    data[ctrl]["rotate{}".format(attr)],
-                )
+                cmds.setAttr("{}.rotate{}".format(ctrl, attr), data[ctrl]["rotate{}".format(attr)])
                 if auto_key:
                     cmds.autoKeyframe(state=True)
 
@@ -521,7 +510,6 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
             # and when reassembled it would give bely on both
             if not string in return_dict["string"]:
                 return_dict["string"].append(string)
-
         return return_dict
 
     def is_even(self, number):
@@ -550,8 +538,7 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
             mirror_axis == dominent
             and mirror_axis == opp_dominent
             or "-{}".format(mirror_axis) == dominent
-            and "-{}".format(mirror_axis) == opp_dominent
-        )
+            and "-{}".format(mirror_axis) == opp_dominent)
 
     def is_dominants_same_and_not_mirror(self, mirror_axis, dominent, opp_dominent):
         """
@@ -566,9 +553,7 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
             no matter if the dominent axis is positive or negative.
         """
         pos_mirror = dominent == opp_dominent and not dominent == mirror_axis
-        neg_mirror = dominent == opp_dominent and not dominent == "-{}".format(
-            mirror_axis
-        )
+        neg_mirror = dominent == opp_dominent and not dominent == "-{}".format(mirror_axis)
         # Returning False if any of the two statement is False
         if not pos_mirror or not neg_mirror:
             return False
@@ -761,23 +746,12 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
                 opp_z_dominating = self.get_vectors_dominating_axis(opp_z_axis)
 
                 # Finding what axis is pointing the most to the mirror axis
-                mirror_attr = self.get_mirror_axis_dominent_vector(
-                    mirror_axis,
-                    x_dominating,
-                    y_dominating,
-                    z_dominating,
-                )
-
+                mirror_attr = self.get_mirror_axis_dominent_vector(mirror_axis, x_dominating, y_dominating, z_dominating)
                 if attr.__contains__("scale"):
                     cmds.setAttr("{}.{}".format(opp_ctrl, attr), value)
                 # Seeing if the controller has the
                 # exact same orientation in the world
-                elif (
-                    x_dominating == opp_x_dominating
-                    and y_dominating == opp_y_dominating
-                    and z_dominating == opp_z_dominating
-                ):
-
+                elif (x_dominating == opp_x_dominating and y_dominating == opp_y_dominating and z_dominating == opp_z_dominating):
                     # The rotation on the mirror axis should be the same
                     if attr.__contains__("rotate{}".format(mirror_attr)):
                         cmds.setAttr("{}.{}".format(opp_ctrl, attr), value)
@@ -791,21 +765,15 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
                     # The translation on the other axis should be the same
                     else:
                         cmds.setAttr("{}.{}".format(opp_ctrl, attr), value)
+
                 elif attr.__contains__("translate"):
                     # Checking if both of the dominant axis matches the mirror axis
                     # this will get joints mirrored with behavior
-                    if self.is_mirror_same_as_dominants(
-                        mirror_axis, x_dominating, opp_x_dominating
-                    ):
+                    if self.is_mirror_same_as_dominants(mirror_axis, x_dominating, opp_x_dominating):
                         cmds.setAttr("{}.{}".format(opp_ctrl, attr), -value)
-                    elif self.is_mirror_same_as_dominants(
-                        mirror_axis, y_dominating, opp_y_dominating
-                    ):
-
+                    elif self.is_mirror_same_as_dominants(mirror_axis, y_dominating, opp_y_dominating):
                         cmds.setAttr("{}.{}".format(opp_ctrl, attr), -value)
-                    elif self.is_mirror_same_as_dominants(
-                        mirror_axis, z_dominating, opp_z_dominating
-                    ):
+                    elif self.is_mirror_same_as_dominants(mirror_axis, z_dominating, opp_z_dominating):
                         cmds.setAttr("{}.{}".format(opp_ctrl, attr), -value)
                     # Checking if the dominant axis matches,
                     # since if it has the same axis it will need the same value
@@ -833,28 +801,25 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
                             cmds.setAttr("{}.{}".format(opp_ctrl, attr), -value)
                     else:
                         cmds.setAttr("{}.{}".format(opp_ctrl, attr), -value)
+
                 elif attr.__contains__("rotate"):
-                    if self.is_dominants_same_and_not_mirror(
-                        mirror_axis, x_dominating, opp_x_dominating
-                    ):
+                    if self.is_dominants_same_and_not_mirror(mirror_axis, x_dominating, opp_x_dominating):
                         if attr.__contains__(mirror_attr):
                             cmds.setAttr("{}.{}".format(opp_ctrl, attr), -value)
                         elif attr.__contains__("X"):
                             cmds.setAttr("{}.{}".format(opp_ctrl, attr), -value)
                         else:
                             cmds.setAttr("{}.{}".format(opp_ctrl, attr), value)
-                    elif self.is_dominants_same_and_not_mirror(
-                        mirror_axis, y_dominating, opp_y_dominating
-                    ):
+
+                    elif self.is_dominants_same_and_not_mirror(mirror_axis, y_dominating, opp_y_dominating):
                         if attr.__contains__(mirror_attr):
                             cmds.setAttr("{}.{}".format(opp_ctrl, attr), -value)
                         elif attr.__contains__("Y"):
                             cmds.setAttr("{}.{}".format(opp_ctrl, attr), -value)
                         else:
                             cmds.setAttr("{}.{}".format(opp_ctrl, attr), value)
-                    elif self.is_dominants_same_and_not_mirror(
-                        mirror_axis, z_dominating, opp_z_dominating
-                    ):
+
+                    elif self.is_dominants_same_and_not_mirror(mirror_axis, z_dominating, opp_z_dominating):
                         if attr.__contains__(mirror_attr):
                             cmds.setAttr("{}.{}".format(opp_ctrl, attr), -value)
                         elif attr.__contains__("Z"):
@@ -893,12 +858,7 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
                 z_dominating = self.get_vectors_dominating_axis(z_axis)
 
                 # Finding what axis is pointing the most to the mirror axis
-                mirror_attr = self.get_mirror_axis_dominent_vector(
-                    mirror_axis,
-                    x_dominating,
-                    y_dominating,
-                    z_dominating,
-                )
+                mirror_attr = self.get_mirror_axis_dominent_vector(mirror_axis, x_dominating, y_dominating, z_dominating)
 
                 if attr.__contains__("translate"):
                     if attr.__contains__(mirror_attr):
@@ -928,20 +888,8 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
             vector_data: a dictionary containing the vectors of the axis on
                 all the controllers
         """
-        self.mirror_side_ctrl(
-            ctrl_list=left_ctrl_list,
-            data=data,
-            mirror_axis=mirror_axis,
-            pair_dict=pair_dict,
-            vector_data=vector_data,
-        )
-        self.mirror_side_ctrl(
-            ctrl_list=right_ctrl_list,
-            data=data,
-            mirror_axis=mirror_axis,
-            pair_dict=pair_dict,
-            vector_data=vector_data,
-        )
+        self.mirror_side_ctrl(ctrl_list=left_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
+        self.mirror_side_ctrl(ctrl_list=right_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
         self.mirror_middle_ctrl(middle_ctrl_list, data, mirror_axis, vector_data)
 
     def mirror_control(self):
@@ -955,18 +903,10 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
         if not left_naming and not right_naming:
             side_con = ["L", "R", "l", "r", "Lf", "Rt"]
         elif not left_naming and right_naming:
-            om.MGlobal.displayError(
-                "There is inputted {} in right naming convention. "
-                "Therefore left naming convention "
-                "also needs an input".format(right_naming)
-            )
+            om.MGlobal.displayError("There is inputted {} in right naming convention. " "Therefore left naming convention " "also needs an input".format(right_naming))
             return
         elif left_naming and not right_naming:
-            om.MGlobal.displayError(
-                "There is inputted {} in left naming convention. "
-                "Therefore right naming convention "
-                "also needs an input".format(left_naming)
-            )
+            om.MGlobal.displayError("There is inputted {} in left naming convention. " "Therefore right naming convention " "also needs an input".format(left_naming))
             return
         else:
             side_con = [left_naming, right_naming]
@@ -988,124 +928,57 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
 
         operation = self.get_operation()
         if operation == OperationType.left_to_right:
-            self.mirror_side_ctrl(
-                ctrl_list=left_ctrl_list,
-                data=data,
-                mirror_axis=mirror_axis,
-                pair_dict=pair_dict,
-                vector_data=vector_data,
-            )
+            self.mirror_side_ctrl(ctrl_list=left_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
+
         elif operation == OperationType.right_to_left:
-            self.mirror_side_ctrl(
-                ctrl_list=right_ctrl_list,
-                data=data,
-                mirror_axis=mirror_axis,
-                pair_dict=pair_dict,
-                vector_data=vector_data,
-            )
+            self.mirror_side_ctrl(ctrl_list=right_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
+
         elif operation == OperationType.flip:
-            self.flip_frame(
-                left_ctrl_list,
-                right_ctrl_list,
-                middle_ctrl_list,
-                data,
-                pair_dict,
-                mirror_axis,
-                vector_data,
-            )
+            self.flip_frame(left_ctrl_list, right_ctrl_list, middle_ctrl_list, data, pair_dict, mirror_axis, vector_data)
+
         elif operation == OperationType.flip_to_frame:
             self.set_time(self.get_flip_frame())
-            self.flip_frame(
-                left_ctrl_list,
-                right_ctrl_list,
-                middle_ctrl_list,
-                data,
-                pair_dict,
-                mirror_axis,
-                vector_data,
-            )
+            self.flip_frame(left_ctrl_list, right_ctrl_list, middle_ctrl_list, data, pair_dict, mirror_axis, vector_data)
+
         elif operation == OperationType.mirror_middle:
             self.mirror_middle_ctrl(middle_ctrl_list, data, mirror_axis, vector_data)
+
         elif operation == OperationType.selected:
             (
                 left_sel_controls,
                 right_sel_controls,
                 middle_sel_controls,
-            ) = self.get_selected_controls(
-                ctrl_list, left_ctrl_list, right_ctrl_list, middle_ctrl_list
-            )
+            ) = self.get_selected_controls(ctrl_list, left_ctrl_list, right_ctrl_list, middle_ctrl_list)
 
-            if (
-                not left_sel_controls
-                and not right_sel_controls
-                and not middle_sel_controls
-            ):
+            if (not left_sel_controls and not right_sel_controls and not middle_sel_controls):
                 om.MGlobal.displayError("No controller is selected")
                 return
             if left_sel_controls:
-                self.mirror_side_ctrl(
-                    ctrl_list=left_sel_controls,
-                    data=data,
-                    mirror_axis=mirror_axis,
-                    pair_dict=pair_dict,
-                    vector_data=vector_data,
-                )
+                self.mirror_side_ctrl(ctrl_list=left_sel_controls, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
             if right_sel_controls:
-                self.mirror_side_ctrl(
-                    ctrl_list=right_sel_controls,
-                    data=data,
-                    mirror_axis=mirror_axis,
-                    pair_dict=pair_dict,
-                    vector_data=vector_data,
-                )
+                self.mirror_side_ctrl(ctrl_list=right_sel_controls, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
             if middle_sel_controls:
-                self.mirror_middle_ctrl(
-                    middle_sel_controls, data, mirror_axis, vector_data
-                )
+                self.mirror_middle_ctrl(middle_sel_controls, data, mirror_axis, vector_data)
+
         elif operation == OperationType.not_selected:
             (
                 left_sel_controls,
                 right_sel_controls,
                 middle_sel_controls,
-            ) = self.get_selected_controls(
-                ctrl_list, left_ctrl_list, right_ctrl_list, middle_ctrl_list
-            )
+            ) = self.get_selected_controls(ctrl_list, left_ctrl_list, right_ctrl_list, middle_ctrl_list)
 
-            removed_left_ctrl_list = self.remove_items_from_list(
-                left_ctrl_list, left_sel_controls
-            )
-            removed_right_ctrl_list = self.remove_items_from_list(
-                right_ctrl_list, right_sel_controls
-            )
-            removed_middle_ctrl_list = self.remove_items_from_list(
-                middle_ctrl_list, middle_sel_controls
-            )
+            removed_left_ctrl_list = self.remove_items_from_list(left_ctrl_list, left_sel_controls)
+            removed_right_ctrl_list = self.remove_items_from_list(right_ctrl_list, right_sel_controls)
+            removed_middle_ctrl_list = self.remove_items_from_list(middle_ctrl_list, middle_sel_controls)
 
             if self.left_to_right_rb.isChecked():
                 if removed_left_ctrl_list:
-                    self.mirror_side_ctrl(
-                        ctrl_list=removed_left_ctrl_list,
-                        data=data,
-                        mirror_axis=mirror_axis,
-                        pair_dict=pair_dict,
-                        vector_data=vector_data,
-                    )
+                    self.mirror_side_ctrl(ctrl_list=removed_left_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
                 if removed_middle_ctrl_list:
-                    self.mirror_middle_ctrl(
-                        removed_middle_ctrl_list,
-                        data,
-                        mirror_axis,
-                        vector_data,
-                    )
+                    self.mirror_middle_ctrl(removed_middle_ctrl_list, data, mirror_axis, vector_data)
             elif self.right_to_left_rb.isChecked():
                 if removed_right_ctrl_list:
-                    self.mirror_side_ctrl(
-                        ctrl_list=removed_right_ctrl_list,
-                        data=data,
-                        mirror_axis=mirror_axis,
-                        pair_dict=pair_dict,
-                        vector_data=vector_data,
-                    )
+                    self.mirror_side_ctrl(ctrl_list=removed_right_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
                 if removed_middle_ctrl_list:
                     self.mirror_middle_ctrl(removed_middle_ctrl_list, data, mirror_axis, vector_data)
             elif self.flip_rb.isChecked():
@@ -1115,10 +988,7 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
                 om.MGlobal.displayWarning("No controller is selected")
 
         if not left_ctrl_list and not right_ctrl_list:
-            om.MGlobal.displayWarning(
-                "Couldn't find side controllers. "
-                "Every controller behave as a middle controller."
-            )
+            om.MGlobal.displayWarning("Couldn't find side controllers. " "Every controller behave as a middle controller.")
         cmds.undoInfo(closeChunk=True)
 
     def showEvent(self, event):
@@ -1131,7 +1001,7 @@ class Mirror_Pose_Window(QtWidgets.QDialog):
             super(Mirror_Pose_Window, self).closeEvent(event)
             self.geometry = self.saveGeometry()
 
-#if __name__ == "__main__":
+
 def show_main_window():
     try:
         mirror_control.close()  # type: ignore

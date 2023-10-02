@@ -9,7 +9,7 @@ from collections import OrderedDict
 import os
 import sys
 import json
-import maya.mel
+import maya.mel as mel
 import pymel.core as pm
 import maya.cmds as cmds
 from functools import partial
@@ -18,6 +18,7 @@ from shiboken2 import wrapInstance
 from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtWidgets import *
 from PySide2.QtCore import *
+import time
 
 def maya_main_window():
 
@@ -32,7 +33,8 @@ class RetargetingTool(QtWidgets.QDialog):
 
     WINDOW_TITLE = "Animation Retarget"
     PROJECT_PATH = "json/Projects/"
-    MODULE_VERSION = "1.0.0"
+    IMPORT_NS = "RTG"
+    MODULE_VERSION = "1.0.3"
 
     SOURCE_TRANSFORM_ATTRIBUTE = ["tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz"]
 
@@ -54,15 +56,14 @@ class RetargetingTool(QtWidgets.QDialog):
         self.project_names = []
         self.auto_connection_button = None
 
-        self.source_joints_button= None
         self.source_model_text_name = None
         self.source_model_text = None
         self.source_joints = []
-
-        self.target_curves_button = None
         self.target_model_text_name = None
         self.target_model_text = None
         self.target_joints = []
+
+        # prefix
         self.source_reference_prefix = None
         self.target_reference_prefix = None
         # end
@@ -71,10 +72,18 @@ class RetargetingTool(QtWidgets.QDialog):
         self.reset_initial_pose_button = None
         #end
 
+        self.custom_import_button = None
+
         # start ------------------- initial pose
         self.copy_initial_pose_button = None
         self.controller_data = []
         #end
+
+        file_path = cmds.file(q=True, sn=True)
+        file_name = os.path.basename(file_path)
+        raw_name, extension = os.path.splitext(file_name)
+        self.scene_name = raw_name
+        print("Here is the name of the file that is currently open => {0}".format(self.scene_name))
 
         self.script_job_ids = []
         self.connection_ui_widgets = []
@@ -97,17 +106,16 @@ class RetargetingTool(QtWidgets.QDialog):
 
         # automation retarget function
         self.auto_connection_button = QtWidgets.QPushButton("Create Auto Connect")
-        self.source_joints_button = QtWidgets.QPushButton("Get Source Joint All")
-        self.target_curves_button = QtWidgets.QPushButton("Get Target Ctrls All")
         self.auto_connection_button.setStyleSheet("background-color: #34d8ed; color: black")
-        self.source_joints_button.setStyleSheet("background-color: #34d8ed; color: black")
-        self.target_curves_button.setStyleSheet("background-color: #34d8ed; color: black")
 
         # reset pose function
         self.copy_initial_pose_button = QtWidgets.QPushButton("Copy Init Pose (Experimental)")
         self.copy_initial_pose_button.setStyleSheet("background-color: #c4221a; color: white")
         self.reset_initial_pose_button = QtWidgets.QPushButton("Reset Pose")
         self.reset_initial_pose_button.setStyleSheet("background-color: #34d8ed; color: black")
+
+        self.custom_import_button = QtWidgets.QPushButton("Import With NS")
+        self.custom_import_button.setStyleSheet("background-color: #34d8ed; color: black")
 
         # bake animation function
         self.bake_button = QtWidgets.QPushButton("Bake Animation")
@@ -171,18 +179,15 @@ class RetargetingTool(QtWidgets.QDialog):
 
         # automation layout
         horizontal_layout_3 = QtWidgets.QHBoxLayout()
-        horizontal_layout_3.addWidget(self.source_joints_button)
-        horizontal_layout_3.addWidget(self.target_curves_button)
+        horizontal_layout_3.addWidget(self.reset_initial_pose_button)
         horizontal_layout_3.addWidget(self.auto_connection_button)
 
         # copy pose layout
         horizontal_layout_4 = QtWidgets.QHBoxLayout()
-        horizontal_layout_4.addWidget(self.reset_initial_pose_button)
-        horizontal_layout_4.addWidget(self.copy_initial_pose_button)
+        horizontal_layout_4.addWidget(self.custom_import_button)
 
-        # bake layout
+        # custom import and more..
         horizontal_layout_5 = QtWidgets.QHBoxLayout()
-        #horizontal_layout_5.addWidget(self.batch_bake_button)
         horizontal_layout_5.addWidget(self.bake_button)
 
         # main layout
@@ -213,6 +218,9 @@ class RetargetingTool(QtWidgets.QDialog):
         separator_line_5 = QtWidgets.QFrame(parent=None)
         separator_line_5.setFrameShape(QtWidgets.QFrame.HLine)
         separator_line_5.setFrameShadow(QtWidgets.QFrame.Sunken)
+        separator_line_6 = QtWidgets.QFrame(parent=None)
+        separator_line_6.setFrameShape(QtWidgets.QFrame.HLine)
+        separator_line_6.setFrameShadow(QtWidgets.QFrame.Sunken)
 
         main_layout = QtWidgets.QVBoxLayout(self)
         main_layout.setContentsMargins(10, 10, 10, 10)
@@ -238,12 +246,11 @@ class RetargetingTool(QtWidgets.QDialog):
         self.bake_button.clicked.connect(self.bake_animation_confirm)
         #self.batch_bake_button.clicked.connect(self.open_batch_window)
 
-        self.source_joints_button.clicked.connect(self._find_source_joints)
-        self.target_curves_button.clicked.connect(self._find_target_curves)
         self.auto_connection_button.clicked.connect(self.automation_create_connection_node)
-
         self.copy_initial_pose_button.clicked.connect(self._copy_initial_pose_function)
         self.reset_initial_pose_button.clicked.connect(self._reset_pose_function)
+
+        self.custom_import_button.clicked.connect(self._handle_import)
         self.rot_checkbox.setChecked(True)
         self.pos_checkbox.setChecked(True)
         self.snap_checkbox.setChecked(False)
@@ -297,13 +304,41 @@ class RetargetingTool(QtWidgets.QDialog):
         self.kill_script_jobs()
         self.clear_list()
 
+    def _handle_import(self):
+        self._fbx_import_to_namespace(ns=self.IMPORT_NS)
+
+    def _get_target_group_root(self):
+        if self.target_model_text_name == "YY36":
+            return "AllRig_GRP"
+        elif self.target_model_text_name == "X21" or self.target_model_text_name == "X22":
+            return "Group"
+        return None
+
+    # Import処理
+    # 自動でnamespaceを付与
+    def _fbx_import_to_namespace(self, ns='target_namespace'):
+        current_namespace = cmds.namespaceInfo(cur=True)
+        if not cmds.namespace(ex=':%s' % ns):
+            cmds.namespace(add=':%s' % ns)
+        cmds.namespace(set=':%s' % ns)
+
+        path_list = cmds.fileDialog2(fm=1, ds=2, ff=('FBX(*.fbx)'))
+        if not path_list:
+            return
+        mel.eval('FBXImportSetLockedAttribute -v false')
+        cmds.file(path_list[0], i=True, gr=True, mergeNamespacesOnClash=True, namespace=current_namespace, importTimeRange = "override")
+        print("import path => {0}".format(path_list[0]))
+        cmds.namespace(set=current_namespace)
+
+        cmds.currentUnit(time='60fps')
+        fps = mel.eval('currentTimeUnitToFPS')
+        print(fps)
+
     # TODO
     # This function is under development and not available !!
     def _copy_initial_pose_function(self):
-        retarget_dict = self._get_bone_mapping_dict()
-        #for source, target in retarget_dict.items():
-            #self._copy_transform(source, target)
         cmds.warning("This function is under development and not available !!")
+        pass
 
     def _copy_transform(self, source, target):
         print("copy transform. source => {0}, target => {1}".format(source, target))
@@ -316,28 +351,30 @@ class RetargetingTool(QtWidgets.QDialog):
             else:
                 print("can't modify lock attribute => {0}".format(target + "." + attr))
 
-
     # Restore Pose to pre-edit state.
     def _reset_pose_function(self):
-        retarget_dict = self._get_bone_mapping_dict()
-        for source, target in retarget_dict.items():
+        if len(self.target_joints) <= 0:
+            self._find_target_curves()
+
+        for source in self.target_joints:
             # poseの初期値にresetする
             for attr in self.SOURCE_TRANSFORM_ATTRIBUTE:
-                lock_check = cmds.getAttr(target + "." + attr, lock=True)
+                lock_check = cmds.getAttr(source + "." + attr, lock=True)
                 if lock_check is False:
                     if attr in ["sx", "sy", "sz"]:
                         continue
-                    cmds.setAttr(target + "." + attr, 0)
+                    cmds.setAttr(source + "." + attr, 0)
                     #print("reset attribute {0}".format(target + "." + attr))
                 else:
-                    print("can't modify lock attribute => {0}".format(target + "." + attr))
-
+                    print("can't modify lock attribute => {0}".format(source + "." + attr))
 
     # Retrieve the retarget original joint
     def _find_source_joints(self):
         self.source_joints = []
         self.source_reference_prefix = None
-        joints = cmds.ls(selection=True,dag=True,type="joint")
+        cmds.select(self.IMPORT_NS + ":group")
+        joints = cmds.ls(selection=True, dag=True, type="joint")
+
         for joint in joints:
             # 編集可能にする
             for attr in self.SOURCE_TRANSFORM_ATTRIBUTE:
@@ -347,30 +384,42 @@ class RetargetingTool(QtWidgets.QDialog):
 
             # @MEMO
             # 文字列を一文字ずる書き出しprefixを調べる
-            # 例　RTG:root => RTG
+            # 例　RTG:NC003_Rig_Final:root => RTG:NC003_Rig_Final:
             if self.source_reference_prefix is None:
+                """
                 string_array = []
                 for str in list(joint):
                     if str == ":":
                         break
                     string_array.append(str)
                 self.source_reference_prefix = "".join(string_array)
+                """
+                names = joint.split(":")
+                length = len(names) - 1
+                name= ""
+                for idx in range(length):
+                    name += names[idx] + ":"
+                self.source_reference_prefix = name
                 print("source_reference_prefix => {0}".format(self.source_reference_prefix))
 
+            # json dataを基にmappingを行う
             source_joint_data = self._get_project_json_data(self.source_model_text_name)
             source_joints = source_joint_data['joint']
             for key, value in source_joints.items():
-                real_joint_name = self.source_reference_prefix + ":" + value
+                #real_joint_name = self.source_reference_prefix + ":" + value
+                real_joint_name = self.source_reference_prefix + value
                 if real_joint_name == joint:
                     self.source_joints.append(joint)
                     print("added joint => {0}".format(joint))
-
         print("found joint count => {0}".format(len(self.source_joints)))
 
     # Retrieve the nurbs curve of the retarget destination
     def _find_target_curves(self):
         self.target_joints = []
         self.target_reference_prefix = None
+        root_object = self._get_target_group_root()
+        if root_object:
+            cmds.select("*:" + root_object)
         curves = cmds.ls(selection=True, dag=True, type="transform")
         for curve in curves:
             if cmds.nodeType(curve) == "transform" :
@@ -378,18 +427,26 @@ class RetargetingTool(QtWidgets.QDialog):
                 # 文字列を一文字ずる書き出しprefixを調べる
                 # 例　XXX_P001_Rig_20220905:Group => XXX_P001_Rig_20220905
                 if self.target_reference_prefix is None:
+                    """
                     string_array = []
                     for str in list(curve):
                         if str == ":":
                             break
                         string_array.append(str)
                     self.target_reference_prefix = "".join(string_array)
+                    """
+                    names = curve.split(":")
+                    length = len(names) - 1
+                    name = ""
+                    for idx in range(length):
+                        name += names[idx] + ":"
+                    self.target_reference_prefix = name
                     print("target_reference_prefix => {0}".format(self.target_reference_prefix))
 
                 target_joint_data = self._get_project_json_data(self.target_model_text_name)
                 target_curves = target_joint_data['ctrl']
                 for key, value in target_curves.items():
-                    real_curve_name = self.target_reference_prefix + ":" + value
+                    real_curve_name = self.target_reference_prefix + value
                     if real_curve_name == curve:
                         self.target_joints.append(curve)
                         print("added curve => {0}".format(curve))
@@ -431,6 +488,7 @@ class RetargetingTool(QtWidgets.QDialog):
         with open(file_name) as f:
             return json.load(f)
 
+
     # Calculate BoneMapping load json file
     def _get_bone_mapping_dict(self):
         if len(self.source_joints) <= 0 or len(self.target_joints) <= 0:
@@ -454,16 +512,15 @@ class RetargetingTool(QtWidgets.QDialog):
         source_dict = {}
         for key, value in source_joints.items():
             for source in self.source_joints:
-                # remove RTG: import group
-                # RTG:pelvis => pelvis
-                source_name = source[4:]
+                # remove prefix import group
+                # RTG:NC003_Rig_Final:pelvis => pelvis
+                names = source.split(":")
+                length = len(names) - 1
+                source_name = names[length]
                 joint_name = source_name
                 if joint_name == value:
                     source_dict[key] = source
-        """
-        for key, value in source_dict.items():
-            print("source_dict => {0} : {1}".format(key, value))
-        """
+
         retarget_dict = {}
         for key, value in source_dict.items():
             # jsonにjoint名とctrl名が両方ある
@@ -475,26 +532,29 @@ class RetargetingTool(QtWidgets.QDialog):
                     print("target is None => {0}".format(target_curves[key]))
             else:
                 print("json data doesn't have this key => {0}".format(key))
+
         for key, value in retarget_dict.items():
             print("retarget_dict => {0} : {1}".format(key, value))
         return retarget_dict
 
+    def _load_joint_and_control(self):
+        pass
 
     def automation_create_connection_node(self):
+        self._find_source_joints()
+        self._find_target_curves()
         if self.target_reference_prefix is None:
             cmds.warning("Mapping cannot be performed . information in the reference file could not be obtained. !")
             return
         retarget_dict = self._get_bone_mapping_dict()
         self._automation_create_connection_node(retarget_dict)
 
-
     def _find_curve_object(self, curve_name):
-        real_joint_name = self.target_reference_prefix + ":" + curve_name
+        real_joint_name = self.target_reference_prefix + curve_name
         for source in self.target_joints:
             if source == real_joint_name:
                 return source
         return None
-
 
     def _automation_create_connection_node(self, joint_dict):
         # key => joint_name
@@ -548,7 +608,7 @@ class RetargetingTool(QtWidgets.QDialog):
 
         try:
             # Add message attr
-            locator = self.create_ctrl_sphere(selected_ctrl + suffix)
+            locator = self._create_control_sphere(selected_ctrl + suffix)
             cmds.addAttr(locator, longName="ConnectNode", attributeType="message")
 
             # attributeがあった場合は削除
@@ -593,11 +653,11 @@ class RetargetingTool(QtWidgets.QDialog):
             pass
 
         try:
-            tran_locator = self.create_ctrl_sphere(selected_ctrl + "_TRAN")
+            tran_locator = self._create_control_sphere(selected_ctrl + "_TRAN")
             cmds.parent(tran_locator, selected_joint)
             cmds.xform(tran_locator, rotation=(0, 0, 0))
             cmds.xform(tran_locator, translation=(0, 0, 0))
-            rot_locator = self.create_ctrl_locator(selected_ctrl + "_ROT")
+            rot_locator = self._create_control_locator(selected_ctrl + "_ROT")
             # メッセージ属性を追加し、それらを接続する
             cmds.addAttr(tran_locator, longName="ConnectNode", attributeType="message")
             cmds.addAttr(rot_locator, longName="ConnectNode", attributeType="message")
@@ -622,7 +682,7 @@ class RetargetingTool(QtWidgets.QDialog):
         except:
             pass
 
-    def scale_ctrl_shape(self, controller, size):
+    def _scale_control_shape(self, controller, size):
         cmds.select(self.get_curves(controller), replace=True)
         cmds.scale(size, size, size)
         cmds.select(clear=True)
@@ -636,7 +696,7 @@ class RetargetingTool(QtWidgets.QDialog):
             ctrl_vertices.append(vertices)
         return ctrl_vertices
 
-    def create_ctrl_locator(self, ctrl_shape_name):
+    def _create_control_locator(self, ctrl_shape_name):
         curves = []
         curves.append(cmds.curve(degree=1, p=[(0, 0, 1), (0, 0, -1)], k=[0, 1]))
         curves.append(cmds.curve(degree=1, p=[(1, 0, 0), (-1, 0, 0)], k=[0, 1]))
@@ -647,7 +707,7 @@ class RetargetingTool(QtWidgets.QDialog):
         cmds.setAttr(locator + ".overrideColor", list(self.maya_color_index.keys())[self.color_counter])
         return locator
 
-    def create_ctrl_sphere(self, ctrl_shape_name):
+    def _create_control_sphere(self, ctrl_shape_name):
         circles = []
         for n in range(0, 5):
             circles.append(cmds.circle(normal=(0, 0, 0), center=(0, 0, 0))[0])
@@ -659,7 +719,8 @@ class RetargetingTool(QtWidgets.QDialog):
         sphere = self.combine_shapes(circles, ctrl_shape_name)
         cmds.setAttr(sphere + ".overrideEnabled", 1)
         cmds.setAttr(sphere + ".overrideColor", list(self.maya_color_index.keys())[self.color_counter])
-        self.scale_ctrl_shape(sphere, 0.5)
+        #self._scale_control_shape(sphere, 0.5)
+        self._scale_control_shape(sphere, 1)
         return sphere
 
     def combine_shapes(self, shapes, ctrl_shape_name):
@@ -1062,8 +1123,8 @@ class BatchExport(QtWidgets.QDialog):
             self.file_list_widget.item(i).setTextColor(QtGui.QColor("yellow"))
             cmds.file(new=True, force=True)
             cmds.file(self.connection_file_line.text(), open=True)
-            maya.mel.eval('FBXImportMode -v "exmerge";')
-            maya.mel.eval('FBXImport -file "{}";'.format(path))
+            mel.eval('FBXImportMode -v "exmerge";')
+            mel.eval('FBXImport -file "{}";'.format(path))
             current_operation += 1
             progress_dialog.setValue(current_operation)
 
@@ -1079,9 +1140,9 @@ class BatchExport(QtWidgets.QDialog):
                 cmds.file(rename=output_path)
                 if self.export_selected_line.text() != "":
                     cmds.select(self.export_selected_line.text(), replace=True)
-                    maya.mel.eval('FBXExport -f "{}" -s'.format(output_path))
+                    mel.eval('FBXExport -f "{}" -s'.format(output_path))
                 else:
-                    maya.mel.eval('FBXExport -f "{}"'.format(output_path))
+                    mel.eval('FBXExport -f "{}"'.format(output_path))
             elif self.file_type_combo.currentText() == ".ma":
                 output_path += ".ma"
                 cmds.file(rename=output_path)

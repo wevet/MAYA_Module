@@ -19,6 +19,9 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtWidgets import *
 from PySide2.QtCore import *
 import time
+import math
+
+from Mirror.Animation_Mirror import Animation_Mirror_Window
 
 def maya_main_window():
 
@@ -34,7 +37,7 @@ class RetargetingTool(QtWidgets.QDialog):
     WINDOW_TITLE = "Animation Retarget"
     PROJECT_PATH = "json/Projects/"
     IMPORT_NS = "RTG"
-    MODULE_VERSION = "1.0.3"
+    MODULE_VERSION = "1.0.4"
 
     SOURCE_TRANSFORM_ATTRIBUTE = ["tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz"]
 
@@ -72,11 +75,19 @@ class RetargetingTool(QtWidgets.QDialog):
         self.reset_initial_pose_button = None
         #end
 
+        # start ------------------- custom import
         self.custom_import_button = None
+        #end
 
-        # start ------------------- initial pose
-        self.copy_initial_pose_button = None
-        self.controller_data = []
+        # start ------------------ mirror
+        self.start_frame = None
+        self.end_frame = None
+        self.mirror_button = None
+        #end
+
+        # start ------------------ fk|ik
+        self.fk_bake_button = None
+        self.ik_bake_button = None
         #end
 
         file_path = cmds.file(q=True, sn=True)
@@ -109,11 +120,8 @@ class RetargetingTool(QtWidgets.QDialog):
         self.auto_connection_button.setStyleSheet("background-color: #34d8ed; color: black")
 
         # reset pose function
-        self.copy_initial_pose_button = QtWidgets.QPushButton("Copy Init Pose (Experimental)")
-        self.copy_initial_pose_button.setStyleSheet("background-color: #c4221a; color: white")
         self.reset_initial_pose_button = QtWidgets.QPushButton("Reset Pose")
         self.reset_initial_pose_button.setStyleSheet("background-color: #34d8ed; color: black")
-
         self.custom_import_button = QtWidgets.QPushButton("Import With NS")
         self.custom_import_button.setStyleSheet("background-color: #34d8ed; color: black")
 
@@ -122,9 +130,22 @@ class RetargetingTool(QtWidgets.QDialog):
         self.bake_button.setStyleSheet("background-color: lightgreen; color: black")
         #self.batch_bake_button = QtWidgets.QPushButton("Batch Bake And Export ...")
 
+        # retarget option
         self.rot_checkbox = QtWidgets.QCheckBox("Rotation")
         self.pos_checkbox = QtWidgets.QCheckBox("Translation")
         self.snap_checkbox = QtWidgets.QCheckBox("Align To Position")
+
+        # mirror function
+        self.mirror_button = QtWidgets.QPushButton("Mirror Animation")
+        self.mirror_button.setStyleSheet("background-color: #34d8ed; color: black")
+
+        # fk->ik
+        self.fk_bake_button = QtWidgets.QPushButton("FK->IK Bake")
+        self.fk_bake_button.setStyleSheet("background-color: #34d8ed; color: black")
+        self.ik_bake_button = QtWidgets.QPushButton("IK->FK Bake")
+        self.ik_bake_button.setStyleSheet("background-color: #34d8ed; color: black")
+        # ik->fk
+
 
     def create_ui_layout(self):
         horizontal_layout_checkbox = QtWidgets.QHBoxLayout()
@@ -182,13 +203,16 @@ class RetargetingTool(QtWidgets.QDialog):
         horizontal_layout_3.addWidget(self.reset_initial_pose_button)
         horizontal_layout_3.addWidget(self.auto_connection_button)
 
-        # copy pose layout
+        # bake layout
         horizontal_layout_4 = QtWidgets.QHBoxLayout()
         horizontal_layout_4.addWidget(self.custom_import_button)
+        horizontal_layout_4.addWidget(self.bake_button)
 
-        # custom import and more..
+        # mirror layout
         horizontal_layout_5 = QtWidgets.QHBoxLayout()
-        horizontal_layout_5.addWidget(self.bake_button)
+        horizontal_layout_5.addWidget(self.mirror_button)
+        horizontal_layout_5.addWidget(self.fk_bake_button)
+        horizontal_layout_5.addWidget(self.ik_bake_button)
 
         # main layout
         connection_list_widget = QtWidgets.QWidget()
@@ -221,6 +245,9 @@ class RetargetingTool(QtWidgets.QDialog):
         separator_line_6 = QtWidgets.QFrame(parent=None)
         separator_line_6.setFrameShape(QtWidgets.QFrame.HLine)
         separator_line_6.setFrameShadow(QtWidgets.QFrame.Sunken)
+        separator_line_7 = QtWidgets.QFrame(parent=None)
+        separator_line_7.setFrameShape(QtWidgets.QFrame.HLine)
+        separator_line_7.setFrameShadow(QtWidgets.QFrame.Sunken)
 
         main_layout = QtWidgets.QVBoxLayout(self)
         main_layout.setContentsMargins(10, 10, 10, 10)
@@ -238,8 +265,13 @@ class RetargetingTool(QtWidgets.QDialog):
         main_layout.addLayout(horizontal_layout_4)
         main_layout.addWidget(separator_line_5)
         main_layout.addLayout(horizontal_layout_5)
+        main_layout.addWidget(separator_line_6)
 
     def _create_ui_connections(self):
+        self.rot_checkbox.setChecked(True)
+        self.pos_checkbox.setChecked(True)
+        self.snap_checkbox.setChecked(False)
+
         self.simple_conn_button.clicked.connect(self.create_connection_node)
         self.ik_conn_button.clicked.connect(self.create_ik_connection_node)
         self.refresh_button.clicked.connect(self.refresh_ui_list)
@@ -247,13 +279,18 @@ class RetargetingTool(QtWidgets.QDialog):
         #self.batch_bake_button.clicked.connect(self.open_batch_window)
 
         self.auto_connection_button.clicked.connect(self.automation_create_connection_node)
-        self.copy_initial_pose_button.clicked.connect(self._copy_initial_pose_function)
         self.reset_initial_pose_button.clicked.connect(self._reset_pose_function)
-
         self.custom_import_button.clicked.connect(self._handle_import)
-        self.rot_checkbox.setChecked(True)
-        self.pos_checkbox.setChecked(True)
-        self.snap_checkbox.setChecked(False)
+
+        self.mirror_button.clicked.connect(self._apply_mirror_animation)
+
+    # retarget元のkeyframeロックを解除し、keyframeを反転する
+    def _apply_mirror_animation(self):
+        # keyframeの最初と最後を取得
+        self.start_frame = cmds.playbackOptions(q=True, minTime=True)
+        self.end_frame = cmds.playbackOptions(q=True, maxTime=True)
+        mirror_control = Animation_Mirror_Window()
+        mirror_control.show()
 
     def _apply_source_model_name(self, project_name):
         if self.source_model_text_name is not None:
@@ -314,8 +351,7 @@ class RetargetingTool(QtWidgets.QDialog):
             return "Group"
         return None
 
-    # Import処理
-    # 自動でnamespaceを付与
+    # import after automation namespace
     def _fbx_import_to_namespace(self, ns='target_namespace'):
         current_namespace = cmds.namespaceInfo(cur=True)
         if not cmds.namespace(ex=':%s' % ns):
@@ -333,23 +369,6 @@ class RetargetingTool(QtWidgets.QDialog):
         cmds.currentUnit(time='60fps')
         fps = mel.eval('currentTimeUnitToFPS')
         print(fps)
-
-    # TODO
-    # This function is under development and not available !!
-    def _copy_initial_pose_function(self):
-        cmds.warning("This function is under development and not available !!")
-        pass
-
-    def _copy_transform(self, source, target):
-        print("copy transform. source => {0}, target => {1}".format(source, target))
-        for attr in self.SOURCE_TRANSFORM_ATTRIBUTE:
-            lock_check = cmds.getAttr(target + "." + attr, lock=True)
-            if lock_check is False:
-                attribute_value = cmds.getAttr(source + "." + attr)
-                # cmds.setAttr(target + "." + attr, attribute_value)
-                print("set pose {0}, value {1}".format(target + "." + attr, attribute_value))
-            else:
-                print("can't modify lock attribute => {0}".format(target + "." + attr))
 
     # Restore Pose to pre-edit state.
     def _reset_pose_function(self):
@@ -386,14 +405,7 @@ class RetargetingTool(QtWidgets.QDialog):
             # 文字列を一文字ずる書き出しprefixを調べる
             # 例　RTG:NC003_Rig_Final:root => RTG:NC003_Rig_Final:
             if self.source_reference_prefix is None:
-                """
-                string_array = []
-                for str in list(joint):
-                    if str == ":":
-                        break
-                    string_array.append(str)
-                self.source_reference_prefix = "".join(string_array)
-                """
+
                 names = joint.split(":")
                 length = len(names) - 1
                 name= ""
@@ -427,14 +439,7 @@ class RetargetingTool(QtWidgets.QDialog):
                 # 文字列を一文字ずる書き出しprefixを調べる
                 # 例　XXX_P001_Rig_20220905:Group => XXX_P001_Rig_20220905
                 if self.target_reference_prefix is None:
-                    """
-                    string_array = []
-                    for str in list(curve):
-                        if str == ":":
-                            break
-                        string_array.append(str)
-                    self.target_reference_prefix = "".join(string_array)
-                    """
+
                     names = curve.split(":")
                     length = len(names) - 1
                     name = ""

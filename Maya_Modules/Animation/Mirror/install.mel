@@ -9,7 +9,7 @@ global proc install_module()
 
 	string $script_name = "Animation_Mirror";
 	string $source_file = $asInstallScriptLocation+$script_name+".py";
-	string $icon2 = $asInstallScriptLocation+"/icon/Animation_Mirror_icon."+$icon_prefix;
+	string $icon2 = $asInstallScriptLocation+"/icon/Mirror_Animation_icon."+$icon_prefix;
 	string $maya_version[] = stringToStringArray(`about -v`, " ");
 	string $import_base_text = "import os\nimport sys\nsys.path.append('"+$asInstallScriptLocation+"')\n";
 	string $command_name;

@@ -65,11 +65,33 @@ for node in node_list:
     for attr in attrs:
         print("attr => {0}".format(attr))
 
+def _unlock_attributes(self, ctrl_list, data):
+    for ctrl in ctrl_list:
+        for attr in data[ctrl].keys():
+            try:
+                attr_obj = "{0}.{1}".format(ctrl, attr)
+                lock_check = cmds.getAttr(attr_obj, lock=True)
+                if lock_check is True:
+                    cmds.setAttr(attr_obj, lock=0)
+                    print("unlock attr => {0}.{1}".format(ctrl, attr))
+            except ValueError:
+                continue
+    pass
 
 curves = cmds.ls(selection=True, dag=True, type="transform")
 for curve in curves:
     if curve.find("FK") > -1:
         print(curve)
+#-----------------------------------------------------------------------------------------------------------
+
+
+import maya.cmds as cmds
+
+curves = cmds.ls(selection=True, dag=True, type="transform")
+for curve in curves:
+    print(curves)
+
+
 #-----------------------------------------------------------------------------------------------------------
 
 import maya.cmds as cmds
@@ -80,6 +102,7 @@ end_frame = cmds.playbackOptions(q=True, maxTime=True)
 # anm curveのみ出力
 anim_curves = cmds.ls(type='animCurve')
 for anim in anim_curves:
+    print(anim)
     # 全てのキーを取得し、順番にソートする。キーがない場合に備えて `or []` を使っているが、
     # これは `sort` がクラッシュしないように、代わりに空のリストを使う。
     all_keys = sorted(cmds.keyframe(anim, q=True) or [])
@@ -87,10 +110,47 @@ for anim in anim_curves:
     if all_keys:
         print(all_keys[0], all_keys[-1])
 
+#-----------------------------------------------------------------------------------------------------------
+
+import maya.cmds as cmds
+
+obj = cmds.ls(sl = True)
+print(obj)
+
+cmds.cutKey()
 
 
+import maya.cmds as cmds
+
+def GetAllCurveJoint():
+    objs = []
+    curves = cmds.ls(type="nurbsCurve", ni=True, o=True, r=True, l=True)
+    joints = cmds.ls(type="joint", ni=True, o=True, r=True, l=True)
+    for i in curves:
+        objs.append(i)
+    for i in joints:
+        objs.append(i)
+    transforms = cmds.listRelatives(objs, p=True, type="transform")
+    return transforms
+
+def UnlockAll():
+    locked = []
+    objs = GetAllCurveJoint()
+    for obj in objs:
+        attrs = cmds.listAttr(obj)
+        for attr in ["tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz"]:
+            try:
+                attrObj = "{0}.{1}".format(obj, attr)
+                if cmds.getAttr(attrObj, lock=True) == True:
+                    cmds.setAttr(attrObj, lock=0)
+                    locked.append(attrObj)
+            except ValueError:
+                continue
+    print(locked)
+UnlockAll()
 
 #-----------------------------------------------------------------------------------------------------------
+
 
 
 import pymel.core as pm

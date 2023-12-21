@@ -8,6 +8,7 @@ Auther : Shunji_Nagasawa
 from collections import OrderedDict
 import os
 import sys
+
 import json
 import maya.mel as mel
 import pymel.core as pm
@@ -20,8 +21,18 @@ from PySide2.QtWidgets import *
 from PySide2.QtCore import *
 import time
 import math
+from Mirror import Animation_Mirror
 
-from Mirror.Animation_Mirror import Animation_Mirror_Window
+info = cmds.about(version=True)
+version = int(info.split(" ")[0])
+if version >= 2022:
+    import  importlib
+    importlib.reload(Animation_Mirror)
+else:
+    # if maya version 2020
+    from imp import reload
+    reload(Animation_Mirror)
+
 
 def maya_main_window():
 
@@ -211,8 +222,11 @@ class RetargetingTool(QtWidgets.QDialog):
         # mirror layout
         horizontal_layout_5 = QtWidgets.QHBoxLayout()
         horizontal_layout_5.addWidget(self.mirror_button)
-        horizontal_layout_5.addWidget(self.fk_bake_button)
-        horizontal_layout_5.addWidget(self.ik_bake_button)
+
+        #@TODO
+        # wip system function
+        #horizontal_layout_5.addWidget(self.fk_bake_button)
+        #horizontal_layout_5.addWidget(self.ik_bake_button)
 
         # main layout
         connection_list_widget = QtWidgets.QWidget()
@@ -289,8 +303,8 @@ class RetargetingTool(QtWidgets.QDialog):
         # keyframeの最初と最後を取得
         self.start_frame = cmds.playbackOptions(q=True, minTime=True)
         self.end_frame = cmds.playbackOptions(q=True, maxTime=True)
-        mirror_control = Animation_Mirror_Window()
-        mirror_control.show()
+
+        mirror_control = Animation_Mirror.show_main_window()
 
     def _apply_source_model_name(self, project_name):
         if self.source_model_text_name is not None:

@@ -8,6 +8,8 @@ from maya import cmds, OpenMaya, OpenMayaAnim
 
 class Batch_Job:
 
+    SOURCE_TRANSFORM_ATTRIBUTE = ["tx", "ty", "tz", "rx", "ry", "rz"]
+
     def __init__(self):
         self.dummy_key_frame = -50
         self.start_frame = 0
@@ -94,12 +96,12 @@ class Batch_Job:
             # 同じ名前のコントローラが複数あるかどうかを確認する
             dub_names = cmds.ls(parent, exactType="transform")
             for ctrl in dub_names:
-                if not ctrl in self.anim_curves:
+                if not ctrl in self.controllers:
                     # コントローラーがキーが使える属性を取得したかどうかを確認する、そうでなければ、コントロールをミラーリングする理由はない
                     if cmds.listAttr(ctrl, keyable=True):
                         self.controllers.append(ctrl)
                         if str(ctrl).find("PoleLeg") > -1:
-                            print("found leg => {0}".format(ctrl))
+                            print("found leg => {}".format(ctrl))
                             self.pole_legs.append(ctrl)
 
         # get anim curves
@@ -117,7 +119,7 @@ class Batch_Job:
         self._get_controllers()
         self.start_frame = cmds.currentTime(q=True)
         cmds.currentTime(self.dummy_key_frame)
-        for ctrl in self.anim_curves:
+        for ctrl in self.controllers:
             attributes = cmds.listAttr(ctrl, keyable=True, unlocked=True)
             if attributes:
                 for attr in attributes:
@@ -125,9 +127,11 @@ class Batch_Job:
                     lock_check = cmds.getAttr(attr_obj, lock=True)
                     if lock_check is True:
                         cmds.setAttr(attr_obj, lock=0)
-                        print("unlock attr => {0}.{1}".format(ctrl, attr))
-            #cmds.setKeyframe(ctrl, v=0, t=self.dummy_key_frame)
-            pass
+                        print("unlock attr => {}.{}".format(ctrl, attr))
+
+            for value in self.SOURCE_TRANSFORM_ATTRIBUTE:
+                attr_value = "{}.{}".format(ctrl, value)
+                cmds.setKeyframe(attr_value, v=0, t=self.dummy_key_frame)
 
         #再生時間を変更する
         cmds.playbackOptions(edit=1, minTime=self.dummy_key_frame)
@@ -137,45 +141,65 @@ class Batch_Job:
     def _export_fbx(self, file_path):
         if not cmds.pluginInfo('fbxmaya', q=True, loaded=True):
             cmds.loadPlugin('fbxmaya')
-        cmds.file(file_path, force=True, options="v=0;", type="FBX export")
+        #cmds.file(file_path, force=True, options="v=0;", type="FBX export")
+        cmds.file(file_path, force=True, exportSelected=True, type="FBX export")
 
 
-    # @TODO
     # export処理を行う
     # controllerかjointを取得し更にPoleVectorを選択する
     def start(self):
-        print("start build export")
+        asset_file_path = cmds.file(q=True, sn=True)
+        filename = os.path.basename(asset_file_path)  # sample.ma
+        print("MA file name => {}".format(filename))
 
         self._build_key_frame()
         scene_name = self._get_scene_name()
-        print(scene_name)
 
+        base_directory = asset_file_path.split(filename)[-2]  # directory/
+        output_directory = base_directory + "Exported/" # directory/exportedディレクトリを作成
+        print("output_directory => {}".format(output_directory))
+        if not os.path.exists(output_directory):
+            os.makedirs(output_directory)
+        file_path = os.path.join(output_directory, "{}.fbx".format(scene_name))
+        print("EXPORT STARTED => {}".format(file_path))
+
+        # 全てのjoint、PoleLegを選択する
         self.all_joints = []
         self.all_joints = self._get_all_joints()
         self.all_joints.extend(self.pole_legs)
         pm.select(self.all_joints)
-        for obj in self.all_joints:
-            print(obj)
 
+        # -50fから最終fまで選択しBake
         time_range = self._get_frame_range()
-        #self._bake_connected(self.all_joints, time_range)
-
-        filepath = cmds.file(q=True, sn=True)  # directory/sample.ma
-        filename = os.path.basename(filepath)  # sample.ma
-        base_directory = filepath.split(filename)[-2]  # directory/
-        output_directory = base_directory + "Exported/" # exportedディレクトリを作成
-        if not os.path.exists(output_directory):
-            os.makedirs(output_directory)
-        file_path = os.path.join(output_directory, "{}.fbx".format(scene_name))
+        self._bake_connected(self.all_joints, time_range)
         self._export_fbx(file_path)
-        print("EXPORT FINISHED", file_path)
+        print("EXPORT FINISHED => {}".format(file_path))
         pass
 
 
-
 if __name__ == "__main__":
+    """
+    file_path_list = cmds.fileDialog2(fileFilter="*.ma", dialogStyle=2, okc="Accept", fm=4)
+    if file_path_list:
+        for file_path in file_path_list:
+            cmds.file(file_path, o=True, force=True)
+            batch = Batch_Job()
+            batch.start()
+            cmds.file(new=True, force=True)
+    """
+    pass
+
+# @TODO
+# batch files
+def run(file_path):
+
+    print('## Scene File Open >> {}'.format(file_path))
+    cmds.file(file_path, o=True, force=True)
     batch = Batch_Job()
     batch.start()
 
+    # maya.exeで処理していた場合にmayaを終了させる。
+    if not cmds.about(batch=1):
+        cmds.evalDeferred('from maya import cmds;cmds.quit(f=1)')
 
 

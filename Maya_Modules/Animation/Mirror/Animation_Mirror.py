@@ -60,7 +60,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
 
     WINDOW_TITLE = "Mirror Animation Window"
     SOURCE_TRANSFORM_ATTRIBUTE = ["tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz"]
-    MODULE_VERSION = "1.0.0"
+    MODULE_VERSION = "1.0.1"
 
     @classmethod
     def show_dialog(cls):
@@ -894,9 +894,10 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                         if self.is_write_keyframe is True:
                             cmds.setKeyframe(attr_obj, v=-value, t=current_time)
                     else:
-                        cmds.setAttr(attr_obj, value)
-                        if self.is_write_keyframe is True:
-                            cmds.setKeyframe(attr_obj, v=value, t=current_time)
+                        pass
+                        #cmds.setAttr(attr_obj, value)
+                        #if self.is_write_keyframe is True:
+                            #cmds.setKeyframe(attr_obj, v=value, t=current_time)
                 else:
                     cmds.setAttr(attr_obj, value)
                     if self.is_write_keyframe is True:

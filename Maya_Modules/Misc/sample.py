@@ -60,6 +60,13 @@ def _get_animated_attributes(node):
 import maya.cmds as cmds
 import os
 
+file_path_list = cmds.fileDialog2(fileFilter="*.ma", dialogStyle=2, okc="Accept", fm=4)
+if file_path_list:
+    for file_path in file_path_list:
+        print(file_path)
+
+
+
 filepath = cmds.file(q=True, sn=True)  # directory/sample.ma
 filename = os.path.basename(filepath)  # sample.ma
 base_directory = filepath.split(filename)[-2]  # directory/

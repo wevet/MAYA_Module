@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import os
+import stat
 import pymel.core as pm
 from maya import cmds, OpenMaya, OpenMayaAnim
+import maya.mel as mel
 
 
 
@@ -139,11 +141,16 @@ class Batch_Job:
         pass
 
     def _export_fbx(self, file_path):
+        """
+        mel.eval('FBXResetExport')
+        mel.eval('FBXExportBakeComplexAnimation -v 1')
+        mel.eval('FBXExportInAscii -v 1')
+        mel.eval('FBXExport -f "{}"'.format(file_path))
+        """
         if not cmds.pluginInfo('fbxmaya', q=True, loaded=True):
             cmds.loadPlugin('fbxmaya')
-        #cmds.file(file_path, force=True, options="v=0;", type="FBX export")
+            # cmds.file(file_path, force=True, options="v=0;", type="FBX export")
         cmds.file(file_path, force=True, exportSelected=True, type="FBX export")
-
 
     # export処理を行う
     # controllerかjointを取得し更にPoleVectorを選択する
@@ -167,7 +174,11 @@ class Batch_Job:
         self.all_joints = []
         self.all_joints = self._get_all_joints()
         self.all_joints.extend(self.pole_legs)
-        pm.select(self.all_joints)
+        #pm.select(self.all_joints)
+        cmds.select(self.all_joints, r=True)
+
+        for joint in self.all_joints:
+            print("selected joint => {}".format(joint))
 
         # -50fから最終fまで選択しBake
         time_range = self._get_frame_range()

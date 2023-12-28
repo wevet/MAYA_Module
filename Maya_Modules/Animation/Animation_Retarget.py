@@ -35,7 +35,6 @@ else:
 
 
 def maya_main_window():
-
     main_window = omui.MQtUtil.mainWindow()
     if sys.version_info.major >= 3:
         return wrapInstance(int(main_window), QtWidgets.QDialog)
@@ -556,9 +555,6 @@ class RetargetingTool(QtWidgets.QDialog):
             print("retarget_dict => {0} : {1}".format(key, value))
         return retarget_dict
 
-    def _load_joint_and_control(self):
-        pass
-
     def automation_create_connection_node(self):
         self._find_source_joints()
         self._find_target_curves()
@@ -805,7 +801,7 @@ class RetargetingTool(QtWidgets.QDialog):
                 except:
                     pass
 
-            # Remove the message attribute from the controllers
+            # Remove the message attribute from the anim_curves
             for ctrl in cls.get_connected_ctrls():
                 try:
                     print("delete connect controller")

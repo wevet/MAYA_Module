@@ -2,7 +2,7 @@
 
 """
 Description:
-    A tool for mirroring the controllers from one side to the other
+    A tool for mirroring the anim_curves from one side to the other
     or to flip the pose
 
 Usage:
@@ -42,24 +42,25 @@ class OperationType(object):
     left_to_right = "Left to Right"
     right_to_left = "Right to Left"
     flip_to_frame = "Flip to Frame"
-    mirror_middle = "Mirror Middle"
     selected = "Selected"
+    mirror_middle = "Mirror Middle"
     not_selected = "Not Selected"
 
 def maya_main_menu():
-    """
-    Return the Maya main window widget as a Python object
-    """
-    main_window_ptr = omui.MQtUtil.mainWindow()
+    main_window = omui.MQtUtil.mainWindow()
     if sys.version_info.major >= 3:
-        return wrapInstance(int(main_window_ptr), QtWidgets.QWidget)
+        return wrapInstance(int(main_window), QtWidgets.QDialog)
     else:
-        return wrapInstance(long(main_window_ptr), QtWidgets.QWidget)  # type: ignore
+        return wrapInstance(long(main_window), QtWidgets.QDialog) # type: ignore
+
 
 class Animation_Mirror_Window(QtWidgets.QDialog):
 
     dlg_instance = None
+
+    WINDOW_TITLE = "Mirror Animation Window"
     SOURCE_TRANSFORM_ATTRIBUTE = ["tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz"]
+    MODULE_VERSION = "1.0.0"
 
     @classmethod
     def show_dialog(cls):
@@ -74,27 +75,24 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
     def __init__(self, parent=maya_main_menu()):
         super(Animation_Mirror_Window, self).__init__(parent)
 
-        self.setWindowTitle("Mirror Animation Window")
-
-        self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowMinimizeButtonHint)
-        self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowMaximizeButtonHint)
-
         self.prefix = ["_L", "_R", "L", "R", "Left", "Right"]
-
-        self.is_write_keyframe = False
         self.geometry = None
 
         # combo box
         self.mirror_axis_combo_box = None
         self.operation_combo_box = None
 
-        # write key frame check box
-        self.write_keyframe_checkbox = None
-
         # spin box
         self.min_mirror_frame_spin_box = None
         self.max_mirror_frame_spin_box = None
 
+        # write key frame check box
+        self.is_write_keyframe = False
+        self.write_keyframe_checkbox = None
+
+        # bake
+        self.is_bake_animation = False
+        self.bake_animation_checkbox = None
 
         # button
         self.left_to_right_radio_button = None
@@ -107,17 +105,24 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         self.mirror_axis_seperator = None
         self.top_seperator = None
         self.middle_seperator = None
-
-        self.left_ctrl_name_line_edit = None
-        self.right_ctrl_name_line_edit = None
         self.bottom_seperator = None
 
+        # edit text
+        self.left_ctrl_name_line_edit = None
+        self.right_ctrl_name_line_edit = None
+
         self.setStyleSheet('background-color:#262f38;')
+
+        self.setWindowTitle(self.WINDOW_TITLE + " v" + self.MODULE_VERSION)
+        self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
+        self.setMinimumWidth(360)
+        self.setMinimumHeight(260)
+        self.resize(620, 420)
+
         self._create_widgets()
         self._create_layout()
         self._create_connections()
-
-        self._on_operation_change()
+        self._operation_change()
 
     def _create_widgets(self):
         self.mirror_axis_combo_box = QtWidgets.QComboBox()
@@ -129,9 +134,9 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                 OperationType.flip_to_frame,
                 OperationType.left_to_right,
                 OperationType.right_to_left,
-                OperationType.mirror_middle,
                 OperationType.selected,
-                OperationType.not_selected,
+                #OperationType.mirror_middle,
+                #OperationType.not_selected,
             ])
 
         styles = "background-color: #262f38; color: white"
@@ -140,9 +145,10 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             "Flip to Frame: ポーズ全体を反転させる\n"
             "Left to Right: 右のコントローラーを左と同じ値に設定する\n"
             "Right to Left: 左のコントローラーを右と同じ値に設定する\n"
-            "Mirror Middle: 真ん中のコントローラーを裏返す\n"
             "Selected: 選択したコントローラーを反対側にミラーリングする\n"
-            "Not Selected: 選択されていないすべてのコントローラを反転させる\n")
+            #"Mirror Middle: 真ん中のコントローラーを裏返す\n"
+            #"Not Selected: 選択されていないすべてのコントローラを反転させる\n"
+        )
         self.operation_combo_box.setStyleSheet(styles)
 
         self.min_mirror_frame_spin_box = QtWidgets.QDoubleSpinBox()
@@ -169,8 +175,10 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         self.right_to_left_radio_button.setVisible(False)
         self.flip_radio_button.setVisible(False)
 
-        self.write_keyframe_checkbox = QtWidgets.QCheckBox("WriteKeyFrame")
+        self.write_keyframe_checkbox = QtWidgets.QCheckBox("SetKeyFrame")
         self.write_keyframe_checkbox.setChecked(True)
+        self.bake_animation_checkbox = QtWidgets.QCheckBox("WithBake?")
+        self.bake_animation_checkbox.setChecked(True)
 
         self.mirror_axis_seperator = QtWidgets.QFrame()
         self.mirror_axis_seperator.setFrameShape(QtWidgets.QFrame.HLine)
@@ -207,18 +215,22 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         self.undo_button.setStyleSheet("background-color: #34d8ed; color: black")
 
     def _create_layout(self):
-        side_to_opp_rb_layout = QtWidgets.QHBoxLayout()
-        side_to_opp_rb_layout.addWidget(self.left_to_right_radio_button)
-        side_to_opp_rb_layout.addWidget(self.right_to_left_radio_button)
-        side_to_opp_rb_layout.addWidget(self.flip_radio_button)
-        side_to_opp_rb_layout.addWidget(self.write_keyframe_checkbox)
+        side_to_opp_rb_layout_1 = QtWidgets.QHBoxLayout()
+        side_to_opp_rb_layout_1.addWidget(self.left_to_right_radio_button)
+        side_to_opp_rb_layout_1.addWidget(self.right_to_left_radio_button)
+        side_to_opp_rb_layout_1.addWidget(self.flip_radio_button)
+
+        side_to_opp_rb_layout_2 = QtWidgets.QHBoxLayout()
+        side_to_opp_rb_layout_2.addWidget(self.write_keyframe_checkbox)
+        side_to_opp_rb_layout_2.addWidget(self.bake_animation_checkbox)
 
         mirror_options_layout = QtWidgets.QFormLayout()
         mirror_options_layout.addRow("Mirror Axis:", self.mirror_axis_combo_box)
-        mirror_options_layout.addRow("Operation:", self.operation_combo_box)
+        mirror_options_layout.addRow("Operation Type:", self.operation_combo_box)
         mirror_options_layout.addRow("", self.min_mirror_frame_spin_box)
         mirror_options_layout.addRow("", self.max_mirror_frame_spin_box)
-        mirror_options_layout.addRow("", side_to_opp_rb_layout)
+        mirror_options_layout.addRow("", side_to_opp_rb_layout_1)
+        mirror_options_layout.addRow("", side_to_opp_rb_layout_2)
 
         naming_convention_layout = QtWidgets.QFormLayout()
         naming_convention_layout.addRow("Left Naming Scheme:", self.left_ctrl_name_line_edit)
@@ -239,11 +251,11 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         main_layout.addStretch()
 
     def _create_connections(self):
-        self.operation_combo_box.currentTextChanged.connect(self._on_operation_change)
+        self.operation_combo_box.currentTextChanged.connect(self._operation_change)
         self.mirror_button.clicked.connect(self._mirror_control)
         self.undo_button.clicked.connect(self._undo_control)
 
-    def _on_operation_change(self):
+    def _operation_change(self):
         text = self._get_operation()
 
         if text == "Not Selected":
@@ -327,7 +339,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
     def _get_vector_data(self, ctrl_list):
         """
         Description: 全コントローラのベクトルを求め、dictionaryに格納する。
-        Args: ctrl_list: A list of all controllers
+        Args: ctrl_list: A list of all anim_curves
         Returns: コントローラをキーとし、その異なる軸ベクトルを値とするdictionaryを返します。軸ベクトルを値とする辞書
         """
         vector_dict = {}
@@ -356,7 +368,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
     def _get_attribute_data(self, ctrl_list):
         """
         Description: すべてのコントローラのチャンネルボックスに表示されるキーテーブル属性のデータを取得する
-        Args: ctrl_list: A list of controllers
+        Args: ctrl_list: A list of anim_curves
         Returns: コントローラをキーとするdictionaryとそのキーテーブルを返します。チャンネルボックスで表示される属性を値として返す。
         """
         data = {}
@@ -396,10 +408,10 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         """
         Description: ビューポートで選択されているコントローラを取得する
         Args:
-            ctrl_list: A list of all controllers
-            left_ctrl_list: A list of all left controllers
-            right_ctrl_list: A list of all right controllers
-            middle_ctrl_list: A list of all middle controllers
+            ctrl_list: A list of all anim_curves
+            left_ctrl_list: A list of all left anim_curves
+            right_ctrl_list: A list of all right anim_curves
+            middle_ctrl_list: A list of all middle anim_curves
         Returns: 選択されたコントローラを含むネストされたリストを返す
         """
         sel_controls = cmds.ls(selection=True)
@@ -440,8 +452,8 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
     def _remove_items_from_list(self, ctrl_list, items):
         """
         Args:
-            ctrl_list: A list of controllers
-            items: A list of controllers
+            ctrl_list: A list of anim_curves
+            items: A list of anim_curves
         Returns: ctrl_listからitems listの項目を削除したリストを返す
         """
         for item in items:
@@ -614,7 +626,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         Return: 左、右、真ん中、すべてのコントローラのキーを持つdictionaryを返します。
             コントローラを返します。また、どのようなコントローラがペアなのかを含むpairも返します。そして、そのペアには番号が割り振られます。
         """
-        # Finding all the nurb curves to get the shape node on the controllers
+        # Finding all the nurb curves to get the shape node on the anim_curves
         nurbs_curve_list = cmds.ls(type="nurbsCurve")
         nurbs_surface_list = cmds.ls(type="nurbsSurface")
         if nurbs_surface_list:
@@ -672,7 +684,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                                         # in the string the left right name is
                                         index = names["index"][index_dict]
 
-                                        # Creating the name of the controllers
+                                        # Creating the name of the anim_curves
                                         even = self._is_even(i)
                                         if even:
                                             right_side = side_con[i + 1]
@@ -936,6 +948,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                         if self.is_write_keyframe is True:
                             cmds.setKeyframe(attr_obj, v=-value, t=current_time)
 
+
     # flipping controller
     def _flip_frame(self, left_ctrl_list, right_ctrl_list, middle_ctrl_list, data, pair_dict, mirror_axis, vector_data):
         self._mirror_side_ctrl(ctrl_list=left_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
@@ -950,6 +963,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         cmds.undoInfo(openChunk=True)
         side_con = self._calc_side_controller()
         self.is_write_keyframe = self.write_keyframe_checkbox.isChecked()
+        self.is_bake_animation = self.bake_animation_checkbox.isChecked()
         print("side_con => {0}".format(side_con))
 
         controls = self._get_controllers(side_con)
@@ -964,7 +978,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             return
 
         if not left_ctrl_list and not right_ctrl_list:
-            om.MGlobal.displayWarning("Couldn't find side controllers. " "Every controller behave as a middle controller.")
+            om.MGlobal.displayWarning("Couldn't find side anim_curves. ")
             return
 
         operation = self._get_operation()
@@ -981,6 +995,8 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             self._set_time(current_frame)
             vector_data = self._get_vector_data(ctrl_list)
             data = self._get_attribute_data(ctrl_list)
+
+            # check mirror types
             if operation == OperationType.left_to_right:
                 self._mirror_side_ctrl(ctrl_list=left_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
             elif operation == OperationType.right_to_left:
@@ -989,33 +1005,37 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                 self._flip_frame(left_ctrl_list, right_ctrl_list, middle_ctrl_list, data, pair_dict, mirror_axis, vector_data)
             elif operation == OperationType.mirror_middle:
                 self._mirror_center_ctrl(middle_ctrl_list, data, mirror_axis, vector_data)
+
             elif operation == OperationType.selected:
                 (
                     left_sel_controls,
                     right_sel_controls,
                     middle_sel_controls,
                 ) = self._get_selected_controls(ctrl_list, left_ctrl_list, right_ctrl_list, middle_ctrl_list)
-
                 if not left_sel_controls and not right_sel_controls and not middle_sel_controls:
                     om.MGlobal.displayError("No controller is selected")
                     return
+
                 if left_sel_controls:
                     self._mirror_side_ctrl(ctrl_list=left_sel_controls, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
                 if right_sel_controls:
                     self._mirror_side_ctrl(ctrl_list=right_sel_controls, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
                 if middle_sel_controls:
                     self._mirror_center_ctrl(middle_sel_controls, data, mirror_axis, vector_data)
+
             elif operation == OperationType.not_selected:
                 (
                     left_sel_controls,
                     right_sel_controls,
                     middle_sel_controls,
                 ) = self._get_selected_controls(ctrl_list, left_ctrl_list, right_ctrl_list, middle_ctrl_list)
+                if not left_sel_controls and not right_sel_controls and not middle_sel_controls:
+                    om.MGlobal.displayWarning("No controller is selected")
+                    return
 
                 removed_left_ctrl_list = self._remove_items_from_list(left_ctrl_list, left_sel_controls)
                 removed_right_ctrl_list = self._remove_items_from_list(right_ctrl_list, right_sel_controls)
                 removed_middle_ctrl_list = self._remove_items_from_list(middle_ctrl_list, middle_sel_controls)
-
                 if self.left_to_right_radio_button.isChecked():
                     if removed_left_ctrl_list:
                         self._mirror_side_ctrl(ctrl_list=removed_left_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
@@ -1029,11 +1049,14 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                 elif self.flip_radio_button.isChecked():
                     self._flip_frame(removed_left_ctrl_list, removed_right_ctrl_list, removed_middle_ctrl_list, data, pair_dict, mirror_axis, vector_data)
 
-                if not left_sel_controls and not right_sel_controls and not middle_sel_controls:
-                    om.MGlobal.displayWarning("No controller is selected")
-
         # finish
         self._set_time(float(local_start_frame))
+
+        if self.is_bake_animation is True:
+            cmds.refresh(suspend=True)
+            cmds.bakeResults(ctrl_list, t=(local_start_frame, local_end_frame), sb=1, at=self.SOURCE_TRANSFORM_ATTRIBUTE, hi="none")
+            cmds.refresh(suspend=False)
+
         cmds.undoInfo(closeChunk=True)
 
 

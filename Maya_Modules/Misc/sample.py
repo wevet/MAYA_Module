@@ -55,42 +55,18 @@ def _get_animated_attributes(node):
             for param in params:
                 print("params => {0}".format(param))
     return animated_attributes
-
-node_list = cmds.ls(selection=True,dag=True,type="joint")
-for node in node_list:
-    #has_fk = node.find("FK") > -1 or node.find("fk") > -1
-    #has_ik = node.find("IK") > -1 or node.find("ik") > -1
-    #if has_fk or has_ik:
-    attrs = _get_animated_attributes(node)
-    for attr in attrs:
-        print("attr => {0}".format(attr))
-
-def _unlock_attributes(self, ctrl_list, data):
-    for ctrl in ctrl_list:
-        for attr in data[ctrl].keys():
-            try:
-                attr_obj = "{0}.{1}".format(ctrl, attr)
-                lock_check = cmds.getAttr(attr_obj, lock=True)
-                if lock_check is True:
-                    cmds.setAttr(attr_obj, lock=0)
-                    print("unlock attr => {0}.{1}".format(ctrl, attr))
-            except ValueError:
-                continue
-    pass
-
-curves = cmds.ls(selection=True, dag=True, type="transform")
-for curve in curves:
-    if curve.find("FK") > -1:
-        print(curve)
 #-----------------------------------------------------------------------------------------------------------
 
-
 import maya.cmds as cmds
+import os
 
-curves = cmds.ls(selection=True, dag=True, type="transform")
-for curve in curves:
-    print(curves)
-
+filepath = cmds.file(q=True, sn=True)  # directory/sample.ma
+filename = os.path.basename(filepath)  # sample.ma
+base_directory = filepath.split(filename)[-2]  # directory/
+output_directory = base_directory + "Exported/"
+if not os.path.exists(output_directory):
+    os.makedirs(output_directory)
+print(output_directory)
 
 #-----------------------------------------------------------------------------------------------------------
 

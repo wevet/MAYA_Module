@@ -32,7 +32,7 @@ def main():
         cmd += ' "python(\\"import Batch_Exporter;Batch_Exporter.run(\'{}\')\\")"'.format(replace_path)
 
     dirPath, curPathName = os.path.split(source_directory)
-    path = os.path.join(dirPath, 'run.bat')
+    path = os.path.join(dirPath, 'batch_exporter_run.bat')
     save_bat_file(path, cmd)
 
 

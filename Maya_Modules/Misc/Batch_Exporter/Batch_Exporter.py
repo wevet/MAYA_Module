@@ -19,6 +19,7 @@ class Batch_Job:
         self.controllers = []
         self.all_joints = []
         self.pole_legs = []
+        self.has_native_os = False
 
     @staticmethod
     def _get_scene_name():
@@ -140,51 +141,101 @@ class Batch_Job:
         cmds.currentTime(self.dummy_key_frame)
         pass
 
+    @staticmethod
+    def _set_fbx_options(*args, **kwargs):
+        mel.eval('FBXResetExport;')
+        # ・・・エキスポート設定をリセットします。
+        mel.eval('FBXProperty "Export|IncludeGrp|Animation" -v 1')
+        # ・・・fbxエキスポートオプションの、アニメーション設定の部分です。
+        mel.eval('FBXExportBakeComplexAnimation -v 1;')
+        # ・・・のコマンドは、アニメーションのベイク処理（Bake Animation）オプションに相当するスクリプトです。
+        mel.eval('FBXExportShapes -v 0;')
+        # ・・・シェイプを出力するかどうか
+        mel.eval('FBXExportSkins -v 0;')
+        # ・・・スキンをエキスポートするかどうか
+        mel.eval('FBXExportSmoothMesh -v 0;')
+        # ・・・スムースメッシュをエキスポートするかどうか
+        mel.eval('FBXExportSmoothingGroups -v 0;')
+        # ・・・スムージンググループをエキスポートするかどうか
+        mel.eval('FBXExportUseSceneName -v 1;')
+        # ・・・アニメーションクリップ名にシーン名を使うかどうか（使わないと、Take1に）
+        mel.eval('FBXExportCameras -v 0;')
+        # ・・・カメラをエキスポートするかどうか
+        mel.eval('FBXExportLights -v 0;')
+        # ・・・ライトをエキスポートするかどうか
+        mel.eval('FBXExportInAscii -v 0;')
+        # ・・・アスキー形式にするかどうか
+        mel.eval('FBXExportInputConnections -v 1;')
+        # ・・・コネクションを含めるかどうか
+        mel.eval('FBXExportApplyConstantKeyReducer -v 0;')
+        # ・・・アニメーションで単一のキーを削除するかどうか
+        mel.eval('FBXExportEmbeddedTextures -v 0;')
+        # ・・・テクスチャを内包するかどうか
+
     def _export_fbx(self, file_path):
         """
         mel.eval('FBXResetExport')
         mel.eval('FBXExportBakeComplexAnimation -v 1')
         mel.eval('FBXExportInAscii -v 1')
-        mel.eval('FBXExport -f "{}"'.format(file_path))
         """
+
+        # https://tm8r.hateblo.jp/entry/2017/01/06/101025
+        #cmds.FBXExport('-f', file_path, '-s', True)
+
+        """
+        # @TODO
+        #  1の場合はOSネイティブ
+        if mel.eval('optionVar -q "FileDialogStyle"') == 1:
+            mel.eval('optionVar -iv FileDialogStyle 2 ;')
+            mel.eval('savePrefsChanges;')
+        """
+
+        if mel.eval('optionVar -q "FileDialogStyle"') == 1:
+            self.has_native_os = True
+            mel.eval('optionVar -iv FileDialogStyle 2 ;')
+            print("modify FileDialogStyle")
+
         if not cmds.pluginInfo('fbxmaya', q=True, loaded=True):
             cmds.loadPlugin('fbxmaya')
-            # cmds.file(file_path, force=True, options="v=0;", type="FBX export")
-        cmds.file(file_path, force=True, exportSelected=True, type="FBX export")
 
-    # export処理を行う
-    # controllerかjointを取得し更にPoleVectorを選択する
+        mel.eval('FBXResetExport')
+        mel.eval('FBXExportBakeComplexAnimation -v 1')
+        mel.eval('FBXExportInAscii -v 1')
+        mel.eval('FBXExport -f "' + file_path + '" -s')
+        #cmds.file(file_path, force=True, exportSelected=True, type="FBX export")
+        pass
+
     def start(self):
         asset_file_path = cmds.file(q=True, sn=True)
         filename = os.path.basename(asset_file_path)  # sample.ma
-        print("MA file name => {}".format(filename))
-
         self._build_key_frame()
         scene_name = self._get_scene_name()
 
-        base_directory = asset_file_path.split(filename)[-2]  # directory/
-        output_directory = base_directory + "Exported/" # directory/exportedディレクトリを作成
-        print("output_directory => {}".format(output_directory))
+        base_directory = asset_file_path.split(filename)[-2]
+        output_directory = base_directory + "Exported/"
         if not os.path.exists(output_directory):
             os.makedirs(output_directory)
         file_path = os.path.join(output_directory, "{}.fbx".format(scene_name))
-        print("EXPORT STARTED => {}".format(file_path))
 
-        # 全てのjoint、PoleLegを選択する
+        print("BAKE STARTED => {}".format(file_path))
         self.all_joints = []
         self.all_joints = self._get_all_joints()
         self.all_joints.extend(self.pole_legs)
-        #pm.select(self.all_joints)
         cmds.select(self.all_joints, r=True)
-
         for joint in self.all_joints:
-            print("selected joint => {}".format(joint))
-
+            print("find joint => {}".format(joint))
         # -50fから最終fまで選択しBake
         time_range = self._get_frame_range()
         self._bake_connected(self.all_joints, time_range)
+        print("BAKE FINISHED => {}".format(file_path))
+
+        print("EXPORT STARTED => {}".format(file_path))
         self._export_fbx(file_path)
         print("EXPORT FINISHED => {}".format(file_path))
+
+        if self.has_native_os is True:
+            mel.eval('optionVar -iv FileDialogStyle 1 ;')
+            print("revert native os")
         pass
 
 
@@ -209,7 +260,7 @@ def run(file_path):
     batch = Batch_Job()
     batch.start()
 
-    # maya.exeで処理していた場合にmayaを終了させる。
+    # exeで処理していた場合は終了
     if not cmds.about(batch=1):
         cmds.evalDeferred('from maya import cmds;cmds.quit(f=1)')
 

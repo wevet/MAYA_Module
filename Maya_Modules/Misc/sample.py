@@ -100,7 +100,7 @@ import maya.cmds as cmds
 obj = cmds.ls(sl = True)
 print(obj)
 
-cmds.cutKey()
+
 
 
 import maya.cmds as cmds
@@ -124,7 +124,7 @@ def UnlockAll():
         for attr in ["tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz"]:
             try:
                 attrObj = "{0}.{1}".format(obj, attr)
-                if cmds.getAttr(attrObj, lock=True) == True:
+                if cmds.getAttr(attrObj, lock=True) is True:
                     cmds.setAttr(attrObj, lock=0)
                     locked.append(attrObj)
             except ValueError:
@@ -134,6 +134,27 @@ UnlockAll()
 
 #-----------------------------------------------------------------------------------------------------------
 
+import maya.cmds as cmds
+import os
+
+import maya.mel as mel
+
+mel.eval("asSelectorbiped;")
+
+
+asset_file_path = cmds.file(q=True, sn=True)
+filename = os.path.basename(asset_file_path)  # sample.ma
+
+file_path = cmds.file(q=True, sn=True)
+file_name = os.path.basename(file_path)
+raw_name, extension = os.path.splitext(file_name)
+
+print("asset_file_path => {}".format(asset_file_path))
+print("MA file name => {}".format(filename))
+print("file_path => {}".format(file_path))
+print("file_name => {}".format(file_name))
+print("raw_name => {}".format(raw_name))
+print("extension => {}".format(extension))
 
 
 import pymel.core as pm

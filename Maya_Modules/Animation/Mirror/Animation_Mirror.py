@@ -24,7 +24,7 @@ If your naming convention is one of the default then skip to step 4
 
 """
 
-
+import os
 import sys
 from PySide2 import QtCore
 from PySide2 import QtGui
@@ -59,8 +59,8 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
     dlg_instance = None
 
     WINDOW_TITLE = "Mirror Animation Window"
-    SOURCE_TRANSFORM_ATTRIBUTE = ["tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz"]
-    MODULE_VERSION = "1.0.1"
+    SOURCE_TRANSFORM_ATTRIBUTE = ["translateX", "translateY", "translateZ", "rotateX", "rotateY", "rotateZ", "scaleX", "scaleY", "scaleZ"]
+    MODULE_VERSION = "1.0.2"
 
     @classmethod
     def show_dialog(cls):
@@ -112,6 +112,10 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         self.right_ctrl_name_line_edit = None
 
         self.setStyleSheet('background-color:#262f38;')
+
+        # batch function
+        self.is_batch_running = False
+        self.batch_running_text = None
 
         self.setWindowTitle(self.WINDOW_TITLE + " v" + self.MODULE_VERSION)
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
@@ -307,17 +311,17 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             # so the denominator will be all values added together
             value = abs(value)
             denominator += value
-        percentage_strengt = []
+        percentage_strength = []
         for value in vector:
             # Making value positive
             # in order to get a strength relative to the other axis
             value = abs(value)
-            strengt = value / denominator
-            percentage_strengt.append(strengt)
+            strength = value / denominator
+            percentage_strength.append(strength)
         # Finding the axis with the highest percentage.
         # Since the percentage_strength is a xyz list.
         # We can use the index to find xyz.
-        index = percentage_strengt.index(max(percentage_strengt))
+        index = percentage_strength.index(max(percentage_strength))
         if index == 0:
             dominating_axis = "-X" if vector[0] < 0 else "X"
         elif index == 1:
@@ -380,24 +384,22 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             for attr in attributes:
                 attr_obj = "{}.{}".format(ctrl, attr)
                 lock_check = cmds.getAttr(attr_obj, lock=True)
-
                 if lock_check is True:
                     cmds.setAttr(attr_obj, lock=0)
-                    print("unlock attr => {0}".format(attr_obj))
 
                 # 属性に接続があるかどうかを確認する
-                source_con = cmds.listConnections("{}.{}".format(ctrl, attr), source=True, destination=False)
+                source_controller = cmds.listConnections(attr_obj, source=True, destination=False)
                 # Checking if source connection is a key
-                key_source = cmds.listConnections("{}.{}".format(ctrl, attr), source=True, type="animCurve")
-                if not source_con:
+                anim_curve_keys = cmds.listConnections(attr_obj, source=True, type="animCurve")
+                if not source_controller:
                     # Getting the value on the controller and storing it in data dict
-                    value = cmds.getAttr("{}.{}".format(ctrl, attr))
+                    value = cmds.getAttr(attr_obj)
                     # Only store data if int or float type
                     if type(value) in [int, float]:
                         data[ctrl][attr] = value
-                elif key_source:
+                elif anim_curve_keys:
                     # Getting the value on the controller and storing it in data dict
-                    value = cmds.getAttr("{}.{}".format(ctrl, attr))
+                    value = cmds.getAttr(attr_obj)
                     # Only store data if int or float type
                     if type(value) in [int, float]:
                         data[ctrl][attr] = value
@@ -764,6 +766,10 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             opp_z_axis = vector_data[opp_ctrl]["z_axis"]
 
             for attr in data[ctrl].keys():
+
+                if attr not in self.SOURCE_TRANSFORM_ATTRIBUTE:
+                    continue
+
                 value = data[ctrl][attr]
                 x_dominating = self._get_vectors_dominating_axis(x_axis)
                 y_dominating = self._get_vectors_dominating_axis(y_axis)
@@ -775,11 +781,31 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                 # 軸がmirrorの軸に最も近いかを探す
                 mirror_attr = self._get_mirror_axis_dominent_vector(mirror_axis, x_dominating, y_dominating, z_dominating)
                 attr_obj = "{}.{}".format(opp_ctrl, attr)
+                #print("has attr_obj => {}".format(attr_obj))
 
                 if attr.__contains__("scale"):
                     cmds.setAttr(attr_obj, value)
                     if self.is_write_keyframe is True:
                         cmds.setKeyframe(attr_obj, v=value, t=current_time)
+
+                elif x_dominating == opp_x_dominating and y_dominating == opp_y_dominating and z_dominating == opp_z_dominating:
+                    if attr.__contains__("rotate{}".format(mirror_attr)):
+                        cmds.setAttr(attr_obj, value)
+                        if self.is_write_keyframe is True:
+                            cmds.setKeyframe(attr_obj, v=value, t=current_time)
+                    elif attr.__contains__("rotate"):
+                        cmds.setAttr(attr_obj, -value)
+                        if self.is_write_keyframe is True:
+                            cmds.setKeyframe(attr_obj, v=-value, t=current_time)
+                    elif attr.__contains__("translate{}".format(mirror_attr)):
+                        cmds.setAttr(attr_obj, -value)
+                        if self.is_write_keyframe is True:
+                            cmds.setKeyframe(attr_obj, v=-value, t=current_time)
+                    else:
+                        cmds.setAttr(attr_obj, value)
+                        if self.is_write_keyframe is True:
+                            cmds.setKeyframe(attr_obj, v=value, t=current_time)
+
                 elif attr.__contains__("translate"):
                     if self._is_mirror_same_as_dominants(mirror_axis, x_dominating, opp_x_dominating):
                         cmds.setAttr(attr_obj, -value)
@@ -850,6 +876,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                             cmds.setAttr(attr_obj, value)
                             if self.is_write_keyframe is True:
                                 cmds.setKeyframe(attr_obj, v=value, t=current_time)
+
                     elif self._is_dominants_same_and_not_mirror(mirror_axis, y_dominating, opp_y_dominating):
                         if attr.__contains__(mirror_attr):
                             cmds.setAttr(attr_obj, -value)
@@ -863,6 +890,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                             cmds.setAttr(attr_obj, value)
                             if self.is_write_keyframe is True:
                                 cmds.setKeyframe(attr_obj, v=value, t=current_time)
+
                     elif self._is_dominants_same_and_not_mirror(mirror_axis, z_dominating, opp_z_dominating):
                         if attr.__contains__(mirror_attr):
                             cmds.setAttr(attr_obj, -value)
@@ -880,24 +908,6 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                         cmds.setAttr(attr_obj, value)
                         if self.is_write_keyframe is True:
                             cmds.setKeyframe(attr_obj, v=value, t=current_time)
-                elif x_dominating == opp_x_dominating and y_dominating == opp_y_dominating and z_dominating == opp_z_dominating:
-                    if attr.__contains__("rotate{}".format(mirror_attr)):
-                        cmds.setAttr(attr_obj, value)
-                        if self.is_write_keyframe is True:
-                            cmds.setKeyframe(attr_obj, v=value, t=current_time)
-                    elif attr.__contains__("rotate"):
-                        cmds.setAttr(attr_obj, -value)
-                        if self.is_write_keyframe is True:
-                            cmds.setKeyframe(attr_obj, v=-value, t=current_time)
-                    elif attr.__contains__("translate{}".format(mirror_attr)):
-                        cmds.setAttr(attr_obj, -value)
-                        if self.is_write_keyframe is True:
-                            cmds.setKeyframe(attr_obj, v=-value, t=current_time)
-                    else:
-                        pass
-                        #cmds.setAttr(attr_obj, value)
-                        #if self.is_write_keyframe is True:
-                            #cmds.setKeyframe(attr_obj, v=value, t=current_time)
                 else:
                     cmds.setAttr(attr_obj, value)
                     if self.is_write_keyframe is True:
@@ -925,6 +935,9 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             z_axis = vector_data[ctrl]["z_axis"]
             for attr in data[ctrl].keys():
 
+                if attr not in self.SOURCE_TRANSFORM_ATTRIBUTE:
+                    continue
+
                 value = data[ctrl][attr]
                 x_dominating = self._get_vectors_dominating_axis(x_axis)
                 y_dominating = self._get_vectors_dominating_axis(y_axis)
@@ -932,7 +945,12 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                 # Finding what axis is pointing the most to the mirror axis
                 mirror_attr = self._get_mirror_axis_dominent_vector(mirror_axis, x_dominating, y_dominating, z_dominating)
                 attr_obj = "{}.{}".format(ctrl, attr)
-                if attr.__contains__("translate"):
+
+                if attr.__contains__("scale"):
+                    cmds.setAttr(attr_obj, value)
+                    if self.is_write_keyframe is True:
+                        cmds.setKeyframe(attr_obj, v=value, t=current_time)
+                elif attr.__contains__("translate"):
                     if attr.__contains__(mirror_attr):
                         cmds.setAttr(attr_obj, -value)
                         if self.is_write_keyframe is True:
@@ -956,12 +974,26 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         self._mirror_side_ctrl(ctrl_list=right_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
         self._mirror_center_ctrl(middle_ctrl_list, data, mirror_axis, vector_data)
 
+    # apply batch run
+    def mirror_control(self, index):
+        find_text = None
+        if index is 1:
+            find_text = OperationType.left_to_right
+        elif index is 2:
+            find_text = OperationType.right_to_left
+        elif index is 3:
+            find_text = OperationType.flip_to_frame
+        else :
+            find_text = OperationType.selected
+
+        self.is_batch_running = True
+        self.batch_running_text = find_text
+        self._mirror_control()
 
     #@TODO
     # Processing itself is heavy, so lightweight is necessary.
     def _mirror_control(self):
 
-        cmds.undoInfo(openChunk=True)
         side_con = self._calc_side_controller()
         self.is_write_keyframe = self.write_keyframe_checkbox.isChecked()
         self.is_bake_animation = self.bake_animation_checkbox.isChecked()
@@ -982,13 +1014,20 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             om.MGlobal.displayWarning("Couldn't find side anim_curves. ")
             return
 
+        cmds.undoInfo(openChunk=True)
+
         operation = self._get_operation()
+        if self.is_batch_running is True:
+            operation = self.batch_running_text
+            print("batch operation type => {}".format(operation))
+
         mirror_axis = self._get_mirror_axis()
 
         # create start-end range
         local_start_frame = int(self._get_min_flip_frame())
         local_end_frame = int(self._get_max_flip_frame())
         local_end_frame += 1
+        #cmds.select(ctrl_list)
 
         for frame in range(local_start_frame, local_end_frame):
             current_frame = float(frame)
@@ -997,7 +1036,6 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             vector_data = self._get_vector_data(ctrl_list)
             data = self._get_attribute_data(ctrl_list)
 
-            # check mirror types
             if operation == OperationType.left_to_right:
                 self._mirror_side_ctrl(ctrl_list=left_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
             elif operation == OperationType.right_to_left:
@@ -1006,7 +1044,6 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                 self._flip_frame(left_ctrl_list, right_ctrl_list, middle_ctrl_list, data, pair_dict, mirror_axis, vector_data)
             elif operation == OperationType.mirror_middle:
                 self._mirror_center_ctrl(middle_ctrl_list, data, mirror_axis, vector_data)
-
             elif operation == OperationType.selected:
                 (
                     left_sel_controls,
@@ -1023,7 +1060,6 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                     self._mirror_side_ctrl(ctrl_list=right_sel_controls, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
                 if middle_sel_controls:
                     self._mirror_center_ctrl(middle_sel_controls, data, mirror_axis, vector_data)
-
             elif operation == OperationType.not_selected:
                 (
                     left_sel_controls,
@@ -1060,12 +1096,10 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
 
         cmds.undoInfo(closeChunk=True)
 
-
     def showEvent(self, event):
         super(Animation_Mirror_Window, self).showEvent(event)
         if self.geometry:
             self.restoreGeometry(self.geometry)
-
 
     def closeEvent(self, event):
         if isinstance(self, Animation_Mirror_Window):
@@ -1081,4 +1115,37 @@ def show_main_window():
         pass
     mirror_control = Animation_Mirror_Window()
     mirror_control.show()
+
+# ma fileを複製する
+# prefix _Mirror
+def duplicate_file():
+    asset_file_path = cmds.file(q=True, sn=True)
+    filename = os.path.basename(asset_file_path)  # sample.ma
+    scene_name = os.path.splitext(os.path.basename(cmds.file(q=True, sn=True)))[0]
+    base_directory = asset_file_path.split(filename)[-2]
+    prefix = "_Mirror"
+    new_scene_name = scene_name + prefix
+
+    print("scene_name => {}".format(scene_name))
+    print("new_scene_name => {}".format(new_scene_name))
+    print("base_directory => {}".format(base_directory))
+    cmds.file(rename=new_scene_name)
+    cmds.file(save=True, type='mayaAscii', force=True)
+
+
+# @TODO
+# batch files
+def run(file_path, index):
+    print('## Scene File Open >> {}'.format(file_path))
+    cmds.file(file_path, o=True, force=True)
+
+    duplicate_file()
+
+    mirror_control = Animation_Mirror_Window()
+    mirror_control.mirror_control(index)
+
+    # exeで処理していた場合は終了
+    if not cmds.about(batch=1):
+        cmds.evalDeferred('from maya import cmds;cmds.quit(f=1)')
+
 

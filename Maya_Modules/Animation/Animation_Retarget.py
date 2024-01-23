@@ -454,22 +454,23 @@ class RetargetingTool(QtWidgets.QDialog):
                     finger_joints.append(joint)
         return finger_joints
 
+    # @TODO
+    # Bake後にFinger jointのkeyframeを削除する
+    # Bake後にRoot、IKLeg PoleVector以外のkeyframeを削除する
     def _remove_target_keyframe(self):
         self._remove_finger_rotation_keyframe()
         self._remove_body_translation_keyframe()
 
-    # @TODO
-    # Bake後にFinger jointのkeyframeを削除する
     def _remove_finger_rotation_keyframe(self):
         finger_joints = self._get_finger_joints()
         start, end = self.get_frame_range()
         for joint in finger_joints:
             for attr in self.SOURCE_ROTATE_LOCK_ATTRIBUTE:
                 cmds.cutKey(joint, time=(start, end), clear=True, option='keys', attribute=attr)
-        cmds.select(finger_joints)
+                cmds.setAttr(joint + "." + attr, 0)
+            print("cut keyframe finger joint => {}".format(joint))
 
-    # @TODO
-    # Bake後にRoot、IKLeg PoleVector以外のkeyframeを削除する
+
     def _remove_body_translation_keyframe(self):
         finger_joints = self._get_finger_joints()
 
@@ -481,17 +482,22 @@ class RetargetingTool(QtWidgets.QDialog):
         # filteringを行う
         body_joints = []
         for transform in self.target_joints:
-            if transform in ignore_joints or transform:
+            if transform in ignore_joints:
                 continue
+            body_joints.append(transform)
+            """
             # keyframeがあるかどうか?
             all_keys = sorted(cmds.keyframe(transform, q=True) or [])
             if all_keys:
                 body_joints.append(transform)
+            """
 
         start, end = self.get_frame_range()
         for joint in body_joints:
             for attr in self.SOURCE_TRANSLATION_LOCK_ATTRIBUTE:
                 cmds.cutKey(joint, time=(start, end), clear=True, option='keys', attribute=attr)
+                cmds.setAttr(joint + "." + attr, 0)
+            print("cut keyframe joint => {}".format(joint))
         body_joints.extend(finger_joints)
         cmds.select(body_joints)
 

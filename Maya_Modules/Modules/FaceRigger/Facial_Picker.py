@@ -53,6 +53,10 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         self.K_ROTATION_ATTR = ["rotateX", "rotateY", "rotateZ"]
         self.K_SCALE_ATTR = ["scaleX", "scaleY", "scaleX.Z"]
 
+        self.JAW_MASTER_CONTROLLER_NAME = "Jaw_Master_Ctrl"
+        self.LOWER_TEETH_CONTROLLER_NAME = "Lower_teeth_ctrl"
+        self.UPPER_TEETH_CONTROLLER_NAME = "Upper_teeth_ctrl"
+
         self.setWindowTitle('FaceRig Picker')
         self.setFixedSize(705, 611)
         self.styles = 'Plastique'
@@ -293,29 +297,11 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             self._reset_eye_target_command()
             self._reset_eye_follow_command()
             self._reset_oral_command()
-
             if cmds.objExists(self.prefix + 'Facial_Master_Ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = self.prefix + "Facial_Master_Ctrl" + ".".format(attr)
-                    cmds.setAttr(attr_obj, 0)
-
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = self.prefix + "Facial_Master_Ctrl" + ".".format(attr)
-                    cmds.setAttr(attr_obj, 1)
-
-                """
-                cmds.setAttr(self.prefix + 'Facial_Master_Ctrl.translateX', 0)
-                cmds.setAttr(self.prefix + 'Facial_Master_Ctrl.translateY', 0)
-                cmds.setAttr(self.prefix + 'Facial_Master_Ctrl.translateZ', 0)
-                cmds.setAttr(self.prefix + 'Facial_Master_Ctrl.rotateX', 0)
-                cmds.setAttr(self.prefix + 'Facial_Master_Ctrl.rotateY', 0)
-                cmds.setAttr(self.prefix + 'Facial_Master_Ctrl.rotateZ', 0)
-                cmds.setAttr(self.prefix + 'Facial_Master_Ctrl.scaleX', 1)
-                cmds.setAttr(self.prefix + 'Facial_Master_Ctrl.scaleY', 1)
-                cmds.setAttr(self.prefix + 'Facial_Master_Ctrl.scaleZ', 1)
-                """
+                self._reset_joint_transform('Facial_Master_Ctrl')
         print("_reset_control_command")
 
+    # select all controllers
     def _select_all_control_command(self, *args):
         with UndoContext():
             self._select_brow_command()
@@ -448,7 +434,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             if cmds.objExists(self.prefix + self.LIP_ALL_GROUP_NAME):
                 mods = cmds.getModifiers()
                 if mods & 1 > 0 or mods & 4 > 0:
-                    cmds.select(self.prefix + 'Jaw_Master_Ctrl', tgl=True)
+                    cmds.select(self.prefix + self.JAW_MASTER_CONTROLLER_NAME, tgl=True)
                     if cmds.objExists(self.prefix + '*lip*Ctrl'):
                         cmds.select(self.prefix + '*lip*Ctrl', add=True)
                     if cmds.objExists(self.prefix + '*lip*side*ctrl'):
@@ -466,7 +452,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
                     if cmds.objExists(self.prefix + 'Lip_FACS_*bar_ctrl'):
                         cmds.select(self.prefix + 'Lip_FACS_*bar_ctrl', add=True)
                 else:
-                    cmds.select(self.prefix + 'Jaw_Master_Ctrl')
+                    cmds.select(self.prefix + self.JAW_MASTER_CONTROLLER_NAME)
                     if cmds.objExists(self.prefix + '*lip*Ctrl'):
                         cmds.select(self.prefix + '*lip*Ctrl', add=True)
                     if cmds.objExists(self.prefix + '*lip*side*ctrl'):
@@ -1831,7 +1817,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             self.ui.P_Lip_Master_Btn.setEnabled(False)
             self.ui.P_Lip_Master_Btn.setStyleSheet(None)
 
-        if cmds.objExists(self.prefix + 'Jaw_Master_Ctrl'):
+        if cmds.objExists(self.prefix + self.JAW_MASTER_CONTROLLER_NAME):
             self.ui.P_Jaw_Master_Btn.setStyleSheet(self.yellow)
             self.ui.P_Jaw_Master_Btn.setEnabled(True)
             if self.ui.PrimaryCheckBox.isChecked() is True:
@@ -1886,7 +1872,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             self.ui.P_Lip_FACS_lower_bar_Btn.setEnabled(False)
             self.ui.P_Lip_FACS_lower_bar_Btn.setStyleSheet(None)
 
-        if cmds.objExists(self.prefix + 'Upper_teeth_ctrl'):
+        if cmds.objExists(self.prefix + self.UPPER_TEETH_CONTROLLER_NAME):
             self.ui.P_Upper_teeth_Btn.setStyleSheet(self.red)
             self.ui.P_Upper_teeth_Btn.setEnabled(True)
             if self.ui.OralCavityCheckBox.isChecked() is True:
@@ -1899,7 +1885,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             self.ui.P_Upper_teeth_Btn.setEnabled(False)
             self.ui.P_Upper_teeth_Btn.setStyleSheet(None)
 
-        if cmds.objExists(self.prefix + 'Lower_teeth_ctrl'):
+        if cmds.objExists(self.prefix + self.LOWER_TEETH_CONTROLLER_NAME):
             self.ui.P_Lower_teeth_Btn.setStyleSheet(self.red)
             self.ui.P_Lower_teeth_Btn.setEnabled(True)
             if self.ui.OralCavityCheckBox.isChecked() is True:
@@ -3218,12 +3204,12 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
     # jaw command
     def _jaw_master_command(self, *args):
         with UndoContext():
-            if cmds.objExists(self.prefix + 'Jaw_Master_Ctrl'):
+            if cmds.objExists(self.prefix + self.JAW_MASTER_CONTROLLER_NAME):
                 mods = cmds.getModifiers()
                 if mods & 1 > 0 or mods & 4 > 0:
-                    cmds.select(self.prefix + 'Jaw_Master_Ctrl', tgl=True)
+                    cmds.select(self.prefix + self.JAW_MASTER_CONTROLLER_NAME, tgl=True)
                 else:
-                    cmds.select(self.prefix + 'Jaw_Master_Ctrl')
+                    cmds.select(self.prefix + self.JAW_MASTER_CONTROLLER_NAME)
             else:
                 print('no existing object!!')
         print("_jaw_master_command")
@@ -3231,24 +3217,24 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
     # teeth command
     def _upper_teeth_command(self, *args):
         with UndoContext():
-            if cmds.objExists(self.prefix + 'Upper_teeth_ctrl'):
+            if cmds.objExists(self.prefix + self.UPPER_TEETH_CONTROLLER_NAME):
                 mods = cmds.getModifiers()
                 if mods & 1 > 0 or mods & 4 > 0:
-                    cmds.select(self.prefix + 'Upper_teeth_ctrl', tgl=True)
+                    cmds.select(self.prefix + self.UPPER_TEETH_CONTROLLER_NAME, tgl=True)
                 else:
-                    cmds.select(self.prefix + 'Upper_teeth_ctrl')
+                    cmds.select(self.prefix + self.UPPER_TEETH_CONTROLLER_NAME)
             else:
                 print('no existing object!!')
         print("_upper_teeth_command")
 
     def _lower_teeth_command(self, *args):
         with UndoContext():
-            if cmds.objExists(self.prefix + 'Lower_teeth_ctrl'):
+            if cmds.objExists(self.prefix + self.LOWER_TEETH_CONTROLLER_NAME):
                 mods = cmds.getModifiers()
                 if mods & 1 > 0 or mods & 4 > 0:
-                    cmds.select(self.prefix + 'Lower_teeth_ctrl', tgl=True)
+                    cmds.select(self.prefix + self.LOWER_TEETH_CONTROLLER_NAME, tgl=True)
                 else:
-                    cmds.select(self.prefix + 'Lower_teeth_ctrl')
+                    cmds.select(self.prefix + self.LOWER_TEETH_CONTROLLER_NAME)
             else:
                 print('no existing object!!')
         print("_lower_teeth_command")
@@ -3309,352 +3295,103 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         for attr in self.K_SCALE_ATTR:
             attr_obj = joint_name + ".{}".format(attr)
             cmds.setAttr(self.prefix + attr_obj, 1)
+        print("_reset_joint_transform => {}".format(joint_name))
         pass
 
     def _lip_all_control_reset(self):
         with UndoContext():
             if cmds.objExists(self.prefix + 'Upper_lip_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Upper_lip_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Upper_lip_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-                """
-                cmds.setAttr(self.prefix + 'Upper_lip_ctrl.translateX', 0)
-                cmds.setAttr(self.prefix + 'Upper_lip_ctrl.translateY', 0)
-                cmds.setAttr(self.prefix + 'Upper_lip_ctrl.translateZ', 0)
-                cmds.setAttr(self.prefix + 'Upper_lip_ctrl.rotateX', 0)
-                cmds.setAttr(self.prefix + 'Upper_lip_ctrl.rotateY', 0)
-                cmds.setAttr(self.prefix + 'Upper_lip_ctrl.rotateZ', 0)
-                cmds.setAttr(self.prefix + 'Upper_lip_ctrl.scaleX', 1)
-                cmds.setAttr(self.prefix + 'Upper_lip_ctrl.scaleY', 1)
-                cmds.setAttr(self.prefix + 'Upper_lip_ctrl.scaleZ', 1)
-                """
-
+                self._reset_joint_transform('Upper_lip_ctrl')
             if cmds.objExists(self.prefix + 'Upper_lip_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Upper_lip_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Upper_lip_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('Upper_lip_FK_ctrl')
             if cmds.objExists(self.prefix + 'Lower_lip_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Lower_lip_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Lower_lip_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('Lower_lip_ctrl')
             if cmds.objExists(self.prefix + 'Lower_lip_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Lower_lip_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Lower_lip_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('Lower_lip_FK_ctrl')
             if cmds.objExists(self.prefix + 'Lower_lip_outer_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Lower_lip_outer_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Lower_lip_outer_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('Lower_lip_outer_ctrl')
 
             if cmds.objExists(self.prefix + 'L_lip_upper_side_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_lip_upper_side_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_lip_upper_side_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('L_lip_upper_side_ctrl')
             if cmds.objExists(self.prefix + 'L_lip_upper_side_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_lip_upper_side_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_lip_upper_side_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('L_lip_upper_side_FK_ctrl')
             if cmds.objExists(self.prefix + 'L_lip_upper_side_02_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_lip_upper_side_02_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_lip_upper_side_02_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('L_lip_upper_side_02_FK_ctrl')
             if cmds.objExists(self.prefix + 'L_lip_upper_outer_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_lip_upper_outer_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_lip_upper_outer_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('L_lip_upper_outer_ctrl')
             if cmds.objExists(self.prefix + 'L_lip_lower_side_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_lip_lower_side_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_lip_lower_side_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('L_lip_lower_side_ctrl')
             if cmds.objExists(self.prefix + 'L_lip_lower_side_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_lip_lower_side_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_lip_lower_side_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('L_lip_lower_side_FK_ctrl')
             if cmds.objExists(self.prefix + 'L_lip_lower_side_02_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_lip_lower_side_02_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_lip_lower_side_02_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('L_lip_lower_side_02_FK_ctrl')
             if cmds.objExists(self.prefix + 'L_lip_lower_outer_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_lip_lower_outer_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_lip_lower_outer_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_lip_lower_outer_ctrl')
 
             if cmds.objExists(self.prefix + 'R_lip_upper_side_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_lip_upper_side_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_lip_upper_side_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('R_lip_upper_side_ctrl')
             if cmds.objExists(self.prefix + 'R_lip_upper_side_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_lip_upper_side_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_lip_upper_side_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('R_lip_upper_side_FK_ctrl')
             if cmds.objExists(self.prefix + 'R_lip_upper_side_02_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_lip_upper_side_02_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_lip_upper_side_02_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('R_lip_upper_side_02_FK_ctrl')
             if cmds.objExists(self.prefix + 'R_lip_upper_outer_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_lip_upper_outer_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_lip_upper_outer_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('R_lip_upper_outer_ctrl')
             if cmds.objExists(self.prefix + 'R_lip_lower_side_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_lip_lower_side_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_lip_lower_side_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('R_lip_lower_side_ctrl')
             if cmds.objExists(self.prefix + 'R_lip_lower_side_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_lip_lower_side_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_lip_lower_side_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('R_lip_lower_side_FK_ctrl')
             if cmds.objExists(self.prefix + 'R_lip_lower_side_02_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_lip_lower_side_02_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_lip_lower_side_02_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('R_lip_lower_side_02_FK_ctrl')
             if cmds.objExists(self.prefix + 'R_lip_lower_outer_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_lip_lower_outer_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_lip_lower_outer_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('R_lip_lower_outer_ctrl')
 
             if cmds.objExists(self.prefix + 'L_lip_corner_up_Ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_lip_corner_up_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_lip_corner_up_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('L_lip_corner_up_Ctrl')
             if cmds.objExists(self.prefix + 'L_lip_corner_up_FK_Ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_lip_corner_up_FK_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_lip_corner_up_FK_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('L_lip_corner_up_FK_Ctrl')
             if cmds.objExists(self.prefix + 'L_lip_corner_down_Ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_lip_corner_down_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_lip_corner_down_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('L_lip_corner_down_Ctrl')
             if cmds.objExists(self.prefix + 'L_lip_corner_down_FK_Ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_lip_corner_down_FK_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_lip_corner_down_FK_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('L_lip_corner_down_FK_Ctrl')
             if cmds.objExists(self.prefix + 'L_lip_corner_Ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_lip_corner_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_lip_corner_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_lip_corner_Ctrl')
                 if cmds.objExists(self.prefix + 'L_lip_corner_Ctrl.Zip'):
                     cmds.setAttr(self.prefix + 'L_lip_corner_Ctrl.Zip', 0)
 
             if cmds.objExists(self.prefix + 'R_lip_corner_up_Ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_lip_corner_up_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_lip_corner_up_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('R_lip_corner_up_Ctrl')
             if cmds.objExists(self.prefix + 'R_lip_corner_up_FK_Ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_lip_corner_up_FK_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_lip_corner_up_FK_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('R_lip_corner_up_FK_Ctrl')
             if cmds.objExists(self.prefix + 'R_lip_corner_down_Ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_lip_corner_down_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_lip_corner_down_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('R_lip_corner_down_Ctrl')
             if cmds.objExists(self.prefix + 'R_lip_corner_down_FK_Ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_lip_corner_down_FK_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_lip_corner_down_FK_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('R_lip_corner_down_FK_Ctrl')
             if cmds.objExists(self.prefix + 'R_lip_corner_Ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_lip_corner_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_lip_corner_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('R_lip_corner_Ctrl')
                 if cmds.objExists(self.prefix + 'R_lip_corner_Ctrl.Zip'):
                     cmds.setAttr(self.prefix + 'R_lip_corner_Ctrl.Zip', 0)
 
             if cmds.objExists(self.prefix + 'Upper_lip_Master_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Upper_lip_Master_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Upper_lip_Master_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('Upper_lip_Master_ctrl')
             if cmds.objExists(self.prefix + 'Lower_lip_Master_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Lower_lip_Master_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Lower_lip_Master_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('Lower_lip_Master_ctrl')
             if cmds.objExists(self.prefix + 'Lip_Master_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Lip_Master_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Lip_Master_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
-            if cmds.objExists(self.prefix + 'Jaw_Master_Ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Jaw_Master_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Jaw_Master_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('Lip_Master_ctrl')
+            if cmds.objExists(self.prefix + self.JAW_MASTER_CONTROLLER_NAME):
+                self._reset_joint_transform(self.JAW_MASTER_CONTROLLER_NAME)
             if cmds.objExists(self.prefix + 'Lip_FACS_Ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Lip_FACS_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Lip_FACS_Ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('Lip_FACS_Ctrl')
             if cmds.objExists(self.prefix + 'Lip_FACS_bar_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Lip_FACS_bar_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Lip_FACS_bar_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('Lip_FACS_bar_ctrl')
 
             if cmds.objExists(self.prefix + 'Lip_FACS_L_bar_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Lip_FACS_L_bar_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Lip_FACS_L_bar_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('Lip_FACS_L_bar_ctrl')
             if cmds.objExists(self.prefix + 'Lip_FACS_R_bar_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Lip_FACS_R_bar_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Lip_FACS_R_bar_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('Lip_FACS_R_bar_ctrl')
             if cmds.objExists(self.prefix + 'Lip_FACS_upper_bar_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Lip_FACS_upper_bar_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Lip_FACS_upper_bar_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-
+                self._reset_joint_transform('Lip_FACS_upper_bar_ctrl')
             if cmds.objExists(self.prefix + 'Lip_FACS_lower_bar_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Lip_FACS_lower_bar_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Lip_FACS_lower_bar_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('Lip_FACS_lower_bar_ctrl')
         print("_lip_all_control_reset")
 
     def _lip_connect_control_reset(self):
@@ -3816,102 +3553,32 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
     def _cheek_all_control_reset(self):
         with UndoContext():
             if cmds.objExists(self.prefix + 'L_cheek_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_cheek_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_cheek_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-                """
-                cmds.setAttr(self.prefix + 'L_cheek_ctrl.translateX', 0)
-                cmds.setAttr(self.prefix + 'L_cheek_ctrl.translateY', 0)
-                cmds.setAttr(self.prefix + 'L_cheek_ctrl.translateZ', 0)
-                cmds.setAttr(self.prefix + 'L_cheek_ctrl.rotateX', 0)
-                cmds.setAttr(self.prefix + 'L_cheek_ctrl.rotateY', 0)
-                cmds.setAttr(self.prefix + 'L_cheek_ctrl.rotateZ', 0)
-                cmds.setAttr(self.prefix + 'L_cheek_ctrl.scaleX', 1)
-                cmds.setAttr(self.prefix + 'L_cheek_ctrl.scaleY', 1)
-                cmds.setAttr(self.prefix + 'L_cheek_ctrl.scaleZ', 1)
-                """
+                self._reset_joint_transform('L_cheek_ctrl')
             if cmds.objExists(self.prefix + 'L_lower_cheek_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_lower_cheek_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_lower_cheek_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_lower_cheek_ctrl')
             if cmds.objExists(self.prefix + 'L_upper_cheek_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_upper_cheek_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_upper_cheek_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_upper_cheek_ctrl')
             if cmds.objExists(self.prefix + 'L_outer_orbicularis_cheek_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_outer_orbicularis_cheek_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_outer_orbicularis_cheek_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_outer_orbicularis_cheek_FK_ctrl')
             if cmds.objExists(self.prefix + 'L_inner_orbicularis_cheek_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_inner_orbicularis_cheek_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_inner_orbicularis_cheek_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_inner_orbicularis_cheek_FK_ctrl')
                 cmds.setAttr(self.prefix + 'L_upper_cheek_ctrl.Orbicularis_cheek_follow', 1)
             if cmds.objExists(self.prefix + 'L_lower_liplid_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_lower_liplid_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_lower_liplid_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_lower_liplid_ctrl')
+
             if cmds.objExists(self.prefix + 'R_cheek_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_cheek_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_cheek_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('R_cheek_ctrl')
             if cmds.objExists(self.prefix + 'R_lower_cheek_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_lower_cheek_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_lower_cheek_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('R_lower_cheek_ctrl')
             if cmds.objExists(self.prefix + 'R_upper_cheek_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_upper_cheek_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_upper_cheek_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('R_upper_cheek_ctrl')
             if cmds.objExists(self.prefix + 'R_outer_orbicularis_cheek_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_outer_orbicularis_cheek_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_outer_orbicularis_cheek_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('R_outer_orbicularis_cheek_FK_ctrl')
             if cmds.objExists(self.prefix + 'R_inner_orbicularis_cheek_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_inner_orbicularis_cheek_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_inner_orbicularis_cheek_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('R_inner_orbicularis_cheek_FK_ctrl')
                 cmds.setAttr(self.prefix + 'R_upper_cheek_ctrl.Orbicularis_cheek_follow', 1)
             if cmds.objExists(self.prefix + 'R_lower_liplid_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_lower_liplid_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_lower_liplid_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('R_lower_liplid_ctrl')
         print("_cheek_all_control_reset")
 
     def _cheek_eye_connect_control_reset(self):
@@ -3926,425 +3593,186 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
                 cmds.setAttr(self.prefix + 'R_eye_lower_ctrl.Orbicularis_cheek_follow', 1)
         print("_cheek_eye_connect_control_reset")
 
-    # @TODO
-    # Refactoring
     def _nose_all_control_reset(self):
         with UndoContext():
             if cmds.objExists(self.prefix + 'L_nose_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_nose_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_nose_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-                """
-                cmds.setAttr(self.prefix + 'L_nose_ctrl.translateX', 0)
-                cmds.setAttr(self.prefix + 'L_nose_ctrl.translateY', 0)
-                cmds.setAttr(self.prefix + 'L_nose_ctrl.translateZ', 0)
-                cmds.setAttr(self.prefix + 'L_nose_ctrl.rotateX', 0)
-                cmds.setAttr(self.prefix + 'L_nose_ctrl.rotateY', 0)
-                cmds.setAttr(self.prefix + 'L_nose_ctrl.rotateZ', 0)
-                cmds.setAttr(self.prefix + 'L_nose_ctrl.scaleX', 1)
-                cmds.setAttr(self.prefix + 'L_nose_ctrl.scaleY', 1)
-                cmds.setAttr(self.prefix + 'L_nose_ctrl.scaleZ', 1)
-                """
+                self._reset_joint_transform('L_nose_ctrl')
                 if cmds.objExists(self.prefix + 'Nose_ctrl'):
                     cmds.setAttr(self.prefix + 'L_nose_ctrl.Center_Nose_follow', 0.2)
             if cmds.objExists(self.prefix + 'L_nasalis_transverse_nose_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_nasalis_transverse_nose_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_nasalis_transverse_nose_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_nasalis_transverse_nose_FK_ctrl')
                 cmds.setAttr(self.prefix + 'L_nose_ctrl.nasalis_transverse_follow', 1)
             if cmds.objExists(self.prefix + 'L_procerus_nose_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_procerus_nose_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_procerus_nose_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_procerus_nose_FK_ctrl')
                 cmds.setAttr(self.prefix + 'L_nose_ctrl.procerus_follow', 1)
             if cmds.objExists(self.prefix + 'L_nasolabial_fold_nose_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_nasolabial_fold_nose_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_nasolabial_fold_nose_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_nasolabial_fold_nose_FK_ctrl')
                 cmds.setAttr(self.prefix + 'L_nose_ctrl.nasolabial_fold_follow', 2)
+
             if cmds.objExists(self.prefix + 'R_nose_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_nose_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_nose_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('R_nose_ctrl')
                 if cmds.objExists(self.prefix + 'Nose_ctrl'):
                     cmds.setAttr(self.prefix + 'R_nose_ctrl.Center_Nose_follow', 0.2)
             if cmds.objExists(self.prefix + 'R_nasalis_transverse_nose_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_nasalis_transverse_nose_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_nasalis_transverse_nose_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('R_nasalis_transverse_nose_FK_ctrl')
                 cmds.setAttr(self.prefix + 'R_nose_ctrl.nasalis_transverse_follow', 1)
             if cmds.objExists(self.prefix + 'R_procerus_nose_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_procerus_nose_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_procerus_nose_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('R_procerus_nose_FK_ctrl')
                 cmds.setAttr(self.prefix + 'R_nose_ctrl.procerus_follow', 1)
             if cmds.objExists(self.prefix + 'R_nasolabial_fold_nose_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_nasolabial_fold_nose_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_nasolabial_fold_nose_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('R_nasolabial_fold_nose_FK_ctrl')
                 cmds.setAttr(self.prefix + 'R_nose_ctrl.nasolabial_fold_follow', 2)
+
             if cmds.objExists(self.prefix + 'Nose_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Nose_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Nose_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('Nose_ctrl')
             if cmds.objExists(self.prefix + 'Lower_nose_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Lower_nose_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Lower_nose_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('Lower_nose_ctrl')
             if cmds.objExists(self.prefix + 'depressor_septi_nose_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "depressor_septi_nose_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "depressor_septi_nose_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('depressor_septi_nose_FK_ctrl')
                 cmds.setAttr(self.prefix + 'L_nose_ctrl.depressor_septi_follow', 1)
                 cmds.setAttr(self.prefix + 'R_nose_ctrl.depressor_septi_follow', 1)
         print("_nose_all_control_reset")
 
-    # @TODO
-    # Refactoring
     def _brow_all_control_reset(self):
         with UndoContext():
+            # left brow
             if cmds.objExists(self.prefix + 'L_brow_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_brow_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_brow_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-                """
-                cmds.setAttr(self.prefix + 'L_brow_ctrl.translateX', 0)
-                cmds.setAttr(self.prefix + 'L_brow_ctrl.translateY', 0)
-                cmds.setAttr(self.prefix + 'L_brow_ctrl.translateZ', 0)
-                cmds.setAttr(self.prefix + 'L_brow_ctrl.rotateX', 0)
-                cmds.setAttr(self.prefix + 'L_brow_ctrl.rotateY', 0)
-                cmds.setAttr(self.prefix + 'L_brow_ctrl.rotateZ', 0)
-                cmds.setAttr(self.prefix + 'L_brow_ctrl.scaleX', 1)
-                cmds.setAttr(self.prefix + 'L_brow_ctrl.scaleY', 1)
-                cmds.setAttr(self.prefix + 'L_brow_ctrl.scaleZ', 1)
-                """
+                self._reset_joint_transform('L_brow_ctrl')
                 cmds.setAttr(self.prefix + 'L_brow_ctrl.Brow_02_follow', 1)
                 if cmds.objExists(self.prefix + 'Center_brow_ctrl'):
                     cmds.setAttr(self.prefix + 'L_brow_ctrl.Center_Brow_follow', 1)
                 if cmds.objExists(self.prefix + 'L_medial_fibers_brow_ctrl'):
                     cmds.setAttr(self.prefix + 'L_brow_ctrl.medial_fibers_follow', 1)
             if cmds.objExists(self.prefix + 'L_brow_02_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_brow_02_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_brow_02_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_brow_02_ctrl')
                 cmds.setAttr(self.prefix + 'L_brow_02_ctrl.Brow_follow', 1)
                 if cmds.objExists(self.prefix + 'L_lateral_fibers_brow_ctrl'):
                     cmds.setAttr(self.prefix + 'L_brow_02_ctrl.lateral_fibers_follow', 1)
             if cmds.objExists(self.prefix + 'L_brow_03_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_brow_03_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_brow_03_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_brow_03_ctrl')
                 cmds.setAttr(self.prefix + 'L_brow_02_ctrl.Brow_03_follow', 1)
             if cmds.objExists(self.prefix + 'L_medial_fibers_brow_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_medial_fibers_brow_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_medial_fibers_brow_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_medial_fibers_brow_ctrl')
                 cmds.setAttr(self.prefix + 'L_medial_fibers_brow_ctrl.Brow_follow', 1)
                 if cmds.objExists(self.prefix + 'L_lateral_fibers_brow_ctrl'):
                     cmds.setAttr(self.prefix + 'L_medial_fibers_brow_ctrl.lateral_fibers_follow', 1)
                 if cmds.objExists(self.prefix + 'L_procerus_brow_FK_ctrl'):
                     cmds.setAttr(self.prefix + 'L_medial_fibers_brow_ctrl.procerus_follow', 1)
             if cmds.objExists(self.prefix + 'L_lateral_fibers_brow_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_lateral_fibers_brow_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_lateral_fibers_brow_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_lateral_fibers_brow_ctrl')
                 cmds.setAttr(self.prefix + 'L_lateral_fibers_brow_ctrl.Brow_follow', 1)
                 cmds.setAttr(self.prefix + 'L_lateral_fibers_brow_ctrl.Brow_02_follow', 1)
                 cmds.setAttr(self.prefix + 'L_lateral_fibers_brow_ctrl.Brow_03_follow', 1)
             if cmds.objExists(self.prefix + 'L_procerus_brow_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_procerus_brow_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_procerus_brow_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_procerus_brow_FK_ctrl')
+
+            # right brow
             if cmds.objExists(self.prefix + 'R_brow_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_brow_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_brow_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('R_brow_ctrl')
                 cmds.setAttr(self.prefix + 'R_brow_ctrl.Brow_02_follow', 1)
                 if cmds.objExists(self.prefix + 'Center_brow_ctrl'):
                     cmds.setAttr(self.prefix + 'R_brow_ctrl.Center_Brow_follow', 1)
                 if cmds.objExists(self.prefix + 'R_medial_fibers_brow_ctrl'):
                     cmds.setAttr(self.prefix + 'R_brow_ctrl.medial_fibers_follow', 1)
             if cmds.objExists(self.prefix + 'R_brow_02_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_brow_02_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_brow_02_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('R_brow_02_ctrl')
                 cmds.setAttr(self.prefix + 'R_brow_02_ctrl.Brow_follow', 1)
                 if cmds.objExists(self.prefix + 'R_lateral_fibers_brow_ctrl'):
                     cmds.setAttr(self.prefix + 'R_brow_02_ctrl.lateral_fibers_follow', 1)
             if cmds.objExists(self.prefix + 'R_brow_03_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_brow_03_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_brow_03_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('R_brow_03_ctrl')
                 cmds.setAttr(self.prefix + 'R_brow_02_ctrl.Brow_03_follow', 1)
             if cmds.objExists(self.prefix + 'R_medial_fibers_brow_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_medial_fibers_brow_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_medial_fibers_brow_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('R_medial_fibers_brow_ctrl')
                 cmds.setAttr(self.prefix + 'R_medial_fibers_brow_ctrl.Brow_follow', 1)
                 if cmds.objExists(self.prefix + 'R_lateral_fibers_brow_ctrl'):
                     cmds.setAttr(self.prefix + 'R_medial_fibers_brow_ctrl.lateral_fibers_follow', 1)
                 if cmds.objExists(self.prefix + 'R_procerus_brow_FK_ctrl'):
                     cmds.setAttr(self.prefix + 'R_medial_fibers_brow_ctrl.procerus_follow', 1)
             if cmds.objExists(self.prefix + 'R_lateral_fibers_brow_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_lateral_fibers_brow_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_lateral_fibers_brow_ctrl" + ".{}".format(attr)
+                self._reset_joint_transform('R_lateral_fibers_brow_ctrl')
                 cmds.setAttr(self.prefix + 'R_lateral_fibers_brow_ctrl.Brow_follow', 1)
                 cmds.setAttr(self.prefix + 'R_lateral_fibers_brow_ctrl.Brow_02_follow', 1)
                 cmds.setAttr(self.prefix + 'R_lateral_fibers_brow_ctrl.Brow_03_follow', 1)
             if cmds.objExists(self.prefix + 'R_procerus_brow_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_procerus_brow_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_procerus_brow_FK_ctrl" + ".{}".format(attr)
+                self._reset_joint_transform('R_procerus_brow_FK_ctrl')
+
+            # brow other
             if cmds.objExists(self.prefix + 'Center_brow_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Center_brow_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Center_brow_ctrl" + ".{}".format(attr)
+                self._reset_joint_transform('Center_brow_ctrl')
             if cmds.objExists(self.prefix + 'L_brow_master_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_brow_master_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_brow_master_ctrl" + ".{}".format(attr)
+                self._reset_joint_transform('L_brow_master_ctrl')
                 cmds.setAttr(self.prefix + 'L_brow_master_ctrl.Brow_02_follow', 1)
             if cmds.objExists(self.prefix + 'R_brow_master_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_brow_master_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_brow_master_ctrl" + ".{}".format(attr)
+                self._reset_joint_transform('R_brow_master_ctrl')
                 cmds.setAttr(self.prefix + 'R_brow_master_ctrl.Brow_02_follow', 1)
             if cmds.objExists(self.prefix + 'R_brow_master_ctrl') and cmds.objExists(self.prefix + 'L_brow_03_ctrl'):
                 cmds.setAttr(self.prefix + 'L_brow_master_ctrl.Brow_03_follow', 1)
                 cmds.setAttr(self.prefix + 'R_brow_master_ctrl.Brow_03_follow', 1)
         print("_brow_all_control_reset")
 
-    # @TODO
-    # Refactoring
     def _eye_all_control_reset(self):
         with UndoContext():
+            # left eye
             if cmds.objExists(self.prefix + 'L_eye_blink_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_eye_blink_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_eye_blink_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-                """
-                cmds.setAttr(self.prefix + 'L_eye_blink_ctrl.translateX', 0)
-                cmds.setAttr(self.prefix + 'L_eye_blink_ctrl.translateY', 0)
-                cmds.setAttr(self.prefix + 'L_eye_blink_ctrl.translateZ', 0)
-                cmds.setAttr(self.prefix + 'L_eye_blink_ctrl.rotateX', 0)
-                cmds.setAttr(self.prefix + 'L_eye_blink_ctrl.rotateY', 0)
-                cmds.setAttr(self.prefix + 'L_eye_blink_ctrl.rotateZ', 0)
-                cmds.setAttr(self.prefix + 'L_eye_blink_ctrl.scaleX', 1)
-                cmds.setAttr(self.prefix + 'L_eye_blink_ctrl.scaleY', 1)
-                cmds.setAttr(self.prefix + 'L_eye_blink_ctrl.scaleZ', 1)
-                """
+                self._reset_joint_transform('L_eye_blink_ctrl')
             if cmds.objExists(self.prefix + 'L_eye_lower_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_eye_lower_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_eye_lower_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_eye_lower_ctrl')
             if cmds.objExists(self.prefix + 'L_eye_lower_ctrl.lower_FK_follow'):
                 cmds.setAttr(self.prefix + 'L_eye_lower_ctrl.lower_FK_follow', 1)
             if cmds.objExists(self.prefix + 'L_eye_lower_ctrl.side_shrink_follow'):
                 cmds.setAttr(self.prefix + 'L_eye_lower_ctrl.side_shrink_follow', 1)
             if cmds.objExists(self.prefix + 'L_eye_lacrimal_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_eye_lacrimal_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_eye_lacrimal_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_eye_lacrimal_ctrl')
                 cmds.setAttr(self.prefix + 'L_eye_lacrimal_ctrl.Eye_Blink_follow', 1)
                 cmds.setAttr(self.prefix + 'L_eye_lacrimal_ctrl.Eye_Lower_follow', 1)
             if cmds.objExists(self.prefix + 'L_eye_lacrimal_upper_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_eye_lacrimal_upper_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_eye_lacrimal_upper_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_eye_lacrimal_upper_FK_ctrl')
             if cmds.objExists(self.prefix + 'L_eye_lacrimal_lower_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_eye_lacrimal_lower_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_eye_lacrimal_lower_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_eye_lacrimal_lower_FK_ctrl')
             if cmds.objExists(self.prefix + 'L_eye_back_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_eye_back_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_eye_back_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_eye_back_ctrl')
                 cmds.setAttr(self.prefix + 'L_eye_back_ctrl.Eye_Blink_follow', 1)
                 cmds.setAttr(self.prefix + 'L_eye_back_ctrl.Eye_Lower_follow', 1)
             if cmds.objExists(self.prefix + 'L_eye_back_upper_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_eye_back_upper_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_eye_back_upper_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_eye_back_upper_FK_ctrl')
             if cmds.objExists(self.prefix + 'L_eye_back_lower_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_eye_back_lower_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_eye_back_lower_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_eye_back_lower_FK_ctrl')
             if cmds.objExists(self.prefix + 'L_eye_double_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_eye_double_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_eye_double_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_eye_double_ctrl')
                 cmds.setAttr(self.prefix + 'L_eye_blink_ctrl.Up_Eye_Double_follow', 1)
                 cmds.setAttr(self.prefix + 'L_eye_blink_ctrl.Down_Eye_Double_follow', 1)
+
+            # right eye
             if cmds.objExists(self.prefix + 'R_eye_blink_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_eye_blink_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_eye_blink_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('R_eye_blink_ctrl')
             if cmds.objExists(self.prefix + 'R_eye_lower_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_eye_lower_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_eye_lower_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('R_eye_lower_ctrl')
             if cmds.objExists(self.prefix + 'R_eye_lower_ctrl.lower_FK_follow'):
                 cmds.setAttr(self.prefix + 'R_eye_lower_ctrl.lower_FK_follow', 1)
             if cmds.objExists(self.prefix + 'R_eye_lower_ctrl.side_shrink_follow'):
                 cmds.setAttr(self.prefix + 'R_eye_lower_ctrl.side_shrink_follow', 1)
             if cmds.objExists(self.prefix + 'R_eye_lacrimal_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_eye_lacrimal_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_eye_lacrimal_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('R_eye_lacrimal_ctrl')
                 cmds.setAttr(self.prefix + 'R_eye_lacrimal_ctrl.Eye_Blink_follow', 1)
                 cmds.setAttr(self.prefix + 'R_eye_lacrimal_ctrl.Eye_Lower_follow', 1)
             if cmds.objExists(self.prefix + 'R_eye_lacrimal_upper_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_eye_lacrimal_upper_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_eye_lacrimal_upper_FK_ctrl" + ".{}".format(attr)
+                self._reset_joint_transform('R_eye_lacrimal_upper_FK_ctrl')
             if cmds.objExists(self.prefix + 'R_eye_lacrimal_lower_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_eye_lacrimal_lower_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_eye_lacrimal_lower_FK_ctrl" + ".{}".format(attr)
+                self._reset_joint_transform('R_eye_lacrimal_lower_FK_ctrl')
             if cmds.objExists(self.prefix + 'R_eye_back_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_eye_back_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_eye_back_ctrl" + ".{}".format(attr)
+                self._reset_joint_transform('R_eye_back_ctrl')
                 cmds.setAttr(self.prefix + 'R_eye_back_ctrl.Eye_Blink_follow', 1)
                 cmds.setAttr(self.prefix + 'R_eye_back_ctrl.Eye_Lower_follow', 1)
             if cmds.objExists(self.prefix + 'R_eye_back_upper_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_eye_back_upper_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_eye_back_upper_FK_ctrl" + ".{}".format(attr)
+                self._reset_joint_transform('R_eye_back_upper_FK_ctrl')
             if cmds.objExists(self.prefix + 'R_eye_back_lower_FK_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_eye_back_lower_FK_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_eye_back_lower_FK_ctrl" + ".{}".format(attr)
+                self._reset_joint_transform('R_eye_back_lower_FK_ctrl')
             if cmds.objExists(self.prefix + 'R_eye_double_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_eye_double_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_eye_double_ctrl" + ".{}".format(attr)
+                self._reset_joint_transform('R_eye_double_ctrl')
                 cmds.setAttr(self.prefix + 'R_eye_blink_ctrl.Up_Eye_Double_follow', 1)
                 cmds.setAttr(self.prefix + 'R_eye_blink_ctrl.Down_Eye_Double_follow', 1)
         print("_eye_all_control_reset")
-
 
     def _eye_brow_connect_control_reset(self):
         with UndoContext():
@@ -4360,32 +3788,15 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
                 cmds.setAttr(self.prefix + 'R_brow_02_ctrl.Eye_Double_follow', 1)
         print("_eye_brow_connect_control_reset")
 
-
-    # @TODO
-    # Refactoring
     def _eye_target_all_control_reset(self):
         with UndoContext():
             if cmds.objExists(self.prefix + 'L_eye_target_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "L_eye_target_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "L_eye_target_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('L_eye_target_ctrl')
             if cmds.objExists(self.prefix + 'R_eye_target_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "R_eye_target_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "R_eye_target_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('R_eye_target_ctrl')
             if cmds.objExists(self.prefix + 'Eye_target_Master_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Eye_target_Master_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Eye_target_Master_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('Eye_target_Master_ctrl')
+
             if cmds.objExists(self.prefix + 'Eye_World_point_loc'):
                 for attr in self.K_TRANSLATION_ROTATION_ATTR:
                     attr_obj = "Eye_World_point_loc" + ".{}".format(attr)
@@ -4419,49 +3830,23 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
                 cmds.setAttr(self.prefix + 'R_eye_target_ctrl.Eyelid_side_follow', 1)
         print("_eye_target_eye_connect_control_reset")
 
-    # @TODO
-    # Refactoring
     def _oral_cavity_all_control_reset(self):
         with UndoContext():
-            if cmds.objExists(self.prefix + 'Lower_teeth_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Lower_teeth_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Lower_teeth_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-            if cmds.objExists(self.prefix + 'Upper_teeth_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Upper_teeth_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Upper_teeth_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+            if cmds.objExists(self.prefix + self.LOWER_TEETH_CONTROLLER_NAME):
+                self._reset_joint_transform(self.LOWER_TEETH_CONTROLLER_NAME)
+            if cmds.objExists(self.prefix + self.UPPER_TEETH_CONTROLLER_NAME):
+                self._reset_joint_transform(self.UPPER_TEETH_CONTROLLER_NAME)
             if cmds.objExists(self.prefix + 'Tongue_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Tongue_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Tongue_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('Tongue_ctrl')
             if cmds.objExists(self.prefix + 'Tongue_02_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Tongue_02_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Tongue_02_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
+                self._reset_joint_transform('Tongue_02_ctrl')
             if cmds.objExists(self.prefix + 'Tongue_03_ctrl'):
-                for attr in self.K_TRANSLATION_ROTATION_ATTR:
-                    attr_obj = "Tongue_03_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 0)
-                for attr in self.K_SCALE_ATTR:
-                    attr_obj = "Tongue_03_ctrl" + ".{}".format(attr)
-                    cmds.setAttr(self.prefix + attr_obj, 1)
-            if cmds.objExists(self.prefix + 'Jaw_Master_Ctrl') and cmds.objExists(self.prefix + 'Tongue_ctrl'):
-                cmds.setAttr(self.prefix + 'Jaw_Master_Ctrl.Tongue_follow', 1)
-            if cmds.objExists(self.prefix + 'Jaw_Master_Ctrl') and cmds.objExists(self.prefix + 'Lower_teeth_ctrl'):
-                cmds.setAttr(self.prefix + 'Jaw_Master_Ctrl.Lower_Teeth_follow', 1)
+                self._reset_joint_transform('Tongue_03_ctrl')
+
+            if cmds.objExists(self.prefix + self.JAW_MASTER_CONTROLLER_NAME) and cmds.objExists(self.prefix + 'Tongue_ctrl'):
+                cmds.setAttr(self.prefix + '{}.Tongue_follow'.format(self.JAW_MASTER_CONTROLLER_NAME), 1)
+            if cmds.objExists(self.prefix + self.JAW_MASTER_CONTROLLER_NAME) and cmds.objExists(self.prefix + self.LOWER_TEETH_CONTROLLER_NAME):
+                cmds.setAttr(self.prefix + '{}.Lower_Teeth_follow'.format(self.JAW_MASTER_CONTROLLER_NAME), 1)
         print("_oral_cavity_all_control_reset")
 
 if __name__ == '__main__':

@@ -5347,6 +5347,8 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.ui.LipTopolDownBtn.setStyleSheet(None)
         return
 
+    # @TODO
+    # jaw command refactoring
     def jaw_first_popup_command(self, *args):
         if self.jaw_vertex == '':
             QtWidgets.QMessageBox.warning(None, 'Warning', 'self.jaw_vertex is not define!')

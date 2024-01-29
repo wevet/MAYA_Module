@@ -28,9 +28,9 @@ def read_disp_png(disp_file):
 def write_disp_png(disp, fpath):
     d = d.astype('float64')
     I = d * 256
-    I[np.where(d == 0)] = 1
-    I[np.where(I < 0)] = 0
-    I[np.where(I > 65535)] = 0
+    I[prefix.where(d == 0)] = 1
+    I[prefix.where(I < 0)] = 0
+    I[prefix.where(I > 65535)] = 0
     I = I.astype('uint16')
     W = png.Writer(width=disp.shape[1], height=disp.shape[0], bitdepth=16, planes=1)
 

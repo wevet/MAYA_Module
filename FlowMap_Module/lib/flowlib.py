@@ -203,9 +203,9 @@ def flow_error(tu, tv, u, v):
     angle = un * tun + vn * tvn + (an * tn)
     index = [angle == 1.0]
     angle[index] = 0.999
-    ang = np.arccos(angle)
-    mang = np.mean(ang)
-    mang = mang * 180 / np.pi
+    ang = prefix.arccos(angle)
+    mang = prefix.mean(ang)
+    mang = mang * 180 / prefix.pi
     '''
     epe = np.sqrt((stu - su) ** 2 + (stv - sv) ** 2)
     epe = epe[tuple(ind2)]

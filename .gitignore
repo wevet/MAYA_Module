@@ -7,4 +7,6 @@ Reference/__pycache__/
 Maya_Modules/Animation/json/Projects/
 Maya_Modules/Misc/Batch_Exporter/Test/
 
+*.pyc
+
 

@@ -1027,7 +1027,6 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         local_start_frame = int(self._get_min_flip_frame())
         local_end_frame = int(self._get_max_flip_frame())
         local_end_frame += 1
-        #cmds.select(ctrl_list)
 
         for frame in range(local_start_frame, local_end_frame):
             current_frame = float(frame)

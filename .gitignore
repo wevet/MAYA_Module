@@ -1,5 +1,7 @@
 # ignore PyCharm Directory
 .idea/
+*/.idea/
+*/.vs/
 venv/
 __pycache__/
 Modules/FaceRigger/__pycache__/
@@ -7,6 +9,6 @@ Reference/__pycache__/
 Maya_Modules/Animation/json/Projects/
 Maya_Modules/Misc/Batch_Exporter/Test/
 
-#*.pyc
+*.pyc
 
 

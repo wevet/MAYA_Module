@@ -45,8 +45,7 @@ def maya_main_window():
 class RetargetingTool(QtWidgets.QDialog):
 
     WINDOW_TITLE = "Animation Retarget"
-    PROJECT_PATH = "json/Retarget_Rig"
-    JSON_PREFIX = '.json'
+    RIG_FILE_NAME = "json/Retarget_Rig.json"
     IMPORT_NS = "RTG"
     MODULE_VERSION = "1.0.5"
 
@@ -168,7 +167,6 @@ class RetargetingTool(QtWidgets.QDialog):
         self.mirror_button = QtWidgets.QPushButton("Mirror Animation")
         self.mirror_button.setStyleSheet(self.default_style)
 
-
     def _create_ui_layout(self):
         horizontal_layout_checkbox = QtWidgets.QHBoxLayout()
         horizontal_layout_checkbox.addWidget(self.pos_checkbox)
@@ -177,7 +175,7 @@ class RetargetingTool(QtWidgets.QDialog):
         horizontal_layout_checkbox.addStretch()
 
         dir_name = os.path.dirname(__file__)
-        file_name = os.path.join(dir_name, 'json/Preset.json')
+        file_name = os.path.join(dir_name, self.RIG_FILE_NAME)
         with open(file_name) as f:
             data = json.load(f)
             for name in data['name']:
@@ -326,13 +324,6 @@ class RetargetingTool(QtWidgets.QDialog):
         self._apply_target_model_name("22")
         pass
 
-    def _does_translation_lock(self, joint):
-        for attr in self.SOURCE_TRANSLATION_LOCK_ATTRIBUTE:
-            lock_check = cmds.getAttr(joint + "." + attr, lock=True)
-            if lock_check is False:
-                return False
-        return True
-
     def _change_toggle_fk_ik(self):
         """
         Description: ik、fk jointsを検索しFKIKBlendを書き換える
@@ -408,6 +399,8 @@ class RetargetingTool(QtWidgets.QDialog):
         self.clear_list()
 
     def _get_target_group_root(self):
+        if self.target_model_text_name == "36":
+            return "AllRig_GRP"
         return "Group"
 
     def _handle_import(self):
@@ -585,7 +578,7 @@ class RetargetingTool(QtWidgets.QDialog):
 
     def _get_project_json_data(self, path_name):
         dir_name = os.path.dirname(__file__)
-        file_name = os.path.join(dir_name, self.PROJECT_PATH + self.JSON_PREFIX)
+        file_name = os.path.join(dir_name, self.RIG_FILE_NAME)
         with open(file_name) as f:
             data = json.load(f)
             return data[path_name]
@@ -620,22 +613,30 @@ class RetargetingTool(QtWidgets.QDialog):
                 if joint_name == value:
                     source_dict[key] = source
 
-        retarget_dict = {}
+        target_dict = {}
         for key, value in source_dict.items():
-            # jsonにjoint名とctrl名が両方ある
+            # json has both joint and ctrl names
             if key in source_joints and key in target_curves:
                 target = self._find_curve_object(target_curves[key])
                 if target is not None:
-                    retarget_dict[value] = target
+                    target_dict[value] = target
                 else:
                     print("target is None => {0}".format(target_curves[key]))
             else:
                 print("json data doesn't have this key => {0}".format(key))
 
-        for key, value in retarget_dict.items():
-            print("retarget_dict => {0} : {1}".format(key, value))
-        return retarget_dict
+        for key, value in target_dict.items():
+            print("target_dict => {0} : {1}".format(key, value))
+        return target_dict
 
+    def _find_curve_object(self, curve_name):
+        real_joint_name = self.target_reference_prefix + curve_name
+        for source in self.target_joints:
+            if source == real_joint_name:
+                return source
+        return None
+
+    # @TODO
     # retarget automation
     def automation_create_connection_node(self):
         self._find_source_joints()
@@ -646,12 +647,23 @@ class RetargetingTool(QtWidgets.QDialog):
         retarget_dict = self._get_bone_mapping_dict()
         self._automation_create_connection_node(retarget_dict)
 
-    def _find_curve_object(self, curve_name):
-        real_joint_name = self.target_reference_prefix + curve_name
-        for source in self.target_joints:
-            if source == real_joint_name:
-                return source
-        return None
+    def create_connection_node(self):
+        try:
+            selected_joint = cmds.ls(sl=True)[0]
+            selected_ctrl = cmds.ls(sl=True)[1]
+            self._create_connection_node(selected_joint, selected_ctrl)
+        except:
+            cmds.warning("create_connection_node No selections!")
+            cmds.confirmDialog(title='Warning', message='create_connection_node No selections!', button=['Ok'], defaultButton='Ok')
+
+    def create_ik_connection_node(self):
+        try:
+            selected_joint = cmds.ls(selection=True)[0]
+            selected_ctrl = cmds.ls(selection=True)[1]
+            self._create_ik_connection_node(selected_joint, selected_ctrl)
+        except:
+            cmds.warning("create_ik_connection_node No selections!")
+            cmds.confirmDialog(title='Warning', message='create_ik_connection_node No selections!', button=['Ok'], defaultButton='Ok')
 
     def _automation_create_connection_node(self, joint_dict):
         # key => joint_name
@@ -671,24 +683,6 @@ class RetargetingTool(QtWidgets.QDialog):
                     pass
             except:
                 pass
-
-    def create_connection_node(self):
-        try:
-            selected_joint = cmds.ls(sl=True)[0]
-            selected_ctrl = cmds.ls(sl=True)[1]
-            self._create_connection_node(selected_joint, selected_ctrl)
-        except:
-            cmds.warning("create_connection_node No selections!")
-            cmds.confirmDialog(title='Warning', message='create_connection_node No selections!', button=['Ok'], defaultButton='Ok')
-
-    def create_ik_connection_node(self):
-        try:
-            selected_joint = cmds.ls(selection=True)[0]
-            selected_ctrl = cmds.ls(selection=True)[1]
-            self._create_ik_connection_node(selected_joint, selected_ctrl)
-        except:
-            cmds.warning("create_ik_connection_node No selections!")
-            cmds.confirmDialog(title='Warning', message='create_ik_connection_node No selections!', button=['Ok'], defaultButton='Ok')
 
     def _create_connection_node(self, selected_joint, selected_ctrl):
         print("source => {0}, target => {1}".format(selected_joint, selected_ctrl))

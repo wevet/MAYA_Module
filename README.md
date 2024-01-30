@@ -12,7 +12,7 @@ Use the install.mel by drad&drop.
 ### Animation Exporter Batch
 Maya_Modules/Misc/Batch_Exporter
 
-### FiceRig Setup Tool
+### FaceRig Setup Tool
 Maya_Modules/Modules/FaceRigger\
 Use the install.mel by drad&drop.
 

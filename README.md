@@ -1,9 +1,22 @@
 # MAYA_Module
-MAYA Sample Sources
-using IDE PyCharm
+MAYA Modules
 
+### Animation Retarget Module
+Maya_Modules/Animation\
+Use the install.mel by drad&drop.
 
-## noise_deformer.py
+### Animation Mirror Module
+Maya_Modules/Animation/Mirror\
+Use the install.mel by drad&drop.
+
+### Animation Exporter Batch
+Maya_Modules/Misc/Batch_Exporter
+
+### FiceRig Setup Tool
+Maya_Modules/Modules/FaceRigger\
+Use the install.mel by drad&drop.
+
+### noise_deformer.py
 ![deformer](Demo/NoiseDeformer.png)
 ```python
 
@@ -17,8 +30,7 @@ cmds.deformer(type=deformer_name)
 
 ```
 
-
-## auto_rig.py
+### auto_rig.py
 ![auto_rig](Demo/Rigging_Tool.png)
 ```python
 

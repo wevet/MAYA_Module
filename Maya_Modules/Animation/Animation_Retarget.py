@@ -45,7 +45,7 @@ def maya_main_window():
 class RetargetingTool(QtWidgets.QDialog):
 
     WINDOW_TITLE = "Animation Retarget"
-    PROJECT_PATH = "json/Projects/"
+    PROJECT_PATH = "json/Retarget_Rig"
     JSON_PREFIX = '.json'
     IMPORT_NS = "RTG"
     MODULE_VERSION = "1.0.5"
@@ -177,7 +177,7 @@ class RetargetingTool(QtWidgets.QDialog):
         horizontal_layout_checkbox.addStretch()
 
         dir_name = os.path.dirname(__file__)
-        file_name = os.path.join(dir_name, 'json/Project.json')
+        file_name = os.path.join(dir_name, 'json/Preset.json')
         with open(file_name) as f:
             data = json.load(f)
             for name in data['name']:
@@ -322,8 +322,8 @@ class RetargetingTool(QtWidgets.QDialog):
                 pass
 
     def _init_parameters(self):
-        self._apply_source_model_name("X21")
-        self._apply_target_model_name("X22")
+        self._apply_source_model_name("21")
+        self._apply_target_model_name("22")
         pass
 
     def _does_translation_lock(self, joint):
@@ -333,8 +333,6 @@ class RetargetingTool(QtWidgets.QDialog):
                 return False
         return True
 
-    # @TODO
-    # wip fk ik位置合わせ
     def _change_toggle_fk_ik(self):
         """
         Description: ik、fk jointsを検索しFKIKBlendを書き換える
@@ -410,11 +408,7 @@ class RetargetingTool(QtWidgets.QDialog):
         self.clear_list()
 
     def _get_target_group_root(self):
-        if self.target_model_text_name == "YY36":
-            return "AllRig_GRP"
-        elif self.target_model_text_name == "X21" or self.target_model_text_name == "X22":
-            return "Group"
-        return None
+        return "Group"
 
     def _handle_import(self):
         self._fbx_import_to_namespace(ns=self.IMPORT_NS)
@@ -454,7 +448,6 @@ class RetargetingTool(QtWidgets.QDialog):
                     finger_joints.append(joint)
         return finger_joints
 
-    # @TODO
     # Bake後にFinger jointのkeyframeを削除する
     # Bake後にRoot、IKLeg PoleVector以外のkeyframeを削除する
     def _remove_target_keyframe(self):
@@ -469,7 +462,6 @@ class RetargetingTool(QtWidgets.QDialog):
                 cmds.cutKey(joint, time=(start, end), clear=True, option='keys', attribute=attr)
                 cmds.setAttr(joint + "." + attr, 0)
             print("cut keyframe finger joint => {}".format(joint))
-
 
     def _remove_body_translation_keyframe(self):
         finger_joints = self._get_finger_joints()
@@ -486,7 +478,6 @@ class RetargetingTool(QtWidgets.QDialog):
                 continue
             body_joints.append(transform)
             """
-            # keyframeがあるかどうか?
             all_keys = sorted(cmds.keyframe(transform, q=True) or [])
             if all_keys:
                 body_joints.append(transform)
@@ -501,7 +492,7 @@ class RetargetingTool(QtWidgets.QDialog):
         body_joints.extend(finger_joints)
         cmds.select(body_joints)
 
-    # pose初期化
+    # pose initialize
     def _reset_pose_function(self):
         if len(self.target_joints) <= 0:
             self._find_target_curves()
@@ -515,7 +506,7 @@ class RetargetingTool(QtWidgets.QDialog):
                 else:
                     print("can't modify lock attribute => {0}".format(source + "." + attr))
 
-    # source元のjointを取得
+    # get source joints
     def _find_source_joints(self):
         self.source_joints = []
         self.source_reference_prefix = None
@@ -529,8 +520,8 @@ class RetargetingTool(QtWidgets.QDialog):
                     cmds.setAttr(joint, lock=0)
 
             # @MEMO
-            # 文字列を一文字ずる書き出しprefixを調べる
-            # 例　RTG:NC003_Rig_Final:root => RTG:NC003_Rig_Final:
+            # Write out a string as a single character and check the prefix
+            # Example RTG:NC003_Rig_Final:root => RTG:NC003_Rig_Final:
             if self.source_reference_prefix is None:
                 names = joint.split(":")
                 length = len(names) - 1
@@ -540,7 +531,7 @@ class RetargetingTool(QtWidgets.QDialog):
                 self.source_reference_prefix = name
                 print("source_reference_prefix => {0}".format(self.source_reference_prefix))
 
-            # json dataを基にmappingを行う
+            # Mapping based on json data
             source_joint_data = self._get_project_json_data(self.source_model_text_name)
             source_joints = source_joint_data['joint']
             for key, value in source_joints.items():
@@ -549,7 +540,7 @@ class RetargetingTool(QtWidgets.QDialog):
                     self.source_joints.append(joint)
                     print("added joint => {0}".format(joint))
 
-    # target元のcontrollerを取得しmappingする
+    # Get the controller of the target source and map it.
     def _find_target_curves(self):
         self.target_joints = []
         self.target_reference_prefix = None
@@ -559,9 +550,8 @@ class RetargetingTool(QtWidgets.QDialog):
         curves = cmds.ls(selection=True, dag=True, type="transform")
         for curve in curves:
             if cmds.nodeType(curve) == "transform" :
-                # @MEMO
-                # 文字列を一文字ずる書き出しprefixを調べる
-                # 例　XXX_P001_Rig_20220905:Group => XXX_P001_Rig_20220905
+                # Write out the string one character at a time and check the prefix.
+                # Example XXX_P001_Rig_20220905:Group => XXX_P001_Rig_20220905
                 if self.target_reference_prefix is None:
                     names = curve.split(":")
                     length = len(names) - 1
@@ -595,9 +585,10 @@ class RetargetingTool(QtWidgets.QDialog):
 
     def _get_project_json_data(self, path_name):
         dir_name = os.path.dirname(__file__)
-        file_name = os.path.join(dir_name, self.PROJECT_PATH + path_name + self.JSON_PREFIX)
+        file_name = os.path.join(dir_name, self.PROJECT_PATH + self.JSON_PREFIX)
         with open(file_name) as f:
-            return json.load(f)
+            data = json.load(f)
+            return data[path_name]
 
     # Calculate BoneMapping load json file
     def _get_bone_mapping_dict(self):
@@ -645,7 +636,7 @@ class RetargetingTool(QtWidgets.QDialog):
             print("retarget_dict => {0} : {1}".format(key, value))
         return retarget_dict
 
-    # retarget自動化
+    # retarget automation
     def automation_create_connection_node(self):
         self._find_source_joints()
         self._find_target_curves()
@@ -717,7 +708,6 @@ class RetargetingTool(QtWidgets.QDialog):
             locator = self._create_control_sphere(selected_ctrl + suffix)
             cmds.addAttr(locator, longName="ConnectNode", attributeType="message")
 
-            # attributeがあった場合は削除
             if cmds.attributeQuery("ConnectedCtrl", node=selected_ctrl, exists=True):
                 cmds.deleteAttr("ConnectedCtrl", node=selected_ctrl)
                 print("Delete ConnectedCtrl since it already exists.")
@@ -731,7 +721,7 @@ class RetargetingTool(QtWidgets.QDialog):
             cmds.xform(locator, rotation=(0, 0, 0))
             cmds.xform(locator, translation=(0, 0, 0))
 
-            # uiのチェックボックスに基づいて制約のタイプを選択する
+            # Select constraint type based on ui checkboxes
             if self.rot_checkbox.isChecked() is True and self.pos_checkbox.isChecked() is True:
                 cmds.parentConstraint(locator, selected_ctrl, maintainOffset=True)
             elif self.rot_checkbox.isChecked() is True and self.pos_checkbox.isChecked() is False:
@@ -761,7 +751,7 @@ class RetargetingTool(QtWidgets.QDialog):
             cmds.xform(tran_locator, rotation=(0, 0, 0))
             cmds.xform(tran_locator, translation=(0, 0, 0))
             rot_locator = self._create_control_locator(selected_ctrl + "_ROT")
-            # メッセージ属性を追加し、それらを接続する
+            # Add message attributes and connect them
             cmds.addAttr(tran_locator, longName="ConnectNode", attributeType="message")
             cmds.addAttr(rot_locator, longName="ConnectNode", attributeType="message")
             cmds.addAttr(selected_ctrl, longName="ConnectedCtrl", attributeType="message")

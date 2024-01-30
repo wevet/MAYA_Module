@@ -3,6 +3,7 @@
 */.idea/
 */.vs/
 venv/
+#*/venv/
 __pycache__/
 Modules/FaceRigger/__pycache__/
 Reference/__pycache__/

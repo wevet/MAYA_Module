@@ -10,7 +10,7 @@ Usage:
 
 2. Select what direction you wish to mirror in the "direction" dropdown menu.
 
-By default it works with
+By default, it works with
 -upper case L and R
 -lower case l and r
 -Lf and Rt
@@ -52,6 +52,20 @@ def maya_main_menu():
         return wrapInstance(int(main_window), QtWidgets.QDialog)
     else:
         return wrapInstance(long(main_window), QtWidgets.QDialog) # type: ignore
+
+
+def preserve_selection(func):
+    def wrapper(*args, **kwargs):
+        print("-------------open chunk-------------")
+        cmds.undoInfo(openChunk=True)
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            raise
+        finally:
+            cmds.undoInfo(closeChunk=True)
+            print("-------------close chunk-------------")
+    return wrapper
 
 
 class Animation_Mirror_Window(QtWidgets.QDialog):
@@ -110,6 +124,9 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         # edit text
         self.left_ctrl_name_line_edit = None
         self.right_ctrl_name_line_edit = None
+
+        # undo data
+        self.undo_data = {}
 
         self.setStyleSheet('background-color:#262f38;')
 
@@ -256,7 +273,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
 
     def _create_connections(self):
         self.operation_combo_box.currentTextChanged.connect(self._operation_change)
-        self.mirror_button.clicked.connect(self._mirror_control)
+        self.mirror_button.clicked.connect(self._apply_mirror_control)
         self.undo_button.clicked.connect(self._undo_control)
 
     def _operation_change(self):
@@ -582,7 +599,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         # Creating the name of the ctrl
         ctrl_name = ""
         for i, letter in enumerate(name):
-            # If the index and i is the same
+            # If the index and I is the same
             # then that is where the side should be
             if i == index:
                 ctrl_name += side
@@ -592,11 +609,6 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             if len(name) == index and i + 1 == index:
                 ctrl_name += side
         return ctrl_name
-
-    def _undo_control(self):
-        print("_undo_control")
-        cmds.undo()
-        pass
 
     def _calc_side_controller(self):
         left_naming = self._get_left_name()
@@ -732,6 +744,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         return_dict["pair"] = pair_dict
         return return_dict
 
+
     # side controller mirror
     # arm l or r
     # leg l or r
@@ -747,10 +760,8 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         """
         # controller bake keyframe
         current_time = self._get_current_time()
-
         opp_ctrl = None
         for ctrl in ctrl_list:
-
             # Getting pair number
             pair_number = pair_dict["controls"][ctrl]
             for pair_ctrl in pair_dict["pairNumber"][pair_number]:
@@ -766,7 +777,6 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             opp_z_axis = vector_data[opp_ctrl]["z_axis"]
 
             for attr in data[ctrl].keys():
-
                 if attr not in self.SOURCE_TRANSFORM_ATTRIBUTE:
                     continue
 
@@ -781,7 +791,6 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                 # 軸がmirrorの軸に最も近いかを探す
                 mirror_attr = self._get_mirror_axis_dominent_vector(mirror_axis, x_dominating, y_dominating, z_dominating)
                 attr_obj = "{}.{}".format(opp_ctrl, attr)
-                #print("has attr_obj => {}".format(attr_obj))
 
                 if attr.__contains__("scale"):
                     cmds.setAttr(attr_obj, value)
@@ -967,12 +976,12 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                         if self.is_write_keyframe is True:
                             cmds.setKeyframe(attr_obj, v=-value, t=current_time)
 
-
     # flipping controller
     def _flip_frame(self, left_ctrl_list, right_ctrl_list, middle_ctrl_list, data, pair_dict, mirror_axis, vector_data):
         self._mirror_side_ctrl(ctrl_list=left_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
         self._mirror_side_ctrl(ctrl_list=right_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
         self._mirror_center_ctrl(middle_ctrl_list, data, mirror_axis, vector_data)
+
 
     # apply batch run
     def mirror_control(self, index):
@@ -988,9 +997,52 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
 
         self.is_batch_running = True
         self.batch_running_text = find_text
-        self._mirror_control()
+        self._apply_mirror_control()
 
-    #@TODO
+    @preserve_selection
+    def _apply_mirror_control(self):
+        self._mirror_control()
+        pass
+
+    # @TODO
+    # undo bug fixed
+    def _undo_control(self):
+        #cmds.undo()
+
+
+        side_con = self._calc_side_controller()
+        self.is_write_keyframe = self.write_keyframe_checkbox.isChecked()
+        controls = self._get_controllers(side_con)
+        ctrl_list = controls["all"]
+
+        if not ctrl_list:
+            om.MGlobal.displayError("Couldn't find nurbsCurve or nurbsSurface in scene.")
+            return
+
+        operation = self.undo_data['operation']
+        if operation is None:
+            return
+
+        local_start_frame = int(self.undo_data['start_frame'])
+        local_end_frame = int(self.undo_data['end_frame'])
+
+        for frame in range(local_start_frame, local_end_frame):
+            current_frame = float(frame)
+            print("undo calc keyframe parameters => {0}".format(current_frame))
+            self._set_time(current_frame)
+
+            # dict
+            for animation in self.undo_data['animation']:
+                value = animation[0]
+                if value == frame:
+                    print('match frame index => {}'.format(value))
+                    instance = animation[1]
+                    instance.undo_pose_transform(current_frame)
+
+        # finish
+        self._set_time(float(local_start_frame))
+        pass
+
     # Processing itself is heavy, so lightweight is necessary.
     def _mirror_control(self):
 
@@ -1014,19 +1066,21 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             om.MGlobal.displayWarning("Couldn't find side anim_curves. ")
             return
 
-        cmds.undoInfo(openChunk=True)
-
         operation = self._get_operation()
         if self.is_batch_running is True:
             operation = self.batch_running_text
             print("batch operation type => {}".format(operation))
 
         mirror_axis = self._get_mirror_axis()
-
         # create start-end range
         local_start_frame = int(self._get_min_flip_frame())
         local_end_frame = int(self._get_max_flip_frame())
         local_end_frame += 1
+
+        self.undo_data['start_frame'] = local_start_frame
+        self.undo_data['end_frame'] = local_end_frame
+        self.undo_data['operation'] = operation
+        animation = {}
 
         for frame in range(local_start_frame, local_end_frame):
             current_frame = float(frame)
@@ -1034,6 +1088,10 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             self._set_time(current_frame)
             vector_data = self._get_vector_data(ctrl_list)
             data = self._get_attribute_data(ctrl_list)
+
+            instance = UndoAnimationData()
+            instance.cache_pose_transform(controller=ctrl_list, data=data)
+            animation[frame] = instance
 
             if operation == OperationType.left_to_right:
                 self._mirror_side_ctrl(ctrl_list=left_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
@@ -1088,12 +1146,14 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         # finish
         self._set_time(float(local_start_frame))
 
+        dic2 = sorted(animation.items(), key=lambda x:x[0])
+        self.undo_data['animation'] = dic2
+
         if self.is_bake_animation is True:
             cmds.refresh(suspend=True)
             cmds.bakeResults(ctrl_list, t=(local_start_frame, local_end_frame), sb=1, at=self.SOURCE_TRANSFORM_ATTRIBUTE, hi="none")
             cmds.refresh(suspend=False)
 
-        cmds.undoInfo(closeChunk=True)
 
     def showEvent(self, event):
         super(Animation_Mirror_Window, self).showEvent(event)
@@ -1139,7 +1199,6 @@ def run(file_path, index):
     cmds.file(file_path, o=True, force=True)
 
     duplicate_file()
-
     mirror_control = Animation_Mirror_Window()
     mirror_control.mirror_control(index)
 
@@ -1147,4 +1206,24 @@ def run(file_path, index):
     if not cmds.about(batch=1):
         cmds.evalDeferred('from maya import cmds;cmds.quit(f=1)')
 
+class UndoAnimationData:
+    def __init__(self):
+        self.controller_dict = {}
+
+    def cache_pose_transform(self, controller, data):
+        for control in controller:
+            for local_attr in data[control].keys():
+                attr_obj = "{0}.{1}".format(control, local_attr)
+                value = cmds.getAttr(attr_obj)
+                self.controller_dict["{}".format(attr_obj)] = value
+        pass
+
+    def undo_pose_transform(self, time):
+        for pair in self.controller_dict.items():
+            attr_obj = pair[0]
+            value = pair[1]
+            cmds.setAttr(attr_obj, value)
+            cmds.setKeyframe(attr_obj, v=value, t=time)
+            #print("undo_pose_transform => {}".format(attr_obj))
+        pass
 

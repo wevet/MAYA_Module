@@ -74,7 +74,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
 
     WINDOW_TITLE = "Mirror Animation Window"
     SOURCE_TRANSFORM_ATTRIBUTE = ["translateX", "translateY", "translateZ", "rotateX", "rotateY", "rotateZ", "scaleX", "scaleY", "scaleZ"]
-    MODULE_VERSION = "1.0.2"
+    MODULE_VERSION = "1.0.3"
 
     @classmethod
     def show_dialog(cls):
@@ -231,8 +231,8 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         self.mirror_button = QtWidgets.QPushButton("Mirror")
         self.mirror_button.setToolTip("Running Animation Mirror")
         self.mirror_button.setStyleSheet("background-color: #34d8ed; color: black")
-        self.undo_button = QtWidgets.QPushButton("Undo")
-        self.undo_button.setToolTip("Undo Animation Mirror")
+        self.undo_button = QtWidgets.QPushButton("Reset")
+        self.undo_button.setToolTip("Cancel the previous Mirror")
         self.undo_button.setStyleSheet("background-color: #34d8ed; color: black")
 
     def _create_layout(self):
@@ -1175,6 +1175,7 @@ def show_main_window():
     mirror_control = Animation_Mirror_Window()
     mirror_control.show()
 
+
 # ma fileを複製する
 # prefix _Mirror
 def duplicate_file():
@@ -1206,10 +1207,12 @@ def run(file_path, index):
     if not cmds.about(batch=1):
         cmds.evalDeferred('from maya import cmds;cmds.quit(f=1)')
 
+
 class UndoAnimationData:
     def __init__(self):
         self.controller_dict = {}
 
+    # caches one frame all controller transforms
     def cache_pose_transform(self, controller, data):
         for control in controller:
             for local_attr in data[control].keys():

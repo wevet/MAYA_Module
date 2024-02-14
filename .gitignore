@@ -1,7 +1,7 @@
 # ignore PyCharm Directory
-.idea/
-.vs/
-venv/
+/.idea/
+/.vs/
+/venv/
 */.idea/
 */.vs/
 */venv/

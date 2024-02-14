@@ -109,6 +109,9 @@ class RetargetingTool(QtWidgets.QDialog):
         self.body_keyframe_remove_button = None
         #end
 
+        # snap joint
+        self.snap_joint_names = []
+
         self.default_style = "background-color: #34d8ed; color: black"
         self.warning_style = "background-color: #ed4a34; color: white"
         file_path = cmds.file(q=True, sn=True)
@@ -517,7 +520,7 @@ class RetargetingTool(QtWidgets.QDialog):
             if self.source_reference_prefix is None:
                 names = joint.split(":")
                 length = len(names) - 1
-                name= ""
+                name = ""
                 for idx in range(length):
                     name += names[idx] + ":"
                 self.source_reference_prefix = name
@@ -530,7 +533,6 @@ class RetargetingTool(QtWidgets.QDialog):
                 real_joint_name = self.source_reference_prefix + value
                 if real_joint_name == joint:
                     self.source_joints.append(joint)
-                    print("added joint => {0}".format(joint))
 
     # Get the controller of the target source and map it.
     def _find_target_curves(self):
@@ -541,7 +543,7 @@ class RetargetingTool(QtWidgets.QDialog):
             cmds.select("*:" + root_object)
         curves = cmds.ls(selection=True, dag=True, type="transform")
         for curve in curves:
-            if cmds.nodeType(curve) == "transform" :
+            if cmds.nodeType(curve) == "transform":
                 # Write out the string one character at a time and check the prefix.
                 # Example XXX_P001_Rig_20220905:Group => XXX_P001_Rig_20220905
                 if self.target_reference_prefix is None:
@@ -561,17 +563,18 @@ class RetargetingTool(QtWidgets.QDialog):
                         #print("added curve => {0}".format(curve))
         #print("found object count => {0}".format(len(self.target_joints)))
 
-    def _get_animated_attributes(self, node):
+    @staticmethod
+    def _get_animated_attributes(node):
         key_attributes = cmds.listAttr(node, keyable=True)
         animated_attributes = []
         if not key_attributes:
             return animated_attributes
         for attr in key_attributes:
-            isTL = cmds.listConnections('%s.%s' % (node, attr), type='animCurveTL')
-            isTA = cmds.listConnections('%s.%s' % (node, attr), type='animCurveTA')
-            isTU = cmds.listConnections('%s.%s' % (node, attr), type='animCurveTU')
-            isTT = cmds.listConnections('%s.%s' % (node, attr), type='animCurveTT')
-            if isTL is not None or isTA is not None or isTU is not None or isTT is not None:
+            is_tl = cmds.listConnections('%s.%s' % (node, attr), type='animCurveTL')
+            is_ta = cmds.listConnections('%s.%s' % (node, attr), type='animCurveTA')
+            is_tu = cmds.listConnections('%s.%s' % (node, attr), type='animCurveTU')
+            is_tt = cmds.listConnections('%s.%s' % (node, attr), type='animCurveTT')
+            if is_tl is not None or is_ta is not None or is_tu is not None or is_tt is not None:
                 animated_attributes.append(attr)
         return animated_attributes
 
@@ -585,7 +588,8 @@ class RetargetingTool(QtWidgets.QDialog):
     # Calculate BoneMapping load json file
     def _get_bone_mapping_dict(self):
         if len(self.source_joints) <= 0 or len(self.target_joints) <= 0:
-            cmds.confirmDialog(title='Failed', message='source joints is empty or target joints is empty !', button=['Ok'], defaultButton='Ok')
+            cmds.confirmDialog(title='Failed', message='source joints is empty or target joints is empty !',
+                               button=['Ok'], defaultButton='Ok')
             return
 
         source_joint_data = self._get_project_json_data(self.source_model_text_name)
@@ -594,6 +598,10 @@ class RetargetingTool(QtWidgets.QDialog):
         target_joints = target_joint_data['joint']
         source_curves = source_joint_data['ctrl']
         target_curves = target_joint_data['ctrl']
+        snap_controller_names = self._get_project_json_data('snap_controller_names')
+
+        for controller_name in snap_controller_names:
+            self.snap_joint_names.append(self.target_reference_prefix + controller_name)
 
         # Retarget先のjsonファイルを読み込み、Bone Mappingを行う。
         # 1. source元のmappingを作成
@@ -619,13 +627,13 @@ class RetargetingTool(QtWidgets.QDialog):
                 target = self._find_curve_object(target_curves[key])
                 if target is not None:
                     target_dict[value] = target
-                else:
-                    print("target is None => {0}".format(target_curves[key]))
             else:
                 print("json data doesn't have this key => {0}".format(key))
 
+        print("_get_bone_mapping_dict -----------start--------------")
         for key, value in target_dict.items():
-            print("target_dict => {0} : {1}".format(key, value))
+            print("key => {0}, value => {1}".format(key, value))
+        print("_get_bone_mapping_dict -----------end--------------")
         return target_dict
 
     def _find_curve_object(self, curve_name):
@@ -665,16 +673,9 @@ class RetargetingTool(QtWidgets.QDialog):
             cmds.confirmDialog(title='Warning', message='create_ik_connection_node No selections!', button=['Ok'], defaultButton='Ok')
 
     def _automation_create_connection_node(self, joint_dict):
-        # key => joint_name
-        # value => controller_name
         for key, value in joint_dict.items():
             try:
-                has_fk = value.find("FK") > -1
                 has_ik = value.find("IK") > -1
-                """
-                if has_fk:
-                    self._create_connection_node(key, value)
-                """
                 if has_ik:
                     self._create_ik_connection_node(key, value)
                 else:
@@ -684,7 +685,6 @@ class RetargetingTool(QtWidgets.QDialog):
                 pass
 
     def _create_connection_node(self, selected_joint, selected_ctrl):
-        print("source => {0}, target => {1}".format(selected_joint, selected_ctrl))
         if self.snap_checkbox.isChecked() is True:
             cmds.matchTransform(selected_ctrl, selected_joint, pos=True)
         else:
@@ -733,7 +733,7 @@ class RetargetingTool(QtWidgets.QDialog):
         self.rot_checkbox.setChecked(True)
         self.pos_checkbox.setChecked(True)
 
-        if self.snap_checkbox.isChecked() is True:
+        if self.snap_checkbox.isChecked() is True or selected_ctrl in self.snap_joint_names:
             cmds.matchTransform(selected_ctrl, selected_joint, pos=True)
         else:
             pass

@@ -4,11 +4,6 @@ import maya.cmds as cmds
 import maya.mel as mel
 import os
 
-file_path = cmds.file(q=True, sn=True)
-file_name = os.path.basename(file_path)
-raw_name, extension = os.path.splitext(file_name)
-print(raw_name)
-print(extension)
 
 def _fbx_import_to_namespace(ns='targetNamespace'):
     # set namespace
@@ -28,84 +23,42 @@ def _fbx_import_to_namespace(ns='targetNamespace'):
     cmds.namespace(set=current_namespace)
 _fbx_import_to_namespace(ns='RTG')
 
-cmds.select("RTG:group")
-
-str = "RTG:NC003_Rig_Final:root"
-names = str.split(":")
-length = len(names) -1
-print(names[length])
 
 def _get_animated_attributes(node):
-    keyable_attributes = cmds.listAttr(node, keyable=True)
+    key_attributes = cmds.listAttr(node, keyable=True)
     animated_attributes = []
-    if not keyable_attributes:
+    if not key_attributes:
         return animated_attributes
     print("---------------------------------------------selected node => {0}".format(node))
-    for attr in keyable_attributes:
+    for attr in key_attributes:
         params = cmds.listConnections(node, destination=True, source=True, plugs=True)
-        """
         isTL = cmds.listConnections('%s.%s' % (node, attr), type='animCurveTL')
         isTA = cmds.listConnections('%s.%s' % (node, attr), type='animCurveTA')
         isTU = cmds.listConnections('%s.%s' % (node, attr), type='animCurveTU')
         isTT = cmds.listConnections('%s.%s' % (node, attr), type='animCurveTT')
         if isTL is not None or isTA is not None or isTU is not None or isTT is not None:
             animated_attributes.append(attr)
-        """
         if params is not None:
             for param in params:
                 print("params => {0}".format(param))
     return animated_attributes
-#-----------------------------------------------------------------------------------------------------------
 
-import maya.cmds as cmds
-import os
-
-file_path_list = cmds.fileDialog2(fileFilter="*.ma", dialogStyle=2, okc="Accept", fm=4)
-if file_path_list:
-    for file_path in file_path_list:
-        print(file_path)
-
-
-
-filepath = cmds.file(q=True, sn=True)  # directory/sample.ma
-filename = os.path.basename(filepath)  # sample.ma
-base_directory = filepath.split(filename)[-2]  # directory/
-output_directory = base_directory + "Exported/"
-if not os.path.exists(output_directory):
-    os.makedirs(output_directory)
-print(output_directory)
-
-#-----------------------------------------------------------------------------------------------------------
-
-import maya.cmds as cmds
-
-start_frame = cmds.playbackOptions(q=True, minTime=True)
-end_frame = cmds.playbackOptions(q=True, maxTime=True)
-
-# anm curveのみ出力
-anim_curves = cmds.ls(type='animCurve')
-for anim in anim_curves:
-    print(anim)
-    # 全てのキーを取得し、順番にソートする。キーがない場合に備えて `or []` を使っているが、
-    # これは `sort` がクラッシュしないように、代わりに空のリストを使う。
-    all_keys = sorted(cmds.keyframe(anim, q=True) or [])
-    # 少なくとも1つのキーがあるかどうかを確認する。
-    if all_keys:
-        print(all_keys[0], all_keys[-1])
-
-#-----------------------------------------------------------------------------------------------------------
-
-import maya.cmds as cmds
-
-obj = cmds.ls(sl = True)
-print(obj)
+def _set_anim_curves_objects():
+    start_frame = cmds.playbackOptions(q=True, minTime=True)
+    end_frame = cmds.playbackOptions(q=True, maxTime=True)
+    # anm curveのみ出力
+    anim_curves = cmds.ls(type='animCurve')
+    for anim in anim_curves:
+        print(anim)
+        # 全てのキーを取得し、順番にソートする。キーがない場合に備えて `or []` を使っているが、
+        # これは `sort` がクラッシュしないように、代わりに空のリストを使う。
+        all_keys = sorted(cmds.keyframe(anim, q=True) or [])
+        # 少なくとも1つのキーがあるかどうかを確認する。
+        if all_keys:
+            print(all_keys[0], all_keys[-1])
 
 
-
-
-import maya.cmds as cmds
-
-def GetAllCurveJoint():
+def get_all_curve_joint():
     objs = []
     curves = cmds.ls(type="nurbsCurve", ni=True, o=True, r=True, l=True)
     joints = cmds.ls(type="joint", ni=True, o=True, r=True, l=True)
@@ -116,9 +69,9 @@ def GetAllCurveJoint():
     transforms = cmds.listRelatives(objs, p=True, type="transform")
     return transforms
 
-def UnlockAll():
+def _unlock_all_attributes():
     locked = []
-    objs = GetAllCurveJoint()
+    objs = get_all_curve_joint()
     for obj in objs:
         attrs = cmds.listAttr(obj)
         for attr in ["tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz"]:
@@ -130,47 +83,23 @@ def UnlockAll():
             except ValueError:
                 continue
     print(locked)
-UnlockAll()
+_unlock_all_attributes()
 
-#-----------------------------------------------------------------------------------------------------------
+#mel.eval("asSelectorbiped;")
 
-import maya.cmds as cmds
-import os
+def _run_attributes():
+    for i in cmds.ls():
+        print(cmds.listAttr(i))
 
-import maya.mel as mel
-
-mel.eval("asSelectorbiped;")
-
-
-asset_file_path = cmds.file(q=True, sn=True)
-filename = os.path.basename(asset_file_path)  # sample.ma
-
-file_path = cmds.file(q=True, sn=True)
-file_name = os.path.basename(file_path)
-raw_name, extension = os.path.splitext(file_name)
-
-print("asset_file_path => {}".format(asset_file_path))
-print("MA file name => {}".format(filename))
-print("file_path => {}".format(file_path))
-print("file_name => {}".format(file_name))
-print("raw_name => {}".format(raw_name))
-print("extension => {}".format(extension))
-
-
-import pymel.core as pm
-import maya.cmds as cmds
-
-for i in cmds.ls():
-    print(cmds.listAttr(i))
-
-for i in cmds.ls():
-    if cmds.attributeQuery("W0", node=i, exists=True) is True:
-        print(i)
+    for i in cmds.ls():
+        if cmds.attributeQuery("W0", node=i, exists=True) is True:
+            print(i)
+_run_attributes()
 
 
 def _getSelected ():
-    selection = pm.selected()
-    return [i for i in selection if type(i) == pm.nodetypes.Transform]
+    selection = mel.selected()
+    return [i for i in selection if type(i) == mel.nodetypes.Transform]
 
 def _getConnectionSRC (target, nodeType):
     result = list(set(target.connections(type = nodeType, d = False)))

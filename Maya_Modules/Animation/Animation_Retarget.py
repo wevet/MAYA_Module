@@ -132,7 +132,6 @@ class RetargetingTool(QtWidgets.QDialog):
         self._create_script_jobs()
         self._init_parameters()
 
-
     def _create_ui_widgets(self):
         self.refresh_button = QtWidgets.QPushButton(QtGui.QIcon(":refresh.png"), "")
 

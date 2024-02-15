@@ -28,19 +28,15 @@ class Animation_Pose(QtWidgets.QDialog):
         self.WINDOW_TITLE = "Animation Poser"
         self.MODULE_VERSION = "1.0.0"
         self.file_path_000 = None
-        self.icon_path_000 = None
+        self.image_base_path = None
 
-        self.window = None
         self.apply_button = None
         self.refresh_button = None
         self.file_name01 = None
         self.save_path = None
-        self.sp_frame01 = None
-        self.sp_frame00 = None
-        self.sp_main_form = None
-        self.button_form = None
         self.button_scroll = None
-        self.pose_cache_file_names = []
+        self.thumbnail_buttons = []
+        self.connection_layout = None
 
         self.default_style = "background-color: #34d8ed; color: black"
         self.setStyleSheet('background-color:#262f38;')
@@ -55,16 +51,12 @@ class Animation_Pose(QtWidgets.QDialog):
         if not os.path.exists(self.file_path_000):
             os.makedirs(self.file_path_000)
 
-        self.icon_path_000 = self.save_base_path + "/Image/"
-        if not os.path.exists(self.icon_path_000):
-            os.makedirs(self.icon_path_000)
-
-        self.thumbnail_buttons = []
-        self.connection_layout = None
+        self.image_base_path = self.save_base_path + "/Image/"
+        if not os.path.exists(self.image_base_path):
+            os.makedirs(self.image_base_path)
 
         self._create_ui_widget()
         self._create_ui_connection()
-        #self.show_main_window()
 
     def showEvent(self, event):
         print("show event")
@@ -104,24 +96,8 @@ class Animation_Pose(QtWidgets.QDialog):
         list_scroll_area.setWidgetResizable(True)
         list_scroll_area.setWidget(connection_list_widget)
 
-        self.thumbnail_buttons = []
-        file_name_000 = os.listdir(self.file_path_000)
-        for i in range(len(file_name_000)):
-            name_000 = os.path.basename(file_name_000[i]).split('.', 1)[0]
-            icon = self.icon_path_000 + name_000 + ".jpg"
-            self.pose_cache_file_names.append(name_000)
-            if os.path.exists(icon):
-                # ここでポーズデータのファイル名から、アイコンのファイル名を生成する必要がある
-                print("icon => {}".format(icon))
-                button = QtWidgets.QPushButton()
-                button.setFixedSize(80, 80)
-                ico = QtGui.QIcon(icon)
-                button.setIcon(ico)
-                button.setIconSize(button.size())
-                button.setFlat(False)
-                button.clicked.connect(partial(self._load_file, i))
-                self.thumbnail_buttons.append(button)
-                self.connection_layout.addWidget(button)
+        # modify thumbnail view
+        self._refresh_file_action()
 
         # button field
         self.apply_button = QtWidgets.QPushButton("SavePose")
@@ -140,60 +116,10 @@ class Animation_Pose(QtWidgets.QDialog):
         main_layout.addWidget(separator_line_2)
         main_layout.addLayout(horizontal_layout_button)
 
-
     def _create_ui_connection(self):
-        self.apply_button.clicked.connect(partial(self._write_pose_assets, self.icon_path_000))
+        self.apply_button.clicked.connect(partial(self._write_pose_assets, self.image_base_path))
         self.refresh_button.clicked.connect(self._refresh_file_action)
         pass
-
-    def show_main_window(self):
-
-        w = 400
-        h = 200
-
-        if not cmds.window(self.WINDOW_TITLE, ex=1):
-            pass
-        else:
-            cmds.deleteUI(self.WINDOW_TITLE)
-
-        self.window = cmds.window(self.WINDOW_TITLE, t="Animation Poser", wh=(w, h))
-        self.sp_main_form = cmds.formLayout("sp_mainForm")
-        self.sp_frame00 = cmds.frameLayout("sp_frame00", p=self.sp_main_form, lv=0)
-
-        top_layout = cmds.formLayout("top_button_form", p=self.sp_frame00)
-        self.file_name01 = cmds.textFieldGrp("file_name01", l='ファイル名', p=top_layout)
-        self.save_path = cmds.textFieldGrp("save_path", l="保存場所", text=self.file_path_000, p=top_layout)
-
-        middle_layout = cmds.formLayout("middle_button_form", p=self.sp_frame00)
-        self.apply_button = cmds.button("apply_button", label="SavePose", command=partial(self._write_pose_assets, self.icon_path_000), p=top_layout, bgc=[0.3, 0.3, 0.3])
-        #self.refresh_button = cmds.button("refresh_button", label="Refresh", command=partial(self._refresh_file_action, self.icon_path_000), p=top_layout, bgc=[0.3, 0.3, 0.3])
-
-        cmds.formLayout("top_button_form", e=1, af=[(self.save_path, "right", 0), (self.save_path, "left", 0)], ac=(self.save_path, "top", 5, self.file_name01), an=(self.save_path, "bottom"))
-        cmds.formLayout("top_button_form", e=1, af=[(self.apply_button, "right", 0), (self.apply_button, "left", 0), (self.apply_button, "bottom", 5)], ac=(self.apply_button, "top", 5, self.save_path))
-        #cmds.formLayout("top_button_form", e=1, af=[(self.refresh_button, "right", 0), (self.refresh_button, "left", 0), (self.refresh_button, "bottom", 5)], ac=(self.refresh_button, "top", 5, self.save_path))
-
-        cmds.setParent("..")
-
-        # collapse ui
-        self.sp_frame01 = cmds.frameLayout("sp_frame01", cll=1, p=self.sp_main_form, l="POSE")
-        self.button_form = cmds.formLayout("button_form", p=self.sp_frame01)
-        self.button_scroll = cmds.scrollLayout("button_scroll", p=self.button_form)
-
-        cmds.formLayout("sp_mainForm", e=1, af=[(self.sp_frame00, "top", 5), (self.sp_frame00, "right", 5), (self.sp_frame00, "left", 5)], an=(self.sp_frame00, "bottom"))
-        cmds.formLayout("sp_mainForm", e=1, af=[(self.sp_frame01, "bottom", 5), (self.sp_frame01, "right", 5), (self.sp_frame01, "left", 5)], ac=(self.sp_frame01, "top", 5, self.sp_frame00))
-
-        file_name_000 = os.listdir(self.file_path_000)
-        for i in range(len(file_name_000)):
-            name_000 = os.path.basename(file_name_000[i]).split('.', 1)[0]
-            icon = self.icon_path_000 + name_000 + ".jpg"
-            # ここでポーズデータのファイル名から、アイコンのファイル名を生成する必要がある
-            print("icon => {}".format(icon))
-            self.pose_cache_file_names.append(name_000)
-            if os.path.exists(icon):
-                cmds.iconTextButton("icon_button" + str(i), st='iconAndTextHorizontal', i1=icon, l=name_000, c=partial(self._load_file, i), fla=1)
-
-        cmds.formLayout("button_form", e=1, af=[(self.button_scroll, "top", 5), (self.button_scroll, "bottom", 5), (self.button_scroll, "right", 5), (self.button_scroll, "left", 5)])
-        cmds.showWindow(self.window)
 
     def _refresh_file_action(self):
         for button in self.thumbnail_buttons:
@@ -202,9 +128,8 @@ class Animation_Pose(QtWidgets.QDialog):
         self.thumbnail_buttons = []
         file_name_000 = os.listdir(self.file_path_000)
         for i in range(len(file_name_000)):
-            name_000 = os.path.basename(file_name_000[i]).split('.', 1)[0]
-            icon = self.icon_path_000 + name_000 + ".jpg"
-            self.pose_cache_file_names.append(name_000)
+            file_name = os.path.basename(file_name_000[i]).split('.', 1)[0]
+            icon = self.image_base_path + file_name + ".jpg"
             if os.path.exists(icon):
                 # ここでポーズデータのファイル名から、アイコンのファイル名を生成する必要がある
                 print("icon => {}".format(icon))
@@ -213,7 +138,9 @@ class Animation_Pose(QtWidgets.QDialog):
                 ico = QtGui.QIcon(icon)
                 button.setIcon(ico)
                 button.setIconSize(button.size())
-                button.setFlat(False)
+                button.setFlat(True)
+                button.setStyleSheet(self.default_style)
+                button.setToolTip("file name : {}".format(file_name))
                 button.clicked.connect(partial(self._load_file, i))
                 self.thumbnail_buttons.append(button)
                 self.connection_layout.addWidget(button)
@@ -258,14 +185,14 @@ class Animation_Pose(QtWidgets.QDialog):
 
         # --------プレイブラストでスクショとる
         # 現在のフレームを取得
-        cmds.select(cl=1)
+        cmds.select(joints[0], r=True)
+
         time = int(cmds.currentTime(q=1))
         # UIを参照してファイル名をとってくる
-        #paste_name = cmds.textFieldGrp("file_name01", q=1, tx=1)
         paste_name = self.file_name01.text()
         # ボタンにスクショを適用させる
-        icon = self.icon_path_000 + paste_name + ".jpg"
-        new_path_file_name = self.icon_path_000 + paste_name
+        icon = self.image_base_path + paste_name + ".jpg"
+        new_path_file_name = self.image_base_path + paste_name
         # nurbs curveを非表示
         cmds.modelEditor("modelPanel4", e=1, nc=0)
         # ファイル名にパスを含めると、そこに書き出してくれる。
@@ -273,6 +200,7 @@ class Animation_Pose(QtWidgets.QDialog):
         os.rename(pose_icon, pose_icon + ".jpg")
         # ナーブスカーブ表示
         cmds.modelEditor("modelPanel4", e=1, nc=1)
+        self.file_name01.setText("")
 
     def _load_file(self, file_index):
         file_path = self.file_path_000 + "*"

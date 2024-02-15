@@ -498,7 +498,7 @@
 "T_NC091:NC_LidUpperEnd_R.translateZ":3.552713678800501e-15,
 "T_NC091:NC_LidUpperEnd_R.rotateX":2.5444437748716082e-14,
 "T_NC091:NC_LidUpperEnd_R.rotateY":2.9170536418586025e-22,
-"T_NC091:NC_LidUpperEnd_R.rotateZ":6.361109013662547e-15,
+"T_NC091:NC_LidUpperEnd_R.rotateZ":6.361109013662548e-15,
 "T_NC091:NC_LidUpperEnd_R.scaleX":1.0,
 "T_NC091:NC_LidUpperEnd_R.scaleY":1.0,
 "T_NC091:NC_LidUpperEnd_R.scaleZ":1.0,

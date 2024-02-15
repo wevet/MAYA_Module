@@ -59,7 +59,7 @@ class Animation_Pose(QtWidgets.QDialog):
         if not os.path.exists(self.icon_path_000):
             os.makedirs(self.icon_path_000)
 
-        self._cell_size = QtCore.QSize(60, 60)
+        self.thumbnail_buttons = []
         self.connection_layout = None
 
         self._create_ui_widget()
@@ -104,6 +104,25 @@ class Animation_Pose(QtWidgets.QDialog):
         list_scroll_area.setWidgetResizable(True)
         list_scroll_area.setWidget(connection_list_widget)
 
+        self.thumbnail_buttons = []
+        file_name_000 = os.listdir(self.file_path_000)
+        for i in range(len(file_name_000)):
+            name_000 = os.path.basename(file_name_000[i]).split('.', 1)[0]
+            icon = self.icon_path_000 + name_000 + ".jpg"
+            self.pose_cache_file_names.append(name_000)
+            if os.path.exists(icon):
+                # ここでポーズデータのファイル名から、アイコンのファイル名を生成する必要がある
+                print("icon => {}".format(icon))
+                button = QtWidgets.QPushButton()
+                button.setFixedSize(80, 80)
+                ico = QtGui.QIcon(icon)
+                button.setIcon(ico)
+                button.setIconSize(button.size())
+                button.setFlat(False)
+                button.clicked.connect(partial(self._load_file, i))
+                self.thumbnail_buttons.append(button)
+                self.connection_layout.addWidget(button)
+
         # button field
         self.apply_button = QtWidgets.QPushButton("SavePose")
         self.refresh_button = QtWidgets.QPushButton("Refresh")
@@ -121,10 +140,9 @@ class Animation_Pose(QtWidgets.QDialog):
         main_layout.addWidget(separator_line_2)
         main_layout.addLayout(horizontal_layout_button)
 
-        pass
 
     def _create_ui_connection(self):
-        self.apply_button.clicked.connect(partial(self._get_value, self.icon_path_000))
+        self.apply_button.clicked.connect(partial(self._write_pose_assets, self.icon_path_000))
         self.refresh_button.clicked.connect(self._refresh_file_action)
         pass
 
@@ -147,7 +165,7 @@ class Animation_Pose(QtWidgets.QDialog):
         self.save_path = cmds.textFieldGrp("save_path", l="保存場所", text=self.file_path_000, p=top_layout)
 
         middle_layout = cmds.formLayout("middle_button_form", p=self.sp_frame00)
-        self.apply_button = cmds.button("apply_button", label="SavePose", command=partial(self._get_value, self.icon_path_000), p=top_layout, bgc=[0.3, 0.3, 0.3])
+        self.apply_button = cmds.button("apply_button", label="SavePose", command=partial(self._write_pose_assets, self.icon_path_000), p=top_layout, bgc=[0.3, 0.3, 0.3])
         #self.refresh_button = cmds.button("refresh_button", label="Refresh", command=partial(self._refresh_file_action, self.icon_path_000), p=top_layout, bgc=[0.3, 0.3, 0.3])
 
         cmds.formLayout("top_button_form", e=1, af=[(self.save_path, "right", 0), (self.save_path, "left", 0)], ac=(self.save_path, "top", 5, self.file_name01), an=(self.save_path, "bottom"))
@@ -178,40 +196,59 @@ class Animation_Pose(QtWidgets.QDialog):
         cmds.showWindow(self.window)
 
     def _refresh_file_action(self):
-        pass
+        for button in self.thumbnail_buttons:
+            self.connection_layout.removeWidget(button)
 
+        self.thumbnail_buttons = []
+        file_name_000 = os.listdir(self.file_path_000)
+        for i in range(len(file_name_000)):
+            name_000 = os.path.basename(file_name_000[i]).split('.', 1)[0]
+            icon = self.icon_path_000 + name_000 + ".jpg"
+            self.pose_cache_file_names.append(name_000)
+            if os.path.exists(icon):
+                # ここでポーズデータのファイル名から、アイコンのファイル名を生成する必要がある
+                print("icon => {}".format(icon))
+                button = QtWidgets.QPushButton()
+                button.setFixedSize(80, 80)
+                ico = QtGui.QIcon(icon)
+                button.setIcon(ico)
+                button.setIconSize(button.size())
+                button.setFlat(False)
+                button.clicked.connect(partial(self._load_file, i))
+                self.thumbnail_buttons.append(button)
+                self.connection_layout.addWidget(button)
+
+        pass
 
     @staticmethod
     def _get_all_joint():
         joints = cmds.ls(selection=True, dag=True, type="joint")
         return joints
 
-    def _get_value(self, base_icon_path, *args):
+    # NOTE
+    # Pose Assetを書き出す
+    def _write_pose_assets(self, base_icon_path, *args):
         file_name01 = self.file_name01.text()
         save_path = self.save_path.text()
-        joints = self._get_all_joint()
+        joints = cmds.ls(selection=True, dag=True, type="joint")
 
-        if len(joints) == 0 or file_name01 == "":
-            cmds.warning("Select an object or name the file")
-            return
-        elif save_path == "":
-            cmds.warning("Please specify where to save the file")
+        if len(joints) == 0 or file_name01 == "" or save_path == "":
+            cmds.warning("joint empty or file name is empty or save file is empty")
             return
 
         file_path = save_path + "/" + file_name01 + ".txt"
         if os.path.isfile(file_path):
-            cmds.warning("同じ名前のファイルがあります")
+            cmds.warning("The same pose file already exists.")
             return
 
-        name_dict = "{"
+        name_dict = "{\n"
         for joint in joints:
             # 選択したノードとアトリビュートをとってくる
             key_attribute_list = cmds.listAttr(joint, s=1, w=1, k=1, v=1, u=1, st=['translate*', 'rotate*', 'scale*'])
-            #print(key_attribute_list)
             for attr in key_attribute_list:
                 value = cmds.getAttr(joint + "." + attr)
                 name_dict = name_dict + "\"" + joint + "." + attr + "\":" + str(value) + ",\n"
-            name_dict = name_dict + "}\n"
+        name_dict = name_dict + "}\n"
 
         print(file_path)
         s = name_dict

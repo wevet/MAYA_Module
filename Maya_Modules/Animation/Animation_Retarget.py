@@ -26,7 +26,7 @@ from Mirror import Animation_Mirror
 info = cmds.about(version=True)
 version = int(info.split(" ")[0])
 if version >= 2022:
-    import  importlib
+    import importlib
     importlib.reload(Animation_Mirror)
 else:
     # if maya version 2020
@@ -109,8 +109,12 @@ class RetargetingTool(QtWidgets.QDialog):
         self.body_keyframe_remove_button = None
         #end
 
+        # remove all connected
+        self.remove_all_connected_button = None
+
         # snap joint
         self.snap_joint_names = []
+        self.pole_vector_names = []
 
         self.default_style = "background-color: #34d8ed; color: black"
         self.warning_style = "background-color: #ed4a34; color: white"
@@ -169,6 +173,9 @@ class RetargetingTool(QtWidgets.QDialog):
         self.mirror_button = QtWidgets.QPushButton("Mirror Animation")
         self.mirror_button.setStyleSheet(self.default_style)
 
+        self.remove_all_connected_button = QtWidgets.QPushButton("Remove All Connected Node")
+        self.remove_all_connected_button.setStyleSheet(self.default_style)
+
     def _create_ui_layout(self):
         horizontal_layout_checkbox = QtWidgets.QHBoxLayout()
         horizontal_layout_checkbox.addWidget(self.pos_checkbox)
@@ -183,8 +190,8 @@ class RetargetingTool(QtWidgets.QDialog):
             for name in data['name']:
                 self.project_names.append(name)
 
-        X = 200
-        Y = 40
+        grid_x = 200
+        grid_y = 40
         # select source model
         horizontal_layout_1 = QtWidgets.QHBoxLayout()
         source_menu_list = QtWidgets.QMenu(self)
@@ -196,7 +203,7 @@ class RetargetingTool(QtWidgets.QDialog):
         source_menu_button.setMenu(source_menu_list)
         self.source_model_text = QtWidgets.QTextEdit(self)
         self.source_model_text.setReadOnly(True)
-        self.source_model_text.setFixedSize(X, Y)
+        self.source_model_text.setFixedSize(grid_x, grid_y)
         horizontal_layout_1.addWidget(source_menu_button)
         horizontal_layout_1.addWidget(self.source_model_text)
 
@@ -211,7 +218,7 @@ class RetargetingTool(QtWidgets.QDialog):
         target_menu_button.setMenu(target_menu_list)
         self.target_model_text = QtWidgets.QTextEdit(self)
         self.target_model_text.setReadOnly(True)
-        self.target_model_text.setFixedSize(X, Y)
+        self.target_model_text.setFixedSize(grid_x, grid_y)
         horizontal_layout_2.addWidget(target_menu_button)
         horizontal_layout_2.addWidget(self.target_model_text)
 
@@ -228,8 +235,7 @@ class RetargetingTool(QtWidgets.QDialog):
         # automation layout
         horizontal_layout_5 = QtWidgets.QHBoxLayout()
         horizontal_layout_5.addWidget(self.custom_import_button)
-        #horizontal_layout_5.addWidget(self.finger_keyframe_remove_button)
-        #horizontal_layout_5.addWidget(self.body_keyframe_remove_button)
+        horizontal_layout_5.addWidget(self.remove_all_connected_button)
         horizontal_layout_5.addWidget(self.clean_keyframe_button)
 
         # mirror layout
@@ -299,9 +305,8 @@ class RetargetingTool(QtWidgets.QDialog):
 
         self.reset_initial_pose_button.clicked.connect(self._reset_pose_function)
         self.custom_import_button.clicked.connect(self._handle_import)
+        self.remove_all_connected_button.clicked.connect(self._delete_all_connected_node)
         self.clean_keyframe_button.clicked.connect(self._remove_target_keyframe)
-        #self.finger_keyframe_remove_button.clicked.connect(self._remove_finger_rotation_keyframe)
-        #self.body_keyframe_remove_button.clicked.connect(self._remove_body_translation_keyframe)
 
         self.auto_connection_button.clicked.connect(self.automation_create_connection_node)
         self.bake_button.clicked.connect(self.bake_animation_confirm)
@@ -406,20 +411,21 @@ class RetargetingTool(QtWidgets.QDialog):
         return "Group"
 
     def _handle_import(self):
-        self._fbx_import_to_namespace(ns=self.IMPORT_NS)
+        self._fbx_import_to_namespace()
 
     # import after automation namespace
-    def _fbx_import_to_namespace(self, ns='target_namespace'):
+    def _fbx_import_to_namespace(self):
+        import_namespace = self.IMPORT_NS
         current_namespace = cmds.namespaceInfo(cur=True)
-        if not cmds.namespace(ex=':%s' % ns):
-            cmds.namespace(add=':%s' % ns)
-        cmds.namespace(set=':%s' % ns)
+        if not cmds.namespace(ex=':%s' % import_namespace):
+            cmds.namespace(add=':%s' % import_namespace)
+        cmds.namespace(set=':%s' % import_namespace)
 
         path_list = cmds.fileDialog2(fm=1, ds=2, ff=('FBX(*.fbx)'))
         if not path_list:
             return
         mel.eval('FBXImportSetLockedAttribute -v false')
-        cmds.file(path_list[0], i=True, gr=True, mergeNamespacesOnClash=True, namespace=current_namespace, importTimeRange = "override")
+        cmds.file(path_list[0], i=True, gr=True, mergeNamespacesOnClash=True, namespace=current_namespace, importTimeRange="override")
         print("import path => {0}".format(path_list[0]))
         cmds.namespace(set=current_namespace)
 
@@ -578,30 +584,43 @@ class RetargetingTool(QtWidgets.QDialog):
                 animated_attributes.append(attr)
         return animated_attributes
 
-    def _get_project_json_data(self, path_name):
+    def _get_project_json_data(self, key_name):
         dir_name = os.path.dirname(__file__)
         file_name = os.path.join(dir_name, self.RIG_FILE_NAME)
         with open(file_name) as f:
             data = json.load(f)
-            return data[path_name]
+            return data[key_name]
 
+    # @TODO Refactoring
     # Calculate BoneMapping load json file
     def _get_bone_mapping_dict(self):
         if len(self.source_joints) <= 0 or len(self.target_joints) <= 0:
-            cmds.confirmDialog(title='Failed', message='source joints is empty or target joints is empty !',
-                               button=['Ok'], defaultButton='Ok')
+            cmds.confirmDialog(title='Failed', message='source joints is empty or target joints is empty !', button=['Ok'], defaultButton='Ok')
             return
 
         source_joint_data = self._get_project_json_data(self.source_model_text_name)
         target_joint_data = self._get_project_json_data(self.target_model_text_name)
+        snap_controller_names = self._get_project_json_data('snap_controller_names')
+        pole_vector_controller_names = self._get_project_json_data('pole_vector_names')
         source_joints = source_joint_data['joint']
         target_joints = target_joint_data['joint']
         source_curves = source_joint_data['ctrl']
         target_curves = target_joint_data['ctrl']
-        snap_controller_names = self._get_project_json_data('snap_controller_names')
 
+        # @TODO
+        # Considering if snap processing is needed.
+        self.snap_joint_names = []
         for controller_name in snap_controller_names:
             self.snap_joint_names.append(self.target_reference_prefix + controller_name)
+
+        self.pole_vector_names = []
+        for pole_vector_name in pole_vector_controller_names:
+            self.pole_vector_names.append(self.target_reference_prefix + pole_vector_name)
+
+        for snap_joint_name in self.snap_joint_names:
+            print("snap_joint => {}".format(snap_joint_name))
+        for pole_vector_name in self.pole_vector_names:
+            print("pole_vector => {}".format(pole_vector_name))
 
         # Retarget先のjsonファイルを読み込み、Bone Mappingを行う。
         # 1. source元のmappingを作成
@@ -627,6 +646,8 @@ class RetargetingTool(QtWidgets.QDialog):
                 target = self._find_curve_object(target_curves[key])
                 if target is not None:
                     target_dict[value] = target
+                elif target is None:
+                    print("target is None => {}".format(key))
             else:
                 print("json data doesn't have this key => {0}".format(key))
 
@@ -689,6 +710,7 @@ class RetargetingTool(QtWidgets.QDialog):
             cmds.matchTransform(selected_ctrl, selected_joint, pos=True)
         else:
             pass
+
         if self.rot_checkbox.isChecked() is True and self.pos_checkbox.isChecked() is False:
             suffix = "_ROT"
         elif self.pos_checkbox.isChecked() is True and self.rot_checkbox.isChecked() is False:
@@ -710,16 +732,18 @@ class RetargetingTool(QtWidgets.QDialog):
             cmds.addAttr(selected_ctrl, longName="ConnectedCtrl", attributeType="message")
             cmds.connectAttr(locator + ".ConnectNode", selected_ctrl + ".ConnectedCtrl")
             cmds.parent(locator, selected_joint)
-
             cmds.xform(locator, rotation=(0, 0, 0))
             cmds.xform(locator, translation=(0, 0, 0))
 
             # Select constraint type based on ui checkboxes
+            # both attr checked
             if self.rot_checkbox.isChecked() is True and self.pos_checkbox.isChecked() is True:
                 cmds.parentConstraint(locator, selected_ctrl, maintainOffset=True)
+            # rotation attr only
             elif self.rot_checkbox.isChecked() is True and self.pos_checkbox.isChecked() is False:
                 cmds.orientConstraint(locator, selected_ctrl, maintainOffset=True)
-            elif self.pos_checkbox.isChecked() is True and self.rot_checkbox.isChecked() is False:
+            # translation attr only
+            elif self.rot_checkbox.isChecked() is False and self.pos_checkbox.isChecked() is True:
                 cmds.pointConstraint(locator, selected_ctrl, maintainOffset=True)
             else:
                 cmds.warning("Select translation and/or rotation!")
@@ -733,6 +757,8 @@ class RetargetingTool(QtWidgets.QDialog):
         self.rot_checkbox.setChecked(True)
         self.pos_checkbox.setChecked(True)
 
+        # @TODO
+        # IKLegSnap function
         if self.snap_checkbox.isChecked() is True or selected_ctrl in self.snap_joint_names:
             cmds.matchTransform(selected_ctrl, selected_joint, pos=True)
         else:
@@ -819,9 +845,7 @@ class RetargetingTool(QtWidgets.QDialog):
         return output_node
 
     def bake_animation_confirm(self):
-        confirm = cmds.confirmDialog(title="Confirm",
-                                     message="Animation Bake will delete all connected nodes. Do you want to continue?",
-                                     button=["Yes", "No"], defaultButton="Yes", cancelButton="No")
+        confirm = cmds.confirmDialog(title="Confirm", message="Animation Bake will delete all connected nodes. Do you want to continue?", button=["Yes", "No"], defaultButton="Yes", cancelButton="No")
         if confirm == "Yes":
             progress_dialog = QtWidgets.QProgressDialog("Bake animation", None, 0, -1, self)
             progress_dialog.setWindowFlags(progress_dialog.windowFlags() ^ QtCore.Qt.WindowCloseButtonHint)
@@ -851,18 +875,16 @@ class RetargetingTool(QtWidgets.QDialog):
         self.settings_window = BatchExport()
         self.settings_window.show()
 
-    def delete_all_connected_node(self):
-        # Delete the connect nodes
+    def _delete_all_connected_node(self):
+        # Delete to connect nodes
         for node in self.get_connect_nodes():
             try:
-                print("delete connect node")
                 cmds.delete(node)
             except:
                 pass
         # Remove the message attribute from the anim_curves
         for ctrl in self.get_connected_ctrls():
             try:
-                print("delete connect controller")
                 cmds.deleteAttr(ctrl, attribute="ConnectedCtrl")
             except:
                 pass

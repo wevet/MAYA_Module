@@ -2,6 +2,7 @@
 {
 	"name" : ["21", "22", "36", "UE4_Rig", "UE5_Rig", "META_Human"],
 	"snap_controller_names" : [ "IKLeg_R", "IKLeg_L" ],
+	"pole_vector_names" : [ "PoleLeg_R", "PoleLeg_L" ],
 	"21" : {
 		"joint" : {
 			"root" : "root",

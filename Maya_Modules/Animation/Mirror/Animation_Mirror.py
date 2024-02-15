@@ -1167,6 +1167,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
 
 
 def show_main_window():
+    global mirror_control
     try:
         mirror_control.close()  # type: ignore
         mirror_control.deleteLater()  # type: ignore

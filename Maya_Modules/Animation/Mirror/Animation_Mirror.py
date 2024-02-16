@@ -982,7 +982,6 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         self._mirror_side_ctrl(ctrl_list=right_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
         self._mirror_center_ctrl(middle_ctrl_list, data, mirror_axis, vector_data)
 
-
     # apply batch run
     def mirror_control(self, index):
         find_text = None
@@ -994,7 +993,6 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             find_text = OperationType.flip_to_frame
         else :
             find_text = OperationType.selected
-
         self.is_batch_running = True
         self.batch_running_text = find_text
         self._apply_mirror_control()
@@ -1004,11 +1002,9 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         self._mirror_control()
         pass
 
-    # @TODO
-    # undo bug fixed
+    # Cancels the processing of the previous mirror.
     def _undo_control(self):
         #cmds.undo()
-
 
         side_con = self._calc_side_controller()
         self.is_write_keyframe = self.write_keyframe_checkbox.isChecked()

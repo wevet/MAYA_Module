@@ -27,12 +27,12 @@ class Animation_Pose(QtWidgets.QDialog):
         super(Animation_Pose, self).__init__(maya_main_window())
         self.WINDOW_TITLE = "Animation Poser"
         self.MODULE_VERSION = "1.0.0"
-        self.file_path_000 = None
+        self.pose_file_path = None
         self.image_base_path = None
 
         self.apply_button = None
         self.refresh_button = None
-        self.file_name01 = None
+        self.input_pose_name = None
         self.save_path = None
         self.button_scroll = None
         self.thumbnail_buttons = []
@@ -44,16 +44,14 @@ class Animation_Pose(QtWidgets.QDialog):
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
         self.resize(420, 420)
 
+        file_path = cmds.file(q=True, sn=True)
+        file_name = os.path.basename(file_path)
+        raw_name, extension = os.path.splitext(file_name)
+        self.scene_name = raw_name
+        print("Here is the name of the file that is currently open => {0}".format(self.scene_name))
+
         self.save_base_path = os.path.dirname(__file__)
-
-        # "/SavePose/PoseData/"
-        self.file_path_000 = self.save_base_path + "/PoseData/"
-        if not os.path.exists(self.file_path_000):
-            os.makedirs(self.file_path_000)
-
-        self.image_base_path = self.save_base_path + "/Image/"
-        if not os.path.exists(self.image_base_path):
-            os.makedirs(self.image_base_path)
+        self._write_export_dir(self.save_base_path)
 
         self._create_ui_widget()
         self._create_ui_connection()
@@ -75,15 +73,16 @@ class Animation_Pose(QtWidgets.QDialog):
         separator_line_2.setFrameShadow(QtWidgets.QFrame.Sunken)
 
         # input field
-        self.file_name01 = QtWidgets.QLineEdit()
-        self.file_name01.setReadOnly(False)
-        self.file_name01.setPlaceholderText("Input Pose File Name")
+        self.input_pose_name = QtWidgets.QLineEdit()
+        self.input_pose_name.setReadOnly(True)
+        self.input_pose_name.setPlaceholderText("Input Pose File Name")
+        self.input_pose_name.setText(self.scene_name)
         self.save_path = QtWidgets.QLineEdit()
         self.save_path.setReadOnly(False)
-        self.save_path.setPlaceholderText("保存場所")
-        self.save_path.setText(self.file_path_000)
+        self.save_path.setPlaceholderText("Save Directory")
+        self.save_path.setText(self.pose_file_path)
         horizontal_layout_input_field = QtWidgets.QFormLayout()
-        horizontal_layout_input_field.addRow(self.file_name01)
+        horizontal_layout_input_field.addRow(self.input_pose_name)
         horizontal_layout_input_field.addRow(self.save_path)
 
         # grid layout
@@ -116,19 +115,26 @@ class Animation_Pose(QtWidgets.QDialog):
         main_layout.addWidget(separator_line_2)
         main_layout.addLayout(horizontal_layout_button)
 
+    def _get_export_file_name(self):
+        file_name = self.input_pose_name.text()
+        time = int(cmds.currentTime(q=1))
+        return file_name + "_{}".format(str(time))
+
     def _create_ui_connection(self):
         self.apply_button.clicked.connect(partial(self._write_pose_assets, self.image_base_path))
         self.refresh_button.clicked.connect(self._refresh_file_action)
         pass
 
+
+    # scroll viewを更新する
     def _refresh_file_action(self):
         for button in self.thumbnail_buttons:
             self.connection_layout.removeWidget(button)
 
         self.thumbnail_buttons = []
-        file_name_000 = os.listdir(self.file_path_000)
-        for i in range(len(file_name_000)):
-            file_name = os.path.basename(file_name_000[i]).split('.', 1)[0]
+        current_pose_file_path = os.listdir(self.pose_file_path)
+        for i in range(len(current_pose_file_path)):
+            file_name = os.path.basename(current_pose_file_path[i]).split('.', 1)[0]
             icon = self.image_base_path + file_name + ".jpg"
             if os.path.exists(icon):
                 # ここでポーズデータのファイル名から、アイコンのファイル名を生成する必要がある
@@ -141,40 +147,56 @@ class Animation_Pose(QtWidgets.QDialog):
                 button.setFlat(True)
                 button.setStyleSheet(self.default_style)
                 button.setToolTip("file name : {}".format(file_name))
-                button.clicked.connect(partial(self._load_file, i))
+                button.clicked.connect(partial(self._load_pose_assets, i))
                 self.thumbnail_buttons.append(button)
                 self.connection_layout.addWidget(button)
+            else:
+                cmds.warning("not exists. => {}".format(icon))
 
-        pass
 
     @staticmethod
     def _get_all_joint():
         joints = cmds.ls(selection=True, dag=True, type="joint")
         return joints
 
+
+    def _write_export_dir(self, path_name):
+        # "/SavePose/PoseData/"
+        self.pose_file_path = path_name + "/PoseData/"
+        if not os.path.exists(self.pose_file_path):
+            os.makedirs(self.pose_file_path)
+        self.image_base_path = path_name + "/Image/"
+        if not os.path.exists(self.image_base_path):
+            os.makedirs(self.image_base_path)
+
     # NOTE
     # Pose Assetを書き出す
     def _write_pose_assets(self, base_icon_path, *args):
-        file_name01 = self.file_name01.text()
+        export_file_name = self._get_export_file_name()
         save_path = self.save_path.text()
+
         joints = cmds.ls(selection=True, dag=True, type="joint")
 
-        if len(joints) == 0 or file_name01 == "" or save_path == "":
+        if len(joints) == 0 or export_file_name == "" or save_path == "":
             cmds.warning("joint empty or file name is empty or save file is empty")
             return
 
-        file_path = save_path + "/" + file_name01 + ".txt"
+        file_path = save_path + "/" + export_file_name + ".json"
         if os.path.isfile(file_path):
             cmds.warning("The same pose file already exists.")
             return
 
+        if save_path != self.save_base_path:
+            cmds.warning("Re-create the directory because there is a change in the file path. => {}".format(save_path))
+            #self._write_export_dir(save_path)
+
+        # Get the selected node and attribute
         name_dict = "{\n"
         for joint in joints:
-            # 選択したノードとアトリビュートをとってくる
             key_attribute_list = cmds.listAttr(joint, s=1, w=1, k=1, v=1, u=1, st=['translate*', 'rotate*', 'scale*'])
             for attr in key_attribute_list:
                 value = cmds.getAttr(joint + "." + attr)
-                name_dict = name_dict + "\"" + joint + "." + attr + "\":" + str(value) + ",\n"
+                name_dict = name_dict + "\"" + joint + "." + attr + "\" : " + str(value) + ",\n"
         name_dict = name_dict + "}\n"
 
         print(file_path)
@@ -189,21 +211,21 @@ class Animation_Pose(QtWidgets.QDialog):
 
         time = int(cmds.currentTime(q=1))
         # UIを参照してファイル名をとってくる
-        paste_name = self.file_name01.text()
+        paste_name = self._get_export_file_name()
         # ボタンにスクショを適用させる
         icon = self.image_base_path + paste_name + ".jpg"
         new_path_file_name = self.image_base_path + paste_name
         # nurbs curveを非表示
         cmds.modelEditor("modelPanel4", e=1, nc=0)
         # ファイル名にパスを含めると、そこに書き出してくれる。
-        pose_icon = cmds.playblast(fmt="image", c="jpg", w=70, h=70, st=time, et=time, cf=new_path_file_name, fo=1, v=0, p=100, qlt=100, cc=1, sqt=0, showOrnaments=0)
+        pose_icon = cmds.playblast(fmt="image", c="jpg", w=80, h=80, st=time, et=time, cf=new_path_file_name, fo=1, v=0, p=100, qlt=100, cc=1, sqt=0, showOrnaments=0)
         os.rename(pose_icon, pose_icon + ".jpg")
         # ナーブスカーブ表示
         cmds.modelEditor("modelPanel4", e=1, nc=1)
-        self.file_name01.setText("")
 
-    def _load_file(self, file_index):
-        file_path = self.file_path_000 + "*"
+
+    def _load_pose_assets(self, file_index):
+        file_path = self.pose_file_path + "*"
         file = glob.glob(file_path)
 
         print("load file =>{}".format(file))
@@ -212,10 +234,19 @@ class Animation_Pose(QtWidgets.QDialog):
         # convert to dictionary
         file_dictionary = ast.literal_eval(inf)
 
+        time = int(cmds.currentTime(q=1))
         key = [k for k, v in file_dictionary.items()]
         val = [v for k, v in file_dictionary.items()]
         for file_index in range(len(key)):
-            cmds.setAttr(key[file_index], val[file_index])
+            try:
+                attr_obj = key[file_index]
+                value = val[file_index]
+                #print(attr_obj)
+                cmds.setAttr(attr_obj, value)
+                #cmds.setKeyframe(attr_obj, v=value, t=time)
+            except:
+                pass
+
         f.close()
 
 

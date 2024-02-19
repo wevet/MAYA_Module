@@ -125,7 +125,6 @@ class Animation_Pose(QtWidgets.QDialog):
         self.refresh_button.clicked.connect(self._refresh_file_action)
         pass
 
-
     # scroll viewを更新する
     def _refresh_file_action(self):
         for button in self.thumbnail_buttons:
@@ -153,12 +152,10 @@ class Animation_Pose(QtWidgets.QDialog):
             else:
                 cmds.warning("not exists. => {}".format(icon))
 
-
     @staticmethod
     def _get_all_joint():
         joints = cmds.ls(selection=True, dag=True, type="joint")
         return joints
-
 
     def _write_export_dir(self, path_name):
         # "/SavePose/PoseData/"
@@ -169,16 +166,60 @@ class Animation_Pose(QtWidgets.QDialog):
         if not os.path.exists(self.image_base_path):
             os.makedirs(self.image_base_path)
 
+    @staticmethod
+    def _get_controllers(*args):
+        """
+        Return: 全てのコントローラを返します。
+        """
+        # Finding all the nurbs curves to get the shape node on the anim_curves
+        nurbs_curve_list = cmds.ls(type="nurbsCurve")
+        nurbs_surface_list = cmds.ls(type="nurbsSurface")
+        if nurbs_surface_list:
+            for curve in nurbs_surface_list:
+                nurbs_curve_list.append(curve)
+
+        print("nurbs_curve_list => {0}, nurbs_surface_list => {1}".format(len(nurbs_curve_list), len(nurbs_surface_list)))
+
+        shape_list = nurbs_curve_list
+        ctrl_list = []
+
+        # すべてのshape controllerを反復処理する
+        for shape in shape_list:
+            parent = cmds.listRelatives(shape, parent=True)[0]
+            # 同じ名前のコントローラが複数あるかどうかを確認する
+            dub_names = cmds.ls(parent, exactType="transform")
+            for ctrl in dub_names:
+                #clash_name = ctrl.rsplit("|", 1)[-1]
+
+                if not ctrl in ctrl_list:
+                    # コントローラーがキーが使える属性を取得したかどうかを確認する、そうでなければ、コントロールをミラーリングする理由はない
+                    if cmds.listAttr(ctrl, keyable=True):
+                        ctrl_list.append(ctrl)
+        return ctrl_list
+
     # NOTE
     # Pose Assetを書き出す
     def _write_pose_assets(self, base_icon_path, *args):
         export_file_name = self._get_export_file_name()
         save_path = self.save_path.text()
 
-        joints = cmds.ls(selection=True, dag=True, type="joint")
+        #joints = cmds.ls(selection=True, dag=True, type="joint")
+        #joints = self._get_controllers()
+        joints = cmds.ls(type="joint")
 
-        if len(joints) == 0 or export_file_name == "" or save_path == "":
-            cmds.warning("joint empty or file name is empty or save file is empty")
+        all_controllers = self._get_controllers()
+        for joint in all_controllers:
+            print("joint => {}".format(joint))
+
+        # キーを持たないジョイントを除外する
+        keyed_joints = [joint for joint in all_controllers if cmds.keyframe(joint, q=True, keyframeCount=True) > 0]
+
+        if export_file_name == "" or save_path == "":
+            cmds.warning("export file name or save file is empty")
+            return
+
+        if len(keyed_joints) == 0:
+            cmds.warning("keyed_joints is empty")
             return
 
         file_path = save_path + "/" + export_file_name + ".json"
@@ -192,11 +233,12 @@ class Animation_Pose(QtWidgets.QDialog):
 
         # Get the selected node and attribute
         name_dict = "{\n"
-        for joint in joints:
+        for joint in keyed_joints:
             key_attribute_list = cmds.listAttr(joint, s=1, w=1, k=1, v=1, u=1, st=['translate*', 'rotate*', 'scale*'])
-            for attr in key_attribute_list:
-                value = cmds.getAttr(joint + "." + attr)
-                name_dict = name_dict + "\"" + joint + "." + attr + "\" : " + str(value) + ",\n"
+            if key_attribute_list is not None:
+                for attr in key_attribute_list:
+                    value = cmds.getAttr(joint + "." + attr)
+                    name_dict = name_dict + "\"" + joint + "." + attr + "\" : " + str(value) + ",\n"
         name_dict = name_dict + "}\n"
 
         print(file_path)
@@ -223,7 +265,6 @@ class Animation_Pose(QtWidgets.QDialog):
         # ナーブスカーブ表示
         cmds.modelEditor("modelPanel4", e=1, nc=1)
 
-
     def _load_pose_assets(self, file_index):
         file_path = self.pose_file_path + "*"
         file = glob.glob(file_path)
@@ -243,7 +284,7 @@ class Animation_Pose(QtWidgets.QDialog):
                 value = val[file_index]
                 #print(attr_obj)
                 cmds.setAttr(attr_obj, value)
-                #cmds.setKeyframe(attr_obj, v=value, t=time)
+                cmds.setKeyframe(attr_obj, v=value, t=time)
             except:
                 pass
 

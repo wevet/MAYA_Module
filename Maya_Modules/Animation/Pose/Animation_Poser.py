@@ -203,14 +203,9 @@ class Animation_Pose(QtWidgets.QDialog):
         export_file_name = self._get_export_file_name()
         save_path = self.save_path.text()
 
-        #joints = cmds.ls(selection=True, dag=True, type="joint")
-        #joints = self._get_controllers()
         joints = cmds.ls(type="joint")
 
         all_controllers = self._get_controllers()
-        for joint in all_controllers:
-            print("joint => {}".format(joint))
-
         # キーを持たないジョイントを除外する
         keyed_joints = [joint for joint in all_controllers if cmds.keyframe(joint, q=True, keyframeCount=True) > 0]
 
@@ -221,6 +216,9 @@ class Animation_Pose(QtWidgets.QDialog):
         if len(keyed_joints) == 0:
             cmds.warning("keyed_joints is empty")
             return
+
+        for joint in keyed_joints:
+            print("joint => {}".format(joint))
 
         file_path = save_path + "/" + export_file_name + ".json"
         if os.path.isfile(file_path):
@@ -247,15 +245,13 @@ class Animation_Pose(QtWidgets.QDialog):
         with open(file_path, mode='w') as f:
             f.write(s)
 
-        # --------プレイブラストでスクショとる
+        # take picture for play blast module
         # 現在のフレームを取得
-        cmds.select(joints[0], r=True)
+        cmds.select(keyed_joints[0], r=True)
 
         time = int(cmds.currentTime(q=1))
         # UIを参照してファイル名をとってくる
         paste_name = self._get_export_file_name()
-        # ボタンにスクショを適用させる
-        icon = self.image_base_path + paste_name + ".jpg"
         new_path_file_name = self.image_base_path + paste_name
         # nurbs curveを非表示
         cmds.modelEditor("modelPanel4", e=1, nc=0)

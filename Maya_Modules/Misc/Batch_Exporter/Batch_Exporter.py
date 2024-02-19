@@ -25,17 +25,39 @@ class Batch_Job:
     def _get_scene_name():
         return os.path.splitext(os.path.basename(cmds.file(q=True, sn=True)))[0]
 
-    @staticmethod
-    def _get_all_joints():
-        """
-        joints = cmds.ls(type="joint")
-        character_root_list = [joint for joint in joints if ":root" in joint]
-        pm.select(character_root_list)
-        selected = pm.selected()
-        children_joints = cmds.listRelatives(allDescendants=True, type='joint')
+    def _get_all_joints(self):
         """
         children_joints = cmds.ls(type="joint")
         return children_joints
+        """
+        return self._get_target_joints()
+
+    def _get_parent(self, node):
+        parent = cmds.listRelatives(node, parent=True, path=True)
+        if parent:
+            yield parent
+            for p in self._get_parent(parent):
+                yield p
+
+    # @TODO
+    # top nodeがfit skeletonの場合は無視する
+    @staticmethod
+    def _get_root_node_valid(node_list):
+        for node in node_list:
+            if str(node[0]).find('FitSkeleton') > -1:
+                return False
+        return True
+
+    def _get_target_joints(self):
+        children_joints = cmds.ls(type="joint")
+        joints = []
+        for joint in children_joints:
+            nodes = self._get_parent(joint)
+            if nodes:
+                was_valid = self._get_root_node_valid(list(nodes))
+                if was_valid:
+                    joints.append(joint)
+        return joints
 
     @staticmethod
     def _get_frame_range():
@@ -90,6 +112,7 @@ class Batch_Job:
                 nurbs_curve_list.append(curve)
 
         shape_list = nurbs_curve_list
+
         self.anim_curves = []
         self.controllers = []
 
@@ -104,7 +127,6 @@ class Batch_Job:
                     if cmds.listAttr(ctrl, keyable=True):
                         self.controllers.append(ctrl)
                         if str(ctrl).find("PoleLeg") > -1:
-                            print("found leg => {}".format(ctrl))
                             self.pole_legs.append(ctrl)
 
         # get anim curves
@@ -130,7 +152,6 @@ class Batch_Job:
                     lock_check = cmds.getAttr(attr_obj, lock=True)
                     if lock_check is True:
                         cmds.setAttr(attr_obj, lock=0)
-                        print("unlock attr => {}.{}".format(ctrl, attr))
 
             for value in self.SOURCE_TRANSFORM_ATTRIBUTE:
                 attr_value = "{}.{}".format(ctrl, value)
@@ -226,13 +247,12 @@ class Batch_Job:
             print("find joint => {}".format(joint))
         # -50fから最終fまで選択しBake
         time_range = self._get_frame_range()
+
         self._bake_connected(self.all_joints, time_range)
         print("BAKE FINISHED => {}".format(file_path))
-
         print("EXPORT STARTED => {}".format(file_path))
         self._export_fbx(file_path)
         print("EXPORT FINISHED => {}".format(file_path))
-
         if self.has_native_os is True:
             mel.eval('optionVar -iv FileDialogStyle 1 ;')
             print("revert native os")
@@ -249,6 +269,8 @@ if __name__ == "__main__":
             batch.start()
             cmds.file(new=True, force=True)
     """
+    batch = Batch_Job()
+    batch.start()
     pass
 
 # @TODO

@@ -5,6 +5,51 @@ import maya.mel as mel
 import os
 
 
+
+import maya.cmds as cmds
+
+def _get_parent(node):
+    parent = cmds.listRelatives(node, parent=True, path=True)
+    if parent:
+        yield parent
+        for p in _get_parent(parent):
+            yield p
+
+def _get_root_node_valid(node_list):
+    for node in node_list:
+        if str(node[0]).find('FitSkeleton') > -1:
+            return False
+    return True
+
+def _get_target_joints():
+    ignore_list = ['fatYabs', 'fat', 'fatFront', 'fatWidth', 'fatFrontAbs', 'fatWidthAbs']
+    children_joints = cmds.ls(type="joint")
+    joints = []
+    for joint in children_joints:
+        nodes = _get_parent(joint)
+        if nodes:
+            node_list = list(nodes)
+            was_valid = _get_root_node_valid(node_list)
+            if was_valid:
+                joints.append(joint)
+
+            last_index = len(node_list) -1
+            if len(node_list) > 0:
+                obj = node_list[last_index][0]
+        """
+        try:
+            value = cmds.getAttr(joint + ".fat")
+        except ValueError:
+            print("not attr => {}".format(joint))
+            joints.append(joint)
+            pass
+        """
+
+    return joints
+
+cmds.select(_get_target_joints())
+
+
 def _fbx_import_to_namespace(ns='targetNamespace'):
     # set namespace
     current_namespace = cmds.namespaceInfo(cur=True)
@@ -21,6 +66,7 @@ def _fbx_import_to_namespace(ns='targetNamespace'):
     import_root = cmds.file(path_list[0], i=True, gr=True, mergeNamespacesOnClash=True, namespace=current_namespace)
     # return current ns
     cmds.namespace(set=current_namespace)
+    print(import_root)
 _fbx_import_to_namespace(ns='RTG')
 
 
@@ -68,6 +114,7 @@ def get_all_curve_joint():
         objs.append(i)
     transforms = cmds.listRelatives(objs, p=True, type="transform")
     return transforms
+
 
 def _unlock_all_attributes():
     locked = []

@@ -519,7 +519,6 @@ class RetargetingTool(QtWidgets.QDialog):
                 lock_check = cmds.getAttr(joint + "." + attr, lock=True)
                 if lock_check is True:
                     cmds.setAttr(joint, lock=0)
-
             # @MEMO
             # Write out a string as a single character and check the prefix
             # Example RTG:NC003_Rig_Final:root => RTG:NC003_Rig_Final:
@@ -531,7 +530,6 @@ class RetargetingTool(QtWidgets.QDialog):
                     name += names[idx] + ":"
                 self.source_reference_prefix = name
                 print("source_reference_prefix => {0}".format(self.source_reference_prefix))
-
             # Mapping based on json data
             source_joint_data = self._get_project_json_data(self.source_model_text_name)
             source_joints = source_joint_data['joint']
@@ -547,13 +545,13 @@ class RetargetingTool(QtWidgets.QDialog):
         root_object = self._get_target_group_root()
         if root_object:
             cmds.select("*:" + root_object)
-        curves = cmds.ls(selection=True, dag=True, type="transform")
-        for curve in curves:
-            if cmds.nodeType(curve) == "transform":
+        transforms = cmds.ls(selection=True, dag=True, type="transform")
+        for transform in transforms:
+            if cmds.nodeType(transform) == "transform":
                 # Write out the string one character at a time and check the prefix.
                 # Example XXX_P001_Rig_20220905:Group => XXX_P001_Rig_20220905
                 if self.target_reference_prefix is None:
-                    names = curve.split(":")
+                    names = transform.split(":")
                     length = len(names) - 1
                     name = ""
                     for idx in range(length):
@@ -564,10 +562,8 @@ class RetargetingTool(QtWidgets.QDialog):
                 target_curves = target_joint_data['ctrl']
                 for key, value in target_curves.items():
                     real_curve_name = self.target_reference_prefix + value
-                    if real_curve_name == curve:
-                        self.target_joints.append(curve)
-                        #print("added curve => {0}".format(curve))
-        #print("found object count => {0}".format(len(self.target_joints)))
+                    if real_curve_name == transform:
+                        self.target_joints.append(transform)
 
     @staticmethod
     def _get_animated_attributes(node):

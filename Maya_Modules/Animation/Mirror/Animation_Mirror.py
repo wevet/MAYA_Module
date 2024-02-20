@@ -995,6 +995,8 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             find_text = OperationType.selected
         self.is_batch_running = True
         self.batch_running_text = find_text
+
+        print("choose mirror mode => {}".format(self.batch_running_text))
         self._apply_mirror_control()
 
     @preserve_selection
@@ -1197,8 +1199,8 @@ def run(file_path, index):
     cmds.file(file_path, o=True, force=True)
 
     duplicate_file()
-    mirror_control = Animation_Mirror_Window()
-    mirror_control.mirror_control(index)
+    instance = Animation_Mirror_Window()
+    instance.mirror_control(index)
 
     # exeで処理していた場合は終了
     if not cmds.about(batch=1):

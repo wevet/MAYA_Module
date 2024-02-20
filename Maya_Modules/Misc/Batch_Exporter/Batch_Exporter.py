@@ -26,11 +26,9 @@ class Batch_Job:
         return os.path.splitext(os.path.basename(cmds.file(q=True, sn=True)))[0]
 
     def _get_all_joints(self):
-        """
+        #return self._get_target_joints()
         children_joints = cmds.ls(type="joint")
         return children_joints
-        """
-        return self._get_target_joints()
 
     def _get_parent(self, node):
         parent = cmds.listRelatives(node, parent=True, path=True)
@@ -223,8 +221,6 @@ class Batch_Job:
         mel.eval('FBXExportBakeComplexAnimation -v 1')
         mel.eval('FBXExportInAscii -v 1')
         mel.eval('FBXExport -f "' + file_path + '" -s')
-        #cmds.file(file_path, force=True, exportSelected=True, type="FBX export")
-        pass
 
     def start(self):
         asset_file_path = cmds.file(q=True, sn=True)
@@ -269,14 +265,11 @@ if __name__ == "__main__":
             batch.start()
             cmds.file(new=True, force=True)
     """
-    batch = Batch_Job()
-    batch.start()
     pass
 
 # @TODO
 # batch files
 def run(file_path):
-
     print('## Scene File Open >> {}'.format(file_path))
     cmds.file(file_path, o=True, force=True)
     batch = Batch_Job()

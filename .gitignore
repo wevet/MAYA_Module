@@ -8,8 +8,8 @@
 __pycache__/
 Modules/FaceRigger/__pycache__/
 Reference/__pycache__/
-# Maya_Modules/Animation/json/Projects/
 Maya_Modules/Misc/Batch_Exporter/Test/
+Maya_Modules/Animation/Mirror/Test/
 
 *.pyc
 

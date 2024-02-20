@@ -3,20 +3,31 @@
 import sys
 import os
 
+"""
+Python class to automate Animation Mirror
+
+1.Drag & drop the folder to create.bat file.
+2.Select mirror mode.
+
+"""
 
 K_MAYA_EXE = r'C:\Program Files\Autodesk\Maya2020\bin\maya.exe'
 K_MAYA_BATCH_EXE = r'C:\Program Files\Autodesk\Maya2020\bin\mayabatch.exe'
 
-class Batch_Job_Caller:
+class Animation_Mirror_Caller:
 
     def __init__(self):
-        self.source_directory = None
+        self.source_directory = sys.argv[1]
         self.file_list = []
+
+        # @TODO
+        # Need to pass the result of the bat file.
+        self.mirror_mode = 3
         pass
 
-    def main(self, new_source_directory):
-        self.source_directory = new_source_directory
+    def main(self, index):
         self.file_list = self._get_list_directory_files()
+        self.mirror_mode = int(index)
 
         path = os.getcwd()
         cmd = 'SET MAYA_UI_LANGUAGE=ja_JP' + '\n'
@@ -25,21 +36,20 @@ class Batch_Job_Caller:
         #cmd += 'SET MAYA_SCRIPT_PATH=C:dir'+'\n'
         cmd += 'SET PYTHONPATH=%s' % path + '\n'
 
-        # create log directory
+        # logを入れるフォルダを作成
         self._check_directory()
 
         for file in self.file_list:
-            print("Execute the following ma file. => {}".format(file))
             replace_path = os.path.join(self.source_directory, file).replace('\\', '/')
             root, ext = os.path.splitext(replace_path)
             log_path = os.path.join(self.source_directory, 'Log', file).replace(ext, '.log')
             cmd += '\n'
             cmd += 'SET MAYA_CMD_FILE_OUTPUT={0}'.format(log_path) + '\n'
             cmd += '"{0}"'.format(K_MAYA_BATCH_EXE) + ' -command'
-            cmd += ' "python(\\"import Batch_Exporter;Batch_Exporter.run(\'{}\')\\")"'.format(replace_path)
+            cmd += ' "python(\\"import Animation_Mirror;Animation_Mirror.run(\'{}, {}\')\\")"'.format(replace_path, self.mirror_mode)
 
-        dir_path, current_path_name = os.path.split(__file__)
-        path = os.path.join(dir_path, 'batch_exporter_run.bat')
+        dir_path, current_path_name = os.path.split(self.source_directory)
+        path = os.path.join(dir_path, 'animation_mirror_run.bat')
         self._save_bat_file(path, cmd)
 
     def _save_bat_file(self, path, cmd):
@@ -61,12 +71,13 @@ class Batch_Job_Caller:
 
 if __name__ == '__main__':
     # args 1 run python file name
-    # args 2 select folder directory
+    # args 2 mirror mode index
     params = sys.argv
     for param in params:
         print("parameters => {}".format(param))
 
-    caller = Batch_Job_Caller()
+    caller = Animation_Mirror_Caller()
     caller.main(params[1])
+
 
 

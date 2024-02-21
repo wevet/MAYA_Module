@@ -5,7 +5,7 @@ import argparse
 import sys
 import os
 
-import maya.standalone as standalone
+import maya.standalone
 import maya.cmds as cmds
 from PySide2 import QtCore, QtWidgets
 from shiboken2 import wrapInstance
@@ -22,14 +22,13 @@ Python class to automate Animation Mirror
 class Animation_Mirror_Caller:
 
     def __init__(self):
+        self.app = None
         self.source_directory = None
-        self.file_list = []
-        self.mirror_file_names = []
         self.mirror_mode = 3
+        self.file_list = []
 
         self.PREFIX = "_Mirror"
 
-        self.app = None
         if not QtWidgets.QApplication.instance():
             self.app = QtWidgets.QApplication(sys.argv)
         else:
@@ -37,8 +36,7 @@ class Animation_Mirror_Caller:
         pass
 
     def main(self, args):
-        standalone.initialize(name='python')
-
+        maya.standalone.initialize(name='python')
         cmds.loadPlugin("fbxmaya.mll")
 
         for arg in args:
@@ -48,20 +46,18 @@ class Animation_Mirror_Caller:
         self.mirror_mode = int(args[2])
         self.file_list = self._get_list_directory_files()
 
-        #self._check_directory()
         print("----------------------search file begin-----------------------------")
-
         plugins = cmds.unknownPlugin(query=True, list=True) or []
         if plugins:
             for plugin in plugins:
                 cmds.unknownPlugin(plugin, remove=True)
                 print("unload plugin => {}".format(plugin))
 
-        self._duplicate_files()
+        self._duplicate_mirror_animation_files()
         print("----------------------search file end-----------------------------")
-        standalone.uninitialize()
+        maya.standalone.uninitialize()
 
-    def _duplicate_files(self):
+    def _duplicate_mirror_animation_files(self):
         for file in self.file_list:
             try:
                 file_path = os.path.join(self.source_directory, file).replace('\\', '/')

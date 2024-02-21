@@ -26,14 +26,16 @@ If your naming convention is one of the default then skip to step 4
 
 import os
 import sys
-from PySide2 import QtCore
-from PySide2 import QtGui
-from PySide2 import QtWidgets
+
+import maya.standalone
+from PySide2 import QtCore, QtWidgets
 from shiboken2 import wrapInstance
 
 import maya.OpenMayaUI as omui
 import maya.cmds as cmds
 import maya.OpenMaya as om
+import maya.mel as mel
+import subprocess
 import pymel.core as pm
 from time import sleep
 
@@ -46,12 +48,19 @@ class OperationType(object):
     mirror_middle = "Mirror Middle"
     not_selected = "Not Selected"
 
+
 def maya_main_menu():
     main_window = omui.MQtUtil.mainWindow()
-    if sys.version_info.major >= 3:
-        return wrapInstance(int(main_window), QtWidgets.QDialog)
+
+    print("main window => {}".format(main_window))
+    print("py version => {}".format(sys.version_info.major))
+    if main_window is not None:
+        if sys.version_info.major >= 3:
+            return wrapInstance(int(main_window), QtWidgets.QDialog)
+        else:
+            return wrapInstance(long(main_window), QtWidgets.QDialog)  # type: ignore
     else:
-        return wrapInstance(long(main_window), QtWidgets.QDialog) # type: ignore
+        pass
 
 
 def preserve_selection(func):
@@ -74,7 +83,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
 
     WINDOW_TITLE = "Mirror Animation Window"
     SOURCE_TRANSFORM_ATTRIBUTE = ["translateX", "translateY", "translateZ", "rotateX", "rotateY", "rotateZ", "scaleX", "scaleY", "scaleZ"]
-    MODULE_VERSION = "1.0.3"
+    MODULE_VERSION = "1.0.5"
 
     @classmethod
     def show_dialog(cls):
@@ -139,7 +148,6 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         self.setMinimumWidth(360)
         self.setMinimumHeight(260)
         self.resize(620, 420)
-
         self._create_widgets()
         self._create_layout()
         self._create_connections()
@@ -984,6 +992,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
 
     # apply batch run
     def mirror_control(self, index):
+        print("mirror_control")
         find_text = None
         if index is 1:
             find_text = OperationType.left_to_right
@@ -995,6 +1004,9 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             find_text = OperationType.selected
         self.is_batch_running = True
         self.batch_running_text = find_text
+
+        time_string = mel.eval('currentTimeUnitToFPS')
+        print("fps => {}".format(time_string))
 
         print("choose mirror mode => {}".format(self.batch_running_text))
         self._apply_mirror_control()
@@ -1075,6 +1087,8 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         local_end_frame = int(self._get_max_flip_frame())
         local_end_frame += 1
 
+        print("start frame => {}, end frame => {}".format(local_start_frame, local_end_frame))
+
         self.undo_data['start_frame'] = local_start_frame
         self.undo_data['end_frame'] = local_end_frame
         self.undo_data['operation'] = operation
@@ -1152,7 +1166,6 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             cmds.bakeResults(ctrl_list, t=(local_start_frame, local_end_frame), sb=1, at=self.SOURCE_TRANSFORM_ATTRIBUTE, hi="none")
             cmds.refresh(suspend=False)
 
-
     def showEvent(self, event):
         super(Animation_Mirror_Window, self).showEvent(event)
         if self.geometry:
@@ -1173,38 +1186,8 @@ def show_main_window():
         pass
     mirror_control = Animation_Mirror_Window()
     mirror_control.show()
+    return mirror_control
 
-
-# ma fileを複製する
-# prefix _Mirror
-def duplicate_file():
-    asset_file_path = cmds.file(q=True, sn=True)
-    filename = os.path.basename(asset_file_path)  # sample.ma
-    scene_name = os.path.splitext(os.path.basename(cmds.file(q=True, sn=True)))[0]
-    base_directory = asset_file_path.split(filename)[-2]
-    prefix = "_Mirror"
-    new_scene_name = scene_name + prefix
-
-    print("scene_name => {}".format(scene_name))
-    print("new_scene_name => {}".format(new_scene_name))
-    print("base_directory => {}".format(base_directory))
-    cmds.file(rename=new_scene_name)
-    cmds.file(save=True, type='mayaAscii', force=True)
-
-
-# @TODO
-# batch files
-def run(file_path, index):
-    print('## Scene File Open >> {}'.format(file_path))
-    cmds.file(file_path, o=True, force=True)
-
-    duplicate_file()
-    instance = Animation_Mirror_Window()
-    instance.mirror_control(index)
-
-    # exeで処理していた場合は終了
-    if not cmds.about(batch=1):
-        cmds.evalDeferred('from maya import cmds;cmds.quit(f=1)')
 
 
 class UndoAnimationData:
@@ -1228,4 +1211,5 @@ class UndoAnimationData:
             cmds.setKeyframe(attr_obj, v=value, t=time)
             #print("undo_pose_transform => {}".format(attr_obj))
         pass
+
 

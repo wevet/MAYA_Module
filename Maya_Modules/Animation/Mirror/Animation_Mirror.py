@@ -29,8 +29,8 @@ import sys
 
 import maya.standalone
 from PySide2 import QtCore, QtWidgets
+from PySide2.QtWidgets import QApplication, QLabel
 from shiboken2 import wrapInstance
-
 import maya.OpenMayaUI as omui
 import maya.cmds as cmds
 import maya.OpenMaya as om
@@ -50,10 +50,18 @@ class OperationType(object):
 
 
 def maya_main_menu():
-    main_window = omui.MQtUtil.mainWindow()
 
+    stand_alone = QtWidgets.QApplication.instance() is None
+    if not QtWidgets.QApplication.instance():
+        app = QtWidgets.QApplication(sys.argv)
+    else:
+        app = QtWidgets.QApplication.instance()
+
+    main_window = omui.MQtUtil.mainWindow()
+    print("stand_alone => {}".format(stand_alone))
     print("main window => {}".format(main_window))
-    print("py version => {}".format(sys.version_info.major))
+    print("python version => {}".format(sys.version_info.major))
+
     if main_window is not None:
         if sys.version_info.major >= 3:
             return wrapInstance(int(main_window), QtWidgets.QDialog)
@@ -61,7 +69,6 @@ def maya_main_menu():
             return wrapInstance(long(main_window), QtWidgets.QDialog)  # type: ignore
     else:
         pass
-
 
 def preserve_selection(func):
     def wrapper(*args, **kwargs):
@@ -992,22 +999,20 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
 
     # apply batch run
     def mirror_control(self, index):
-        print("mirror_control")
-        find_text = None
+        print("mayapy.exe ----------------------------mirror_control begin ----------------------------")
+        find_text = OperationType.flip_to_frame
         if index is 1:
             find_text = OperationType.left_to_right
         elif index is 2:
             find_text = OperationType.right_to_left
         elif index is 3:
             find_text = OperationType.flip_to_frame
-        else :
-            find_text = OperationType.selected
+
         self.is_batch_running = True
         self.batch_running_text = find_text
-
+        cmds.currentUnit(time='60fps')
         time_string = mel.eval('currentTimeUnitToFPS')
         print("fps => {}".format(time_string))
-
         print("choose mirror mode => {}".format(self.batch_running_text))
         self._apply_mirror_control()
 
@@ -1187,7 +1192,6 @@ def show_main_window():
     mirror_control = Animation_Mirror_Window()
     mirror_control.show()
     return mirror_control
-
 
 
 class UndoAnimationData:

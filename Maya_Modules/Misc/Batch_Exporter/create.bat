@@ -1,19 +1,21 @@
 
 rem choose directory command
 @echo off
-set "RootFolder="
-set "Title=Please select a folder"
-
-set dialog="about:<script language=vbscript>resizeTo 0,0:Sub window_onload():
-set dialog=%dialog%Set Shell=CreateObject("Shell.Application"):
-set dialog=%dialog%Set Env=CreateObject("WScript.Shell").Environment("Process"):
-set dialog=%dialog%Set Folder=Shell.BrowseForFolder(0, Env("Title"), 1, Env("RootFolder")):
-set dialog=%dialog%If Folder Is Nothing Then ret="" Else ret=Folder.Items.Item.Path End If:
-set dialog=%dialog%CreateObject("Scripting.FileSystemObject").GetStandardStream(1).Write ret:
-set dialog=%dialog%Close:End Sub</script><hta:application caption=no showintaskbar=no />"
+rem set "RootFolder="
+rem set "Title=Please select a folder"
+rem set dialog="about:<script language=vbscript>resizeTo 0,0:Sub window_onload():
+rem set dialog=%dialog%Set Shell=CreateObject("Shell.Application"):
+rem set dialog=%dialog%Set Env=CreateObject("WScript.Shell").Environment("Process"):
+rem set dialog=%dialog%Set Folder=Shell.BrowseForFolder(0, Env("Title"), 1, Env("RootFolder")):
+rem set dialog=%dialog%If Folder Is Nothing Then ret="" Else ret=Folder.Items.Item.Path End If:
+rem set dialog=%dialog%CreateObject("Scripting.FileSystemObject").GetStandardStream(1).Write ret:
+rem set dialog=%dialog%Close:End Sub</script><hta:application caption=no showintaskbar=no />"
 
 set folder=
-for /f "delims=" %%p in ('MSHTA.EXE %dialog%') do  set "folder=%%p"
+set "psCommand="(new-object -COM 'Shell.Application').BrowseForFolder(0,'Please choose your SOURCE folder.',0x010,17).self.path""
+for /f "usebackq delims=" %%I in (`powershell %psCommand%`) do set "folder=%%I
+rem for /f "delims=" %%p in ('MSHTA.EXE %dialog%') do  set "folder=%%p"
+
 echo selected  folder is : "%folder%"
 pause
 

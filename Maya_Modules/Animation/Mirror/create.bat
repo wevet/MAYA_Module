@@ -14,17 +14,22 @@ rem set dialog=%dialog%Close:End Sub</script><hta:application caption=no showint
 rem set folder=
 rem for /f "delims=" %%p in ('MSHTA.EXE %dialog%') do  set "folder=%%p"
 
-set folder=
-set "psCommand="(new-object -COM 'Shell.Application').BrowseForFolder(0,'Please choose your SOURCE folder.',0x010,17).self.path""
-for /f "usebackq delims=" %%I in (`powershell %psCommand%`) do set "folder=%%I
+rem set folder=
+rem set "psCommand="(new-object -COM 'Shell.Application').BrowseForFolder(0,'Please choose your SOURCE folder.',0x010,17).self.path""
+rem for /f "usebackq delims=" %%I in (`powershell %psCommand%`) do set "folder=%%I
 
 
 echo +-------------------------------------------------------+
-echo selected  folder is : "%folder%"
+echo please input directory
+echo +-------------------------------------------------------+
+
+set folder=
+set /p folder=
+pause
 
 if "%folder%"=="" (
     echo +-------------------------------------------------------+
-    echo folder is empty
+    echo not input directory
     echo +-------------------------------------------------------+
     exit
 

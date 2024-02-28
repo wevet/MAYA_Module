@@ -51,14 +51,7 @@ class OperationType(object):
 
 def maya_main_menu():
 
-    stand_alone = QtWidgets.QApplication.instance() is None
-    if not QtWidgets.QApplication.instance():
-        app = QtWidgets.QApplication(sys.argv)
-    else:
-        app = QtWidgets.QApplication.instance()
-
     main_window = omui.MQtUtil.mainWindow()
-    print("stand_alone => {}".format(stand_alone))
     print("main window => {}".format(main_window))
     print("python version => {}".format(sys.version_info.major))
 
@@ -321,16 +314,20 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
     def _get_max_flip_frame(self):
         return self.max_mirror_frame_spin_box.value()
 
-    def _set_time(self, time):
+    @staticmethod
+    def _set_time(time):
         cmds.currentTime(time)
 
-    def _get_current_time(self):
+    @staticmethod
+    def _get_current_time():
         return cmds.currentTime(q=True)
 
-    def _is_even(self, number):
+    @staticmethod
+    def _is_even(number):
         return (number % 2) == 0
 
-    def _get_vectors_dominating_axis(self, vector):
+    @staticmethod
+    def _get_vectors_dominating_axis(vector):
         """
         Description: ベクトルがどの軸を最も向いているかを取得する
         Args: vector: is a xyz list of 3 float values
@@ -401,7 +398,8 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             self._rotate_ctrl_to_data(ctrl, cur_pos[ctrl])
         return vector_dict
 
-    def _get_attribute_data(self, ctrl_list):
+    @staticmethod
+    def _get_attribute_data(ctrl_list):
         """
         Description: すべてのコントローラのチャンネルボックスに表示されるキーテーブル属性のデータを取得する
         Args: ctrl_list: A list of anim_curves
@@ -438,7 +436,8 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
 
         return data
 
-    def _get_selected_controls(self, ctrl_list, left_ctrl_list, right_ctrl_list, middle_ctrl_list):
+    @staticmethod
+    def _get_selected_controls(ctrl_list, left_ctrl_list, right_ctrl_list, middle_ctrl_list):
         """
         Description: ビューポートで選択されているコントローラを取得する
         Args:
@@ -462,7 +461,8 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                     right_sel_controls.append(sel_ctrl)
         return [left_sel_controls, right_sel_controls, middle_sel_controls]
 
-    def _get_mirror_axis_dominent_vector(self, mirror_axis, x_dominating, y_dominating, z_dominating):
+    @staticmethod
+    def _get_mirror_axis_dominant_vector(mirror_axis, x_dominating, y_dominating, z_dominating):
         """
         Args:
             mirror_axis: ミラー軸を表す文字列
@@ -483,7 +483,8 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             mirror_attr = mirror_axis
         return mirror_attr
 
-    def _remove_items_from_list(self, ctrl_list, items):
+    @staticmethod
+    def _remove_items_from_list(ctrl_list, items):
         """
         Args:
             ctrl_list: A list of anim_curves
@@ -494,12 +495,13 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             ctrl_list.remove(item)
         return ctrl_list
 
-    def _rotate_ctrl_to_zero(self, ctrl):
+    @staticmethod
+    def _rotate_ctrl_to_zero(ctrl):
         """
         Description: コントローラーの回転をゼロに設定
         Args:
             ctrl: controller
-            auto_key: オートキーを無効にするか
+            auto key: オートキーを無効にするか
         """
         for attr in ["X", "Y", "Z"]:
             if cmds.listAttr("{}.rotate{}".format(ctrl, attr), keyable=True, unlocked=True):
@@ -510,7 +512,8 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                 if auto_key:
                     cmds.autoKeyframe(state=True)
 
-    def _rotate_ctrl_to_data(self, ctrl, data):
+    @staticmethod
+    def _rotate_ctrl_to_data(ctrl, data):
         """
         Description: コントローラの回転をデータで指定されたものに設定
         Args:
@@ -527,7 +530,8 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                 if auto_key:
                     cmds.autoKeyframe(state=True)
 
-    def _split_string(self, name, split):
+    @staticmethod
+    def _split_string(name, split):
         """
         Description:
             定義した場所でコントローラ名を分割
@@ -566,12 +570,13 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                 return_dict["string"].append(string)
         return return_dict
 
-    def _is_mirror_same_as_dominants(self, mirror_axis, dominent, opp_dominent):
+    @staticmethod
+    def _is_mirror_same_as_dominants(mirror_axis, dominent, opp_dominent):
         """
         Args:
             mirror_axis: The predefined mirror axis
             dominant: The dominant axis of the controller
-            opp_dominant: The dominant axis of the opposite controller
+            opp dominant: The dominant axis of the opposite controller
 
         Return:
             Returns a True if the dominant and opposite dominant axis
@@ -584,12 +589,13 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             or "-{}".format(mirror_axis) == dominent
             and "-{}".format(mirror_axis) == opp_dominent)
 
-    def _is_dominants_same_and_not_mirror(self, mirror_axis, dominent, opp_dominent):
+    @staticmethod
+    def _is_dominants_same_and_not_mirror(mirror_axis, dominent, opp_dominent):
         """
         Args:
             mirror_axis: 定義済みのミラー軸
             dominant: コントローラーの軸
-            opp_dominant: 反対側のコントローラーの軸
+            opp dominant: 反対側のコントローラーの軸
         Return:
             Returns a True if the dominant and opposite dominant axis is the same.
             And they are not the same as the mirror axis, no matter if the dominant axis is positive or negative.
@@ -602,7 +608,8 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         else:
             return True
 
-    def _reassemble_ctrl_name(self, name, side, index):
+    @staticmethod
+    def _reassemble_ctrl_name(name, side, index):
         """
         Args:
             name: サイドを除いたコントローラ名
@@ -624,6 +631,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             if len(name) == index and i + 1 == index:
                 ctrl_name += side
         return ctrl_name
+
 
     def _calc_side_controller(self):
         left_naming = self._get_left_name()
@@ -804,7 +812,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                 opp_z_dominating = self._get_vectors_dominating_axis(opp_z_axis)
 
                 # 軸がmirrorの軸に最も近いかを探す
-                mirror_attr = self._get_mirror_axis_dominent_vector(mirror_axis, x_dominating, y_dominating, z_dominating)
+                mirror_attr = self._get_mirror_axis_dominant_vector(mirror_axis, x_dominating, y_dominating, z_dominating)
                 attr_obj = "{}.{}".format(opp_ctrl, attr)
 
                 if attr.__contains__("scale"):
@@ -967,7 +975,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                 y_dominating = self._get_vectors_dominating_axis(y_axis)
                 z_dominating = self._get_vectors_dominating_axis(z_axis)
                 # Finding what axis is pointing the most to the mirror axis
-                mirror_attr = self._get_mirror_axis_dominent_vector(mirror_axis, x_dominating, y_dominating, z_dominating)
+                mirror_attr = self._get_mirror_axis_dominant_vector(mirror_axis, x_dominating, y_dominating, z_dominating)
                 attr_obj = "{}.{}".format(ctrl, attr)
 
                 if attr.__contains__("scale"):
@@ -999,7 +1007,6 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
 
     # apply batch run
     def mirror_control(self, index):
-        print("mayapy.exe ----------------------------mirror_control begin ----------------------------")
         find_text = OperationType.flip_to_frame
         if index is 1:
             find_text = OperationType.left_to_right
@@ -1009,6 +1016,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             find_text = OperationType.flip_to_frame
 
         self.is_batch_running = True
+        self.is_write_keyframe = True
         self.batch_running_text = find_text
         cmds.currentUnit(time='60fps')
         time_string = mel.eval('currentTimeUnitToFPS')
@@ -1060,7 +1068,6 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
 
     # Processing itself is heavy, so lightweight is necessary.
     def _mirror_control(self):
-
         side_con = self._calc_side_controller()
         self.is_write_keyframe = self.write_keyframe_checkbox.isChecked()
         self.is_bake_animation = self.bake_animation_checkbox.isChecked()
@@ -1106,7 +1113,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             vector_data = self._get_vector_data(ctrl_list)
             data = self._get_attribute_data(ctrl_list)
 
-            instance = UndoAnimationData()
+            instance = Undo_Animation_Data()
             instance.cache_pose_transform(controller=ctrl_list, data=data)
             animation[frame] = instance
 
@@ -1162,7 +1169,6 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
 
         # finish
         self._set_time(float(local_start_frame))
-
         dic2 = sorted(animation.items(), key=lambda x:x[0])
         self.undo_data['animation'] = dic2
 
@@ -1181,6 +1187,37 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             super(Animation_Mirror_Window, self).closeEvent(event)
             self.geometry = self.saveGeometry()
 
+    def start_run(self, file_path, index):
+        cmds.loadPlugin("fbxmaya.mll")
+        plugins = cmds.unknownPlugin(query=True, list=True) or []
+        if plugins:
+            for plugin in plugins:
+                cmds.unknownPlugin(plugin, remove=True)
+                print("unload plugin => {}".format(plugin))
+
+        cmds.file(file_path, o=True, type='mayaAscii', force=True)
+        asset_file_path = cmds.file(q=True, sn=True)
+        new_file_name = os.path.basename(asset_file_path)
+        scene_name = os.path.splitext(os.path.basename(cmds.file(q=True, sn=True)))[0]
+        base_directory = asset_file_path.split(new_file_name)[-2]
+        new_scene_name = scene_name + self.PREFIX
+        print("asset_file_path => {}".format(asset_file_path))
+        print("filename => {}".format(new_file_name))
+        print("scene_name => {}".format(scene_name))
+        print("new_scene_name => {}".format(new_scene_name))
+        print("base_directory => {}".format(base_directory))
+        # NOTE
+        # If the default is 24 fps, change to 60 fps
+        cmds.currentUnit(time='60fps')
+        print('## QDialog => {}'.format(QtWidgets.QDialog))
+
+        # @TODO
+        # rename bug
+        cmds.file(rename=base_directory + new_scene_name + ".ma")
+        # cmds.file(rename=base_directory + new_scene_name)
+        cmds.file(save=True, type='mayaAscii', force=True)
+        #self.mirror_control(index)
+
 
 def show_main_window():
     global mirror_control
@@ -1189,12 +1226,17 @@ def show_main_window():
         mirror_control.deleteLater()  # type: ignore
     except:
         pass
+
+    app = QtWidgets.QApplication.instance()
     mirror_control = Animation_Mirror_Window()
     mirror_control.show()
+
+    app.exec_()
     return mirror_control
 
 
-class UndoAnimationData:
+
+class Undo_Animation_Data:
     def __init__(self):
         self.controller_dict = {}
 
@@ -1215,5 +1257,18 @@ class UndoAnimationData:
             cmds.setKeyframe(attr_obj, v=value, t=time)
             #print("undo_pose_transform => {}".format(attr_obj))
         pass
+
+# @TODO
+class Animation_Mirror_Model:
+
+    def __init__(self):
+        self.controller = {}
+        self.side_con = []
+        # write key frame check box
+        self.is_write_keyframe = False
+        # bake
+        self.is_bake_animation = False
+
+
 
 

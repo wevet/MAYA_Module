@@ -10,9 +10,11 @@ maya.standalone.initialize(name='python')
 
 
 import maya.cmds as cmds
-from PySide2 import QtCore, QtWidgets
-from shiboken2 import wrapInstance
+from PySide2 import QtCore, QtWidgets, QtGui
 import maya.mel as mel
+
+QtGui.QGuiApplication.palette()
+
 
 """
 Python class to automate Animation Mirror
@@ -38,6 +40,11 @@ sys.path.append(MAYA_LOCATION+"/Python/Lib/plat-win")
 sys.path.append(MAYA_LOCATION+"/Python/Lib/lib-tk")
 print('\n'.join(sys.path))
 
+K_MAYA_EXE = r'C:\Program Files\Autodesk\Maya2020\bin\maya.exe'
+K_MAYA_BATCH_EXE = r'C:\Program Files\Autodesk\Maya2020\bin\mayabatch.exe'
+
+
+
 class Animation_Mirror_Caller:
 
     def __init__(self):
@@ -60,17 +67,11 @@ class Animation_Mirror_Caller:
 
         self.app = QtWidgets.QApplication.instance()
         self.stand_alone = self.app is None
-
-        """
-        if not QtWidgets.QApplication.instance():
-            self.app = QtWidgets.QApplication(sys.argv)
-        else:
-            self.app = QtWidgets.QApplication.instance()
-        """
-
         if self.stand_alone:
             self.app = QtWidgets.QApplication(sys.argv)
             print("created QApplication => {}".format(self.app))
+
+        print("stand alone => {}".format(self.stand_alone))
 
         cmds.loadPlugin("fbxmaya.mll")
         plugins = cmds.unknownPlugin(query=True, list=True) or []
@@ -80,16 +81,53 @@ class Animation_Mirror_Caller:
                 print("unload plugin => {}".format(plugin))
 
         self._duplicate_mirror_animation_files()
+        """
+        self._create_run_bat()
+
+        """
+
         if self.stand_alone:
             sys.exit(self.app.exec_())
 
         print("----------------------search file end-----------------------------")
 
+    @staticmethod
+    def _save_bat_file(path, cmd):
+        with open(path, "w") as file:
+            file.write(cmd)
+
+    # create mirror_run bat file
+    def _create_run_bat(self):
+        path = os.getcwd()
+        cmd = 'SET MAYA_UI_LANGUAGE=ja_JP' + '\n'
+        #cmd += 'SET MAYA_PLUG_IN_PATH=C:dir'+'\n'
+        #cmd += 'SET MAYA_MODULE_PATH=C:dir'+'\n'
+        #cmd += 'SET MAYA_SCRIPT_PATH=C:dir'+'\n'
+        cmd += 'SET PYTHONPATH=%s' % path + '\n'
+
+        for file in self.file_list:
+            file_path = os.path.join(self.source_directory, file).replace('\\', '/')
+            print("Execute the following ma file. => {}".format(file_path))
+
+            replace_path = os.path.join(self.source_directory, file).replace('\\', '/')
+            root, ext = os.path.splitext(replace_path)
+            log_path = os.path.join(self.source_directory, 'Log', file).replace(ext, '.log')
+            cmd += '\n'
+            cmd += 'SET MAYA_CMD_FILE_OUTPUT={0}'.format(log_path) + '\n'
+            cmd += '"{0}"'.format(K_MAYA_BATCH_EXE) + ' -command'
+            cmd += ' "python(\\"import Animation_Mirror; main_window = Animation_Mirror.show_main_window(); main_window.start_run(\'{}\', {})\\")"'.format(file_path, self.mirror_mode)
+            pass
+
+        dir_path, current_path_name = os.path.split(__file__)
+        path = os.path.join(dir_path, 'animation_mirror_run.bat')
+        self._save_bat_file(path, cmd)
+
+    # not create bat file run python command
     def _duplicate_mirror_animation_files(self):
         for file in self.file_list:
             file_path = os.path.join(self.source_directory, file).replace('\\', '/')
             print("Execute the following ma file. => {}".format(file_path))
-            print("cmds => {}".format(cmds))
+            #print("cmds => {}".format(cmds))
 
             # open file
             cmds.file(file_path, o=True, type='mayaAscii', force=True)
@@ -111,9 +149,10 @@ class Animation_Mirror_Caller:
 
             # @TODO
             # Cannot create a QWidget without QApplication
-            import Animation_Mirror as Mirror
-            window = Mirror.show_main_window()
-            window.mirror_control(self.mirror_mode)
+            #import Animation_Mirror as Mirror
+            #window = Mirror.show_main_window()
+            #window.mirror_control(self.mirror_mode)
+
 
             # @TODO
             # rename bug

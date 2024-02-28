@@ -45,18 +45,18 @@ echo 2 right to left mirror
 echo 3 flip to frame
 echo +-------------------------------------------------------+
 
-set input_str=
-set /p input_str=
+set input_mirror_mode=
+set /p input_mirror_mode=
 
 pause
 
-if "%input_str%"=="" (
+if "%input_mirror_mode%"=="" (
     echo +-------------------------------------------------------+
     echo not selected mirror mode
     echo +-------------------------------------------------------+
 ) else (
     echo +-------------------------------------------------------+
-    echo selected mirror_mode %input_str%
+    echo selected mirror_mode %input_mirror_mode%
     echo +-------------------------------------------------------+
     call :finalize
 )
@@ -66,7 +66,7 @@ if "%input_str%"=="" (
 set PYPATH=%~d0%~p0Animation_Mirror_Caller.py
 echo %PYPATH%
 
-"C:\Program Files\Autodesk\Maya2020\bin\mayapy.exe" %PYPATH% %1 %folder% %input_str%
+"C:\Program Files\Autodesk\Maya2020\bin\mayapy.exe" %PYPATH% %1 %folder% %input_mirror_mode%
 
 pause
 exit

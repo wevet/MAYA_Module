@@ -42,7 +42,8 @@ class Batch_Job_Caller:
         path = os.path.join(dir_path, 'batch_exporter_run.bat')
         self._save_bat_file(path, cmd)
 
-    def _save_bat_file(self, path, cmd):
+    @staticmethod
+    def _save_bat_file(path, cmd):
         with open(path, "w") as file:
             file.write(cmd)
 

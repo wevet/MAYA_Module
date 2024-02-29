@@ -1220,7 +1220,7 @@ class Animation_Mirror_Model:
         self.side_con = ["_L", "_R", "left", "right"]
 
     @staticmethod
-    def _handle_load_plugins():
+    def _handle_remove_plugins():
         cmds.loadPlugin("fbxmaya.mll")
         plugins = cmds.unknownPlugin(query=True, list=True) or []
         if plugins:
@@ -1228,7 +1228,13 @@ class Animation_Mirror_Model:
                 cmds.unknownPlugin(plugin, remove=True)
                 print("unload plugin => {}".format(plugin))
 
-    def start_run(self, file_path, index, mirror_axis):
+    def start_run(self, *args):
+        """
+        Args: file path, mirror mode, mirror axis
+        """
+        file_path = args[0]
+        index = args[1]
+        mirror_axis = args[2]
 
         if file_path is None:
             print("not valid file path => {}".format(file_path))
@@ -1254,7 +1260,7 @@ class Animation_Mirror_Model:
             print("not valid mirror axis => {}".format(mirror_axis))
             return
 
-        self._handle_load_plugins()
+        self._handle_remove_plugins()
 
         # file open
         cmds.file(file_path, o=True, type='mayaAscii', force=True)
@@ -1299,6 +1305,7 @@ class Animation_Mirror_Model:
         print("BEGIN MIRROR ANIMATION => {}".format(asset_file_path))
         for frame in range(local_start_frame, local_end_frame):
             current_frame = float(frame)
+            print("calc keyframe parameters => {0}".format(current_frame))
             cmds.currentTime(current_frame)
             vector_data = Animation_Mirror_Window.get_vector_data(ctrl_list)
             data = Animation_Mirror_Window.get_attribute_data(ctrl_list)

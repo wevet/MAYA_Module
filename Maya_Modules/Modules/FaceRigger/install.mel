@@ -4,23 +4,35 @@ global proc installFacial()
 	global string $gShelfTopLevel;
 	string $currentShelf = `tabLayout -query -selectTab $gShelfTopLevel`;
 	setParent $currentShelf;
-	string $iconExt="png";
+	string $icon_prefix="png";
 	string $asInstallScriptLocation=`asInstallScriptLocation`;
 
-	string $scriptName2="Facial_RIG";
-	string $sourceFile2=$asInstallScriptLocation+$scriptName2+".py";
-	string $command2="import os\nimport sys\nsys.path.append('"+$asInstallScriptLocation+"')\nimport Facial_RIG as NFacialRIG\nimport importlib\nimportlib.reload(NFacialRIG)\nfrom Facial_RIG import *\nif __name__ == '__main__':\n  Facial_Window_Manager.main()";
-	string $icon2=$asInstallScriptLocation+"/icon/Facial_RIG_icon."+$iconExt;
+	string $script_name="Facial_RIG";
+	string $source_file=$asInstallScriptLocation+$script_name+".py";
+	string $icon2=$asInstallScriptLocation+"/icon/Facial_RIG_icon."+$icon_prefix;
+	string $maya_version[] = stringToStringArray(`about -v`, " ");
+	string $import_base_text = "import os\nimport sys\nsys.path.append('"+$asInstallScriptLocation+"')\n";
+	string $command_name;
 
-	if (!`file -q -ex $sourceFile2`)
+	int $version_number = $maya_version[0];
+    if ($version_number >= 2022)
+    {
+    	$command_name = $import_base_text + "import Facial_RIG as FacialRIG\nimport importlib\nimportlib.reload(FacialRIG)\nfrom Facial_RIG import *\nif __name__ == '__main__':\n  Facial_Window_Manager.main()";
+    }
+    else
+    {
+    	$command_name = $import_base_text + "import Facial_RIG as FacialRIG\nreload(FacialRIG)\nfrom Facial_RIG import *\nif __name__ == '__main__':\n  Facial_Window_Manager.main()";
+    }
+
+	if (!`file -q -ex $source_file`)
 	{
-		error ("Something went wrong, can not find: \""+$sourceFile2+"\"");
+		error ("Something went wrong, can not find: \""+$source_file+"\"");
 	}
 
 	shelfButton
-		-command $command2
-		-annotation $scriptName2
-		-label $scriptName2
+		-command $command_name
+		-annotation $script_name
+		-label $script_name
 		-image $icon2
 		-image1 $icon2
 		-sourceType "python";
@@ -39,7 +51,9 @@ global proc installFacial()
 	string $destWindows=$verPath;
 	sysFile -makeDir ($verPath);
 	sysFile -copy $destWindows $srcWindows;
-	print ("\n// "+$scriptName2+" has been added to current shelf.\n");
+	
+	print ("\n// "+ $maya_version[0] + " is the current MAYA version.\n");	
+	print ("\n// "+$script_name+" has been added to current shelf.\n");
 }
 
 

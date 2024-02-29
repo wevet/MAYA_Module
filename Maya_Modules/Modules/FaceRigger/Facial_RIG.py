@@ -28,8 +28,16 @@ class UndoContext(object):
 
 
 def maya_main_window():
-    main_window_ptr = omui.MQtUtil.mainWindow()
-    return wrapInstance(int(main_window_ptr), QtWidgets.QWidget)
+    main_window = omui.MQtUtil.mainWindow()
+    print("main window => {}".format(main_window))
+    print("python version => {}".format(sys.version_info.major))
+    if main_window is not None:
+        if sys.version_info.major >= 3:
+            return wrapInstance(int(main_window), QtWidgets.QMainWindow)
+        else:
+            return wrapInstance(long(main_window), QtWidgets.QMainWindow)  # type: ignore
+    else:
+        pass
 
 # constant
 FACIAL_MESH_GROUP_NAME = 'Facial_Mesh_grp'
@@ -84,6 +92,9 @@ class Facial_Window_Manager(QtWidgets.QDialog):
 
 class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
 
+    WINDOW_TITLE = "FaceRig SetUp"
+    MODULE_VERSION = "1.0.2"
+
     @classmethod
     def main(cls):
         global Facial_ui
@@ -96,11 +107,14 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         Facial_ui = Facial_Auto_Rig_Window()
         Facial_ui.show()
 
-    def __init__(self, parent=maya_main_window()):
-        super(Facial_Auto_Rig_Window, self).__init__(parent)
+    def __init__(self, parent=maya_main_window(), *args, **kwargs):
+        super(Facial_Auto_Rig_Window, self).__init__(parent, *args, **kwargs)
         self.current_dir = os.path.dirname(__file__)
         mel.eval('channelBoxCommand -break;')
-        self.setWindowTitle('FaceRig SetUp v1.1')
+
+        self.setWindowTitle(self.WINDOW_TITLE + " v" + self.MODULE_VERSION)
+        self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
+
         cmds.loadPlugin('matrixNodes.mll')
         self.color_property = 'QCheckBox:enabled{ color:rgb(0, 170, 255); }QCheckBox:disabled{ color:rgb(160, 160, 160); }'
         self.styles = 'Plastique'
@@ -272,10 +286,10 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         self.ui.TimeStart_pathText.setValidator(text_validator1)
         text_validator2 = QtGui.QRegExpValidator(reg_ex, self.ui.TimeEnd_pathText)
         self.ui.TimeEnd_pathText.setValidator(text_validator2)
-        minTime = str(int(cmds.playbackOptions(q=True, minTime=True)))
-        maxTime = str(int(cmds.playbackOptions(q=True, maxTime=True)))
-        self.ui.TimeStart_pathText.setText(minTime)
-        self.ui.TimeEnd_pathText.setText(maxTime)
+        min_time = str(int(cmds.playbackOptions(q=True, minTime=True)))
+        max_time = str(int(cmds.playbackOptions(q=True, maxTime=True)))
+        self.ui.TimeStart_pathText.setText(min_time)
+        self.ui.TimeEnd_pathText.setText(max_time)
 
         self.ui.Neck_pathText.returnPressed.connect(self._return_neck)
         self.ui.set_min_Btn.clicked.connect(self._set_max_influence_command)
@@ -2233,10 +2247,20 @@ class Facial_Auto_Rig_Window(QtWidgets.QMainWindow):
         mel.eval('fclose $fileId')
 
     def _picker_command(self, *args):
+        info = cmds.about(version=True)
+        version = int(info.split(" ")[0])
+
         import Facial_Picker
-        importlib.reload(Facial_Picker)
-        from Facial_Picker import Facial_Picker_window
-        Facial_Picker_window.main()
+        if version >= 2022:
+            importlib.reload(Facial_Picker)
+            from Facial_Picker import Facial_Picker_window
+            Facial_Picker_window.main()
+        else:
+            # if maya version 2020
+            from imp import reload
+            reload(Facial_Picker)
+            from Facial_Picker import Facial_Picker_window
+            Facial_Picker_window.main()
         print("_picker_command")
 
     def _attach_neck_command(self, *args):

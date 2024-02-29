@@ -137,11 +137,8 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         # undo data
         self.undo_data = {}
 
+        # misc
         self.setStyleSheet('background-color:#262f38;')
-
-        # batch function
-        self.is_batch_running = False
-        self.batch_running_text = None
 
         self.setWindowTitle(self.WINDOW_TITLE + " v" + self.MODULE_VERSION)
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
@@ -315,11 +312,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         return self.max_mirror_frame_spin_box.value()
 
     @staticmethod
-    def _set_time(time):
-        cmds.currentTime(time)
-
-    @staticmethod
-    def _get_current_time():
+    def get_current_time():
         return cmds.currentTime(q=True)
 
     @staticmethod
@@ -369,7 +362,8 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
     def get_max_time():
         return cmds.playbackOptions(maxTime=True, query=True)
 
-    def _get_vector_data(self, ctrl_list):
+    @staticmethod
+    def get_vector_data(ctrl_list):
         """
         Description: 全コントローラのベクトルを求め、dictionaryに格納する。
         Args: ctrl_list: A list of all anim_curves
@@ -380,8 +374,8 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         # Storing the current position of the ctrl,
         # to get vector data in neutral position
         for ctrl in ctrl_list:
-            cur_pos[ctrl] = self._get_attribute_data([ctrl])
-            self._rotate_ctrl_to_zero(ctrl)
+            cur_pos[ctrl] = Animation_Mirror_Window.get_attribute_data([ctrl])
+            Animation_Mirror_Window._rotate_ctrl_to_zero(ctrl)
         for ctrl in ctrl_list:
             # getting controller vector in neutral position
             vector_dict[ctrl] = {}
@@ -395,11 +389,11 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             vector_dict[ctrl]["z_axis"] = world_mat[8:11]
         # Setting ctrl back to its position
         for ctrl in ctrl_list:
-            self._rotate_ctrl_to_data(ctrl, cur_pos[ctrl])
+            Animation_Mirror_Window._rotate_ctrl_to_data(ctrl, cur_pos[ctrl])
         return vector_dict
 
     @staticmethod
-    def _get_attribute_data(ctrl_list):
+    def get_attribute_data(ctrl_list):
         """
         Description: すべてのコントローラのチャンネルボックスに表示されるキーテーブル属性のデータを取得する
         Args: ctrl_list: A list of anim_curves
@@ -648,7 +642,8 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             side_con = [left_naming, right_naming]
         return side_con
 
-    def _get_controllers(self, side_con):
+    @staticmethod
+    def get_controllers(side_con):
         """
         Args:
             side_con: サイドの命名規約のリストです。
@@ -702,9 +697,9 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                             # if the ctrl == clash name, then there
                             # is not a classing name
                             if ctrl == clash_name:
-                                names = self._split_string(ctrl, side)
+                                names = Animation_Mirror_Window._split_string(ctrl, side)
                             else:
-                                names = self._split_string(clash_name, side)
+                                names = Animation_Mirror_Window._split_string(clash_name, side)
                             if names:
                                 for name in names["string"]:
                                     # もしその名前がスティングの組み合わせの中にあれば
@@ -722,15 +717,15 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                                         index = names["index"][index_dict]
 
                                         # Creating the name of the anim_curves
-                                        even = self._is_even(i)
+                                        even = Animation_Mirror_Window._is_even(i)
                                         if even:
                                             right_side = side_con[i + 1]
                                             left_side = side_con[i]
                                         else:
                                             right_side = side_con[i]
                                             left_side = side_con[i - 1]
-                                        right_ctrl = self._reassemble_ctrl_name(name, right_side, index)
-                                        left_ctrl = self._reassemble_ctrl_name(name, left_side, index)
+                                        right_ctrl = Animation_Mirror_Window._reassemble_ctrl_name(name, right_side, index)
+                                        left_ctrl = Animation_Mirror_Window._reassemble_ctrl_name(name, left_side, index)
                                         if ctrl == clash_name:
                                             if not right_ctrl in right_ctrl_list:
                                                 right_ctrl_list.append(right_ctrl)
@@ -771,7 +766,8 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
     # side controller mirror
     # arm l or r
     # leg l or r
-    def _mirror_side_ctrl(self, ctrl_list, data, mirror_axis, pair_dict, vector_data):
+    @staticmethod
+    def mirror_side_ctrl(ctrl_list, data, mirror_axis, pair_dict, vector_data, is_write_key_frame):
         """
         Description: ミラーコントローラーは片側から反対側へ（反対側）
         Args:
@@ -780,9 +776,10 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             mirror_axis： ミラー軸を表す文字列
             pair_dict： コントローラとその反対側のコントローラを対にしたdictionary
             vector_data: 軸のベクトルを含むdictionaryすべてのコントローラ
+            is_write_key_frame: keyframeを書き込むかどうか
         """
         # controller bake keyframe
-        current_time = self._get_current_time()
+        current_time = Animation_Mirror_Window.get_current_time()
         opp_ctrl = None
         for ctrl in ctrl_list:
             # Getting pair number
@@ -800,154 +797,151 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             opp_z_axis = vector_data[opp_ctrl]["z_axis"]
 
             for attr in data[ctrl].keys():
-                if attr not in self.SOURCE_TRANSFORM_ATTRIBUTE:
+                if attr not in Animation_Mirror_Window.SOURCE_TRANSFORM_ATTRIBUTE:
                     continue
 
                 value = data[ctrl][attr]
-                x_dominating = self._get_vectors_dominating_axis(x_axis)
-                y_dominating = self._get_vectors_dominating_axis(y_axis)
-                z_dominating = self._get_vectors_dominating_axis(z_axis)
-                opp_x_dominating = self._get_vectors_dominating_axis(opp_x_axis)
-                opp_y_dominating = self._get_vectors_dominating_axis(opp_y_axis)
-                opp_z_dominating = self._get_vectors_dominating_axis(opp_z_axis)
+                x_dominating = Animation_Mirror_Window._get_vectors_dominating_axis(x_axis)
+                y_dominating = Animation_Mirror_Window._get_vectors_dominating_axis(y_axis)
+                z_dominating = Animation_Mirror_Window._get_vectors_dominating_axis(z_axis)
+                opp_x_dominating = Animation_Mirror_Window._get_vectors_dominating_axis(opp_x_axis)
+                opp_y_dominating = Animation_Mirror_Window._get_vectors_dominating_axis(opp_y_axis)
+                opp_z_dominating = Animation_Mirror_Window._get_vectors_dominating_axis(opp_z_axis)
 
                 # 軸がmirrorの軸に最も近いかを探す
-                mirror_attr = self._get_mirror_axis_dominant_vector(mirror_axis, x_dominating, y_dominating, z_dominating)
+                mirror_attr = Animation_Mirror_Window._get_mirror_axis_dominant_vector(mirror_axis, x_dominating, y_dominating, z_dominating)
                 attr_obj = "{}.{}".format(opp_ctrl, attr)
 
                 if attr.__contains__("scale"):
                     cmds.setAttr(attr_obj, value)
-                    if self.is_write_keyframe is True:
+                    if is_write_key_frame is True:
                         cmds.setKeyframe(attr_obj, v=value, t=current_time)
-
                 elif x_dominating == opp_x_dominating and y_dominating == opp_y_dominating and z_dominating == opp_z_dominating:
                     if attr.__contains__("rotate{}".format(mirror_attr)):
                         cmds.setAttr(attr_obj, value)
-                        if self.is_write_keyframe is True:
+                        if is_write_key_frame is True:
                             cmds.setKeyframe(attr_obj, v=value, t=current_time)
                     elif attr.__contains__("rotate"):
                         cmds.setAttr(attr_obj, -value)
-                        if self.is_write_keyframe is True:
+                        if is_write_key_frame is True:
                             cmds.setKeyframe(attr_obj, v=-value, t=current_time)
                     elif attr.__contains__("translate{}".format(mirror_attr)):
                         cmds.setAttr(attr_obj, -value)
-                        if self.is_write_keyframe is True:
+                        if is_write_key_frame is True:
                             cmds.setKeyframe(attr_obj, v=-value, t=current_time)
                     else:
                         cmds.setAttr(attr_obj, value)
-                        if self.is_write_keyframe is True:
+                        if is_write_key_frame is True:
                             cmds.setKeyframe(attr_obj, v=value, t=current_time)
-
                 elif attr.__contains__("translate"):
-                    if self._is_mirror_same_as_dominants(mirror_axis, x_dominating, opp_x_dominating):
+                    if Animation_Mirror_Window._is_mirror_same_as_dominants(mirror_axis, x_dominating, opp_x_dominating):
                         cmds.setAttr(attr_obj, -value)
-                        if self.is_write_keyframe is True:
+                        if is_write_key_frame is True:
                             cmds.setKeyframe(attr_obj, v=-value, t=current_time)
-                    elif self._is_mirror_same_as_dominants(mirror_axis, y_dominating, opp_y_dominating):
+                    elif Animation_Mirror_Window._is_mirror_same_as_dominants(mirror_axis, y_dominating, opp_y_dominating):
                         cmds.setAttr(attr_obj, -value)
-                        if self.is_write_keyframe is True:
+                        if is_write_key_frame is True:
                             cmds.setKeyframe(attr_obj, v=-value, t=current_time)
-                    elif self._is_mirror_same_as_dominants(mirror_axis, z_dominating, opp_z_dominating):
+                    elif Animation_Mirror_Window._is_mirror_same_as_dominants(mirror_axis, z_dominating, opp_z_dominating):
                         cmds.setAttr(attr_obj, -value)
-                        if self.is_write_keyframe is True:
+                        if is_write_key_frame is True:
                             cmds.setKeyframe(attr_obj, v=-value, t=current_time)
                     elif x_dominating == opp_x_dominating:
                         if attr.__contains__(mirror_attr):
                             cmds.setAttr(attr_obj, value)
-                            if self.is_write_keyframe is True:
+                            if is_write_key_frame is True:
                                 cmds.setKeyframe(attr_obj, v=value, t=current_time)
                         elif attr.__contains__("X"):
                             cmds.setAttr(attr_obj, value)
-                            if self.is_write_keyframe is True:
+                            if is_write_key_frame is True:
                                 cmds.setKeyframe(attr_obj, v=value, t=current_time)
                         else:
                             cmds.setAttr(attr_obj, -value)
-                            if self.is_write_keyframe is True:
+                            if is_write_key_frame is True:
                                 cmds.setKeyframe(attr_obj, v=-value, t=current_time)
                     elif y_dominating == opp_y_dominating:
                         if attr.__contains__(mirror_attr):
                             cmds.setAttr(attr_obj, value)
-                            if self.is_write_keyframe is True:
+                            if is_write_key_frame is True:
                                 cmds.setKeyframe(attr_obj, v=value, t=current_time)
                         elif attr.__contains__("Y"):
                             cmds.setAttr(attr_obj, value)
-                            if self.is_write_keyframe is True:
+                            if is_write_key_frame is True:
                                 cmds.setKeyframe(attr_obj, v=value, t=current_time)
                         else:
                             cmds.setAttr(attr_obj, -value)
-                            if self.is_write_keyframe is True:
+                            if is_write_key_frame is True:
                                 cmds.setKeyframe(attr_obj, v=-value, t=current_time)
                     elif z_dominating == opp_z_dominating:
                         if attr.__contains__(mirror_attr):
                             cmds.setAttr(attr_obj, value)
-                            if self.is_write_keyframe is True:
+                            if is_write_key_frame is True:
                                 cmds.setKeyframe(attr_obj, v=value, t=current_time)
                         elif attr.__contains__("Z"):
                             cmds.setAttr(attr_obj, value)
-                            if self.is_write_keyframe is True:
+                            if is_write_key_frame is True:
                                 cmds.setKeyframe(attr_obj, v=value, t=current_time)
                         else:
                             cmds.setAttr(attr_obj, -value)
-                            if self.is_write_keyframe is True:
+                            if is_write_key_frame is True:
                                 cmds.setKeyframe(attr_obj, v=-value, t=current_time)
                     else:
                         cmds.setAttr(attr_obj, -value)
-                        if self.is_write_keyframe is True:
+                        if is_write_key_frame is True:
                             cmds.setKeyframe(attr_obj, v=-value, t=current_time)
                 elif attr.__contains__("rotate"):
-                    if self._is_dominants_same_and_not_mirror(mirror_axis, x_dominating, opp_x_dominating):
+                    if Animation_Mirror_Window._is_dominants_same_and_not_mirror(mirror_axis, x_dominating, opp_x_dominating):
                         if attr.__contains__(mirror_attr):
                             cmds.setAttr(attr_obj, -value)
-                            if self.is_write_keyframe is True:
+                            if is_write_key_frame is True:
                                 cmds.setKeyframe(attr_obj, v=-value, t=current_time)
                         elif attr.__contains__("X"):
                             cmds.setAttr(attr_obj, -value)
-                            if self.is_write_keyframe is True:
+                            if is_write_key_frame is True:
                                 cmds.setKeyframe(attr_obj, v=-value, t=current_time)
                         else:
                             cmds.setAttr(attr_obj, value)
-                            if self.is_write_keyframe is True:
+                            if is_write_key_frame is True:
                                 cmds.setKeyframe(attr_obj, v=value, t=current_time)
-
-                    elif self._is_dominants_same_and_not_mirror(mirror_axis, y_dominating, opp_y_dominating):
+                    elif Animation_Mirror_Window._is_dominants_same_and_not_mirror(mirror_axis, y_dominating, opp_y_dominating):
                         if attr.__contains__(mirror_attr):
                             cmds.setAttr(attr_obj, -value)
-                            if self.is_write_keyframe is True:
+                            if is_write_key_frame is True:
                                 cmds.setKeyframe(attr_obj, v=-value, t=current_time)
                         elif attr.__contains__("Y"):
                             cmds.setAttr(attr_obj, -value)
-                            if self.is_write_keyframe is True:
+                            if is_write_key_frame is True:
                                 cmds.setKeyframe(attr_obj, v=-value, t=current_time)
                         else:
                             cmds.setAttr(attr_obj, value)
-                            if self.is_write_keyframe is True:
+                            if is_write_key_frame is True:
                                 cmds.setKeyframe(attr_obj, v=value, t=current_time)
-
-                    elif self._is_dominants_same_and_not_mirror(mirror_axis, z_dominating, opp_z_dominating):
+                    elif Animation_Mirror_Window._is_dominants_same_and_not_mirror(mirror_axis, z_dominating, opp_z_dominating):
                         if attr.__contains__(mirror_attr):
                             cmds.setAttr(attr_obj, -value)
-                            if self.is_write_keyframe is True:
+                            if is_write_key_frame is True:
                                 cmds.setKeyframe(attr_obj, v=-value, t=current_time)
                         elif attr.__contains__("Z"):
                             cmds.setAttr(attr_obj, -value)
-                            if self.is_write_keyframe is True:
+                            if is_write_key_frame is True:
                                 cmds.setKeyframe(attr_obj, v=-value, t=current_time)
                         else:
                             cmds.setAttr(attr_obj, value)
-                            if self.is_write_keyframe is True:
+                            if is_write_key_frame is True:
                                 cmds.setKeyframe(attr_obj, v=value, t=current_time)
                     else:
                         cmds.setAttr(attr_obj, value)
-                        if self.is_write_keyframe is True:
+                        if is_write_key_frame is True:
                             cmds.setKeyframe(attr_obj, v=value, t=current_time)
                 else:
                     cmds.setAttr(attr_obj, value)
-                    if self.is_write_keyframe is True:
+                    if is_write_key_frame is True:
                         cmds.setKeyframe(attr_obj, v=value, t=current_time)
 
     # center controller mirror
     # spine joint etc...
-    def _mirror_center_ctrl(self, ctrl_list, data, mirror_axis, vector_data):
+    @staticmethod
+    def mirror_center_ctrl(ctrl_list, data, mirror_axis, vector_data, is_write_key_frame):
         """
         Description: 真ん中のコントローラーを反転させる
         Args:
@@ -957,7 +951,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             vector_data: 軸のベクトルを含む dictionary すべてのコントローラ
         """
         # controller bake keyframe
-        current_time = self._get_current_time()
+        current_time = Animation_Mirror_Window.get_current_time()
 
         for ctrl in ctrl_list:
             # Getting the direction of the axis on middle controller
@@ -967,62 +961,49 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             z_axis = vector_data[ctrl]["z_axis"]
             for attr in data[ctrl].keys():
 
-                if attr not in self.SOURCE_TRANSFORM_ATTRIBUTE:
+                if attr not in Animation_Mirror_Window.SOURCE_TRANSFORM_ATTRIBUTE:
                     continue
 
                 value = data[ctrl][attr]
-                x_dominating = self._get_vectors_dominating_axis(x_axis)
-                y_dominating = self._get_vectors_dominating_axis(y_axis)
-                z_dominating = self._get_vectors_dominating_axis(z_axis)
+                x_dominating = Animation_Mirror_Window._get_vectors_dominating_axis(x_axis)
+                y_dominating = Animation_Mirror_Window._get_vectors_dominating_axis(y_axis)
+                z_dominating = Animation_Mirror_Window._get_vectors_dominating_axis(z_axis)
                 # Finding what axis is pointing the most to the mirror axis
-                mirror_attr = self._get_mirror_axis_dominant_vector(mirror_axis, x_dominating, y_dominating, z_dominating)
+                mirror_attr = Animation_Mirror_Window._get_mirror_axis_dominant_vector(mirror_axis, x_dominating, y_dominating, z_dominating)
                 attr_obj = "{}.{}".format(ctrl, attr)
 
                 if attr.__contains__("scale"):
                     cmds.setAttr(attr_obj, value)
-                    if self.is_write_keyframe is True:
+                    if is_write_key_frame is True:
                         cmds.setKeyframe(attr_obj, v=value, t=current_time)
                 elif attr.__contains__("translate"):
                     if attr.__contains__(mirror_attr):
                         cmds.setAttr(attr_obj, -value)
-                        if self.is_write_keyframe is True:
+                        if is_write_key_frame is True:
                             cmds.setKeyframe(attr_obj, v=-value, t=current_time)
                     else:
                         pass
                 elif attr.__contains__("rotate"):
                     if attr.__contains__(mirror_attr):
                         cmds.setAttr(attr_obj, value)
-                        if self.is_write_keyframe is True:
+                        if is_write_key_frame is True:
                             cmds.setKeyframe(attr_obj, v=value, t=current_time)
                     else:
                         cmds.setAttr(attr_obj, -value)
-                        if self.is_write_keyframe is True:
+                        if is_write_key_frame is True:
                             cmds.setKeyframe(attr_obj, v=-value, t=current_time)
 
+    # @TODO
     # flipping controller
+    # refactoring
     def _flip_frame(self, left_ctrl_list, right_ctrl_list, middle_ctrl_list, data, pair_dict, mirror_axis, vector_data):
-        self._mirror_side_ctrl(ctrl_list=left_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
-        self._mirror_side_ctrl(ctrl_list=right_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
-        self._mirror_center_ctrl(middle_ctrl_list, data, mirror_axis, vector_data)
+        Animation_Mirror_Window.flip_frame_outer(left_ctrl_list, right_ctrl_list, middle_ctrl_list, data, pair_dict, mirror_axis, vector_data, self.is_write_keyframe)
 
-    # apply batch run
-    def mirror_control(self, index):
-        find_text = OperationType.flip_to_frame
-        if index is 1:
-            find_text = OperationType.left_to_right
-        elif index is 2:
-            find_text = OperationType.right_to_left
-        elif index is 3:
-            find_text = OperationType.flip_to_frame
-
-        self.is_batch_running = True
-        self.is_write_keyframe = True
-        self.batch_running_text = find_text
-        cmds.currentUnit(time='60fps')
-        time_string = mel.eval('currentTimeUnitToFPS')
-        print("fps => {}".format(time_string))
-        print("choose mirror mode => {}".format(self.batch_running_text))
-        self._apply_mirror_control()
+    @staticmethod
+    def flip_frame_outer(left_ctrl_list, right_ctrl_list, middle_ctrl_list, data, pair_dict, mirror_axis, vector_data, is_write_key_frame):
+        Animation_Mirror_Window.mirror_side_ctrl(ctrl_list=left_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data, is_write_key_frame=is_write_key_frame)
+        Animation_Mirror_Window.mirror_side_ctrl(ctrl_list=right_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data, is_write_key_frame=is_write_key_frame)
+        Animation_Mirror_Window.mirror_center_ctrl(ctrl_list=middle_ctrl_list, data=data, mirror_axis=mirror_axis, vector_data=vector_data, is_write_key_frame=is_write_key_frame)
 
     @preserve_selection
     def _apply_mirror_control(self):
@@ -1035,7 +1016,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
 
         side_con = self._calc_side_controller()
         self.is_write_keyframe = self.write_keyframe_checkbox.isChecked()
-        controls = self._get_controllers(side_con)
+        controls = self.get_controllers(side_con)
         ctrl_list = controls["all"]
 
         if not ctrl_list:
@@ -1052,7 +1033,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         for frame in range(local_start_frame, local_end_frame):
             current_frame = float(frame)
             print("undo calc keyframe parameters => {0}".format(current_frame))
-            self._set_time(current_frame)
+            cmds.currentTime(current_frame)
 
             # dict
             for animation in self.undo_data['animation']:
@@ -1063,7 +1044,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                     instance.undo_pose_transform(current_frame)
 
         # finish
-        self._set_time(float(local_start_frame))
+        cmds.currentTime(local_start_frame)
         pass
 
     # Processing itself is heavy, so lightweight is necessary.
@@ -1073,7 +1054,7 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         self.is_bake_animation = self.bake_animation_checkbox.isChecked()
         print("side_con => {0}".format(side_con))
 
-        controls = self._get_controllers(side_con)
+        controls = self.get_controllers(side_con)
         left_ctrl_list = controls["left"]
         right_ctrl_list = controls["right"]
         middle_ctrl_list = controls["middle"]
@@ -1089,10 +1070,6 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
             return
 
         operation = self._get_operation()
-        if self.is_batch_running is True:
-            operation = self.batch_running_text
-            print("batch operation type => {}".format(operation))
-
         mirror_axis = self._get_mirror_axis()
         # create start-end range
         local_start_frame = int(self._get_min_flip_frame())
@@ -1109,22 +1086,23 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         for frame in range(local_start_frame, local_end_frame):
             current_frame = float(frame)
             print("calc keyframe parameters => {0}".format(current_frame))
-            self._set_time(current_frame)
-            vector_data = self._get_vector_data(ctrl_list)
-            data = self._get_attribute_data(ctrl_list)
+            cmds.currentTime(current_frame)
+            vector_data = Animation_Mirror_Window.get_vector_data(ctrl_list)
+            data = Animation_Mirror_Window.get_attribute_data(ctrl_list)
 
             instance = Undo_Animation_Data()
             instance.cache_pose_transform(controller=ctrl_list, data=data)
             animation[frame] = instance
 
             if operation == OperationType.left_to_right:
-                self._mirror_side_ctrl(ctrl_list=left_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
+                self.mirror_side_ctrl(ctrl_list=left_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data, is_write_key_frame=self.is_write_keyframe)
             elif operation == OperationType.right_to_left:
-                self._mirror_side_ctrl(ctrl_list=right_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
+                self.mirror_side_ctrl(ctrl_list=right_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data, is_write_key_frame=self.is_write_keyframe)
             elif operation == OperationType.flip_to_frame:
-                self._flip_frame(left_ctrl_list, right_ctrl_list, middle_ctrl_list, data, pair_dict, mirror_axis, vector_data)
+                self._flip_frame(left_ctrl_list=left_ctrl_list, right_ctrl_list=right_ctrl_list, middle_ctrl_list=middle_ctrl_list, data=data, pair_dict=pair_dict, mirror_axis=mirror_axis, vector_data=vector_data)
             elif operation == OperationType.mirror_middle:
-                self._mirror_center_ctrl(middle_ctrl_list, data, mirror_axis, vector_data)
+                self.mirror_center_ctrl(ctrl_list=middle_ctrl_list, data=data, mirror_axis=mirror_axis, vector_data=vector_data, is_write_key_frame=self.is_write_keyframe)
+
             elif operation == OperationType.selected:
                 (
                     left_sel_controls,
@@ -1136,11 +1114,12 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                     return
 
                 if left_sel_controls:
-                    self._mirror_side_ctrl(ctrl_list=left_sel_controls, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
+                    self.mirror_side_ctrl(ctrl_list=left_sel_controls, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data, is_write_key_frame=self.is_write_keyframe)
                 if right_sel_controls:
-                    self._mirror_side_ctrl(ctrl_list=right_sel_controls, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
+                    self.mirror_side_ctrl(ctrl_list=right_sel_controls, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data, is_write_key_frame=self.is_write_keyframe)
                 if middle_sel_controls:
-                    self._mirror_center_ctrl(middle_sel_controls, data, mirror_axis, vector_data)
+                    self.mirror_center_ctrl(ctrl_list=middle_sel_controls, data=data, mirror_axis=mirror_axis, vector_data=vector_data, is_write_key_frame=self.is_write_keyframe)
+
             elif operation == OperationType.not_selected:
                 (
                     left_sel_controls,
@@ -1156,19 +1135,19 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
                 removed_middle_ctrl_list = self._remove_items_from_list(middle_ctrl_list, middle_sel_controls)
                 if self.left_to_right_radio_button.isChecked():
                     if removed_left_ctrl_list:
-                        self._mirror_side_ctrl(ctrl_list=removed_left_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
+                        self.mirror_side_ctrl(ctrl_list=removed_left_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data, is_write_key_frame=self.is_write_keyframe)
                     if removed_middle_ctrl_list:
-                        self._mirror_center_ctrl(removed_middle_ctrl_list, data, mirror_axis, vector_data)
+                        self.mirror_center_ctrl(ctrl_list=removed_middle_ctrl_list, data=data, mirror_axis=mirror_axis, vector_data=vector_data, is_write_key_frame=self.is_write_keyframe)
                 elif self.right_to_left_radio_button.isChecked():
                     if removed_right_ctrl_list:
-                        self._mirror_side_ctrl(ctrl_list=removed_right_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data)
+                        self.mirror_side_ctrl(ctrl_list=removed_right_ctrl_list, data=data, mirror_axis=mirror_axis, pair_dict=pair_dict, vector_data=vector_data, is_write_key_frame=self.is_write_keyframe)
                     if removed_middle_ctrl_list:
-                        self._mirror_center_ctrl(removed_middle_ctrl_list, data, mirror_axis, vector_data)
+                        self.mirror_center_ctrl(ctrl_list=removed_middle_ctrl_list, data=data, mirror_axis=mirror_axis, vector_data=vector_data, is_write_key_frame=self.is_write_keyframe)
                 elif self.flip_radio_button.isChecked():
-                    self._flip_frame(removed_left_ctrl_list, removed_right_ctrl_list, removed_middle_ctrl_list, data, pair_dict, mirror_axis, vector_data)
+                    self._flip_frame(left_ctrl_list=removed_left_ctrl_list, right_ctrl_list=removed_right_ctrl_list, middle_ctrl_list=removed_middle_ctrl_list, data=data, pair_dict=pair_dict, mirror_axis=mirror_axis, vector_data=vector_data)
 
         # finish
-        self._set_time(float(local_start_frame))
+        cmds.currentTime(local_start_frame)
         dic2 = sorted(animation.items(), key=lambda x:x[0])
         self.undo_data['animation'] = dic2
 
@@ -1186,37 +1165,6 @@ class Animation_Mirror_Window(QtWidgets.QDialog):
         if isinstance(self, Animation_Mirror_Window):
             super(Animation_Mirror_Window, self).closeEvent(event)
             self.geometry = self.saveGeometry()
-
-    def start_run(self, file_path, index):
-        cmds.loadPlugin("fbxmaya.mll")
-        plugins = cmds.unknownPlugin(query=True, list=True) or []
-        if plugins:
-            for plugin in plugins:
-                cmds.unknownPlugin(plugin, remove=True)
-                print("unload plugin => {}".format(plugin))
-
-        cmds.file(file_path, o=True, type='mayaAscii', force=True)
-        asset_file_path = cmds.file(q=True, sn=True)
-        new_file_name = os.path.basename(asset_file_path)
-        scene_name = os.path.splitext(os.path.basename(cmds.file(q=True, sn=True)))[0]
-        base_directory = asset_file_path.split(new_file_name)[-2]
-        new_scene_name = scene_name + self.PREFIX
-        print("asset_file_path => {}".format(asset_file_path))
-        print("filename => {}".format(new_file_name))
-        print("scene_name => {}".format(scene_name))
-        print("new_scene_name => {}".format(new_scene_name))
-        print("base_directory => {}".format(base_directory))
-        # NOTE
-        # If the default is 24 fps, change to 60 fps
-        cmds.currentUnit(time='60fps')
-        print('## QDialog => {}'.format(QtWidgets.QDialog))
-
-        # @TODO
-        # rename bug
-        cmds.file(rename=base_directory + new_scene_name + ".ma")
-        # cmds.file(rename=base_directory + new_scene_name)
-        cmds.file(save=True, type='mayaAscii', force=True)
-        #self.mirror_control(index)
 
 
 def show_main_window():
@@ -1263,12 +1211,114 @@ class Animation_Mirror_Model:
 
     def __init__(self):
         self.controller = {}
-        self.side_con = []
-        # write key frame check box
-        self.is_write_keyframe = False
-        # bake
-        self.is_bake_animation = False
+        self.batch_running_text = None
+        self.mirror_axis_text = None
+        self.prefix = "_Mirror"
 
+        # @TODO
+        # need a bat setting
+        self.side_con = ["_L", "_R", "left", "right"]
 
+    @staticmethod
+    def _handle_load_plugins():
+        cmds.loadPlugin("fbxmaya.mll")
+        plugins = cmds.unknownPlugin(query=True, list=True) or []
+        if plugins:
+            for plugin in plugins:
+                cmds.unknownPlugin(plugin, remove=True)
+                print("unload plugin => {}".format(plugin))
+
+    def start_run(self, file_path, index, mirror_axis):
+
+        if file_path is None:
+            print("not valid file path => {}".format(file_path))
+            return
+
+        if index is 1:
+            self.batch_running_text = OperationType.left_to_right
+        elif index is 2:
+            self.batch_running_text = OperationType.right_to_left
+        elif index is 3:
+            self.batch_running_text = OperationType.flip_to_frame
+        else:
+            print("not valid mirror mode => {}".format(index))
+            return
+
+        if mirror_axis is 1:
+            self.mirror_axis_text = "X"
+        elif mirror_axis is 2:
+            self.mirror_axis_text = "Y"
+        elif mirror_axis is 3:
+            self.mirror_axis_text = "Z"
+        else:
+            print("not valid mirror axis => {}".format(mirror_axis))
+            return
+
+        self._handle_load_plugins()
+
+        # file open
+        cmds.file(file_path, o=True, type='mayaAscii', force=True)
+        asset_file_path = cmds.file(q=True, sn=True)
+        new_file_name = os.path.basename(asset_file_path)
+        scene_name = os.path.splitext(os.path.basename(cmds.file(q=True, sn=True)))[0]
+        base_directory = asset_file_path.split(new_file_name)[-2]
+        new_scene_name = scene_name + self.prefix
+        print("asset_file_path => {}".format(asset_file_path))
+        print("filename => {}".format(new_file_name))
+        print("scene_name => {}".format(scene_name))
+        print("new_scene_name => {}".format(new_scene_name))
+        print("base_directory => {}".format(base_directory))
+
+        cmds.currentUnit(time='60fps')
+        time_string = mel.eval('currentTimeUnitToFPS')
+        print("fps => {}".format(time_string))
+        print("choose mirror mode => {}".format(self.batch_running_text))
+        print("choose mirror axis => {}".format(self.mirror_axis_text))
+
+        self.controller = Animation_Mirror_Window.get_controllers(self.side_con)
+        left_ctrl_list = self.controller["left"]
+        right_ctrl_list = self.controller["right"]
+        middle_ctrl_list = self.controller["middle"]
+        ctrl_list = self.controller["all"]
+        pair_dict = self.controller["pair"]
+
+        if not ctrl_list:
+            print("Couldn't find nurbsCurve or nurbsSurface in scene.")
+            return
+
+        if not left_ctrl_list and not right_ctrl_list:
+            print("Couldn't find side anim_curves. ")
+            return
+
+        operation = self.batch_running_text
+        local_start_frame = int(Animation_Mirror_Window.get_min_time())
+        local_end_frame = int(Animation_Mirror_Window.get_max_time())
+        local_end_frame += 1
+        print("start frame => {}, end frame => {}".format(local_start_frame, local_end_frame))
+
+        print("BEGIN MIRROR ANIMATION => {}".format(asset_file_path))
+        for frame in range(local_start_frame, local_end_frame):
+            current_frame = float(frame)
+            cmds.currentTime(current_frame)
+            vector_data = Animation_Mirror_Window.get_vector_data(ctrl_list)
+            data = Animation_Mirror_Window.get_attribute_data(ctrl_list)
+
+            if operation == OperationType.left_to_right:
+                Animation_Mirror_Window.mirror_side_ctrl(ctrl_list=left_ctrl_list, data=data, mirror_axis=self.mirror_axis_text, pair_dict=pair_dict, vector_data=vector_data, is_write_key_frame=True)
+            elif operation == OperationType.right_to_left:
+                Animation_Mirror_Window.mirror_side_ctrl(ctrl_list=right_ctrl_list, data=data, mirror_axis=self.mirror_axis_text, pair_dict=pair_dict, vector_data=vector_data, is_write_key_frame=True)
+            elif operation == OperationType.flip_to_frame:
+                Animation_Mirror_Window.flip_frame_outer(left_ctrl_list=left_ctrl_list, right_ctrl_list=right_ctrl_list, middle_ctrl_list=middle_ctrl_list, data=data, pair_dict=pair_dict, mirror_axis=self.mirror_axis_text, vector_data=vector_data, is_write_key_frame=True)
+
+        # finish
+        print("BEGIN BAKE ANIMATION => {}".format(asset_file_path))
+        cmds.currentTime(local_start_frame)
+        cmds.refresh(suspend=True)
+        cmds.bakeResults(ctrl_list, t=(local_start_frame, local_end_frame), sb=1, at=Animation_Mirror_Window.SOURCE_TRANSFORM_ATTRIBUTE, hi="none")
+        cmds.refresh(suspend=False)
+
+        # rename ma file
+        cmds.file(rename=base_directory + new_scene_name + ".ma")
+        cmds.file(save=True, type='mayaAscii', force=True)
 
 

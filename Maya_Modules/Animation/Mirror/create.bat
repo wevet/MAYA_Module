@@ -44,29 +44,50 @@ echo 1 left to right mirror
 echo 2 right to left mirror
 echo 3 flip to frame
 echo +-------------------------------------------------------+
-
 set input_mirror_mode=
 set /p input_mirror_mode=
-
 pause
 
 if "%input_mirror_mode%"=="" (
     echo +-------------------------------------------------------+
     echo not selected mirror mode
     echo +-------------------------------------------------------+
+    exit
 ) else (
     echo +-------------------------------------------------------+
     echo selected mirror_mode %input_mirror_mode%
+    call :select_mirror_axis
+)
+
+:select_mirror_axis
+echo +-------------------------------------------------------+
+echo select a mirror axis
+echo 1 X
+echo 2 Y
+echo 3 Z
+echo +-------------------------------------------------------+
+set input_mirror_axis=
+set /p input_mirror_axis=
+pause
+
+if "%input_mirror_axis%"=="" (
     echo +-------------------------------------------------------+
+    echo not selected mirror axis
+    echo +-------------------------------------------------------+
+    exit
+) else (
+    echo +-------------------------------------------------------+
+    echo selected mirror_axis %input_mirror_axis%
     call :finalize
 )
 
 
 :finalize
+echo +-------------------------------------------------------+
 set PYPATH=%~d0%~p0Animation_Mirror_Caller.py
 echo %PYPATH%
 
-"C:\Program Files\Autodesk\Maya2020\bin\mayapy.exe" %PYPATH% %1 %folder% %input_mirror_mode%
+"C:\Program Files\Autodesk\Maya2020\bin\mayapy.exe" %PYPATH% %1 %folder% %input_mirror_mode% %input_mirror_axis%
 
 pause
 exit

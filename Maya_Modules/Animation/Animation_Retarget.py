@@ -47,14 +47,18 @@ class RetargetingTool(QtWidgets.QDialog):
     WINDOW_TITLE = "Animation Retarget"
     RIG_FILE_NAME = "json/Retarget_Rig.json"
     IMPORT_NS = "RTG"
-    MODULE_VERSION = "1.0.5"
+    MODULE_VERSION = "1.0.6"
 
     SOURCE_ROTATE_LOCK_ATTRIBUTE = ["rx", "rz"]
     SOURCE_TRANSLATION_LOCK_ATTRIBUTE = ["tx", "ty", "tz"]
     SOURCE_TRANSFORM_ATTRIBUTE = ["tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz"]
 
-    FINGER_LOCK_NAMES = ["Finger2", "Finger3"]
-    IGNORE_JOINT_LOCK_KEYS = ["RootX_M", "IKLeg_L", "IKLeg_R", "PoleLeg_L", "PoleLeg_R"]
+    # const keynames
+    SNAP_CONTROLLER_KEY_NAME = "snap_controller_names"
+    POLE_VECTOR_KEY_NAME = "pole_vector_names"
+    FINGER_PREFIX_KEY_NAME = "finger_prefix"
+    LOCK_FINGER_JOINTS_KEY_NAME = "lock_finger_joints"
+    IGNORE_RESET_JOINTS_KEY_NAME = "ignore_lock_joints"
 
     def __init__(self, parent=None, *args, **kwargs):
         super(RetargetingTool, self).__init__(maya_main_window())
@@ -66,6 +70,7 @@ class RetargetingTool(QtWidgets.QDialog):
         self.batch_bake_button = None
         self.rot_checkbox = None
         self.pos_checkbox = None
+        self.ignore_finger_checkbox = None
         #self.mo_checkbox = None
         self.snap_checkbox = None
         self.connection_layout = None
@@ -149,6 +154,8 @@ class RetargetingTool(QtWidgets.QDialog):
         self.pos_checkbox = QtWidgets.QCheckBox("Translation")
         self.snap_checkbox = QtWidgets.QCheckBox("Align To Position")
 
+        self.ignore_finger_checkbox = QtWidgets.QCheckBox("Ignore Finger")
+
         # reset pose function
         self.reset_initial_pose_button = QtWidgets.QPushButton("Reset Pose")
         self.reset_initial_pose_button.setStyleSheet(self.default_style)
@@ -181,6 +188,7 @@ class RetargetingTool(QtWidgets.QDialog):
         horizontal_layout_checkbox.addWidget(self.pos_checkbox)
         horizontal_layout_checkbox.addWidget(self.rot_checkbox)
         horizontal_layout_checkbox.addWidget(self.snap_checkbox)
+        horizontal_layout_checkbox.addWidget(self.ignore_finger_checkbox)
         horizontal_layout_checkbox.addStretch()
 
         dir_name = os.path.dirname(__file__)
@@ -298,6 +306,8 @@ class RetargetingTool(QtWidgets.QDialog):
         self.rot_checkbox.setChecked(True)
         self.pos_checkbox.setChecked(True)
         self.snap_checkbox.setChecked(False)
+
+        self.ignore_finger_checkbox.setChecked(False)
 
         self.simple_conn_button.clicked.connect(self.create_connection_node)
         self.ik_conn_button.clicked.connect(self.create_ik_connection_node)
@@ -439,12 +449,13 @@ class RetargetingTool(QtWidgets.QDialog):
         end = int(pm.playbackOptions(q=True, max=True))
         return start, end
 
-    def _get_finger_joints(self):
+    def _get_remove_key_finger_joints(self):
         if len(self.target_joints) <= 0:
             self._find_target_curves()
         finger_joints = []
+        lock_finger_joints = self._get_project_json_data(self.LOCK_FINGER_JOINTS_KEY_NAME)
         for joint in self.target_joints:
-            for finger_name in self.FINGER_LOCK_NAMES:
+            for finger_name in lock_finger_joints:
                 if joint.find(finger_name) > -1:
                     finger_joints.append(joint)
         return finger_joints
@@ -456,7 +467,7 @@ class RetargetingTool(QtWidgets.QDialog):
         self._remove_body_translation_keyframe()
 
     def _remove_finger_rotation_keyframe(self):
-        finger_joints = self._get_finger_joints()
+        finger_joints = self._get_remove_key_finger_joints()
         start, end = self.get_frame_range()
         for joint in finger_joints:
             for attr in self.SOURCE_ROTATE_LOCK_ATTRIBUTE:
@@ -464,12 +475,14 @@ class RetargetingTool(QtWidgets.QDialog):
                 cmds.setAttr(joint + "." + attr, 0)
             print("cut keyframe finger joint => {}".format(joint))
 
+    # root ik foot joint pole vector以外のjointsをリセットする
     def _remove_body_translation_keyframe(self):
-        finger_joints = self._get_finger_joints()
+        finger_joints = self._get_remove_key_finger_joints()
 
         # 無視するjointsを生成
+        local_ignore_lock_joints = self._get_project_json_data(self.IGNORE_RESET_JOINTS_KEY_NAME)
         ignore_joints = []
-        for joint in self.IGNORE_JOINT_LOCK_KEYS:
+        for joint in local_ignore_lock_joints:
             ignore_joints.append(self.target_reference_prefix + joint)
 
         # filteringを行う
@@ -587,7 +600,6 @@ class RetargetingTool(QtWidgets.QDialog):
             data = json.load(f)
             return data[key_name]
 
-    # @TODO Refactoring
     # Calculate BoneMapping load json file
     def _get_bone_mapping_dict(self):
         if len(self.source_joints) <= 0 or len(self.target_joints) <= 0:
@@ -596,8 +608,9 @@ class RetargetingTool(QtWidgets.QDialog):
 
         source_joint_data = self._get_project_json_data(self.source_model_text_name)
         target_joint_data = self._get_project_json_data(self.target_model_text_name)
-        snap_controller_names = self._get_project_json_data('snap_controller_names')
-        pole_vector_controller_names = self._get_project_json_data('pole_vector_names')
+        snap_controller_names = self._get_project_json_data(self.SNAP_CONTROLLER_KEY_NAME)
+        pole_vector_controller_names = self._get_project_json_data(self.POLE_VECTOR_KEY_NAME)
+        local_finger_prefix = self._get_project_json_data(self.FINGER_PREFIX_KEY_NAME)
         source_joints = source_joint_data['joint']
         target_joints = target_joint_data['joint']
         source_curves = source_joint_data['ctrl']
@@ -647,6 +660,12 @@ class RetargetingTool(QtWidgets.QDialog):
             else:
                 print("json data doesn't have this key => {0}".format(key))
 
+        if self.ignore_finger_checkbox.isChecked() is True:
+            for key, value in target_dict.items():
+                for finger in local_finger_prefix:
+                    if value.find(finger) > -1:
+                       target_dict.pop(key, None)
+
         print("_get_bone_mapping_dict -----------start--------------")
         for key, value in target_dict.items():
             print("key => {0}, value => {1}".format(key, value))
@@ -660,7 +679,6 @@ class RetargetingTool(QtWidgets.QDialog):
                 return source
         return None
 
-    # @TODO
     # retarget automation
     def automation_create_connection_node(self):
         self._find_source_joints()
@@ -670,6 +688,7 @@ class RetargetingTool(QtWidgets.QDialog):
             return
         retarget_dict = self._get_bone_mapping_dict()
         self._automation_create_connection_node(retarget_dict)
+        pass
 
     def create_connection_node(self):
         try:
@@ -690,6 +709,15 @@ class RetargetingTool(QtWidgets.QDialog):
             cmds.confirmDialog(title='Warning', message='create_ik_connection_node No selections!', button=['Ok'], defaultButton='Ok')
 
     def _automation_create_connection_node(self, joint_dict):
+        # automation connecting is show progress bar
+        progress_dialog = QtWidgets.QProgressDialog("Auto Connection Node", None, 0, -1, self)
+        progress_dialog.setWindowFlags(progress_dialog.windowFlags() ^ QtCore.Qt.WindowCloseButtonHint)
+        progress_dialog.setWindowFlags(progress_dialog.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
+        progress_dialog.setWindowTitle("Progress...")
+        progress_dialog.setWindowModality(QtCore.Qt.WindowModal)
+        progress_dialog.show()
+        QtCore.QCoreApplication.processEvents()
+
         for key, value in joint_dict.items():
             try:
                 has_ik = value.find("IK") > -1
@@ -700,6 +728,8 @@ class RetargetingTool(QtWidgets.QDialog):
                     pass
             except:
                 pass
+        progress_dialog.close()
+        pass
 
     def _create_connection_node(self, selected_joint, selected_ctrl):
         if self.snap_checkbox.isChecked() is True:
@@ -1301,5 +1331,6 @@ def show_main_window():
         pass
     retarget_tool_ui = RetargetingTool()
     retarget_tool_ui.show()
+    return retarget_tool_ui
 
 

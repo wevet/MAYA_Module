@@ -50,10 +50,7 @@ class OperationType(object):
 
 
 def maya_main_menu():
-
     main_window = omui.MQtUtil.mainWindow()
-    print("main window => {}".format(main_window))
-    print("python version => {}".format(sys.version_info.major))
 
     if main_window is not None:
         if sys.version_info.major >= 3:

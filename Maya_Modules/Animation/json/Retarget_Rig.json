@@ -3,6 +3,9 @@
 	"name" : ["21", "22", "36", "UE4_Rig", "UE5_Rig", "META_Human"],
 	"snap_controller_names" : [ "IKLeg_R", "IKLeg_L" ],
 	"pole_vector_names" : [ "PoleLeg_R", "PoleLeg_L" ],
+	"finger_prefix" : ["Finger"],
+	"lock_finger_joints": ["Finger2", "Finger3"],
+	"ignore_lock_joints": ["RootX_M", "IKLeg_L", "IKLeg_R", "PoleLeg_L", "PoleLeg_R"],
 	"21" : {
 		"joint" : {
 			"root" : "root",

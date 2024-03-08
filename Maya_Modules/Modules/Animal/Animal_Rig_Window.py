@@ -7,13 +7,6 @@ import random
 import math
 from functools import partial
 
-"""
-import Animal_Rig_Window as rig
-import importlib
-importlib.reload(rig)
-window = rig.Animal_Rig_Window()
-window.create()
-"""
 
 class Animal_Rig_Window(object):
 
@@ -22,19 +15,16 @@ class Animal_Rig_Window(object):
         self.title = 'Animal Auto Rigging Tool'
         self.size = (340, 700)
         self.supportsToolAction = True
-
+        self.edit_menu = None
         self.edit_menu_division = None
         self.edit_menu_skeleton_radio = None
         self.edit_menu_tool = None
-
         self.button_skeleton_quadruped = None
-
         self.m_pelvis_joint = None
         self.m_knee_joint = None
         self.m_heel_joint = None
         self.m_toe01_joint = None
         self.m_toe02_joint = None
-
         self.mirror_each_joint = None
 
     def create(self):
@@ -45,7 +35,7 @@ class Animal_Rig_Window(object):
         cmds.showWindow()
 
     def show_common_menu(self):
-        #self.edit_menu = cmds.menu(label='Edit')
+        self.edit_menu = cmds.menu(label='Edit')
         self.edit_menu_division = cmds.menuItem(d=True)
         self.edit_menu_skeleton_radio = cmds.radioMenuItemCollection()
         self.edit_menu_tool = cmds.menuItem(label='As Tool', radioButton=True, enable=self.supportsToolAction, command=self.edit_menu_tool_command)

@@ -7,13 +7,6 @@ import random
 import math
 from functools import partial
 
-"""
-import Human_Rig_Window as rig
-import importlib
-importlib.reload(rig)
-window = rig.Human_Rig_Window()
-window.create()
-"""
 
 class Human_Rig_Window(object):
 
@@ -22,11 +15,10 @@ class Human_Rig_Window(object):
 		self.title = 'Human Auto Rigging Tool'
 		self.size = (340, 550)
 		self.supportsToolAction = True
-
+		self.edit_menu = None
 		self.edit_menu_division = None
 		self.edit_menu_skeleton_radio = None
 		self.edit_menu_tool = None
-
 		self.button_skeleton_human = None
 
 	def create(self):
@@ -37,7 +29,7 @@ class Human_Rig_Window(object):
 		cmds.showWindow()
 		
 	def show_common_menu(self):
-		# self.edit_menu = cmds.menu(label='Edit')
+		self.edit_menu = cmds.menu(label='Edit')
 		self.edit_menu_division = cmds.menuItem(d=True)
 		self.edit_menu_skeleton_radio = cmds.radioMenuItemCollection()
 		self.edit_menu_tool = cmds.menuItem(label='As Tool', radioButton=True, enable=self.supportsToolAction, command=self._edit_menu_tool_command)

@@ -21,13 +21,10 @@ class UndoContext(object):
 
 def maya_main_window():
     main_window = omui.MQtUtil.mainWindow()
-    if main_window is not None:
-        if sys.version_info.major >= 3:
-            return wrapInstance(int(main_window), QtWidgets.QMainWindow)
-        else:
-            return wrapInstance(long(main_window), QtWidgets.QMainWindow)  # type: ignore
+    if sys.version_info.major >= 3:
+        return wrapInstance(int(main_window), QtWidgets.QMainWindow)
     else:
-        pass
+        return wrapInstance(long(main_window), QtWidgets.QMainWindow)  # type: ignore
 
 
 
@@ -55,6 +52,9 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         self.LIP_ALL_GROUP_NAME = "Lip_All_Ctrl_grp"
         self.EYE_TARGET_ALL_GROUP_NAME = "Eye_target_All_Ctrl_grp"
         self.ORAL_CAVITY_ALL_GROUP_NAME = "Oral_Cavity_All_Ctrl_grp"
+
+        self.LIP_FACS_CTRL_NAME = "Lip_FACS_Ctrl"
+        self.LIP_FACS_BAR_CTRL_NAME = "Lip_FACS_bar_ctrl"
 
         self.K_TRANSLATION_ROTATION_ATTR = ["translateX", "translateY", "translateZ", "rotateX", "rotateY", "rotateZ"]
         self.K_ROTATION_ATTR = ["rotateX", "rotateY", "rotateZ"]
@@ -503,7 +503,7 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             print("_reset_lip_follow_command")
 
     def _reset_lip_facs_command(self):
-        if cmds.objExists(self.prefix + 'Lip_FACS_Ctrl'):
+        if cmds.objExists(self.prefix + self.LIP_FACS_CTRL_NAME):
             self._lip_facs_control_reset()
             print("_reset_lip_FACS_command")
 
@@ -1837,14 +1837,14 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
             self.ui.P_Jaw_Master_Btn.setEnabled(False)
             self.ui.P_Jaw_Master_Btn.setStyleSheet(None)
 
-        if cmds.objExists(self.prefix + 'Lip_FACS_Ctrl'):
+        if cmds.objExists(self.prefix + self.LIP_FACS_CTRL_NAME):
             self.ui.P_Lip_FACS_Btn.setStyleSheet(self.red)
             self.ui.P_Lip_FACS_Btn.setEnabled(True)
         else:
             self.ui.P_Lip_FACS_Btn.setEnabled(False)
             self.ui.P_Lip_FACS_Btn.setStyleSheet(None)
 
-        if cmds.objExists(self.prefix + 'Lip_FACS_bar_ctrl'):
+        if cmds.objExists(self.prefix + self.LIP_FACS_BAR_CTRL_NAME):
             self.ui.P_Lip_FACS_bar_Btn.setStyleSheet(self.white)
             self.ui.P_Lip_FACS_bar_Btn.setEnabled(True)
         else:
@@ -3138,24 +3138,24 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
 
     def _lip_facs_command(self):
         with UndoContext():
-            if cmds.objExists(self.prefix + 'Lip_FACS_Ctrl'):
+            if cmds.objExists(self.prefix + self.LIP_FACS_CTRL_NAME):
                 mods = cmds.getModifiers()
                 if mods & 1 > 0 or mods & 4 > 0:
-                    cmds.select(self.prefix + 'Lip_FACS_Ctrl', tgl=True)
+                    cmds.select(self.prefix + self.LIP_FACS_CTRL_NAME, tgl=True)
                 else:
-                    cmds.select(self.prefix + 'Lip_FACS_Ctrl')
+                    cmds.select(self.prefix + self.LIP_FACS_CTRL_NAME)
             else:
                 print('no existing object!!')
         print("_lip_FACS_command")
 
     def _lip_facs_bar_command(self):
         with UndoContext():
-            if cmds.objExists(self.prefix + 'Lip_FACS_bar_ctrl'):
+            if cmds.objExists(self.prefix + self.LIP_FACS_BAR_CTRL_NAME):
                 mods = cmds.getModifiers()
                 if mods & 1 > 0 or mods & 4 > 0:
-                    cmds.select(self.prefix + 'Lip_FACS_bar_ctrl', tgl=True)
+                    cmds.select(self.prefix + self.LIP_FACS_BAR_CTRL_NAME, tgl=True)
                 else:
-                    cmds.select(self.prefix + 'Lip_FACS_bar_ctrl')
+                    cmds.select(self.prefix + self.LIP_FACS_BAR_CTRL_NAME)
             else:
                 print('no existing object!!')
         print("_lip_FACS_bar_command")
@@ -3386,10 +3386,10 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
                 self._reset_joint_transform('Lip_Master_ctrl')
             if cmds.objExists(self.prefix + self.JAW_MASTER_CONTROLLER_NAME):
                 self._reset_joint_transform(self.JAW_MASTER_CONTROLLER_NAME)
-            if cmds.objExists(self.prefix + 'Lip_FACS_Ctrl'):
-                self._reset_joint_transform('Lip_FACS_Ctrl')
-            if cmds.objExists(self.prefix + 'Lip_FACS_bar_ctrl'):
-                self._reset_joint_transform('Lip_FACS_bar_ctrl')
+            if cmds.objExists(self.prefix + self.LIP_FACS_CTRL_NAME):
+                self._reset_joint_transform(self.LIP_FACS_CTRL_NAME)
+            if cmds.objExists(self.prefix + self.LIP_FACS_BAR_CTRL_NAME):
+                self._reset_joint_transform(self.LIP_FACS_BAR_CTRL_NAME)
 
             if cmds.objExists(self.prefix + 'Lip_FACS_L_bar_ctrl'):
                 self._reset_joint_transform('Lip_FACS_L_bar_ctrl')
@@ -3485,18 +3485,18 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
 
     def _lip_facs_control_reset(self):
         with UndoContext():
-            if cmds.objExists(self.prefix + 'Lip_FACS_Ctrl.Open_Follow'):
-                cmds.setAttr(self.prefix + 'Lip_FACS_Ctrl.Open_Follow', 1)
-            if cmds.objExists(self.prefix + 'Lip_FACS_Ctrl.Up_Follow'):
-                cmds.setAttr(self.prefix + 'Lip_FACS_Ctrl.Up_Follow', 1)
-            if cmds.objExists(self.prefix + 'Lip_FACS_Ctrl.Down_Follow'):
-                cmds.setAttr(self.prefix + 'Lip_FACS_Ctrl.Down_Follow', 1)
-            if cmds.objExists(self.prefix + 'Lip_FACS_Ctrl.Side_Follow'):
-                cmds.setAttr(self.prefix + 'Lip_FACS_Ctrl.Side_Follow', 1)
-            if cmds.objExists(self.prefix + 'Lip_FACS_Ctrl.Inside_Follow'):
-                cmds.setAttr(self.prefix + 'Lip_FACS_Ctrl.Inside_Follow', 1)
-            if cmds.objExists(self.prefix + 'Lip_FACS_Ctrl.Outside_Follow'):
-                cmds.setAttr(self.prefix + 'Lip_FACS_Ctrl.Outside_Follow', 1)
+            if cmds.objExists(self.prefix + self.LIP_FACS_CTRL_NAME + '.Open_Follow'):
+                cmds.setAttr(self.prefix + self.LIP_FACS_CTRL_NAME + '.Open_Follow', 1)
+            if cmds.objExists(self.prefix + self.LIP_FACS_CTRL_NAME + '.Up_Follow'):
+                cmds.setAttr(self.prefix + self.LIP_FACS_CTRL_NAME + '.Up_Follow', 1)
+            if cmds.objExists(self.prefix + self.LIP_FACS_CTRL_NAME + '.Down_Follow'):
+                cmds.setAttr(self.prefix + self.LIP_FACS_CTRL_NAME + '.Down_Follow', 1)
+            if cmds.objExists(self.prefix + self.LIP_FACS_CTRL_NAME + '.Side_Follow'):
+                cmds.setAttr(self.prefix + self.LIP_FACS_CTRL_NAME + '.Side_Follow', 1)
+            if cmds.objExists(self.prefix + self.LIP_FACS_CTRL_NAME + '.Inside_Follow'):
+                cmds.setAttr(self.prefix + self.LIP_FACS_CTRL_NAME + '.Inside_Follow', 1)
+            if cmds.objExists(self.prefix + self.LIP_FACS_CTRL_NAME + '.Outside_Follow'):
+                cmds.setAttr(self.prefix + self.LIP_FACS_CTRL_NAME + '.Outside_Follow', 1)
         print("_lip_FACS_control_reset")
 
     def _lip_nose_connect_control_reset(self):
@@ -3820,21 +3820,24 @@ class Facial_Picker_window(QtWidgets.QMainWindow):
         print("_eye_target_all_control_reset")
 
     def _eye_target_eye_connect_control_reset(self):
+        local_l_eye_target_controller = "L_eye_target_ctrl"
+        local_r_eye_target_controller = "R_eye_target_ctrl"
+
         with UndoContext():
-            if cmds.objExists(self.prefix + 'L_eye_target_ctrl') and cmds.objExists(self.prefix + 'L_eye_blink_ctrl'):
-                cmds.setAttr(self.prefix + 'L_eye_target_ctrl.Blink', 0)
-                cmds.setAttr(self.prefix + 'L_eye_target_ctrl.Eyelid_up_follow', 0.4)
-            if cmds.objExists(self.prefix + 'R_eye_target_ctrl') and cmds.objExists(self.prefix + 'R_eye_blink_ctrl'):
-                cmds.setAttr(self.prefix + 'R_eye_target_ctrl.Blink', 0)
-                cmds.setAttr(self.prefix + 'R_eye_target_ctrl.Eyelid_up_follow', 0.4)
-            if cmds.objExists(self.prefix + 'L_eye_target_ctrl') and cmds.objExists(self.prefix + 'L_eye_lower_ctrl'):
-                cmds.setAttr(self.prefix + 'L_eye_target_ctrl.Blink_Side', 0)
-                cmds.setAttr(self.prefix + 'L_eye_target_ctrl.Eyelid_down_follow', 0.4)
-                cmds.setAttr(self.prefix + 'L_eye_target_ctrl.Eyelid_side_follow', 1)
-            if cmds.objExists(self.prefix + 'R_eye_target_ctrl') and cmds.objExists(self.prefix + 'R_eye_lower_ctrl'):
-                cmds.setAttr(self.prefix + 'R_eye_target_ctrl.Blink_Side', 0)
-                cmds.setAttr(self.prefix + 'R_eye_target_ctrl.Eyelid_down_follow', 0.4)
-                cmds.setAttr(self.prefix + 'R_eye_target_ctrl.Eyelid_side_follow', 1)
+            if cmds.objExists(self.prefix + local_l_eye_target_controller) and cmds.objExists(self.prefix + 'L_eye_blink_ctrl'):
+                cmds.setAttr(self.prefix + local_l_eye_target_controller + '.Blink', 0)
+                cmds.setAttr(self.prefix + local_l_eye_target_controller + '.Eyelid_up_follow', 0.4)
+            if cmds.objExists(self.prefix + local_r_eye_target_controller) and cmds.objExists(self.prefix + 'R_eye_blink_ctrl'):
+                cmds.setAttr(self.prefix + local_r_eye_target_controller + '.Blink', 0)
+                cmds.setAttr(self.prefix + local_r_eye_target_controller + '.Eyelid_up_follow', 0.4)
+            if cmds.objExists(self.prefix + local_l_eye_target_controller) and cmds.objExists(self.prefix + 'L_eye_lower_ctrl'):
+                cmds.setAttr(self.prefix + local_l_eye_target_controller + '.Blink_Side', 0)
+                cmds.setAttr(self.prefix + local_l_eye_target_controller + '.Eyelid_down_follow', 0.4)
+                cmds.setAttr(self.prefix + local_l_eye_target_controller + '.Eyelid_side_follow', 1)
+            if cmds.objExists(self.prefix + local_r_eye_target_controller) and cmds.objExists(self.prefix + 'R_eye_lower_ctrl'):
+                cmds.setAttr(self.prefix + local_r_eye_target_controller + '.Blink_Side', 0)
+                cmds.setAttr(self.prefix + local_r_eye_target_controller + '.Eyelid_down_follow', 0.4)
+                cmds.setAttr(self.prefix + local_r_eye_target_controller + '.Eyelid_side_follow', 1)
         print("_eye_target_eye_connect_control_reset")
 
     def _oral_cavity_all_control_reset(self):

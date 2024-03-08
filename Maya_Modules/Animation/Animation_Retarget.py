@@ -661,7 +661,7 @@ class RetargetingTool(QtWidgets.QDialog):
                 print("json data doesn't have this key => {0}".format(key))
 
         if self.ignore_finger_checkbox.isChecked() is True:
-            for key, value in target_dict.items():
+            for key, value in list(target_dict.items()):
                 for finger in local_finger_prefix:
                     if value.find(finger) > -1:
                        target_dict.pop(key, None)

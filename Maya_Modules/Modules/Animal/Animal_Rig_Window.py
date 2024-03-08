@@ -8,30 +8,39 @@ import math
 from functools import partial
 
 """
-import animal_rig as rig
+import Animal_Rig_Window as rig
 import importlib
 importlib.reload(rig)
-window = rig.Animal_rig_window()
+window = rig.Animal_Rig_Window()
 window.create()
 """
 
-class Animal_rig_window(object):
+class Animal_Rig_Window(object):
 
     def __init__(self):
-        self.window = 'ar_optionsWindow'
-        self.title = 'Auto Rigging Tool'
+        self.window = 'AnimalRig_Window'
+        self.title = 'Animal Auto Rigging Tool'
         self.size = (340, 700)
         self.supportsToolAction = True
+
+        self.edit_menu_division = None
+        self.edit_menu_skeleton_radio = None
+        self.edit_menu_tool = None
+
+        self.button_skeleton_quadruped = None
+
+        self.m_pelvis_joint = None
+        self.m_knee_joint = None
+        self.m_heel_joint = None
+        self.m_toe01_joint = None
+        self.m_toe02_joint = None
+
+        self.mirror_each_joint = None
 
     def create(self):
         if cmds.window(self.window, exists=True):
             cmds.deleteUI(self.window, window=True)
-        self.window = cmds.window(
-            self.window,
-            title=self.title,
-            widthHeight=self.size,
-            menuBar=True
-        )
+        self.window = cmds.window(self.window, title=self.title, widthHeight=self.size, menuBar=True)
         self.show_common_menu()
         cmds.showWindow()
 
@@ -39,12 +48,7 @@ class Animal_rig_window(object):
         #self.edit_menu = cmds.menu(label='Edit')
         self.edit_menu_division = cmds.menuItem(d=True)
         self.edit_menu_skeleton_radio = cmds.radioMenuItemCollection()
-        self.edit_menu_tool = cmds.menuItem(
-            label='As Tool',
-            radioButton=True,
-            enable=self.supportsToolAction,
-            command=self.edit_menu_tool_command
-        )
+        self.edit_menu_tool = cmds.menuItem(label='As Tool', radioButton=True, enable=self.supportsToolAction, command=self.edit_menu_tool_command)
         #self.help_menu = cmds.menu(label='Help')
         #self.help_menu_item = cmds.menuItem(label='Help on %s' % self.title, command=self.help_menu_command)
 
@@ -52,76 +56,52 @@ class Animal_rig_window(object):
         cmds.text("QUADRUPED CHARACTER", align="center")
         cmds.text("  ")
         cmds.text("Step 1: Create quadruped skeleton")
-        self.button_skeleton_quadruped = cmds.button(label='Quadruped Skeleton',
-                                                     command=partial(self.create_skeleton),
-                                                     width=120, height=40)
+        self.button_skeleton_quadruped = cmds.button(label='Quadruped Skeleton', command=partial(self.create_skeleton), width=120, height=40)
 
         cmds.text("  ")
         cmds.text("Step 2: Create Legs control")
         cmds.text("____________________________________")
         cmds.text(label='REAR BODY CONTROL', align='center')
-        button_mirror_joints = cmds.button(label='Mirror Joints',
-                                         command=partial(self.mirror_joints),
-                                         width=120, height=40)
-        button_rig_front_legs_ctrl = cmds.button(label='Front Legs Control',
-                                             command=partial(self.front_legs_control),
-                                             width=120, height=40)
-        button_rig_rear_legs_ctrl = cmds.button(label='Rear Legs Control',
-                                            command=partial(self.rear_legs_control),
-                                            width=120, height=40)
-        button_rig_spine_ctrl = cmds.button(label='Spine Control',
-                                         command=partial(self.spine_control),
-                                         width=120, height=40,
-                                         align="center")
+        button_mirror_joints = cmds.button(label='Mirror Joints', command=partial(self.create_mirror_joints), width=120, height=40)
+        button_rig_front_legs_ctrl = cmds.button(label='Front Legs Control', command=partial(self.create_front_legs_control), width=120, height=40)
+        button_rig_rear_legs_ctrl = cmds.button(label='Rear Legs Control', command=partial(self.create_rear_legs_control), width=120, height=40)
+        button_rig_spine_ctrl = cmds.button(label='Spine Control', command=partial(self.create_spine_control), width=120, height=40, align="center")
 
         cmds.text("  ")
         cmds.text("Step 3: Create Neck/Head controls")
         cmds.text("__________________________________")
         cmds.text(label='FRONT BODY CONTROL', align='center')
-        button_rig_neck_ctrl = cmds.button(label='Neck Control',
-                                        command=partial(self.neck_control),
-                                        width=120, height=40)
-        button_rig_head_ctrl = cmds.button(label='Head Control',
-                                        command=partial(self.head_control),
-                                        width=120, height=40)
-        button_rig_jaw_ctrl = cmds.button(label="Jaw Control",
-                                       command=partial(self.jaw_control),
-                                       width=120, height=40)
-        button_rig_tongue_ctrl = cmds.button(label="Tongue Control",
-                                          command=partial(self.tongue_control),
-                                          width=120, height=40)
+        button_rig_neck_ctrl = cmds.button(label='Neck Control', command=partial(self.create_neck_control), width=120, height=40)
+        button_rig_head_ctrl = cmds.button(label='Head Control', command=partial(self.create_head_control), width=120, height=40)
+        button_rig_jaw_ctrl = cmds.button(label="Jaw Control", command=partial(self.create_jaw_control), width=120, height=40)
+        button_rig_tongue_ctrl = cmds.button(label="Tongue Control", command=partial(self.create_tongue_control), width=120, height=40)
 
         cmds.text("   ")
         cmds.text("Step 4: Create Tail Control")
-        button_rig_tail_ctrl = cmds.button(label="Tail Control",
-                                        command=partial(self.tail_control),
-                                        width=120, height=40)
+        button_rig_tail_ctrl = cmds.button(label="Tail Control", command=partial(self.create_tail_control), width=120, height=40)
+
         cmds.text("   ")
         cmds.text("Step 5: Create Master control")
         cmds.text(label='MASTER CONTROL', align='center')
-        button_main_ctrl = cmds.button(label='Master Control',
-                                     command=partial(self.master_control),
-                                     width=120, height=40,
-                                     align='center')
-        close_button = cmds.button(label="Close",
-                                  command=partial(self.close_window),
-                                  width=120, height=40,
-                                  align='center')
+        button_main_ctrl = cmds.button(label='Master Control', command=partial(self.create_master_control), width=120, height=40, align='center')
+        close_button = cmds.button(label="Close", command=partial(self.close_window), width=120, height=40, align='center')
+
 
     def close_window(self, *args):
         if cmds.window(self.window, exists=True):
             cmds.deleteUI(self.window, window=True)
 
+    @staticmethod
     def create_skeleton(*args, **kwargs):
-        skeleton = Animal_skeleton()
-        skeleton.__create_front_legs_skeleton__()
-        skeleton.__create_spine_skeleton__()
-        skeleton.__create_back_legs_skeleton__()
-        skeleton.__create_tail_skeleton__()
-        skeleton.__create_head_skeleton__()
-        skeleton.__create_jaw_skeleton__()
-        skeleton.__create_ears_skeleton__()
-        skeleton.__create_tongue_skeleton__()
+        skeleton = Animal_Skeleton()
+        skeleton.create_front_legs_skeleton()
+        skeleton.create_spine_skeleton()
+        skeleton.create_back_legs_skeleton()
+        skeleton.create_tail_skeleton()
+        skeleton.create_head_skeleton()
+        skeleton.create_jaw_skeleton()
+        skeleton.create_ears_skeleton()
+        skeleton.create_tongue_skeleton()
 
     def create_middle_legs_skeleton(self, *args, **kwargs):
         cmds.select("B03")
@@ -136,24 +116,19 @@ class Animal_rig_window(object):
         self.m_toe02_joint = cmds.joint(name="L_Middle_Toe02_Jt", position=(0.896, -0.093, -1.432))
         cmds.joint(name="L_Middle_Toe02_Jt", edit=True, zso=True, oj="xyz", sao="yup")
 
-    def mirror_joints(self, *args):
+    def create_mirror_joints(self, *args):
         cmds.select('A_Front_Hip_Jt')
-        self.mirror_each_joint = cmds.mirrorJoint('L_Front_Shoulder_Jt', mirrorXY=True,
-                                                  mirrorBehavior=True,
-                                                  searchReplace=('L_', 'R_'))
+        self.mirror_each_joint = cmds.mirrorJoint('L_Front_Shoulder_Jt', mirrorXY=True, mirrorBehavior=True, searchReplace=('L_', 'R_'))
         cmds.select('B_Back_Hip_Jt')
-        self.mirror_each_joint = cmds.mirrorJoint('L_Back_Pelvic_Jt', mirrorXY=True,
-                                                  mirrorBehavior=True,
-                                                  searchReplace=('L_', 'R_'))
+        self.mirror_each_joint = cmds.mirrorJoint('L_Back_Pelvic_Jt', mirrorXY=True, mirrorBehavior=True, searchReplace=('L_', 'R_'))
         cmds.select("Head_Jt")
-        self.mirror_each_joint = cmds.mirrorJoint("L_Ear_Jt", mirrorXY=True,
-                                                  mirrorBehavior=True,
-                                                  searchReplace=("L_", "R_"))
+        self.mirror_each_joint = cmds.mirrorJoint("L_Ear_Jt", mirrorXY=True, mirrorBehavior=True, searchReplace=("L_", "R_"))
 
     def edit_menu_tool_command(self, *args):
         pass
 
-    def front_legs_control(*args, **kwargs):
+    @staticmethod
+    def create_front_legs_control(*args, **kwargs):
         prefix_l = "L"
         prefix_r = "R"
         prefix = "_"
@@ -219,20 +194,10 @@ class Animal_rig_window(object):
 
         # Left Side
         if legs_turn[0]:
-            ik_ankle = cmds.ikHandle(name="ikHandle_L_Front_Ctrl_Ankle",
-                                    startJoint="L_Front_Shoulder_Jt",
-                                    endEffector="L_Front_Wrist_Jt",
-                                    solver="ikRPsolver", parentCurve=False)
-            ik_heel = cmds.ikHandle(name="ikHandle_L_Front_Ctrl_Heel",
-                                   startJoint="L_Front_Wrist_Jt",
-                                   endEffector="L_Front_WristExtra_Jt",
-                                   solver="ikRPsolver", parentCurve=False)
-            ik_toe = cmds.ikHandle(name="ikHandle_L_Front_Ctrl_Toe",
-                                  startJoint="L_Front_WristExtra_Jt",
-                                  endEffector="L_Front_Toe_Jt",
-                                  solver="ikRPsolver", parentCurve=False)
-            grp_ik_front_left = cmds.group("ikHandle_L_Front_Ctrl_Heel", "ikHandle_L_Front_Ctrl_Toe",
-                                         n="GRP_Ik" + prefix + "ik_Front_Ctrl")
+            ik_ankle = cmds.ikHandle(name="ikHandle_L_Front_Ctrl_Ankle", startJoint="L_Front_Shoulder_Jt", endEffector="L_Front_Wrist_Jt", solver="ikRPsolver", parentCurve=False)
+            ik_heel = cmds.ikHandle(name="ikHandle_L_Front_Ctrl_Heel", startJoint="L_Front_Wrist_Jt", endEffector="L_Front_WristExtra_Jt", solver="ikRPsolver", parentCurve=False)
+            ik_toe = cmds.ikHandle(name="ikHandle_L_Front_Ctrl_Toe", startJoint="L_Front_WristExtra_Jt", endEffector="L_Front_Toe_Jt", solver="ikRPsolver", parentCurve=False)
+            grp_ik_front_left = cmds.group("ikHandle_L_Front_Ctrl_Heel", "ikHandle_L_Front_Ctrl_Toe", n="GRP_Ik" + prefix + "ik_Front_Ctrl")
             ankle_left = "L_Front_Wrist_Jt"
             try:
                 dist = 0.5
@@ -273,20 +238,10 @@ class Animal_rig_window(object):
 
         # Right Side
         if legs_turn[1]:
-            ik_ankle = cmds.ikHandle(name="ikHandle_R_Front_Ctrl_Ankle",
-                                    startJoint="R_Front_Shoulder_Jt",
-                                    endEffector="R_Front_Wrist_Jt",
-                                    solver="ikRPsolver", parentCurve=False)
-            ik_heel = cmds.ikHandle(name="ikHandle_R_Front_Ctrl_Heel",
-                                   startJoint="R_Front_Wrist_Jt",
-                                   endEffector="R_Front_WristExtra_Jt",
-                                   solver="ikRPsolver", parentCurve=False)
-            ik_toe = cmds.ikHandle(name="ikHandle_R_Front_Ctrl_Toe",
-                                  startJoint="R_Front_WristExtra_Jt",
-                                  endEffector="R_Front_Toe_Jt",
-                                  solver="ikRPsolver", parentCurve=False)
-            grp_ik_front_right = cmds.group("ikHandle_R_Front_Ctrl_Heel", "ikHandle_R_Front_Ctrl_Toe",
-                                          n="GRP_Ik" + prefix + "ik_Front_Ctrl")
+            ik_ankle = cmds.ikHandle(name="ikHandle_R_Front_Ctrl_Ankle", startJoint="R_Front_Shoulder_Jt", endEffector="R_Front_Wrist_Jt", solver="ikRPsolver", parentCurve=False)
+            ik_heel = cmds.ikHandle(name="ikHandle_R_Front_Ctrl_Heel", startJoint="R_Front_Wrist_Jt", endEffector="R_Front_WristExtra_Jt", solver="ikRPsolver", parentCurve=False)
+            ik_toe = cmds.ikHandle(name="ikHandle_R_Front_Ctrl_Toe", startJoint="R_Front_WristExtra_Jt", endEffector="R_Front_Toe_Jt", solver="ikRPsolver", parentCurve=False)
+            grp_ik_front_right = cmds.group("ikHandle_R_Front_Ctrl_Heel", "ikHandle_R_Front_Ctrl_Toe", n="GRP_Ik" + prefix + "ik_Front_Ctrl")
             ankle_right = "R_Front_Wrist_Jt"
             try:
                 dist = 0.5
@@ -410,7 +365,8 @@ class Animal_rig_window(object):
             # mc.setAttr(prefix_R+"_Shoulder_Ctrl.rotate", lock=True)
         return left_foot, right_foot
 
-    def rear_legs_control(*args, **kwargs):
+    @staticmethod
+    def create_rear_legs_control(*args, **kwargs):
         prefix_l = "L"
         prefix_r = "R"
         prefix = "_"
@@ -478,20 +434,10 @@ class Animal_rig_window(object):
 
         # Left Side
         if legs_turn[0]:
-            ik_ankle = cmds.ikHandle(name="ikHandle_L_Back_Ctrl_Ankle",
-                                    startJoint="L_Back_Pelvic_Jt",
-                                    endEffector="L_Back_Heel_Jt",
-                                    solver="ikRPsolver", parentCurve=False)
-            ik_heel = cmds.ikHandle(name="ikHandle_L_Back_Ctrl_Heel",
-                                   startJoint="L_Back_Heel_Jt",
-                                   endEffector="L_Back_Toe01_Jt",
-                                   solver="ikRPsolver", parentCurve=False)
-            ik_toe = cmds.ikHandle(name="ikHandle_L_Back_Ctrl_Toe",
-                                  startJoint="L_Back_Toe01_Jt",
-                                  endEffector="L_Back_Toe02_Jt",
-                                  solver="ikRPsolver", parentCurve=False)
-            grp_ik_front_left = cmds.group("ikHandle_L_Back_Ctrl_Heel", "ikHandle_L_Back_Ctrl_Toe",
-                                         n="GRP_Ik" + prefix + "ik_Back_Ctrl")
+            ik_ankle = cmds.ikHandle(name="ikHandle_L_Back_Ctrl_Ankle", startJoint="L_Back_Pelvic_Jt", endEffector="L_Back_Heel_Jt", solver="ikRPsolver", parentCurve=False)
+            ik_heel = cmds.ikHandle(name="ikHandle_L_Back_Ctrl_Heel", startJoint="L_Back_Heel_Jt", endEffector="L_Back_Toe01_Jt", solver="ikRPsolver", parentCurve=False)
+            ik_toe = cmds.ikHandle(name="ikHandle_L_Back_Ctrl_Toe", startJoint="L_Back_Toe01_Jt", endEffector="L_Back_Toe02_Jt", solver="ikRPsolver", parentCurve=False)
+            grp_ik_front_left = cmds.group("ikHandle_L_Back_Ctrl_Heel", "ikHandle_L_Back_Ctrl_Toe", n="GRP_Ik" + prefix + "ik_Back_Ctrl")
             heel_left = "L_Back_Heel_Jt"
             try:
                 dist = 0.5
@@ -506,39 +452,29 @@ class Animal_rig_window(object):
                 cmds.setAttr("%s.visibility" % ik, 0)
 
         for j in range(2):
-            locs = cmds.spaceLocator(name="HelpLocsB_" + str(j))
+            locators = cmds.spaceLocator(name="HelpLocsB_" + str(j))
             heel = "L_Back_Toe01_Jt"
-            print(locs)
+            print(locators)
             if cmds.ls("HelpLocsB_0", selection=True):
                 val_heel = cmds.xform(heel, ws=True, translation=True, query=True)
-                cmds.xform(locs, ws=True, t=(val_heel[0], val_heel[1], val_heel[2] - 1))
+                cmds.xform(locators, ws=True, t=(val_heel[0], val_heel[1], val_heel[2] - 1))
             if cmds.ls("HelpLocsB_1", selection=True):
                 val_heel = cmds.xform(heel, ws=True, translation=True, query=True)
-                cmds.xform(locs, ws=True, t=(val_heel[0], val_heel[1], val_heel[2] + 1))
+                cmds.xform(locators, ws=True, t=(val_heel[0], val_heel[1], val_heel[2] + 1))
                 sl = cmds.ls(type="locator")
                 for k in sl:
                     cmds.setAttr("%s.visibility" % k, 0)
-        grp_loc = cmds.group("HelpLocsB_0", "HelpLocsB_1", n="GRP_Locs")
-        cmds.parent(grp_loc, "ikHandle_L_Back_Ctrl_Heel")
+        group_locator = cmds.group("HelpLocsB_0", "HelpLocsB_1", n="GRP_Locs")
+        cmds.parent(group_locator, "ikHandle_L_Back_Ctrl_Heel")
         cmds.parent("ikHandle_L_Back_Ctrl_Heel", "L_Back_Foot_Ctrl")
         cmds.parent("L_Back_Feet_Ctrl", "L_Back_Foot_Ctrl")
 
         # Right Side
         if legs_turn[1]:
-            ik_ankle = cmds.ikHandle(name="ikHandle_R_Back_Ctrl_Ankle",
-                                    startJoint="R_Back_Pelvic_Jt",
-                                    endEffector="R_Back_Heel_Jt",
-                                    solver="ikRPsolver", parentCurve=False)
-            ik_heel = cmds.ikHandle(name="ikHandle_R_Back_Ctrl_Heel",
-                                   startJoint="R_Back_Heel_Jt",
-                                   endEffector="R_Back_Toe01_Jt",
-                                   solver="ikRPsolver", parentCurve=False)
-            ik_toe = cmds.ikHandle(name="ikHandle_R_Back_Ctrl_Toe",
-                                  startJoint="R_Back_Toe01_Jt",
-                                  endEffector="R_Back_Toe02_Jt",
-                                  solver="ikRPsolver", parentCurve=False)
-            grp_ik_front_right = cmds.group("ikHandle_R_Back_Ctrl_Heel", "ikHandle_R_Back_Ctrl_Toe",
-                                          n="GRP_Ik" + prefix + "ik_Back_Ctrl")
+            ik_ankle = cmds.ikHandle(name="ikHandle_R_Back_Ctrl_Ankle", startJoint="R_Back_Pelvic_Jt", endEffector="R_Back_Heel_Jt", solver="ikRPsolver", parentCurve=False)
+            ik_heel = cmds.ikHandle(name="ikHandle_R_Back_Ctrl_Heel", startJoint="R_Back_Heel_Jt", endEffector="R_Back_Toe01_Jt", solver="ikRPsolver", parentCurve=False)
+            ik_toe = cmds.ikHandle(name="ikHandle_R_Back_Ctrl_Toe", startJoint="R_Back_Toe01_Jt", endEffector="R_Back_Toe02_Jt", solver="ikRPsolver", parentCurve=False)
+            grp_ik_front_right = cmds.group("ikHandle_R_Back_Ctrl_Heel", "ikHandle_R_Back_Ctrl_Toe", n="GRP_Ik" + prefix + "ik_Back_Ctrl")
             ankle_right = "R_Back_Heel_Jt"
             try:
                 dist = 0.5
@@ -553,20 +489,21 @@ class Animal_rig_window(object):
                 cmds.setAttr("%s.visibility" % ik, 0)
 
         for j in range(2):
-            locs = cmds.spaceLocator(name="HelpLocsB_0" + str(j))
+            locators = cmds.spaceLocator(name="HelpLocsB_0" + str(j))
             heel = "R_Back_Toe01_Jt"
-            print(locs)
+            print(locators)
             if cmds.ls("HelpLocsB_00", selection=True):
                 val_heel = cmds.xform(heel, ws=True, translation=True, query=True)
-                cmds.xform(locs, ws=True, t=(val_heel[0], val_heel[1], val_heel[2] - 1))
+                cmds.xform(locators, ws=True, t=(val_heel[0], val_heel[1], val_heel[2] - 1))
             if cmds.ls("HelpLocsB_01", selection=True):
                 val_heel = cmds.xform(heel, ws=True, translation=True, query=True)
-                cmds.xform(locs, ws=True, t=(val_heel[0], val_heel[1], val_heel[2] + 1))
+                cmds.xform(locators, ws=True, t=(val_heel[0], val_heel[1], val_heel[2] + 1))
                 sl = cmds.ls(type="locator")
                 for k in sl:
                     cmds.setAttr("%s.visibility" % k, 0)
-        grp_loc = cmds.group("HelpLocsB_00", "HelpLocsB_01", n="GRP_LocsB")
-        cmds.parent(grp_loc, "ikHandle_R_Back_Ctrl_Heel")
+
+        group_locator = cmds.group("HelpLocsB_00", "HelpLocsB_01", n="GRP_LocsB")
+        cmds.parent(group_locator, "ikHandle_R_Back_Ctrl_Heel")
         cmds.parent("ikHandle_R_Back_Ctrl_Heel", "R_Back_Foot_Ctrl")
         cmds.parent("R_Back_Feet_Ctrl", "R_Back_Foot_Ctrl")
 
@@ -623,7 +560,8 @@ class Animal_rig_window(object):
         cmds.setAttr(prefix_r + "_Back_Foot_Ctrl.scale", lock=True)
         return left_foot, right_foot
 
-    def spine_control(*args, **kwargs):
+    @staticmethod
+    def create_spine_control(*args, **kwargs):
         prefix = "_"
         # Near Spine
         rear_spine_control = [cmds.curve(name="Rear_Spine" + prefix + "Ctrl", d=3,
@@ -640,9 +578,8 @@ class Animal_rig_window(object):
                               cmds.setAttr("Rear_Spine" + prefix + "Ctrl.rotateY", 90),
                               cmds.setAttr("Rear_Spine" + prefix + "Ctrl.overrideColor", 14),
                               cmds.setAttr("Rear_Spine" + prefix + "Ctrl.overrideEnabled", 1)]
-        ik_spine_one = cmds.ikHandle(name="Ik" + prefix + "Spine_01",
-                                   startJoint="B03", endEffector="B_Back_Hip_Jt",
-                                   solver="ikRPsolver", parentCurve=False)
+
+        ik_spine_one = cmds.ikHandle(name="Ik" + prefix + "Spine_01", startJoint="B03", endEffector="B_Back_Hip_Jt", solver="ikRPsolver", parentCurve=False)
         rear_spine_jt = "B04"
         rear_spine_val = cmds.xform(rear_spine_jt, translation=True, query=True, ws=True)
         cmds.xform(rear_spine_control[0], ws=1, t=(rear_spine_val[0], rear_spine_val[1], rear_spine_val[2]))
@@ -667,17 +604,15 @@ class Animal_rig_window(object):
                                 cmds.setAttr("Middle_Spine" + prefix + "Ctrl.rotateY", 90),
                                 cmds.setAttr("Middle_Spine" + prefix + "Ctrl.overrideColor", 14),
                                 cmds.setAttr("Middle_Spine" + prefix + "Ctrl.overrideEnabled", 1)]
-        ik_spine_two = cmds.ikHandle(name="Ik" + prefix + "Spine_02",
-                                   startJoint="B01", endEffector="B03",
-                                   solver="ikRPsolver", parentCurve=False)
+
+        ik_spine_two = cmds.ikHandle(name="Ik" + prefix + "Spine_02", startJoint="B01", endEffector="B03", solver="ikRPsolver", parentCurve=False)
         middle_spine_jt = "B02"
         middle_spine_val = cmds.xform(middle_spine_jt, translation=True, query=True, ws=True)
         cmds.xform(middle_spine_control[0], ws=1, t=(middle_spine_val[0], middle_spine_val[1], middle_spine_val[2]))
         cmds.makeIdentity("Middle_Spine" + prefix + "Ctrl", t=True, r=True, a=True)
         cmds.parentConstraint("Middle_Spine_Ctrl", middle_spine_jt, mo=True)
-        ik_extra_spine = cmds.ikHandle(name="Ik" + prefix + "Spine_Support",
-                                     startJoint="A_Front_Hip_Jt", endEffector="B01",
-                                     solver="ikRPsolver", parentCurve=False)
+
+        ik_extra_spine = cmds.ikHandle(name="Ik" + prefix + "Spine_Support", startJoint="A_Front_Hip_Jt", endEffector="B01", solver="ikRPsolver", parentCurve=False)
         cmds.parent("Ik" + prefix + "Spine_Support", "Middle_Spine_Ctrl")
         sel = cmds.ls(type="ikHandle")
         for ik in sel:
@@ -726,13 +661,13 @@ class Animal_rig_window(object):
         cmds.xform(main_spine_control[0], ws=1, t=(main_spine_val[0], main_spine_val[1], main_spine_val[2]))
         cmds.makeIdentity("Main_Spine" + prefix + "Ctrl", t=True, r=True, s=True, a=True)
         cmds.setAttr("Main_Spine" + prefix + "Ctrl.scale", lock=True)
-        cmds.group("Rear_Spine_Ctrl", "Middle_Spine_Ctrl", "Front_Spine_Ctrl", "R_Shoulder_Ctrl", "L_Shoulder_Ctrl",
-                   name="GRP_All_Spine_Ctrl")
+        cmds.group("Rear_Spine_Ctrl", "Middle_Spine_Ctrl", "Front_Spine_Ctrl", "R_Shoulder_Ctrl", "L_Shoulder_Ctrl", name="GRP_All_Spine_Ctrl")
         cmds.parent("GRP_All_Spine_Ctrl", "Main_Spine_Ctrl")
         cmds.group("L_Shoulder_Ctrl", "R_Shoulder_Ctrl", name="GRP_Shoulder_Ctrl")
         cmds.parent("GRP_Shoulder_Ctrl", "Front_Spine_Ctrl")
 
-    def neck_control(*args, **kwargs):
+    @staticmethod
+    def create_neck_control(*args, **kwargs):
         neck_jt = "Neck_Jt"
         neck_ctrl = [cmds.curve(name="Neck_Ctrl", degree=3,
                                point=[(-0.801407, 0, 0.00716748), (-0.802768, 0.023587, -0.220859),
@@ -754,12 +689,10 @@ class Animal_rig_window(object):
         lock_translation = cmds.setAttr("Neck_Ctrl.translate", lock=True)
         return neck_ctrl, neck_jt
 
-    def head_control(*args, **kwargs):
+    @staticmethod
+    def create_head_control(*args, **kwargs):
         head_jt = "Head_Jt"
-        head_ctrl = [cmds.circle(name="Head_Ctrl"),
-                     cmds.setAttr("Head_Ctrl.overrideColor", 18),
-                     cmds.setAttr("Head_Ctrl.overrideEnabled", 1),
-                     cmds.scale(1.5, 1.5, 2.5)]
+        head_ctrl = [cmds.circle(name="Head_Ctrl"), cmds.setAttr("Head_Ctrl.overrideColor", 18), cmds.setAttr("Head_Ctrl.overrideEnabled", 1), cmds.scale(1.5, 1.5, 2.5)]
         val_head = cmds.xform(head_jt, ws=True, query=True, translation=True)
         cmds.xform(head_ctrl[0], ws=1, t=(val_head[0], val_head[1], val_head[2]))
         rot_head = cmds.xform(head_jt, ws=True, query=True, rotation=True)
@@ -826,7 +759,8 @@ class Animal_rig_window(object):
             cmds.parent("GRP_R_Ear_Ctrl", "Head_Ctrl")
         return head_ctrl, head_jt
 
-    def jaw_control(*args, **kwargs):
+    @staticmethod
+    def create_jaw_control(*args, **kwargs):
         prefix = "_"
         jaw_jt = "Lower_Jaw_Jt"
         jaw_ctrl = [cmds.curve(name="Jaw" + prefix + "Ctrl", d=1,
@@ -856,7 +790,8 @@ class Animal_rig_window(object):
             cmds.setAttr("Jaw" + prefix + "Ctrl.scale", lock=True),
             cmds.setAttr("Jaw" + prefix + "Ctrl.translate", lock=True)
 
-    def tongue_control(*args, **kwargs):
+    @staticmethod
+    def create_tongue_control(*args, **kwargs):
         tongue_joints = ["First_Tongue_Jt", "Second_Tongue_Jt", "Third_Tongue_Jt", "Fourth_Tongue_Jt", "Fifth_Tongue_Jt"]
 
         for tongue_ring in range(len(tongue_joints)):
@@ -868,8 +803,8 @@ class Animal_rig_window(object):
             val_rot = cmds.xform(tongue_joints[tongue_ring], query=True, ws=True, rotation=True)
             cmds.xform(controls[tongue_ring - 1], ws=1, ro=(val_rot[0], val_rot[1] - 90, val_rot[2] - 15))
             cmds.makeIdentity("Tongue_Ctrl_" + str(tongue_ring), a=True, r=True, t=True, s=True)
-            orient = cmds.orientConstraint("Tongue_Ctrl_" + str(tongue_ring),
-                                           tongue_joints[tongue_ring], maintainOffset=True)
+            orient = cmds.orientConstraint("Tongue_Ctrl_" + str(tongue_ring), tongue_joints[tongue_ring], maintainOffset=True)
+
         cmds.parent("Tongue_Ctrl_4", "Tongue_Ctrl_3")
         cmds.parent("Tongue_Ctrl_3", "Tongue_Ctrl_2")
         cmds.parent("Tongue_Ctrl_2", "Tongue_Ctrl_1")
@@ -879,7 +814,8 @@ class Animal_rig_window(object):
             cmds.setAttr("Tongue_Ctrl_" + str(lock) + ".scale", lock=True),
             cmds.setAttr("Tongue_Ctrl_" + str(lock) + ".translate", lock=True)
 
-    def tail_control(*args, **kwargs):
+    @staticmethod
+    def create_tail_control(*args, **kwargs):
         tail_joints = ["Tail_Jt_A", "Tail_Jt_B", "Tail_Jt_C", "Tail_Jt_D", "Tail_Jt_E"]
         for tail_ring in range(len(tail_joints)):
             controls = [cmds.curve(name="Tail_Ctrl_" + str(tail_ring), d=3,
@@ -910,17 +846,15 @@ class Animal_rig_window(object):
             cmds.setAttr("Tail_Ctrl_" + str(lock) + ".translate", lock=True)
         return tail_joints
 
-    def master_control(*args, **kwargs):
+    @staticmethod
+    def create_master_control(*args, **kwargs):
         cmds.circle(name="Tiger_Ctrl")
         cmds.scale(8.77, 8.77, 8.77)
         cmds.setAttr("Tiger_Ctrl.rotateX", 90)
         cmds.setAttr("Tiger_Ctrl.overrideColor", 10)
         cmds.setAttr("Tiger_Ctrl.overrideEnabled", 1)
         cmds.makeIdentity("Tiger_Ctrl", s=True, r=True, t=True, a=True)
-        cmds.group("Main_Spine_Ctrl", "R_Front_Foot_Ctrl", "L_Front_Foot_Ctrl",
-                   "R_Back_Foot_Ctrl", "L_Back_Foot_Ctrl", "R_Elbow_Front_Cap",
-                   "L_Elbow_Front_Cap", "R_Knee_Back_Cap", "L_Knee_Back_Cap",
-                   name="GRP_S_Main_Ctrl")
+        cmds.group("Main_Spine_Ctrl", "R_Front_Foot_Ctrl", "L_Front_Foot_Ctrl", "R_Back_Foot_Ctrl", "L_Back_Foot_Ctrl", "R_Elbow_Front_Cap", "L_Elbow_Front_Cap", "R_Knee_Back_Cap", "L_Knee_Back_Cap", name="GRP_S_Main_Ctrl")
         cmds.parent("GRP_S_Main_Ctrl", "Tiger_Ctrl")
         cmds.setAttr("Tiger_Ctrl.scale", lock=True)
 
@@ -934,97 +868,139 @@ class Animal_rig_window(object):
         cmds.group("Tiger_Ctrl", "A_Front_Hip_Jt", name="GRP_B_Main_Ctrl")
         cmds.parent("GRP_B_Main_Ctrl", "Main_Tiger_Ctrl")
 
-class Animal_skeleton(object):
-    def __create_front_legs_skeleton__(self):
-        self.F_HipJoint = cmds.joint(name='A_Front_Hip_Jt', position=(4.086, 8.755, 0.002))
+
+class Animal_Skeleton(object):
+    def __init__(self):
+        self.f_hip_joint = None
+        self.f_shoulder_joint = None
+        self.f_elbow_joint = None
+        self.f_wrist_joint = None
+        self.f_toe_joint = None
+
+        self.backbone_01 = None
+        self.backbone_02 = None
+        self.backbone_03 = None
+        self.backbone_04 = None
+        self.back_hip_joint = None
+
+        self.b_pelvis_joint = None
+        self.b_knee_joint = None
+        self.b_heel_joint = None
+        self.b_toe01_joint = None
+        self.b_toe02_joint = None
+
+        self.a_tail_joint = None
+        self.b_tail_joint = None
+        self.c_tail_joint = None
+        self.d_tail_joint = None
+        self.e_tail_joint = None
+        self.f_tail_joint = None
+
+        self.neck_joint = None
+        self.head_joint = None
+        self.jaw_joint = None
+
+        self.ear_joint = None
+
+        self.lower_jaw_joint = None
+        self.tip_jaw_joint = None
+
+        self.first_tongue_joint = None
+        self.second_tongue_joint = None
+        self.third_tongue_joint = None
+        self.fourth_tongue_joint = None
+        self.fifth_tongue_joint = None
+
+    def create_front_legs_skeleton(self):
+        self.f_hip_joint = cmds.joint(name='A_Front_Hip_Jt', position=(4.086, 8.755, 0.002))
         cmds.joint('A_Front_Hip_Jt', edit=True, zso=True, oj='xyz')
-        self.F_ShoulderJoint = cmds.joint(name='L_Front_Shoulder_Jt', position=(3.76, 6.725, -1.448))
+        self.f_shoulder_joint = cmds.joint(name='L_Front_Shoulder_Jt', position=(3.76, 6.725, -1.448))
         cmds.joint('L_Front_Shoulder_Jt', edit=True, zso=True, oj='xyz')
-        self.F_ElbowJoint = cmds.joint(name='L_Front_Elbow_Jt', position=(2.729, 4.374, -1.503))
+        self.f_elbow_joint = cmds.joint(name='L_Front_Elbow_Jt', position=(2.729, 4.374, -1.503))
         cmds.joint('L_Front_Elbow_Jt', edit=True, zso=True, oj='xyz')
-        self.F_WristJoint = cmds.joint(name='L_Front_Wrist_Jt', position=(3.5, 2.18, -1.466))
+        self.f_wrist_joint = cmds.joint(name='L_Front_Wrist_Jt', position=(3.5, 2.18, -1.466))
         cmds.joint('L_Front_Wrist_Jt', edit=True, zso=True, oj='xyz')
-        self.F_ToeJoint = cmds.joint(name='L_Front_WristExtra_Jt', position=(3.354, 0.388, -1.437))
+        self.f_toe_joint = cmds.joint(name='L_Front_WristExtra_Jt', position=(3.354, 0.388, -1.437))
         cmds.joint('L_Front_WristExtra_Jt', edit=True, zso=True, oj='xyz')
-        self.F_ToeJoint = cmds.joint(name='L_Front_Toe_Jt', position=(4.862, -0.144, -1.437))
+        self.f_toe_joint = cmds.joint(name='L_Front_Toe_Jt', position=(4.862, -0.144, -1.437))
         cmds.joint('L_Front_Toe_Jt', edit=True, zso=True, oj='xyz')
         cmds.select('A_Front_Hip_Jt')
 
-    def __create_spine_skeleton__(self):
+    def create_spine_skeleton(self):
         cmds.select('A_Front_Hip_Jt')
-        self.Backbone_01 = cmds.joint(name='B01', position=(2.064, 8.829, 0.041))
+        self.backbone_01 = cmds.joint(name='B01', position=(2.064, 8.829, 0.041))
         cmds.joint('B01', edit=True, zso=True, oj='xyz', sao='yup')
-        self.Backbone_02 = cmds.joint(name='B02', position=(0.216, 9.445, 0.038))
+        self.backbone_02 = cmds.joint(name='B02', position=(0.216, 9.445, 0.038))
         cmds.joint('B02', edit=True, zso=True, oj='xyz', sao='yup')
-        self.Backbone_03 = cmds.joint(name='B03', position=(-1.813, 9.481, 0.042))
+        self.backbone_03 = cmds.joint(name='B03', position=(-1.813, 9.481, 0.042))
         cmds.joint('B03', edit=True, zso=True, oj='xyz', sao='yup')
-        self.Backbone_04 = cmds.joint(name='B04', position=(-3.761, 9.253, 0.038))
+        self.backbone_04 = cmds.joint(name='B04', position=(-3.761, 9.253, 0.038))
         cmds.joint('B04', edit=True, zso=True, oj='xyz', sao='yup')
-        self.BackHipJoint = cmds.joint(name='B_Back_Hip_Jt', position=(-5.321, 8.599, 0.04))
+        self.back_hip_joint = cmds.joint(name='B_Back_Hip_Jt', position=(-5.321, 8.599, 0.04))
         cmds.joint('B_Back_Hip_Jt', edit=True, zso=True, oj='xyz', sao='yup')
 
-    def __create_back_legs_skeleton__(self):
+    def create_back_legs_skeleton(self):
         cmds.select('B_Back_Hip_Jt')
-        self.B_PelvicJoint = cmds.joint(name='L_Back_Pelvic_Jt', position=(-4.754, 7.296, -1.494))
+        self.b_pelvis_joint = cmds.joint(name='L_Back_Pelvic_Jt', position=(-4.754, 7.296, -1.494))
         cmds.joint(name='L_Back_Pelvic_Jt', edit=True, zso=True, oj='xyz', sao='yup')
-        self.B_KneeJoint = cmds.joint(name='L_Back_Knee_Jt', position=(-2.06, 5.671, -1.542))
+        self.b_knee_joint = cmds.joint(name='L_Back_Knee_Jt', position=(-2.06, 5.671, -1.542))
         cmds.joint(name='L_Back_Knee_Jt', edit=True, zso=True, oj='xyz', sao='yup')
-        self.B_HeelJoint = cmds.joint(name='L_Back_Heel_Jt', position=(-6.112, 2.462, -1.445))
+        self.b_heel_joint = cmds.joint(name='L_Back_Heel_Jt', position=(-6.112, 2.462, -1.445))
         cmds.joint(name='L_Back_Heel_Jt', edit=True, zso=True, oj='xyz', sao='yup')
-        self.B_Toe01Joint = cmds.joint(name='L_Back_Toe01_Jt', position=(-6.006, 0.25, -1.45))
+        self.b_toe01_joint = cmds.joint(name='L_Back_Toe01_Jt', position=(-6.006, 0.25, -1.45))
         cmds.joint(name='L_Back_Toe01_Jt', edit=True, zso=True, oj='xyz', sao='yup')
-        self.B_Toe02Joint = cmds.joint(name='L_Back_Toe02_Jt', position=(-4.992, -0.103, -1.449))
+        self.b_toe02_joint = cmds.joint(name='L_Back_Toe02_Jt', position=(-4.992, -0.103, -1.449))
         cmds.joint(name='L_Back_Toe02_Jt', edit=True, zso=True, oj='xyz', sao='yup')
 
-    def __create_tail_skeleton__(self):
+    def create_tail_skeleton(self):
         cmds.select('B_Back_Hip_Jt')
-        self.A_TailJoint = cmds.joint(name='Tail_Jt_A', position=(-6.141, 8.196, 0))
+        self.a_tail_joint = cmds.joint(name='Tail_Jt_A', position=(-6.141, 8.196, 0))
         cmds.joint(name='Tail_Jt_A', edit=True, zso=True, oj='xyz', sao='yup')
-        self.B_TailJoint = cmds.joint(name='Tail_Jt_B', position=(-7.002, 7.895, 0))
+        self.b_tail_joint = cmds.joint(name='Tail_Jt_B', position=(-7.002, 7.895, 0))
         cmds.joint(name='Tail_Jt_B', edit=True, zso=True, oj='xyz', sao='yup')
-        self.C_TailJoint = cmds.joint(name='Tail_Jt_C', position=(-7.77, 7.752, 0))
+        self.c_tail_joint = cmds.joint(name='Tail_Jt_C', position=(-7.77, 7.752, 0))
         cmds.joint(name='Tail_Jt_C', edit=True, zso=True, oj='xyz', sao='yup')
-        self.D_TailJoint = cmds.joint(name='Tail_Jt_D', position=(-8.498, 7.719, 0))
+        self.d_tail_joint = cmds.joint(name='Tail_Jt_D', position=(-8.498, 7.719, 0))
         cmds.joint(name='Tail_Jt_D', edit=True, zso=True, oj='xyz', sao='yup')
-        self.E_TailJoint = cmds.joint(name='Tail_Jt_E', position=(-9.225, 7.848, 0))
+        self.e_tail_joint = cmds.joint(name='Tail_Jt_E', position=(-9.225, 7.848, 0))
         cmds.joint(name='Tail_Jt_E', edit=True, zso=True, oj='xyz', sao='yup')
-        self.F_TailJoint = cmds.joint(name='Tail_Jt_F', position=(-9.866, 8.115, 0))
+        self.f_tail_joint = cmds.joint(name='Tail_Jt_F', position=(-9.866, 8.115, 0))
         cmds.joint(name='Tail_Jt_F', edit=True, zso=True, oj='xyz', sao='yup')
 
-    def __create_head_skeleton__(self):
+    def create_head_skeleton(self):
         cmds.select('A_Front_Hip_Jt')
-        self.NeckJoint = cmds.joint(name='Neck_Jt', position=(6.016, 9.717, 0))
+        self.neck_joint = cmds.joint(name='Neck_Jt', position=(6.016, 9.717, 0))
         cmds.joint(name='Neck_Jt', edit=True, zso=True, oj='xyz', sao='yup')
-        self.HeadJoint = cmds.joint(name='Head_Jt', position=(7.634, 12.322, 0))
+        self.head_joint = cmds.joint(name='Head_Jt', position=(7.634, 12.322, 0))
         cmds.joint(name='Head_Jt', edit=True, zso=True, oj='xyz', sao='yup')
-        self.JawJoint = cmds.joint(name='Jaw_Jt', position=(10.758, 10.99, 0))
+        self.jaw_joint = cmds.joint(name='Jaw_Jt', position=(10.758, 10.99, 0))
         cmds.joint(name='Jaw_Jt', edit=True, zso=True, oj='xyz', sao='yup')
         cmds.select("A_Front_Hip_Jt")
 
-    def __create_ears_skeleton__(self):
+    def create_ears_skeleton(self):
         cmds.select("Head_Jt")
-        self.EarJoint = cmds.joint(name="L_Ear_Jt", position=(7.71, 12.503, -0.896))
+        self.ear_joint = cmds.joint(name="L_Ear_Jt", position=(7.71, 12.503, -0.896))
         cmds.joint(name="L_Ear_Jt", edit=True, zso=True, oj="xyz", sao="yup")
-        self.EarJoint = cmds.joint(name="L_Ear_Tip_Jt", position=(7.515, 13.229, -1.142))
+        self.ear_joint = cmds.joint(name="L_Ear_Tip_Jt", position=(7.515, 13.229, -1.142))
         cmds.joint(name="L_Ear_Tip_Jt", edit=True, zso=True, oj="xyz", sao="yup")
 
-    def __create_jaw_skeleton__(self):
+    def create_jaw_skeleton(self):
         cmds.select("Head_Jt")
-        self.LowerJawJoint = cmds.joint(name="Lower_Jaw_Jt", position=(7.723, 10.89, 0.0))
+        self.lower_jaw_joint = cmds.joint(name="Lower_Jaw_Jt", position=(7.723, 10.89, 0.0))
         cmds.joint(name="Lower_Jaw_Jt", edit=True, zso=True, oj="xyz", sao="yup")
-        self.TipJawJoint = cmds.joint(name="Tip_Jaw_Jt", position=(10.119, 9.707, 0.019))
+        self.tip_jaw_joint = cmds.joint(name="Tip_Jaw_Jt", position=(10.119, 9.707, 0.019))
         cmds.joint(name="Tip_Jaw_Jt", edit=True, zso=True, oj="xyz", sao="yup")
 
-    def __create_tongue_skeleton__(self):
+    def create_tongue_skeleton(self):
         cmds.select("Lower_Jaw_Jt")
-        self.FirstTongueJoint = cmds.joint(name="First_Tongue_Jt", position=(8.106, 11.268, 0.0))
+        self.first_tongue_joint = cmds.joint(name="First_Tongue_Jt", position=(8.106, 11.268, 0.0))
         cmds.joint(name="First_Tongue_Jt", edit=True, zso=True, oj="xyz", sao="yup")
-        self.SecondTongueJoint = cmds.joint(name="Second_Tongue_Jt", position=(8.524, 11.148, 0.0))
+        self.second_tongue_joint = cmds.joint(name="Second_Tongue_Jt", position=(8.524, 11.148, 0.0))
         cmds.joint(name="Second_Tongue_Jt", edit=True, zso=True, oj="xyz", sao="yup")
-        self.ThirdTongueJoint = cmds.joint(name="Third_Tongue_Jt", position=(8.838, 10.949, 0.0))
+        self.third_tongue_joint = cmds.joint(name="Third_Tongue_Jt", position=(8.838, 10.949, 0.0))
         cmds.joint(name="Third_Tongue_Jt", edit=True, zso=True, oj="xyz", sao="yup")
-        self.FourthTongueJoint = cmds.joint(name="Fourth_Tongue_Jt", position=(9.162, 10.698, 0.0))
+        self.fourth_tongue_joint = cmds.joint(name="Fourth_Tongue_Jt", position=(9.162, 10.698, 0.0))
         cmds.joint(name="Fourth_Tongue_Jt", edit=True, zso=True, oj="xyz", sao="yup")
-        self.FifthTongueJoint = cmds.joint(name="Fifth_Tongue_Jt", position=(9.47, 10.426, 0.0))
+        self.fifth_tongue_joint = cmds.joint(name="Fifth_Tongue_Jt", position=(9.47, 10.426, 0.0))
         cmds.joint(name="Fifth_Tongue_Jt", edit=True, zso=True, oj="xyz", sao="yup")
 

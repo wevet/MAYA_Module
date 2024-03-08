@@ -29,8 +29,6 @@ class UndoContext(object):
 
 def maya_main_window():
     main_window = omui.MQtUtil.mainWindow()
-    print("main window => {}".format(main_window))
-    print("python version => {}".format(sys.version_info.major))
     if main_window is not None:
         if sys.version_info.major >= 3:
             return wrapInstance(int(main_window), QtWidgets.QMainWindow)
@@ -38,6 +36,13 @@ def maya_main_window():
             return wrapInstance(long(main_window), QtWidgets.QMainWindow)  # type: ignore
     else:
         pass
+
+def maya_main_window_dialog():
+    main_window = omui.MQtUtil.mainWindow()
+    if sys.version_info.major >= 3:
+        return wrapInstance(int(main_window), QtWidgets.QDialog)
+    else:
+        return wrapInstance(long(main_window), QtWidgets.QDialog)  # type: ignore
 
 # constant
 FACIAL_MESH_GROUP_NAME = 'Facial_Mesh_grp'
@@ -63,7 +68,7 @@ class Facial_Window_Manager(QtWidgets.QDialog):
         self.ui.label_3.setText('')
         self.msgTime.cancel()
 
-    def __init__(self, parent=maya_main_window()):
+    def __init__(self, parent=maya_main_window_dialog()):
         #global macAddr
         self.g_pass = True
         super(Facial_Window_Manager, self).__init__(parent)
@@ -82,7 +87,6 @@ class Facial_Window_Manager(QtWidgets.QDialog):
 
     def activate(self):
         self.ui.okBtn.hide()
-        pass
 
     def create_instance(self):
         Facial_Auto_Rig_Window.main()

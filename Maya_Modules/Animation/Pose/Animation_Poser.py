@@ -6,6 +6,7 @@ import maya.cmds as cmds
 import glob
 import ast
 import sys
+import time
 from functools import partial
 import maya.OpenMayaUI as omui
 from shiboken2 import wrapInstance
@@ -26,16 +27,13 @@ class Animation_Pose(QtWidgets.QDialog):
     def __init__(self, parent=None, *args, **kwargs):
         super(Animation_Pose, self).__init__(maya_main_window())
         self.WINDOW_TITLE = "Animation Poser"
-        self.MODULE_VERSION = "1.0.0"
-        self.pose_file_path = None
-        self.image_base_path = None
+        self.MODULE_VERSION = "1.1.0"
 
         self.apply_button = None
         self.refresh_button = None
         self.input_pose_name = None
-        self.save_path = None
+        self.export_save_path = None
         self.button_scroll = None
-        self.thumbnail_buttons = []
         self.connection_layout = None
 
         self.default_style = "background-color: #34d8ed; color: black"
@@ -50,8 +48,13 @@ class Animation_Pose(QtWidgets.QDialog):
         self.scene_name = raw_name
         print("Here is the name of the file that is currently open => {0}".format(self.scene_name))
 
-        self.save_base_path = os.path.dirname(__file__)
-        self._write_export_dir(self.save_base_path)
+        # 初期値はscriptがあるパスに設定
+        initial_path = os.path.dirname(__file__)
+        self.export_save_base_path = initial_path
+        self._write_directories(self.export_save_base_path)
+
+        self.import_save_base_path = initial_path
+        self._write_directories(self.import_save_base_path)
 
         self._create_ui_widget()
         self._create_ui_connection()
@@ -77,13 +80,29 @@ class Animation_Pose(QtWidgets.QDialog):
         self.input_pose_name.setReadOnly(True)
         self.input_pose_name.setPlaceholderText("Input Pose File Name")
         self.input_pose_name.setText(self.scene_name)
-        self.save_path = QtWidgets.QLineEdit()
-        self.save_path.setReadOnly(False)
-        self.save_path.setPlaceholderText("Save Directory")
-        self.save_path.setText(self.pose_file_path)
+
+        self.export_name_label = QtWidgets.QLabel("Export Path")
+        self.export_name_label.setAlignment(QtCore.Qt.AlignLeft)
+        self.export_name_label.setStyleSheet("color: darkgray")
+        self.export_save_path = QtWidgets.QLineEdit()
+        self.export_save_path.setReadOnly(False)
+        self.export_save_path.setPlaceholderText("Export Directory")
+        self.export_save_path.setText(self.export_save_base_path)
+
+        self.import_name_label = QtWidgets.QLabel("Import Path")
+        self.import_name_label.setAlignment(QtCore.Qt.AlignLeft)
+        self.import_name_label.setStyleSheet("color: darkgray")
+        self.import_save_path = QtWidgets.QLineEdit()
+        self.import_save_path.setReadOnly(False)
+        self.import_save_path.setPlaceholderText("Export Directory")
+        self.import_save_path.setText(self.import_save_base_path)
+
         horizontal_layout_input_field = QtWidgets.QFormLayout()
         horizontal_layout_input_field.addRow(self.input_pose_name)
-        horizontal_layout_input_field.addRow(self.save_path)
+        horizontal_layout_input_field.addRow(self.export_name_label)
+        horizontal_layout_input_field.addRow(self.export_save_path)
+        horizontal_layout_input_field.addRow(self.import_name_label)
+        horizontal_layout_input_field.addRow(self.import_save_path)
 
         # grid layout
         connection_list_widget = QtWidgets.QWidget()
@@ -100,7 +119,7 @@ class Animation_Pose(QtWidgets.QDialog):
 
         # button field
         self.apply_button = QtWidgets.QPushButton("SavePose")
-        self.refresh_button = QtWidgets.QPushButton("Refresh")
+        self.refresh_button = QtWidgets.QPushButton("Refresh Import")
         self.apply_button.setStyleSheet(self.default_style)
         self.refresh_button.setStyleSheet(self.default_style)
         horizontal_layout_button = QtWidgets.QHBoxLayout()
@@ -121,34 +140,32 @@ class Animation_Pose(QtWidgets.QDialog):
         return file_name + "_{}".format(str(time))
 
     def _create_ui_connection(self):
-        self.apply_button.clicked.connect(partial(self._write_pose_assets, self.image_base_path))
+        self.apply_button.clicked.connect(self.export_pose_asset)
         self.refresh_button.clicked.connect(self._refresh_file_action)
         pass
 
+    def _clear_list_item_widget(self):
+        while self.connection_layout.count() > 0:
+            connection_ui_item = self.connection_layout.takeAt(0)
+            if connection_ui_item.widget():
+                connection_ui_item.widget().deleteLater()
+
     # scroll viewを更新する
     def _refresh_file_action(self):
-        for button in self.thumbnail_buttons:
-            self.connection_layout.removeWidget(button)
+        self._clear_list_item_widget()
 
-        self.thumbnail_buttons = []
-        current_pose_file_path = os.listdir(self.pose_file_path)
+        import_json_path = self._get_imported_pose_file()
+        import_image_path = self._get_imported_image_file()
+        current_pose_file_path = os.listdir(import_json_path)
         for i in range(len(current_pose_file_path)):
             file_name = os.path.basename(current_pose_file_path[i]).split('.', 1)[0]
-            icon = self.image_base_path + file_name + ".jpg"
+            icon = import_image_path + file_name + ".jpg"
             if os.path.exists(icon):
                 # ここでポーズデータのファイル名から、アイコンのファイル名を生成する必要がある
                 print("icon => {}".format(icon))
-                button = QtWidgets.QPushButton()
-                button.setFixedSize(80, 80)
-                ico = QtGui.QIcon(icon)
-                button.setIcon(ico)
-                button.setIconSize(button.size())
-                button.setFlat(True)
-                button.setStyleSheet(self.default_style)
-                button.setToolTip("file name : {}".format(file_name))
-                button.clicked.connect(partial(self._load_pose_assets, i))
-                self.thumbnail_buttons.append(button)
-                self.connection_layout.addWidget(button)
+                list_item_widget = PoseListItemWidget(parent_instance=self, icon=icon, index=i, file_name=file_name)
+                self.connection_layout.addWidget(list_item_widget)
+
             else:
                 cmds.warning("not exists. => {}".format(icon))
 
@@ -157,14 +174,15 @@ class Animation_Pose(QtWidgets.QDialog):
         joints = cmds.ls(selection=True, dag=True, type="joint")
         return joints
 
-    def _write_export_dir(self, path_name):
+    @staticmethod
+    def _write_directories(path_name):
         # "/SavePose/PoseData/"
-        self.pose_file_path = path_name + "/PoseData/"
-        if not os.path.exists(self.pose_file_path):
-            os.makedirs(self.pose_file_path)
-        self.image_base_path = path_name + "/Image/"
-        if not os.path.exists(self.image_base_path):
-            os.makedirs(self.image_base_path)
+        export_pose_dir = path_name + "/PoseData/"
+        if not os.path.exists(export_pose_dir):
+            os.makedirs(export_pose_dir)
+        export_image_dir = path_name + "/Image/"
+        if not os.path.exists(export_image_dir):
+            os.makedirs(export_image_dir)
 
     @staticmethod
     def _get_controllers(*args):
@@ -197,11 +215,19 @@ class Animation_Pose(QtWidgets.QDialog):
                         ctrl_list.append(ctrl)
         return ctrl_list
 
+    def _find_json_file_recursive(self, prefix):
+        for root, dirs, files in os.walk(top="{}".format(self.export_save_base_path)):
+            for file in files:
+                if not file.lower().endswith(('{}'.format(prefix))):
+                    continue
+                local_file_path = os.path.join(root, file)
+                print('local_file_path = {}'.format(local_file_path))
+
     # NOTE
     # Pose Assetを書き出す
-    def _write_pose_assets(self, base_icon_path, *args):
+    def export_pose_asset(self, *args):
         export_file_name = self._get_export_file_name()
-        save_path = self.save_path.text()
+        save_path = self.export_save_path.text()
 
         joints = cmds.ls(type="joint")
 
@@ -220,14 +246,14 @@ class Animation_Pose(QtWidgets.QDialog):
         for joint in keyed_joints:
             print("joint => {}".format(joint))
 
-        file_path = save_path + "/" + export_file_name + ".json"
+        if save_path != self.export_save_base_path:
+            cmds.warning("Re-create the directory because there is a change in the file path. => {}".format(save_path))
+            self._write_directories(save_path)
+
+        file_path = save_path + "/PoseData/" + export_file_name + ".json"
         if os.path.isfile(file_path):
             cmds.warning("The same pose file already exists.")
             return
-
-        if save_path != self.save_base_path:
-            cmds.warning("Re-create the directory because there is a change in the file path. => {}".format(save_path))
-            #self._write_export_dir(save_path)
 
         # Get the selected node and attribute
         name_dict = "{\n"
@@ -252,7 +278,7 @@ class Animation_Pose(QtWidgets.QDialog):
         time = int(cmds.currentTime(q=1))
         # UIを参照してファイル名をとってくる
         paste_name = self._get_export_file_name()
-        new_path_file_name = self.image_base_path + paste_name
+        new_path_file_name = save_path + "/Image/" + paste_name
         # nurbs curveを非表示
         cmds.modelEditor("modelPanel4", e=1, nc=0)
         # ファイル名にパスを含めると、そこに書き出してくれる。
@@ -260,9 +286,12 @@ class Animation_Pose(QtWidgets.QDialog):
         os.rename(pose_icon, pose_icon + ".jpg")
         # ナーブスカーブ表示
         cmds.modelEditor("modelPanel4", e=1, nc=1)
+        #time.sleep(1)
+        self._refresh_file_action()
 
-    def _load_pose_assets(self, file_index):
-        file_path = self.pose_file_path + "*"
+    # load json file
+    def load_pose_assets(self, file_index):
+        file_path = self._get_imported_pose_file() + "*"
         file = glob.glob(file_path)
 
         print("load file =>{}".format(file))
@@ -283,8 +312,86 @@ class Animation_Pose(QtWidgets.QDialog):
                 cmds.setKeyframe(attr_obj, v=value, t=time)
             except:
                 pass
-
         f.close()
+
+    def _get_imported_pose_file(self):
+        return self.import_save_path.text() + "/PoseData/"
+
+    def _get_imported_image_file(self):
+        return self.import_save_path.text() + "/Image/"
+
+    def _get_exported_pose_file(self):
+        return self.export_save_path.text() + "/PoseData/"
+
+    def _get_exported_image_file(self):
+        return self.export_save_path.text() + "/Image/"
+
+    # delete json file
+    # import済みのjson dataを削除
+    def delete_pose_asset(self, file_index):
+        file_path = self._get_imported_pose_file() + "*"
+        file = glob.glob(file_path)
+
+        print("delete json file =>{}".format(file[file_index]))
+        os.remove(file[file_index])
+
+        image_file_path = self._get_imported_image_file() + "*"
+        image_file = glob.glob(image_file_path)
+
+        print("delete image file =>{}".format(image_file[file_index]))
+        os.remove(image_file[file_index])
+        time.sleep(1)
+        self._refresh_file_action()
+
+
+class PoseListItemWidget(QtWidgets.QWidget):
+
+    def __init__(self, parent_instance, icon, index, file_name):
+        super(PoseListItemWidget, self).__init__()
+        self.main = parent_instance
+        self.icon = icon
+        self.index = index
+        self.file_name = file_name
+        self.sel_button = None
+        self.del_button = None
+        self.file_name_label = None
+        self.setFixedHeight(80)
+        self.create_ui_widgets()
+        self.create_ui_layout()
+        self.create_ui_connections()
+
+    def create_ui_widgets(self):
+        self.sel_button = QtWidgets.QPushButton()
+        self.sel_button.setStyleSheet("background-color: #707070")
+        #self.sel_button.setText("ImportPose")
+        self.sel_button.setToolTip("file name : {}".format(self.file_name))
+        self.sel_button.setFixedSize(80, 60)
+
+        ico = QtGui.QIcon(self.icon)
+        self.sel_button.setIcon(ico)
+        self.sel_button.setIconSize(self.sel_button.size())
+        self.sel_button.setFlat(True)
+
+        self.del_button = QtWidgets.QPushButton()
+        self.del_button.setStyleSheet("background-color: #ed4a34; color: white")
+        self.del_button.setText("Delete Pose")
+        self.del_button.setFixedSize(80, 40)
+
+        self.file_name_label = QtWidgets.QLabel(self.file_name)
+        self.file_name_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.file_name_label.setStyleSheet("color: darkgray")
+
+    def create_ui_layout(self):
+        main_layout = QtWidgets.QHBoxLayout(self)
+        main_layout.setContentsMargins(5, 5, 10, 5)
+        main_layout.addWidget(self.sel_button)
+        main_layout.addWidget(self.file_name_label)
+        main_layout.addWidget(self.del_button)
+
+    def create_ui_connections(self):
+        self.sel_button.clicked.connect(partial(self.main.load_pose_assets, self.index))
+        self.del_button.clicked.connect(partial(self.main.delete_pose_asset, self.index))
+        pass
 
 
 def show_main_window():

@@ -47,7 +47,7 @@ class RetargetingTool(QtWidgets.QDialog):
     WINDOW_TITLE = "Animation Retarget"
     RIG_FILE_NAME = "json/Retarget_Rig.json"
     IMPORT_NS = "RTG"
-    MODULE_VERSION = "1.0.6"
+    MODULE_VERSION = "1.1.0"
 
     SOURCE_ROTATE_LOCK_ATTRIBUTE = ["rx", "rz"]
     SOURCE_TRANSLATION_LOCK_ATTRIBUTE = ["tx", "ty", "tz"]
@@ -55,7 +55,6 @@ class RetargetingTool(QtWidgets.QDialog):
 
     # const keynames
     SNAP_CONTROLLER_KEY_NAME = "snap_controller_names"
-    POLE_VECTOR_KEY_NAME = "pole_vector_names"
     FINGER_PREFIX_KEY_NAME = "finger_prefix"
     LOCK_FINGER_JOINTS_KEY_NAME = "lock_finger_joints"
     IGNORE_RESET_JOINTS_KEY_NAME = "ignore_lock_joints"
@@ -119,7 +118,6 @@ class RetargetingTool(QtWidgets.QDialog):
 
         # snap joint
         self.snap_joint_names = []
-        self.pole_vector_names = []
 
         self.default_style = "background-color: #34d8ed; color: black"
         self.warning_style = "background-color: #ed4a34; color: white"
@@ -520,6 +518,21 @@ class RetargetingTool(QtWidgets.QDialog):
                 else:
                     print("can't modify lock attribute => {0}".format(source + "." + attr))
 
+    def _get_parent(self, node):
+        parent = cmds.listRelatives(node, parent=True, path=True)
+        if parent:
+            yield parent
+            for p in self._get_parent(parent):
+                yield p
+
+    # top nodeがfit skeletonの場合は無視する
+    @staticmethod
+    def _get_root_node_valid(node_list):
+        for node in node_list:
+            if str(node[0]).find('FitSkeleton') > -1:
+                return False
+        return True
+
     # get source joints
     def _find_source_joints(self):
         self.source_joints = []
@@ -527,11 +540,19 @@ class RetargetingTool(QtWidgets.QDialog):
         cmds.select(self.IMPORT_NS + ":group")
         joints = cmds.ls(selection=True, dag=True, type="joint")
         for joint in joints:
+
+            nodes = self._get_parent(joint)
+            if nodes:
+                was_valid = self._get_root_node_valid(list(nodes))
+                if was_valid is False:
+                    continue
+
             # 編集可能にする
             for attr in self.SOURCE_TRANSFORM_ATTRIBUTE:
                 lock_check = cmds.getAttr(joint + "." + attr, lock=True)
                 if lock_check is True:
-                    cmds.setAttr(joint, lock=0)
+                    cmds.setAttr(joint + "." + attr, lock=0)
+
             # @MEMO
             # Write out a string as a single character and check the prefix
             # Example RTG:NC003_Rig_Final:root => RTG:NC003_Rig_Final:
@@ -550,6 +571,41 @@ class RetargetingTool(QtWidgets.QDialog):
                 real_joint_name = self.source_reference_prefix + value
                 if real_joint_name == joint:
                     self.source_joints.append(joint)
+
+        pole_legs = self._find_source_pole_legs()
+        self.source_joints.extend(pole_legs)
+
+        for joint in self.source_joints:
+            print("added source joint => {}".format(joint))
+        cmds.select(self.source_joints)
+
+    def _find_source_pole_legs(self):
+        # Finding all the nurb curves to get the shape node on the anim_curves
+        cmds.select(self.IMPORT_NS + ":group")
+
+        nurbs_curve_list = cmds.ls(selection=True, dag=True, type="nurbsCurve")
+        nurbs_surface_list = cmds.ls(selection=True, dag=True, type="nurbsSurface")
+        if nurbs_surface_list:
+            for curve in nurbs_surface_list:
+                nurbs_curve_list.append(curve)
+
+        shape_list = nurbs_curve_list
+
+        local_controllers = []
+        local_pole_legs = []
+
+        # get controllers
+        for shape in shape_list:
+            parent = cmds.listRelatives(shape, parent=True)[0]
+            dub_names = cmds.ls(parent, exactType="transform")
+            for ctrl in dub_names:
+                if not ctrl in local_controllers:
+                    if cmds.listAttr(ctrl, keyable=True):
+                        local_controllers.append(ctrl)
+                        if str(ctrl).find("PoleLeg") > -1:
+                            local_pole_legs.append(ctrl)
+        return local_pole_legs
+
 
     # Get the controller of the target source and map it.
     def _find_target_curves(self):
@@ -609,7 +665,6 @@ class RetargetingTool(QtWidgets.QDialog):
         source_joint_data = self._get_project_json_data(self.source_model_text_name)
         target_joint_data = self._get_project_json_data(self.target_model_text_name)
         snap_controller_names = self._get_project_json_data(self.SNAP_CONTROLLER_KEY_NAME)
-        pole_vector_controller_names = self._get_project_json_data(self.POLE_VECTOR_KEY_NAME)
         local_finger_prefix = self._get_project_json_data(self.FINGER_PREFIX_KEY_NAME)
         source_joints = source_joint_data['joint']
         target_joints = target_joint_data['joint']
@@ -622,14 +677,8 @@ class RetargetingTool(QtWidgets.QDialog):
         for controller_name in snap_controller_names:
             self.snap_joint_names.append(self.target_reference_prefix + controller_name)
 
-        self.pole_vector_names = []
-        for pole_vector_name in pole_vector_controller_names:
-            self.pole_vector_names.append(self.target_reference_prefix + pole_vector_name)
-
         for snap_joint_name in self.snap_joint_names:
             print("snap_joint => {}".format(snap_joint_name))
-        for pole_vector_name in self.pole_vector_names:
-            print("pole_vector => {}".format(pole_vector_name))
 
         # Retarget先のjsonファイルを読み込み、Bone Mappingを行う。
         # 1. source元のmappingを作成
@@ -656,7 +705,7 @@ class RetargetingTool(QtWidgets.QDialog):
                 if target is not None:
                     target_dict[value] = target
                 elif target is None:
-                    print("target is None => {}".format(key))
+                    print("target is None : key => {0} source => {1}".format(key, target_curves[key]))
             else:
                 print("json data doesn't have this key => {0}".format(key))
 
@@ -681,14 +730,48 @@ class RetargetingTool(QtWidgets.QDialog):
 
     # retarget automation
     def automation_create_connection_node(self):
+
+        # first clear connected node
+        self._delete_all_connected_node()
+
+        # automation connecting is show progress bar
+        progress_dialog = QtWidgets.QProgressDialog("Auto Connection Node", None, 0, -1, self)
+        progress_dialog.setWindowFlags(progress_dialog.windowFlags() ^ QtCore.Qt.WindowCloseButtonHint)
+        progress_dialog.setWindowFlags(progress_dialog.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
+        progress_dialog.setWindowTitle("Progress...")
+        progress_dialog.setWindowModality(QtCore.Qt.WindowModal)
+        progress_dialog.show()
+        QtCore.QCoreApplication.processEvents()
+
         self._find_source_joints()
         self._find_target_curves()
+
         if self.target_reference_prefix is None:
             cmds.warning("Mapping cannot be performed . information in the reference file could not be obtained. !")
             return
+
         retarget_dict = self._get_bone_mapping_dict()
-        self._automation_create_connection_node(retarget_dict)
-        pass
+
+        for key, value in retarget_dict.items():
+            has_ik = value.find("IK") > -1
+            if has_ik:
+                self._create_ik_connection_node(key, value)
+            else:
+                self._create_connection_node(key, value)
+
+        """
+        try:
+            for key, value in joint_dict.items():
+                has_ik = value.find("IK") > -1
+                if has_ik:
+                    self._create_ik_connection_node(key, value)
+                else:
+                    self._create_connection_node(key, value)
+        except:
+            pass
+        """
+        progress_dialog.close()
+
 
     def create_connection_node(self):
         try:
@@ -707,29 +790,6 @@ class RetargetingTool(QtWidgets.QDialog):
         except:
             cmds.warning("create_ik_connection_node No selections!")
             cmds.confirmDialog(title='Warning', message='create_ik_connection_node No selections!', button=['Ok'], defaultButton='Ok')
-
-    def _automation_create_connection_node(self, joint_dict):
-        # automation connecting is show progress bar
-        progress_dialog = QtWidgets.QProgressDialog("Auto Connection Node", None, 0, -1, self)
-        progress_dialog.setWindowFlags(progress_dialog.windowFlags() ^ QtCore.Qt.WindowCloseButtonHint)
-        progress_dialog.setWindowFlags(progress_dialog.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
-        progress_dialog.setWindowTitle("Progress...")
-        progress_dialog.setWindowModality(QtCore.Qt.WindowModal)
-        progress_dialog.show()
-        QtCore.QCoreApplication.processEvents()
-
-        for key, value in joint_dict.items():
-            try:
-                has_ik = value.find("IK") > -1
-                if has_ik:
-                    self._create_ik_connection_node(key, value)
-                else:
-                    self._create_connection_node(key, value)
-                    pass
-            except:
-                pass
-        progress_dialog.close()
-        pass
 
     def _create_connection_node(self, selected_joint, selected_ctrl):
         if self.snap_checkbox.isChecked() is True:

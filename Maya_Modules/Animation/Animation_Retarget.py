@@ -746,8 +746,10 @@ class RetargetingTool(QtWidgets.QDialog):
         self._find_source_joints()
         self._find_target_curves()
 
+        # prefixがない場合はprogressbarを閉じる
         if self.target_reference_prefix is None:
             cmds.warning("Mapping cannot be performed . information in the reference file could not be obtained. !")
+            progress_dialog.close()
             return
 
         retarget_dict = self._get_bone_mapping_dict()

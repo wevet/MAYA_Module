@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-supported version MAYA 2019, 2020, 2022
+supported version MAYA 2019, 2020, 2022, 2025
 Auther : Shunji_Nagasawa
 """
 
@@ -21,7 +21,7 @@ from PySide2.QtWidgets import *
 from PySide2.QtCore import *
 import time
 import math
-from Mirror import Animation_Mirror
+from ..Mirror import Animation_Mirror
 
 info = cmds.about(version=True)
 version = int(info.split(" ")[0])

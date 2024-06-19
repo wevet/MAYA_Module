@@ -21,7 +21,8 @@ from PySide2.QtWidgets import *
 from PySide2.QtCore import *
 import time
 import math
-from ..Mirror import Animation_Mirror
+
+from Mirror import Animation_Mirror
 
 info = cmds.about(version=True)
 version = int(info.split(" ")[0])

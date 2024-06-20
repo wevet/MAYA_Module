@@ -48,7 +48,7 @@ class RetargetingTool(QtWidgets.QDialog):
     WINDOW_TITLE = "Animation Retarget"
     RIG_FILE_NAME = "json/Retarget_Rig.json"
     IMPORT_NS = "RTG"
-    MODULE_VERSION = "1.1.0"
+    MODULE_VERSION = "1.2"
 
     SOURCE_ROTATE_LOCK_ATTRIBUTE = ["rx", "rz"]
     SOURCE_TRANSLATION_LOCK_ATTRIBUTE = ["tx", "ty", "tz"]
@@ -71,7 +71,7 @@ class RetargetingTool(QtWidgets.QDialog):
         self.rot_checkbox = None
         self.pos_checkbox = None
         self.ignore_finger_checkbox = None
-        #self.mo_checkbox = None
+        # self.mo_checkbox = None
         self.snap_checkbox = None
         self.connection_layout = None
 
@@ -120,6 +120,9 @@ class RetargetingTool(QtWidgets.QDialog):
         # snap joint
         self.snap_joint_names = []
 
+        # get opened scene namespace
+        self.scene_namespace = None
+
         self.default_style = "background-color: #34d8ed; color: black"
         self.warning_style = "background-color: #ed4a34; color: white"
         file_path = cmds.file(q=True, sn=True)
@@ -142,6 +145,7 @@ class RetargetingTool(QtWidgets.QDialog):
         self._create_ui_connections()
         self._create_script_jobs()
         self._init_parameters()
+        self._get_group_namespace()
 
     def _create_ui_widgets(self):
         self.refresh_button = QtWidgets.QPushButton(QtGui.QIcon(":refresh.png"), "")
@@ -336,44 +340,19 @@ class RetargetingTool(QtWidgets.QDialog):
                 pass
 
     def _init_parameters(self):
-        self._apply_source_model_name("21")
-        self._apply_target_model_name("22")
+        self._apply_source_model_name("META_Human")
+        self._apply_target_model_name("META_Human")
         pass
 
-    def _change_toggle_fk_ik(self):
-        """
-        Description: ik、fk jointsを検索しFKIKBlendを書き換える
-        """
-        blend_joints = self._get_ik_arm_joint()
-        for joint in blend_joints:
-            #attribute = joint + "{}".format(".FKIKBlend")
-            # advanced skeletonのswitch機能を呼び出す
-            cmds.select(joint)
-            mel.eval("asAutoSwitchFKIK;")
-
-    def _init_arm_ik_value(self):
-        total = 0
-        blend_joints = self._get_ik_arm_joint()
-        for joint in blend_joints:
-            attribute = joint + "{}".format(".FKIKBlend")
-            value = cmds.getAttr(attribute)
-            total += value
-        self.ik_mode = total >= 10 if True else False
-        pass
-
-    def _get_ik_arm_joint(self):
-        root_object = self._get_target_group_root()
-        if root_object:
-            cmds.select("*:" + root_object)
-        transforms = cmds.ls(selection=True, dag=True, type="animCurve")
-        blend_joints = []
-        for transform in transforms:
-            if cmds.attributeQuery("FKIKBlend", node=transform, exists=1):
-                # Arm jointのみ適用
-                if transform.find("FKIKArm") > -1:
-                    blend_joints.append(transform)
-                    print(transform)
-        return blend_joints
+    def _get_group_namespace(self):
+        objects = cmds.ls("*:Group")
+        for obj in objects:
+            names = obj.split(":")
+            length = len(names) - 1
+            name = ""
+            for idx in range(length):
+                name += names[idx] + ":"
+            self.scene_namespace = name
 
     @staticmethod
     def apply_mirror_animation():
@@ -413,11 +392,6 @@ class RetargetingTool(QtWidgets.QDialog):
     def closeEvent(self, event):
         self.kill_script_jobs()
         self.clear_list()
-
-    def _get_target_group_root(self):
-        if self.target_model_text_name == "36":
-            return "AllRig_GRP"
-        return "Group"
 
     def _handle_import(self):
         self._fbx_import_to_namespace()
@@ -490,11 +464,6 @@ class RetargetingTool(QtWidgets.QDialog):
             if transform in ignore_joints:
                 continue
             body_joints.append(transform)
-            """
-            all_keys = sorted(cmds.keyframe(transform, q=True) or [])
-            if all_keys:
-                body_joints.append(transform)
-            """
 
         start, end = self.get_frame_range()
         for joint in body_joints:
@@ -607,14 +576,16 @@ class RetargetingTool(QtWidgets.QDialog):
                             local_pole_legs.append(ctrl)
         return local_pole_legs
 
-
     # Get the controller of the target source and map it.
     def _find_target_curves(self):
         self.target_joints = []
         self.target_reference_prefix = None
-        root_object = self._get_target_group_root()
-        if root_object:
-            cmds.select("*:" + root_object)
+
+        if self.scene_namespace is not None:
+            cmds.select(self.scene_namespace + ":Group")
+        else:
+            cmds.select("Group")
+
         transforms = cmds.ls(selection=True, dag=True, type="transform")
         for transform in transforms:
             if cmds.nodeType(transform) == "transform":
@@ -762,17 +733,6 @@ class RetargetingTool(QtWidgets.QDialog):
             else:
                 self._create_connection_node(key, value)
 
-        """
-        try:
-            for key, value in joint_dict.items():
-                has_ik = value.find("IK") > -1
-                if has_ik:
-                    self._create_ik_connection_node(key, value)
-                else:
-                    self._create_connection_node(key, value)
-        except:
-            pass
-        """
         progress_dialog.close()
 
 

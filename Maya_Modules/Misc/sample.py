@@ -166,16 +166,3 @@ def _sample():
 
 _sample()
 
-import maya.cmds as cmds
-
-objects = cmds.ls("*:Group")
-
-print(objects)
-for obj in objects:
-    names = obj.split(":")
-    length = len(names) - 1
-    name = ""
-    for idx in range(length):
-        name += names[idx] + ":"
-
-    print(name)

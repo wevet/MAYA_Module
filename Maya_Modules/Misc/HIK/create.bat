@@ -33,7 +33,7 @@ if "%input_str%"=="" (
 
 :finalize
 @echo off
-set PYPATH=%~d0%~p0Batch_Exporter_Caller.py
+set PYPATH=%~d0%~p0HIK_Automation_Caller.py
 echo %PYPATH%
 
 "C:\Program Files\Autodesk\Maya2023\bin\mayapy.exe" %PYPATH% %1 %input_str%

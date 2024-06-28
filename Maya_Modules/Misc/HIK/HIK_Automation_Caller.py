@@ -7,7 +7,7 @@ import os
 K_MAYA_EXE = r'C:\Program Files\Autodesk\Maya2023\bin\maya.exe'
 K_MAYA_BATCH_EXE = r'C:\Program Files\Autodesk\Maya2023\bin\mayabatch.exe'
 
-class Batch_Job_Caller:
+class HIK_Automation_Caller:
 
     def __init__(self):
         self.source_directory = None
@@ -29,17 +29,22 @@ class Batch_Job_Caller:
         self._check_directory()
 
         for file in self.file_list:
-            print("Execute the following ma file. => {}".format(file))
-            replace_path = os.path.join(self.source_directory, file).replace('\\', '/')
-            root, ext = os.path.splitext(replace_path)
-            log_path = os.path.join(self.source_directory, 'Log', file).replace(ext, '.log')
-            cmd += '\n'
-            cmd += 'SET MAYA_CMD_FILE_OUTPUT={0}'.format(log_path) + '\n'
-            cmd += '"{0}"'.format(K_MAYA_BATCH_EXE) + ' -command'
-            cmd += ' "python(\\"import Batch_Exporter;Batch_Exporter.run(\'{}\')\\")"'.format(replace_path)
+
+            # ignore ma mb files
+            prefix = os.path.splitext(file)
+            if ".FBX" == prefix[1]:
+
+                print("Execute the following fbx file. => {}".format(file))
+                replace_path = os.path.join(self.source_directory, file).replace('\\', '/')
+                root, ext = os.path.splitext(replace_path)
+                log_path = os.path.join(self.source_directory, 'Log', file).replace(ext, '.log')
+                cmd += '\n'
+                cmd += 'SET MAYA_CMD_FILE_OUTPUT={0}'.format(log_path) + '\n'
+                cmd += '"{0}"'.format(K_MAYA_BATCH_EXE) + ' -command'
+                cmd += ' "python(\\"import HIK_Automation;HIK_Automation.run(\'{}\')\\")"'.format(replace_path)
 
         dir_path, current_path_name = os.path.split(__file__)
-        path = os.path.join(dir_path, 'batch_exporter_run.bat')
+        path = os.path.join(dir_path, 'hik_automation_run.bat')
         self._save_bat_file(path, cmd)
 
     @staticmethod
@@ -67,7 +72,7 @@ if __name__ == '__main__':
     for param in params:
         print("parameters => {}".format(param))
 
-    caller = Batch_Job_Caller()
+    caller = HIK_Automation_Caller()
     caller.main(params[1])
 
 

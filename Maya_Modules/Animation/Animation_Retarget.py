@@ -310,7 +310,8 @@ class RetargetingTool(QtWidgets.QDialog):
         self.pos_checkbox.setChecked(True)
         self.snap_checkbox.setChecked(False)
 
-        self.ignore_finger_checkbox.setChecked(False)
+        # defaultではretargetしない
+        self.ignore_finger_checkbox.setChecked(True)
 
         self.simple_conn_button.clicked.connect(self.create_connection_node)
         self.ik_conn_button.clicked.connect(self.create_ik_connection_node)

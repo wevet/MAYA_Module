@@ -394,15 +394,15 @@
 			"thumb_03_r" : "FKThumbFinger3_R",
 			"neck_01" : "FKNeck_M",
 			"head" : "FKHead_M",
-			"thigh_l" : "FKHip_L",
-			"calf_l" : "FKKnee_L",
+			"thigh_l" : "",
+			"calf_l" : "",
 			"foot_l" : "IKLeg_L",
-			"ball_l" : "FKToes_L",
+			"ball_l" : "",
 			"pole_vector_l" : "PoleLeg_L",
-			"thigh_r" : "FKHip_R",
-			"calf_r" : "FKKnee_R",
+			"thigh_r" : "",
+			"calf_r" : "",
 			"foot_r" : "IKLeg_R",
-			"ball_r" : "FKToes_R",
+			"ball_r" : "",
 			"pole_vector_r" : "PoleLeg_R"
 		}
 	}

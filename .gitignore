@@ -9,6 +9,7 @@ __pycache__/
 Modules/FaceRigger/__pycache__/
 Reference/__pycache__/
 Maya_Modules/Misc/Batch_Exporter/Test/
+Maya_Modules/Misc/HIK/FIle_Path.json
 Maya_Modules/Animation/Mirror/Test/
 
 *.pyc

@@ -1,27 +1,31 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
 
-import json
 import maya.mel as mel
-import pymel.core as pm
 import maya.cmds as cmds
-from functools import partial
-import maya.OpenMayaUI as omui
-from shiboken2 import wrapInstance
-from PySide2 import QtCore, QtGui, QtWidgets
-from PySide2.QtWidgets import *
-from PySide2.QtCore import *
-import time
-import math
-
+import ast
+import json
 
 class HIK_Automation:
+
+    K_CUR_TIME = -10
+    K_JSON_FILE_NAME = "HIK.json"
+    K_REF_JSON_FILE_NAME = "FIle_Path.json"
+
     def __init__(self):
         self.file_name = None
         self.base_file_name = None
         self.base_directory = None
+        self.reference_file_path = None
+
+        self._initialize()
+
+    def _initialize(self):
+        with open(self.K_REF_JSON_FILE_NAME) as f:
+            data = json.load(f)
+            self.reference_file_path = data['file_path']
+            print("reference_file_path => {}".format(self.reference_file_path))
         pass
 
     @staticmethod
@@ -145,6 +149,47 @@ class HIK_Automation:
             cmds.unloadPlugin('fbxmaya')
             cmds.loadPlugin('fbxmaya', qt=True)
 
+    @staticmethod
+    def _get_pose_transform():
+        joints = cmds.ls(type="joint")
+        # Get the selected node and attribute
+        name_dict = "{\n"
+        for joint in joints:
+            key_attribute_list = cmds.listAttr(joint, s=1, w=1, k=1, v=1, u=1, st=['translate*', 'rotate*', 'scale*'])
+            if key_attribute_list is not None:
+                for attr in key_attribute_list:
+                    value = cmds.getAttr(joint + "." + attr)
+                    name_dict = name_dict + "\"" + joint + "." + attr + "\" : " + str(value) + ",\n"
+        name_dict = name_dict + "}\n"
+        return name_dict
+
+    @staticmethod
+    def _write_json_filename(file_path, name_dict):
+        s = name_dict
+        with open(file_path, mode='w') as f:
+            f.write(s)
+        pass
+
+    def _load_epic_skeleton_pose(self):
+        f = open(self.K_JSON_FILE_NAME)
+        inf = f.read()
+        file_dictionary = ast.literal_eval(inf)
+
+        time = self.K_CUR_TIME
+        key = [k for k, v in file_dictionary.items()]
+        val = [v for k, v in file_dictionary.items()]
+        for file_index in range(len(key)):
+            try:
+                attr_obj = key[file_index]
+                value = val[file_index]
+                cmds.setAttr(attr_obj, value)
+                cmds.setKeyframe(attr_obj, v=value, t=time)
+            except:
+                pass
+        f.close()
+        print("set epic_skeleton_pose ")
+        pass
+
     def start(self, fbx_file_path):
 
         self._handle_load_plugins()
@@ -156,19 +201,21 @@ class HIK_Automation:
         else:
             self._custom_import(fbx_file_path)
 
-        k_cur_time = -10
-        cmds.playbackOptions(edit=1, minTime=k_cur_time)
-        cmds.currentTime(k_cur_time)
+        cmds.playbackOptions(edit=1, minTime=self.K_CUR_TIME)
+        cmds.currentTime(self.K_CUR_TIME)
 
+        self._load_epic_skeleton_pose()
         self._setup_human_ik_definition()
+
+        # load reference file
+        cmds.file(self.reference_file_path, reference=True, ns="mGear")
 
         if fbx_file_path is not None:
             cmds.file(save=True, force=True, type='mayaAscii')
 
         # poseの初期化
         # A-poseに切り替えるのでstudio libraryのposeを使うとよさそう
-        joints = cmds.ls(type="joint")
-        pass
+        # name_dict = self._get_pose_transform()
 
 
 def run(file_path):

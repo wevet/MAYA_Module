@@ -204,18 +204,16 @@ class HIK_Automation:
         cmds.playbackOptions(edit=1, minTime=self.K_CUR_TIME)
         cmds.currentTime(self.K_CUR_TIME)
 
+        # jsonファイルを参考にepic skeleton poseをcopyする
         self._load_epic_skeleton_pose()
+        # hikのcontrol rigを自動生成
         self._setup_human_ik_definition()
 
-        # load reference file
+        # mGear用のreference rigを参照追加
         cmds.file(self.reference_file_path, reference=True, ns="mGear")
 
         if fbx_file_path is not None:
             cmds.file(save=True, force=True, type='mayaAscii')
-
-        # poseの初期化
-        # A-poseに切り替えるのでstudio libraryのposeを使うとよさそう
-        # name_dict = self._get_pose_transform()
 
 
 def run(file_path):

@@ -52,6 +52,8 @@ class Texture_Exporter(QtWidgets.QDialog):
         self.num_samples_label = None
         self.num_samples = 20  # デフォルト値
 
+        self.mask_check = None
+
         self.generate_button = None
 
         self._create_ui()
@@ -88,6 +90,9 @@ class Texture_Exporter(QtWidgets.QDialog):
         self.curve_color_button.clicked.connect(self._choose_color)
         self.curve_color_button.setStyleSheet(self.default_style)
 
+        self.mask_check = QtWidgets.QCheckBox('Enable Mask (Alpha 0)', self)
+        self.mask_check.setChecked(True)
+
         self.num_samples_slider = QSlider(Qt.Horizontal)
         self.num_samples_slider.setMinimum(5)
         self.num_samples_slider.setMaximum(100)
@@ -117,6 +122,7 @@ class Texture_Exporter(QtWidgets.QDialog):
         layout.addWidget(self.curve_color_button)
         layout.addWidget(self.num_samples_label)
         layout.addWidget(self.num_samples_slider)
+        layout.addWidget(self.mask_check)
         layout.addWidget(separator_line_1)
         layout.addWidget(self.generate_button)
         self.setLayout(layout)
@@ -190,6 +196,7 @@ class Texture_Exporter(QtWidgets.QDialog):
         height = int(self.height_input.text())
         line_thickness = int(self.line_thickness_input.text())
         margin = self.MARGIN
+        mask_enabled = self.mask_check.isChecked()
 
         print("num_samples => {}".format(self.num_samples))
 
@@ -218,7 +225,10 @@ class Texture_Exporter(QtWidgets.QDialog):
         offset_x = (width - curve_width * scale_factor) / 2 - min_x * scale_factor
         offset_z = (height - curve_height * scale_factor) / 2 - min_z * scale_factor
 
-        image = Image.new('RGBA', (width, height), color=(0, 0, 0, 0))
+        # マスクの設定に基づいてアルファチャンネルを設定
+        alpha_value = 0 if mask_enabled else 255
+
+        image = Image.new('RGBA', (width, height), color=(255, 255, 255, alpha_value))
         draw = ImageDraw.Draw(image)
 
         # export edit points

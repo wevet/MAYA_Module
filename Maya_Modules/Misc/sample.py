@@ -243,3 +243,4 @@ def _generate_image_from_curve_data(self):
         QMessageBox.warning(self, "Error", f"An unexpected error occurred: {e}")
 """
 
+

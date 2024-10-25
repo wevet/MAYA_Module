@@ -3,7 +3,7 @@
 import sys
 import json
 from PySide2 import QtCore, QtWidgets
-from PySide2.QtWidgets import QLabel, QLineEdit, QVBoxLayout, QFileDialog, QColorDialog, QMessageBox, QSlider
+from PySide2.QtWidgets import QLabel, QLineEdit, QVBoxLayout, QFileDialog, QColorDialog, QMessageBox, QSlider, QHBoxLayout
 from PySide2.QtCore import Qt
 from PIL import Image, ImageDraw
 import maya.cmds as cmds
@@ -23,15 +23,15 @@ def maya_main_window():
 
 
 
-class Texture_Exporter(QtWidgets.QDialog):
+class Curve_Helper(QtWidgets.QDialog):
 
-    WINDOW_TITLE = "Texture Exporter"
+    WINDOW_TITLE = "Curve Helper"
     MODULE_VERSION = "1.0"
     INTERSECTION_TOLERANCE = 10  # 交点の範囲
     PIXEL_SEARCH_RANGE = 10
 
     def __init__(self, parent=None, *args, **kwargs):
-        super(Texture_Exporter, self).__init__(maya_main_window())
+        super(Curve_Helper, self).__init__(maya_main_window())
         self.width_label = None
         self.width_input = None
 
@@ -56,16 +56,21 @@ class Texture_Exporter(QtWidgets.QDialog):
 
         self.mask_check = None
 
-        self.generate_button = None
+        self.export_button = None
+        self.convert_button = None
+        self.projection_button = None
 
         self._create_ui()
+
+        self.direction = (0, 0, 1)
+
 
     def _create_ui(self):
         self.default_style = "background-color: #34d8ed; color: black"
         self.setWindowTitle(self.WINDOW_TITLE + " v" + self.MODULE_VERSION)
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
         self.setStyleSheet('background-color:#262f38;')
-        self.resize(320, 320)
+        self.resize(360, 360)
 
         self.width_label = QLabel('Width:')
         self.height_label = QLabel('Height:')
@@ -84,7 +89,7 @@ class Texture_Exporter(QtWidgets.QDialog):
         # default value
         self.width_input.setText('4096')
         self.height_input.setText('4096')
-        self.line_thickness_input.setText('10')
+        self.line_thickness_input.setText('0.1')
         self.margin_input.setText("0")
 
         self.curve_color_input = QLineEdit(self)
@@ -106,11 +111,28 @@ class Texture_Exporter(QtWidgets.QDialog):
         self.num_samples_slider.setTickPosition(QSlider.TicksBelow)
         self.num_samples_slider.valueChanged.connect(self._update_num_samples_label)
 
-        self.generate_button = QtWidgets.QPushButton('Export')
-        #self.generate_button.clicked.connect(self.export_curve_to_png_uv)
+        self.export_button = QtWidgets.QPushButton('Export PNG')
+        self.export_button.clicked.connect(self.export_curve_to_png)
+        self.export_button.setStyleSheet(self.default_style)
 
-        self.generate_button.clicked.connect(self._on_click_callback)
-        self.generate_button.setStyleSheet(self.default_style)
+        #self.convert_button = QtWidgets.QPushButton('Convert Mesh')
+        #self.convert_button.clicked.connect(self.convert_curve_to_mesh)
+        #self.convert_button.setStyleSheet(self.default_style)
+
+        self.projection_button = QtWidgets.QPushButton('Projection Curve')
+        self.projection_button.clicked.connect(self.convert_curve_to_projection)
+        self.projection_button.setStyleSheet(self.default_style)
+
+        texture_size_layout = QHBoxLayout()
+        texture_size_layout.addWidget(self.width_label)
+        texture_size_layout.addWidget(self.width_input)
+        texture_size_layout.addWidget(self.height_label)
+        texture_size_layout.addWidget(self.height_input)
+
+        button_layout = QHBoxLayout()
+        button_layout.addWidget(self.export_button)
+        #button_layout.addWidget(self.convert_button)
+        button_layout.addWidget(self.projection_button)
 
         separator_line_1 = QtWidgets.QFrame(parent=None)
         separator_line_1.setFrameShape(QtWidgets.QFrame.HLine)
@@ -118,14 +140,13 @@ class Texture_Exporter(QtWidgets.QDialog):
 
         # レイアウト設定
         layout = QVBoxLayout()
-        layout.addWidget(self.width_label)
-        layout.addWidget(self.width_input)
-        layout.addWidget(self.height_label)
-        layout.addWidget(self.height_input)
+        layout.addLayout(texture_size_layout)
+
         layout.addWidget(self.line_thickness_label)
         layout.addWidget(self.line_thickness_input)
         layout.addWidget(self.margin_label)
         layout.addWidget(self.margin_input)
+
         layout.addWidget(self.curve_color_label)
         layout.addWidget(self.curve_color_input)
         layout.addWidget(self.curve_color_button)
@@ -133,7 +154,7 @@ class Texture_Exporter(QtWidgets.QDialog):
         layout.addWidget(self.num_samples_slider)
         layout.addWidget(self.mask_check)
         layout.addWidget(separator_line_1)
-        layout.addWidget(self.generate_button)
+        layout.addLayout(button_layout)
         self.setLayout(layout)
 
 
@@ -147,10 +168,12 @@ class Texture_Exporter(QtWidgets.QDialog):
             #self.curve_color_button.setStyleSheet(f'background-color: {color.name()}; color: white')
             self.curve_color_input.setText(str(self.selected_color))
 
+
     def _update_num_samples_label(self):
         # スライダーの値を取得し、ラベルとサンプル数を更新
         self.num_samples = self.num_samples_slider.value()
         self.num_samples_label.setText(f'Sample Points: {self.num_samples}')
+
 
     @staticmethod
     def _draw_grid(draw, width, height, grid_size, grid_divisions=24):
@@ -172,242 +195,224 @@ class Texture_Exporter(QtWidgets.QDialog):
         draw.line([(width // 2, 0), (width // 2, height)], fill=(150, 150, 150), width=2)  # Y軸
         draw.line([(0, height // 2), (width, height // 2)], fill=(150, 150, 150), width=2)  # X軸
 
-    @staticmethod
-    def bezier_curve(control_points, num_segments):
-        """
-        ベジェ曲線を生成する関数。3次のベジェ曲線を使用。
-        Args:
-            control_points (list of tuples): 制御点のリスト [(x0, y0), (x1, y1), (x2, y2), (x3, y3)]
-            num_segments (int): 曲線を分割するセグメント数
-        Returns:
-            list of tuples: 曲線上の点のリスト
-        """
-        n = len(control_points) - 1
-        curve_points = []
-
-        for t in [i / num_segments for i in range(num_segments + 1)]:
-            x = sum(factorial(n) / (factorial(i) * factorial(n - i)) * (t ** i) * ((1 - t) ** (n - i)) * control_points[i][ 0] for i in range(n + 1))
-            y = sum(factorial(n) / (factorial(i) * factorial(n - i)) * (t ** i) * ((1 - t) ** (n - i)) * control_points[i][1] for i in range(n + 1))
-            curve_points.append((x, y))
-        return curve_points
-
-    def _on_click_callback(self):
-        self.project_curves_onto_temporary_surface()
-
-        pass
-
-    def create_uv_mesh_with_curve(self, curve):
-        """
-        カーブのUV情報を反映させるために、仮のポリゴンプレーンを作成し、
-        そのUV情報を編集します。
-        """
-        points =  self.get_curve_data(curve)
-
-        if not points:
-            cmds.warning("カーブの座標が取得できませんでした。")
-            return
-
-        min_x = min(point[0] for point in points)
-        max_x = max(point[0] for point in points)
-        min_z = min(point[2] for point in points)
-        max_z = max(point[2] for point in points)
-
-        uv_points = self.convert_to_uv(points, min_x, max_x, min_z, max_z)
-
-        poly_plane = cmds.polyPlane(width=1, height=1, sx=1, sy=1, name="UV_Curve_Mesh")[0]
-        uv_set = cmds.polyUVSet(poly_plane, query=True, currentUVSet=True)[0]
-
-        for i, (u, v) in enumerate(uv_points):
-            try:
-                cmds.polyEditUV(f"{poly_plane}.map[{i}]", u=u, v=v, uvSetName=uv_set)
-            except Exception as e:
-                cmds.warning(f"UVの設定に失敗しました: {e}")
-        print(f"UV情報が反映されたメッシュ: {poly_plane}")
-        return poly_plane
-
-
-    def project_curves_onto_temporary_surface(self):
-
-        print("project_curves_onto_temporary_surface")
-
-        selection = cmds.ls(selection=True, dag=True, type=["nurbsCurve", "mesh"])
-
-        if len(selection) < 2:
-            cmds.warning("1つ以上のカーブと1つのメッシュを選択してください。")
-            return
-
-        mesh = None
-        curves = []
-        for obj in selection:
-            if cmds.nodeType(obj) == "mesh":
-                mesh = obj
-            elif cmds.nodeType(obj) == "nurbsCurve":
-                curves.append(obj)
-
-        if not mesh or len(curves) == 0:
-            cmds.warning("1つのメッシュと1つ以上のカーブを選択してください。")
-            return
-
-        print(f"選択されたメッシュ: {mesh}")
-        print(f"選択されたカーブ: {curves}")
-
-        bbox = cmds.exactWorldBoundingBox(mesh)
-        center_x = (bbox[0] + bbox[3]) / 2
-        center_y = (bbox[1] + bbox[4]) / 2
-        center_z = (bbox[2] + bbox[5]) / 2
-        width = bbox[3] - bbox[0]
-        height = bbox[5] - bbox[2]
-
-        nurbs_surface = cmds.nurbsPlane(width=width * 1.2, lengthRatio=1.0, axis=(0, 1, 0), ch=False)[0]
-        cmds.move(center_x, center_y, center_z, nurbs_surface)
-        print(f"仮のNURBSサーフェスが作成されました: {nurbs_surface}")
-
-        for curve in curves:
-            try:
-                # カーブの投影
-                projected_curve = cmds.projectCurve(curve, nurbs_surface, direction=(0, 1, 0), ch=False)[0]
-                print(f"カーブ {curve} がNURBSサーフェス {nurbs_surface} に投影されました: {projected_curve}")
-                # 投影されたカーブのシェイプノードを取得
-                duplicated_curve = cmds.duplicateCurve(projected_curve, ch=False, rn=False, local=False)[0]
-                self.create_uv_mesh_with_curve(duplicated_curve)
-
-                # 投影されたカーブを削除
-                cmds.delete(projected_curve)
-
-            except Exception as e:
-                cmds.warning(f"カーブ {curve} の投影に失敗しました: {e}")
-
-        cmds.delete(nurbs_surface)
-        print("仮のNURBSサーフェスが削除されました。")
-
 
     """
-    curve 情報をuvに投影する処理
+    FIX code
+    world座標をtextureの中心点から計算し描画
     """
-    def convert_curve_to_uv(self):
-
-        print("export_curve_to_uv")
+    def export_curve_to_png(self):
         selected_curves = cmds.ls(selection=True, dag=True, type="nurbsCurve")
 
         if not selected_curves:
             QMessageBox.warning(self, "Error", "No curves selected. Please select at least one curve.")
             return
+
+        width = int(self.width_input.text())
+        height = int(self.height_input.text())
+        line_thickness = int(self.line_thickness_input.text())
+        margin = int(self.margin_input.text())
+        mask_enabled = self.mask_check.isChecked()
+
+        print("num_samples => {}".format(self.num_samples))
 
         all_points = []
         control_vertices_list = []
 
         for curve in selected_curves:
             # 制御点（Control Vertices）を取得
-            control_vertices = Texture_Exporter.get_curve_data(curve)
-            control_vertice = [(cv[0], cv[2]) for cv in control_vertices]  # XとZ座標を使用
+            control_vertices = Curve_Helper.get_curve_data(curve)
+            control_vertice = [(cv[0], cv[2]) for cv in control_vertices]
             control_vertices_list.append(control_vertice)
+
             curve_points = self.get_curve_geometry_data(curve)
             all_points.append(curve_points)
 
         min_x = min(p[0] for curve in all_points for p in curve)
         max_x = max(p[0] for curve in all_points for p in curve)
-        min_y = min(p[1] for curve in all_points for p in curve)
-        max_y = max(p[1] for curve in all_points for p in curve)
+        min_z = min(p[1] for curve in all_points for p in curve)
+        max_z = max(p[1] for curve in all_points for p in curve)
 
         curve_width = max_x - min_x
-        curve_height = max_y - min_y
+        curve_height = max_z - min_z
 
-        # UV空間にカーブを正しく収めるためにポリゴンプレーンを作成
-        plane_width = curve_width * 1.2  # 余裕を持たせるために1.2倍
-        plane_height = curve_height * 1.2
+        scale_factor = min((width - 2 * margin) / curve_width, (height - 2 * margin) / curve_height)
+        offset_x = (width - curve_width * scale_factor) / 2 - min_x * scale_factor
+        offset_z = (height - curve_height * scale_factor) / 2 - min_z * scale_factor
 
-        # ポリゴンプレーンをカーブの大きさに基づいて作成
-        poly_plane = cmds.polyPlane(width=plane_width, height=plane_height, sx=1, sy=1, name="UV_Plane")[0]
+        # マスクの設定に基づいてアルファチャンネルを設定
+        alpha_value = 0 if mask_enabled else 255
 
-        # UVセットの情報を取得
-        uv_set = cmds.polyUVSet(poly_plane, query=True, currentUVSet=True)[0]
+        image = Image.new('RGBA', (width, height), color=(255, 255, 255, alpha_value))
+        draw = ImageDraw.Draw(image)
 
-        # すべてのカーブに対してUV情報を計算
-        uv_points = []
-        for curve_points in all_points:
-            uv_list = []
-            for point in curve_points:
-                # XとY座標をUV座標として使用
-                u = (point[0] - min_x) / curve_width
-                v = (point[1] - min_y) / curve_height
-                uv_list.append((u, v))
-                print(f"Point: ({point[0]}, {point[1]}) -> UV: ({u}, {v})")
-            uv_points.append(uv_list)
-            print(f"uv info => {uv_list}")
+        # export edit points
+        for curve in all_points:
+            scaled_points = [((p[0] * scale_factor + offset_x), (p[1] * scale_factor + offset_z)) for p in curve]
+            for i in range(len(scaled_points) - 1):
+                draw.line([scaled_points[i], scaled_points[i + 1]], fill=self.selected_color + (255,), width=line_thickness)
 
-        # ポリゴンプレーンのUVを調整してカーブに合わせる
-        for uv_list in uv_points:
-            for j, (u, v) in enumerate(uv_list):
-                # ポリゴンプレーンのUVを設定
-                cmds.polyEditUV(f"{poly_plane}.map[{j}]", u=u, v=v, uvSetName=uv_set)
-
-        # UVウィンドウを表示
-        cmds.TextureViewWindow()
-
-
-    """
-    curve dataのworld座標をuv座標に変換し書き出す
-    """
-    def export_curve_to_png_uv(self):
-        selected_curves = cmds.ls(selection=True, dag=True, type="nurbsCurve")
-
-        if not selected_curves:
-            QMessageBox.warning(self, "Error", "No curves selected. Please select at least one curve.")
-            return
-
-        all_uv_points = []
-        min_x, max_x, min_y, max_y, min_z, max_z = None, None, None, None, None, None
-
-        # 各カーブの座標を取得し、全体の範囲を計算
-        for curve in selected_curves:
-
-            #curve_points_uv = self.get_uv_data(curve)  # UV情報を取得する関数
-            curve_points = Texture_Exporter.get_curve_data(curve)
-
-            # カーブの範囲を計算
-            cur_min_x, cur_max_x, cur_min_y, cur_max_y, cur_min_z, cur_max_z = Texture_Exporter.calculate_bounds(curve_points)
-
-            # 最小/最大値を全体の範囲に統合
-            if min_x is None or cur_min_x < min_x:
-                min_x = cur_min_x
-            if max_x is None or cur_max_x > max_x:
-                max_x = cur_max_x
-            if min_y is None or cur_min_y < min_y:
-                min_y = cur_min_y
-            if max_y is None or cur_max_y > max_y:
-                max_y = cur_max_y
-            if min_z is None or cur_min_z < min_z:
-                min_z = cur_min_z
-            if max_z is None or cur_max_z > max_z:
-                max_z = cur_max_z
-
-            # UV空間に変換して保存
-            uv_points = Texture_Exporter.convert_to_uv(curve_points, min_x, max_x, min_z, max_z)
-
-            for uv_pos in uv_points:
-                print("uv pos => {}".format(uv_pos))
-
-            all_uv_points.append(uv_points)
-
-        # 画像サイズと線の太さを設定
-        width = int(self.width_input.text())
-        height = int(self.height_input.text())
-        line_thickness = int(self.line_thickness_input.text())
-
-        # ファイルパスの取得
-        file_path, _ = QFileDialog.getSaveFileName(self, "Save Image", "", "PNG Files (*.png);;TGA Files (*.tga)", options=QFileDialog.Options())
-
-        if file_path:
-            # カーブを画像に描画
-            self.draw_curves_to_png(all_uv_points, width, height, line_thickness, file_path)
+        image_file, _ = QFileDialog.getSaveFileName(self, "Save Image", "", "PNG Files (*.png);;TGA Files (*.tga)", options=QFileDialog.Options())
+        if image_file:
+            image.save(image_file)
             QMessageBox.information(self, "Success", "Texture saved successfully.")
         else:
             QMessageBox.warning(self, "Error", "Failed to save texture.")
         pass
 
 
+
     """
-    world座標をtextureの中心点から計算し描画
+    curve dataをもとにmeshを生成し投影する
+    且つUV展開も行う
+    """
+    def convert_curve_to_projection(self):
+        print("convert_curve_to_projection")
+
+        # 選択されているカーブとメッシュを取得
+        selection = cmds.ls(selection=True, dag=True, type="transform")
+        curves = []
+        meshes = []
+
+        # 各transformノードのシェイプを確認して振り分け
+        for transform in selection:
+            shapes = cmds.listRelatives(transform, shapes=True, fullPath=True)
+            if shapes:
+                for shape in shapes:
+                    shape_type = cmds.nodeType(shape)
+                    if shape_type == "nurbsCurve":
+                        curves.append(transform)
+                    elif shape_type == "mesh":
+                        meshes.append(transform)
+
+
+        if not curves or not meshes:
+            QMessageBox.warning(self, "Error", "Please select at least one curve and one mesh.")
+            return
+
+        # リボンの幅
+        line_thickness = float(self.line_thickness_input.text())
+
+        profile_curves = []
+        extruded_surfaces = []
+        for curve in curves:
+
+            # 押し出しのプロファイルとして使用するカーブを作成（円形）
+            profile_curve = cmds.circle(radius=line_thickness, sections=8, degree=3, name="profileCurve")[0]
+            # カーブを使用してNURBSサーフェスを押し出し
+            extruded_surface = cmds.extrude(profile_curve, curve, constructionHistory=True, useComponentPivot=1, fixedPath=True, useProfileNormal=False, polygon=0)[0]
+            print(f"Extruded surface created for curve {curve}: {extruded_surface}")
+
+            # メッシュごとに投影を行う
+            for mesh in meshes:
+                try:
+                    # 投影するカーブのシェイプノードを取得
+                    curve_shape = cmds.listRelatives(curve, shapes=True, type="nurbsCurve")[0]
+                    # 投影処理を実行
+                    projected_curve = cmds.polyProjectCurve(mesh, curve_shape, ch=True, pointsOnEdges=False, curveSamples=50, automatic=True, tolerance=0.001)
+                    print(f"Projected curve {curve} onto mesh {mesh}: {projected_curve}")
+
+                except Exception as e:
+                    cmds.warning(f"Failed to project curve {curve} onto mesh {mesh}: {e}")
+
+            profile_curves.append(profile_curve)
+            extruded_surfaces.append(extruded_surface)
+
+
+        for surface in extruded_surfaces:
+            print(f"Surface => {surface}")
+
+            # NURBSサーフェスをポリゴンメッシュに変換（四角形メッシュ）
+            # 投影の対象をポリゴンメッシュにするために残し
+            poly_mesh = self.convert_nurbs_to_poly(surface)
+            print(f"Polygon mesh created: {poly_mesh}")
+
+            if poly_mesh:
+                # UVセットを確認、必要に応じて作成
+                uv_sets = cmds.polyUVSet(poly_mesh, query=True, allUVSets=True)
+                if not uv_sets:
+                    cmds.polyUVSet(poly_mesh, create=True, uvSet="map1")
+
+                # UV展開を実施
+                cmds.polyAutoProjection(poly_mesh, layoutMethod=2, insertBeforeDeformers=True, scaleMode=1)
+                print(f"UVs projected for {poly_mesh}")
+
+        for surface in extruded_surfaces:
+            cmds.delete(surface)
+
+        for curve in profile_curves:
+            cmds.delete(curve)
+
+
+        pass
+
+
+    @staticmethod
+    def convert_nurbs_to_poly(nurbs_surface, poly_type=1, chord_height_ratio=0.9, fit_tolerance=0.01, merge_edge_length=0.001):
+        """
+        NURBSサーフェスをポリゴンメッシュに変換し、UV展開を行う共通化API。
+
+        Args:
+            nurbs_surface (str): 変換対象のNURBSサーフェスの名前。
+            poly_type (int): 出力ポリゴンのタイプ（0: 三角形, 1: 四角形）。デフォルトは1（四角形）。
+            chord_height_ratio (float): ポリゴンのサイズを調整するための値。
+            fit_tolerance (float): ポリゴンの生成精度。
+            merge_edge_length (float): エッジをマージする際の許容長さ。
+
+        Returns:
+            str: 変換されたポリゴンメッシュの名前。
+        """
+        try:
+            # NURBSサーフェスをポリゴンメッシュに変換
+            poly_mesh = cmds.nurbsToPoly(
+                nurbs_surface,
+                mnd=1,  # Normal direction
+                f=1,  # Format (1: サンプルベース)
+                pt=poly_type,  # ポリゴンタイプ (0: 三角形, 1: 四角形)
+                chr=chord_height_ratio,  # 曲率に合わせた調整
+                ft=fit_tolerance,  # フィットトレランス
+                mel=merge_edge_length  # エッジのマージ長さ
+            )[0]
+
+            print(f"Polygon mesh created: {poly_mesh}")
+
+            # UV展開を実施
+            cmds.polyAutoProjection(poly_mesh, layoutMethod=2, insertBeforeDeformers=True, scaleMode=1)
+            print(f"UVs projected for {poly_mesh}")
+
+            return poly_mesh
+
+        except Exception as e:
+            cmds.warning(f"Failed to convert NURBS surface {nurbs_surface} to polygon: {e}")
+            return None
+
+
+    @staticmethod
+    def get_curve_data(curve):
+        """
+        カーブの制御点（CV）を取得
+        """
+        cv_count = cmds.getAttr(f"{curve}.spans") + cmds.getAttr(f"{curve}.degree") + 1
+        control_vertices = [cmds.pointPosition(f"{curve}.cv[{i}]") for i in range(cv_count)]
+        return control_vertices
+
+
+    def get_curve_geometry_data(self, curve):
+        # カーブのパラメータ範囲を取得
+        param_range = cmds.getAttr(f"{curve}.minMaxValue")[0]
+        min_param = param_range[0]
+        max_param = param_range[1]
+        # 各サンプルのパラメータ値に対応する座標を取得
+        geometry_points = []
+        for i in range(self.num_samples + 1):
+            param = min_param + ((max_param - min_param) * (i / self.num_samples))
+            point = cmds.pointOnCurve(curve, pr=param, p=True)
+            geometry_points.append((point[0], point[2]))
+        return geometry_points
+
+
+
+    """
+    curve dataのworld座標をuv座標に変換し書き出す
     """
     def export_curve_to_png_world_position(self):
 
@@ -474,16 +479,6 @@ class Texture_Exporter(QtWidgets.QDialog):
 
 
     @staticmethod
-    def get_curve_data(curve):
-        """
-        カーブの制御点（CV）を取得
-        """
-        cv_count = cmds.getAttr(f"{curve}.spans") + cmds.getAttr(f"{curve}.degree") + 1
-        control_vertices = [cmds.pointPosition(f"{curve}.cv[{i}]") for i in range(cv_count)]
-        return control_vertices
-
-
-    @staticmethod
     def calculate_bounds(points):
         """
         ポイントリストから最小値と最大値を計算
@@ -527,7 +522,6 @@ class Texture_Exporter(QtWidgets.QDialog):
         print(f"Image saved to {file_path}")
 
 
-
     @staticmethod
     def convert_to_uv(points, min_x, max_x, min_z, max_z):
         """
@@ -565,20 +559,6 @@ class Texture_Exporter(QtWidgets.QDialog):
             uv_points.append((u, v))
         return uv_points
 
-
-    def get_curve_geometry_data(self, curve):
-        # カーブのパラメータ範囲を取得
-        param_range = cmds.getAttr(f"{curve}.minMaxValue")[0]
-        min_param = param_range[0]
-        max_param = param_range[1]
-
-        # 各サンプルのパラメータ値に対応する座標を取得
-        geometry_points = []
-        for i in range(self.num_samples + 1):
-            param = min_param + ((max_param - min_param) * (i / self.num_samples))
-            point = cmds.pointOnCurve(curve, pr=param, p=True)
-            geometry_points.append((point[0], point[2]))
-        return geometry_points
 
 
     def _export_curves_selected_to_json(self):
@@ -688,8 +668,8 @@ class Texture_Exporter(QtWidgets.QDialog):
                     for l in range(len(curve2["control_vertices"]) - 1):
                         p2_start = curve2["control_vertices"][l]
                         p2_end = curve2["control_vertices"][l + 1]
-                        if Texture_Exporter._are_segments_intersecting(p1_start, p1_end, p2_start, p2_end):
-                            intersection = Texture_Exporter._calculate_intersection(p1_start, p1_end, p2_start, p2_end)
+                        if Curve_Helper._are_segments_intersecting(p1_start, p1_end, p2_start, p2_end):
+                            intersection = Curve_Helper._calculate_intersection(p1_start, p1_end, p2_start, p2_end)
                             if intersection:
                                 intersection_points.append(intersection)
 
@@ -706,6 +686,43 @@ class Texture_Exporter(QtWidgets.QDialog):
         cmds.select(selected_curves)
         return export_data
 
+
+    """
+    3D座標をメッシュのバウンディングボックス内に収めてUV空間に変換する。
+    Args:
+        points (list): カーブの3D座標リスト。
+        bbox (tuple): メッシュのバウンディングボックス (minX, minY, minZ, maxX, maxY, maxZ)。
+    Returns:
+        list: UV空間にマッピングされた座標のリスト。
+    """
+    @staticmethod
+    def convert_to_uv_within_bbox(points, bbox):
+        min_x, min_y, min_z, max_x, max_y, max_z = bbox
+        x_range = max_x - min_x
+        z_range = max_z - min_z
+
+        # 範囲が0の場合には、適切にスケールするために1に設定
+        if x_range == 0:
+            x_range = 1.0
+        if z_range == 0:
+            z_range = 1.0
+
+        uv_points = []
+        for point in points:
+            # カーブの座標をバウンディングボックス内に収める
+            if min_x <= point[0] <= max_x and min_z <= point[2] <= max_z:
+                # XとZをUVにマッピング
+                u = (point[0] - min_x) / x_range
+                v = (point[2] - min_z) / z_range
+                uv_points.append((u, v))
+            else:
+                # バウンディングボックス外のポイントはエッジにスナップ
+                x = min(max(point[0], min_x), max_x)
+                z = min(max(point[2], min_z), max_z)
+                u = (x - min_x) / x_range
+                v = (z - min_z) / z_range
+                uv_points.append((u, v))
+        return uv_points
 
 
     """
@@ -745,13 +762,13 @@ class Texture_Exporter(QtWidgets.QDialog):
 
 
 def show_main_window():
-    global tex_exporter
+    global curve_helper
     try:
-        tex_exporter.close()  # type: ignore
-        tex_exporter.deleteLater()  # type: ignore
+        curve_helper.close()  # type: ignore
+        curve_helper.deleteLater()  # type: ignore
     except:
         pass
-    tex_exporter = Texture_Exporter()
-    tex_exporter.show()
+    curve_helper = Curve_Helper()
+    curve_helper.show()
 
 

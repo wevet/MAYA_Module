@@ -7,9 +7,9 @@ global proc install_module()
 	string $icon_prefix = "png";
 	string $asInstallScriptLocation=`asInstallScriptLocation`;
 
-	string $script_name = "Texture_Exporter";
+	string $script_name = "Curve_Helper";
 	string $source_file = $asInstallScriptLocation+$script_name+".py";
-	string $icon2 = $asInstallScriptLocation+"/icon/Texture_Exporter_icon."+$icon_prefix;
+	string $icon2 = $asInstallScriptLocation+"/icon/Curve_Helper_icon."+$icon_prefix;
 	string $maya_version[] = stringToStringArray(`about -v`, " ");
 	string $import_base_text = "import os\nimport sys\nsys.path.append('"+$asInstallScriptLocation+"')\n";
 	string $command_name;
@@ -17,11 +17,11 @@ global proc install_module()
 	int $version_number = $maya_version[0];
     if ($version_number >= 2022)
     {
-    	$command_name = $import_base_text + "import Texture_Exporter as Texture\nimport importlib\nimportlib.reload(Texture)\nmain_window = Texture.show_main_window()";
+    	$command_name = $import_base_text + "import Curve_Helper as CH\nimport importlib\nimportlib.reload(CH)\nmain_window = CH.show_main_window()";
     }
     else
     {
-    	$command_name = $import_base_text + "import Texture_Exporter as Texture\nreload(Texture)\nmain_window = Texture.show_main_window()";
+    	$command_name = $import_base_text + "import Curve_Helper as CH\nreload(CH)\nmain_window = CH.show_main_window()";
     }
 
 	if (!`file -q -ex $source_file`)

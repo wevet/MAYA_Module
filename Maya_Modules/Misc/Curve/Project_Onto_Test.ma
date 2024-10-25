@@ -1,34 +1,32 @@
 //Maya ASCII 2023 scene
 //Name: Project_Onto_Test.ma
-//Last modified: Fri, Oct 25, 2024 11:04:15 AM
+//Last modified: Fri, Oct 25, 2024 06:53:40 PM
 //Codeset: 932
 requires maya "2023";
 requires "stereoCamera" "10.0";
 requires -nodeType "aiOptions" -nodeType "aiAOVDriver" -nodeType "aiAOVFilter" "mtoa" "5.2.1.1";
-requires "stereoCamera" "10.0";
 currentUnit -l centimeter -a degree -t film;
 fileInfo "application" "maya";
 fileInfo "product" "Maya 2023";
 fileInfo "version" "2023";
 fileInfo "cutIdentifier" "202405151550-05a853e76d";
 fileInfo "osv" "Windows 11 Pro v2009 (Build: 22631)";
-fileInfo "UUID" "75E9F0CD-4B71-5B5F-4227-F98960650394";
+fileInfo "UUID" "7BF46F49-4877-C0A5-B363-1C80B860EBEA";
 createNode transform -s -n "persp";
 	rename -uid "415E9D15-4150-0E95-4761-4BAC54618B39";
 	setAttr ".v" no;
-	setAttr ".t" -type "double3" 3.9484423071329488e-16 8.3379048634139181 -2.8982904979275515e-15 ;
-	setAttr ".r" -type "double3" -89.999999999999986 0 0 ;
-	setAttr ".rp" -type "double3" 3.4211388289180104e-49 0 3.5527136788005009e-15 ;
-	setAttr ".rpt" -type "double3" -3.9484423071329488e-16 3.3827149674299779e-15 -3.5241400286345545e-15 ;
+	setAttr ".t" -type "double3" -4.2314714730131513 5.9311815073705585 11.702303106768515 ;
+	setAttr ".r" -type "double3" -37.800000000000004 -33.599999999999959 1.90927696762299e-15 ;
+	setAttr ".rpt" -type "double3" 2.8788329543629524e-15 2.0787387618958873e-15 4.1788739995104551e-16 ;
 createNode camera -s -n "perspShape" -p "persp";
 	rename -uid "778517AE-4564-1247-4E6F-6C98742F7903";
 	setAttr -k off ".v" no;
 	setAttr ".fl" 34.999999999999979;
-	setAttr ".coi" 8.3379048634139608;
+	setAttr ".coi" 9.6771304425691369;
 	setAttr ".imn" -type "string" "persp";
 	setAttr ".den" -type "string" "persp_depth";
 	setAttr ".man" -type "string" "persp_mask";
-	setAttr ".tp" -type "double3" 2.2908033908824739e-33 -3.5527136788005009e-15 -4.7211036390608464e-15 ;
+	setAttr ".tp" -type "double3" 0 5.1293262136028153e-19 5.3334265416119635 ;
 	setAttr ".hc" -type "string" "viewSet -p %camera";
 createNode transform -s -n "top";
 	rename -uid "94681C31-4DAA-5984-CD92-6D8D81739111";
@@ -110,7 +108,7 @@ createNode mesh -n "pCylinderShape1" -p "pCylinder1";
 	setAttr ".gtag[8].gtagcmp" -type "componentList" 1 "f[40:59]";
 	setAttr ".gtag[9].gtagnm" -type "string" "topRing";
 	setAttr ".gtag[9].gtagcmp" -type "componentList" 1 "e[20:39]";
-	setAttr ".pv" -type "double2" 0.5237867534160614 0.49999998509883881 ;
+	setAttr ".pv" -type "double2" 0.578125 0.84375 ;
 	setAttr ".uvst[0].uvsn" -type "string" "map1";
 	setAttr -s 84 ".uvst[0].uvsp[0:83]" -type "float2" 0.64860266 0.10796607
 		 0.62640899 0.064408496 0.59184152 0.029841021 0.54828393 0.0076473355 0.5 -7.4505806e-08
@@ -281,103 +279,37 @@ createNode mesh -n "pCylinderShape1" -p "pCylinder1";
 	setAttr ".cvd" -type "dataPolyComponent" Index_Data Vertex 0 ;
 	setAttr ".pd[0]" -type "dataPolyComponent" Index_Data UV 0 ;
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
-createNode transform -n "pPlane1";
-	rename -uid "573DA2E0-4C65-2E8F-3218-3B842258C917";
-	setAttr ".s" -type "double3" 7.9639302422419949 1 7.9639302422419949 ;
-createNode mesh -n "pPlaneShape1" -p "pPlane1";
-	rename -uid "CE67FC0E-4649-0724-8739-03980A566AD1";
+	setAttr ".bw" 3;
+createNode transform -n "pCube1";
+	rename -uid "2DD3A8E3-4F73-4793-50A6-3D85D5D8291A";
+createNode mesh -n "pCubeShape1" -p "pCube1";
+	rename -uid "0471DCAE-40FE-0E6A-8565-87A82B36DDF4";
 	setAttr -k off ".v";
 	setAttr ".vir" yes;
 	setAttr ".vif" yes;
-	setAttr ".pv" -type "double2" 0.55000001192092896 0.65000000596046448 ;
+	setAttr ".pv" -type "double2" 0.75 0.5 ;
 	setAttr ".uvst[0].uvsn" -type "string" "map1";
 	setAttr ".cuvs" -type "string" "map1";
 	setAttr ".dcc" -type "string" "Ambient+Diffuse";
 	setAttr ".covm[0]"  0 1 1;
 	setAttr ".cdvm[0]"  0 1 1;
-createNode transform -n "curve1";
-	rename -uid "86473545-4C80-E7CD-E5AF-35B9FC5CA5EB";
-createNode nurbsCurve -n "curveShape1" -p "curve1";
-	rename -uid "2C85754E-498D-9A93-155D-469E6AF0514C";
-	setAttr -k off ".v";
-	setAttr ".cc" -type "nurbsCurve" 
-		3 9 0 no 3
-		14 0 0 0 0.35780493350054404 0.81492348915769885 1.5837137873083735 2.2693916207941069
-		 2.9966256866123122 4.4965363406125975 6.1311300648613001 7.5289803686258061 9 9 9
-		
-		12
-		-3.1156631612439996 0 -0.18680900436552195
-		-3.0440799485802765 0 -0.13781811822081236
-		-2.8483162263463444 0 -0.067606829777031308
-		-2.4639519916842927 0 -0.13138039282837655
-		-2.0014771734593508 0 -0.13473517878468066
-		-1.4730618894773826 0 -0.16378538954361205
-		-0.76793564524010949 0 -0.20876282827140635
-		0.1683855349331258 0 -0.1536575450744917
-		1.2659666760212049 0 -0.10516591428586065
-		2.3578822096158412 0 -0.12037674244935294
-		3.0537141562991099 0 -0.10616374348899324
-		3.4096032183043952 0 -0.083362732476050638
-		;
-createNode transform -n "profileCurve";
-	rename -uid "7523B374-4DD7-0882-E1B4-99B2AF464975";
-createNode nurbsCurve -n "profileCurveShape" -p "profileCurve";
-	rename -uid "F548D41A-4A73-AD28-DA51-11A1821F4F95";
-	setAttr -k off ".v";
-	setAttr ".tw" yes;
-createNode transform -n "extrudedSurface1";
-	rename -uid "4F2C3ECF-40C5-2430-04CE-DB8366B2CF60";
-createNode mesh -n "extrudedSurfaceShape1" -p "extrudedSurface1";
-	rename -uid "E7EAA803-46DD-ADE2-0DC7-569036D10DD1";
-	setAttr -k off ".v";
-	setAttr ".vir" yes;
-	setAttr ".vif" yes;
-	setAttr ".uvst[0].uvsn" -type "string" "map1";
-	setAttr ".cuvs" -type "string" "map1";
-	setAttr ".dcc" -type "string" "Ambient+Diffuse";
-	setAttr ".covm[0]"  0 1 1;
-	setAttr ".cdvm[0]"  0 1 1;
-createNode transform -n "nurbsToPoly1";
-	rename -uid "A684AC16-47C3-8007-ABF3-338D36F2F875";
-createNode mesh -n "nurbsToPolyShape1" -p "nurbsToPoly1";
-	rename -uid "609F41FB-4CD0-529F-8DD4-8FB4108F6DC6";
-	setAttr -k off ".v";
-	setAttr ".vir" yes;
-	setAttr ".vif" yes;
-	setAttr ".uvst[0].uvsn" -type "string" "map1";
-	setAttr ".cuvs" -type "string" "map1";
-	setAttr ".dcc" -type "string" "Ambient+Diffuse";
-	setAttr ".covm[0]"  0 1 1;
-	setAttr ".cdvm[0]"  0 1 1;
-createNode mesh -n "polySurfaceShape1" -p "nurbsToPoly1";
-	rename -uid "8C2B0FE7-424D-75B4-D674-B38EEDFB69B8";
-	setAttr -k off ".v";
-	setAttr ".io" yes;
-	setAttr ".vir" yes;
-	setAttr ".vif" yes;
-	setAttr ".uvst[0].uvsn" -type "string" "map1";
-	setAttr ".cuvs" -type "string" "map1";
-	setAttr ".dcc" -type "string" "Ambient+Diffuse";
-	setAttr ".covm[0]"  0 1 1;
-	setAttr ".cdvm[0]"  0 1 1;
-	setAttr ".cd" -type "dataPolyComponent" Index_Data Edge 0 ;
-	setAttr ".cvd" -type "dataPolyComponent" Index_Data Vertex 0 ;
-	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 createNode lightLinker -s -n "lightLinker1";
-	rename -uid "D70646B3-4F3C-A7F0-5EE3-D8852FFA5F9A";
+	rename -uid "79BB9DBB-457F-C64A-88D3-989916BDBE16";
 	setAttr -s 2 ".lnk";
 	setAttr -s 2 ".slnk";
 createNode shapeEditorManager -n "shapeEditorManager";
-	rename -uid "D719D2F7-47E0-D609-E20F-27B9622ACCB8";
+	rename -uid "484061A2-456B-F953-5245-6FBFEE81D748";
 createNode poseInterpolatorManager -n "poseInterpolatorManager";
-	rename -uid "27DB9BD6-4EB2-1E1D-4419-12B8CFB6ADC3";
+	rename -uid "37A6DEA0-4008-41E1-FE50-08A370E62A3D";
 createNode displayLayerManager -n "layerManager";
-	rename -uid "BE40F1AD-4DB1-B3CE-A8B9-38AADC0AA3D0";
+	rename -uid "E94B97C8-445B-2227-4299-D4801D1E866C";
+	setAttr ".dli[1]"  1;
+	setAttr -s 2 ".dli";
 createNode displayLayer -n "defaultLayer";
 	rename -uid "7D538AD7-479E-EABC-9002-638B8004FB79";
 	setAttr ".ufem" -type "stringArray" 0  ;
 createNode renderLayerManager -n "renderLayerManager";
-	rename -uid "389E3AE2-4B7A-038F-AA5D-EEB399157BEA";
+	rename -uid "BAE6EB3A-43E9-51B7-0868-BDA525079D36";
 createNode renderLayer -n "defaultRenderLayer";
 	rename -uid "80817CDF-4C87-1DB5-FE9D-39A8DD674106";
 	setAttr ".g" yes;
@@ -444,33 +376,23 @@ createNode script -n "sceneConfigurationScriptNode";
 	rename -uid "922B63DD-4838-7240-6C1A-55ABDA1B5084";
 	setAttr ".b" -type "string" "playbackOptions -min 3 -max 300 -ast 3 -aet 500 ";
 	setAttr ".st" 6;
-createNode polyPlane -n "polyPlane1";
-	rename -uid "31FF367B-49AC-A55A-06BA-DCBE2123BC98";
-	setAttr ".cuv" 2;
 createNode polyAutoProj -n "polyAutoProj1";
 	rename -uid "1280EA75-4DF4-D9EE-D390-4BB18EA06B6F";
 	setAttr ".uopa" yes;
 	setAttr ".ics" -type "componentList" 1 "f[0]";
 	setAttr ".lm" 2;
-createNode makeNurbCircle -n "makeNurbCircle1";
-	rename -uid "2DAAC2F4-4471-2132-08B2-188393270A48";
-	setAttr ".r" 0.1;
-createNode extrude -n "extrude1";
-	rename -uid "53B3C596-47ED-2A36-2FD1-A68956776817";
-	setAttr ".fpt" yes;
-	setAttr ".ucp" 1;
-createNode nurbsTessellate -n "nurbsTessellate1";
-	rename -uid "B4099CEC-463B-D40F-3188-7788C6003FB7";
-	setAttr ".chr" 0.9;
-	setAttr ".ut" 1;
-	setAttr ".vt" 1;
-	setAttr ".ucr" no;
-	setAttr ".cht" 0.2;
 createNode polyAutoProj -n "polyAutoProj2";
 	rename -uid "018A6571-47E5-0D91-D05C-27A2CBCA01B7";
 	setAttr ".uopa" yes;
 	setAttr ".ics" -type "componentList" 1 "f[0]";
 	setAttr ".lm" 2;
+createNode displayLayer -n "CurvesLayer";
+	rename -uid "0198951E-499E-0CEC-C698-6993C5DB9844";
+	setAttr ".ufem" -type "stringArray" 0  ;
+	setAttr ".do" 1;
+createNode polyCube -n "polyCube1";
+	rename -uid "BB4906FD-4AA4-39ED-DFD3-749182F56812";
+	setAttr ".cuv" 4;
 select -ne :time1;
 	setAttr ".o" 3;
 	setAttr ".unw" 3;
@@ -489,7 +411,7 @@ select -ne :postProcessList1;
 	setAttr -s 2 ".p";
 select -ne :defaultRenderingList1;
 select -ne :initialShadingGroup;
-	setAttr -s 4 ".dsm";
+	setAttr -s 2 ".dsm";
 	setAttr ".ro" yes;
 select -ne :initialParticleSE;
 	setAttr ".ro" yes;
@@ -511,10 +433,7 @@ select -ne :defaultColorMgtGlobals;
 select -ne :hardwareRenderGlobals;
 	setAttr ".ctrs" 256;
 	setAttr ".btrs" 512;
-connectAttr "polyPlane1.out" "pPlaneShape1.i";
-connectAttr "makeNurbCircle1.oc" "profileCurveShape.cr";
-connectAttr "nurbsTessellate1.op" "extrudedSurfaceShape1.i";
-connectAttr "polySurfaceShape1.o" "nurbsToPolyShape1.i";
+connectAttr "polyCube1.out" "pCubeShape1.i";
 relationship "link" ":lightLinker1" ":initialShadingGroup.message" ":defaultLightSet.message";
 relationship "link" ":lightLinker1" ":initialParticleSE.message" ":defaultLightSet.message";
 relationship "shadowLink" ":lightLinker1" ":initialShadingGroup.message" ":defaultLightSet.message";
@@ -525,12 +444,8 @@ connectAttr ":defaultArnoldDisplayDriver.msg" ":defaultArnoldRenderOptions.drive
 		 -na;
 connectAttr ":defaultArnoldFilter.msg" ":defaultArnoldRenderOptions.filt";
 connectAttr ":defaultArnoldDriver.msg" ":defaultArnoldRenderOptions.drvr";
-connectAttr "profileCurveShape.ws" "extrude1.pr";
-connectAttr "curveShape1.ws" "extrude1.pt";
-connectAttr "extrude1.os" "nurbsTessellate1.is";
+connectAttr "layerManager.dli[1]" "CurvesLayer.id";
 connectAttr "defaultRenderLayer.msg" ":defaultRenderingList1.r" -na;
 connectAttr "pCylinderShape1.iog" ":initialShadingGroup.dsm" -na;
-connectAttr "pPlaneShape1.iog" ":initialShadingGroup.dsm" -na;
-connectAttr "extrudedSurfaceShape1.iog" ":initialShadingGroup.dsm" -na;
-connectAttr "nurbsToPolyShape1.iog" ":initialShadingGroup.dsm" -na;
+connectAttr "pCubeShape1.iog" ":initialShadingGroup.dsm" -na;
 // End of Project_Onto_Test.ma

@@ -8,6 +8,7 @@ import maya.cmds as cmds
 import maya.OpenMayaUI as omui
 from shiboken2 import wrapInstance
 import maya.api.OpenMaya as om
+from functools import partial
 
 
 def maya_main_window():
@@ -16,10 +17,13 @@ def maya_main_window():
 
 
 class CustomVertexColorGUI(QtWidgets.QDialog):
+
     def __init__(self, parent=maya_main_window()):
         super(CustomVertexColorGUI, self).__init__(parent)
         self.setWindowTitle("Vertex Color Tool")
-        self.setGeometry(300, 300, 400, 300)
+        self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
+        self.setStyleSheet('background-color: #262f38; color: white;')
+        self.setFixedSize(400, 150)  # ウィンドウの固定サイズを設定
 
         layout = QVBoxLayout()
         self.setLayout(layout)
@@ -30,8 +34,11 @@ class CustomVertexColorGUI(QtWidgets.QDialog):
         for i, color in enumerate(['R', 'G', 'B']):
             for j, value in enumerate([0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]):
                 btn = QPushButton(f"{value:.1f}")
-                btn.clicked.connect(lambda _, c=color, v=value: self.set_vertex_color(c, v))
+                # partialを使用して引数を固定
+                btn.clicked.connect(partial(self.set_vertex_color, color, value))
+                btn.setStyleSheet(f"background-color: {self.get_color_style(color, value)}; color: black;")
                 self.buttons[(color, value)] = btn
+
                 grid_layout.addWidget(btn, i, j)
         layout.addLayout(grid_layout)
 
@@ -42,16 +49,30 @@ class CustomVertexColorGUI(QtWidgets.QDialog):
         self.r_checkbox.setChecked(True)
         self.g_checkbox.setChecked(True)
         self.b_checkbox.setChecked(True)
-        self.r_checkbox.stateChanged.connect(lambda: self.toggle_channel('R'))
-        self.g_checkbox.stateChanged.connect(lambda: self.toggle_channel('G'))
-        self.b_checkbox.stateChanged.connect(lambda: self.toggle_channel('B'))
+        self.r_checkbox.stateChanged.connect(partial(self.toggle_channel, 'R'))
+        self.g_checkbox.stateChanged.connect(partial(self.toggle_channel, 'G'))
+        self.b_checkbox.stateChanged.connect(partial(self.toggle_channel, 'B'))
 
         layout.addWidget(self.r_checkbox)
         layout.addWidget(self.g_checkbox)
         layout.addWidget(self.b_checkbox)
 
+        self.update_vertex_color_display()
 
-    def set_vertex_color(self, channel, value):
+
+    @staticmethod
+    def get_color_style(channel, value):
+        """指定されたチャンネルと値に基づいてボタンの色を設定する"""
+        if channel == 'R':
+            return f"rgb({int(value * 255)}, 0, 0)"
+        elif channel == 'G':
+            return f"rgb(0, {int(value * 255)}, 0)"
+        elif channel == 'B':
+            return f"rgb(0, 0, {int(value * 255)})"
+
+
+    @staticmethod
+    def set_vertex_color(channel, value):
         # 選択されたオブジェクトを取得
         selection = cmds.ls(selection=True, dag=True, type='mesh')
         if not selection:
@@ -59,16 +80,25 @@ class CustomVertexColorGUI(QtWidgets.QDialog):
             return
 
         mesh = selection[0]
+        cmds.setAttr(mesh + ".displayColors", 1)
 
         # メッシュの頂点を取得
-        msel = om.MSelectionList()
-        msel.add(mesh)
-        dagPath = msel.getDagPath(0)
-        meshFn = om.MFnMesh(dagPath)
+        mesh_selection_list = om.MSelectionList()
+        mesh_selection_list.add(mesh)
+        dag_path = mesh_selection_list.getDagPath(0)
+        mesh_function = om.MFnMesh(dag_path)
 
-        # 現在のカラーを取得し、選択されたチャンネルの値を変更
-        vertex_count = meshFn.numVertices
-        colors = meshFn.getVertexColors()
+        # 頂点ごとのカラー情報を設定
+        vertex_count = mesh_function.numVertices
+        vertex_ids = list(range(vertex_count))
+        try:
+            colors = mesh_function.getVertexColors()
+            print(f"Retrieved colors: {colors}")
+        except RuntimeError:
+            # 頂点カラーが設定されていない場合、初期化する
+            print("頂点カラーが設定されていないので初期化します。")
+            colors = [om.MColor((1.0, 1.0, 1.0, 1.0))] * vertex_count
+
         for i in range(vertex_count):
             color = colors[i]
             if channel == 'R':
@@ -79,12 +109,59 @@ class CustomVertexColorGUI(QtWidgets.QDialog):
                 color.b = value
             colors[i] = color
 
-        meshFn.setVertexColors(colors, list(range(vertex_count)))
+        # 頂点カラーを設定
+        mesh_function.setVertexColors(colors, vertex_ids)
         cmds.refresh()
 
-    def toggle_channel(self, channel):
+        print("vertex_color => {}, vertex_ids => {}".format(colors, vertex_ids))
+
+
+    def toggle_channel(self, channel, state):
         # チャンネルの表示/非表示を切り替え
-        print(f"{channel} チャンネルの表示を切り替えました")
+        print(f"{channel} チャンネルの表示を切り替えました: {state}")
+        self.update_vertex_color_display()
+
+
+    def update_vertex_color_display(self):
+        """チェックボックスの状態に基づいて頂点カラーの表示を切り替える"""
+        show_r = self.r_checkbox.isChecked()
+        show_g = self.g_checkbox.isChecked()
+        show_b = self.b_checkbox.isChecked()
+
+        # Mayaの設定で、頂点カラー表示の切り替え
+        selection = cmds.ls(selection=True, dag=True, type='mesh')
+        if not selection:
+            cmds.warning("メッシュを選択してください")
+            return
+
+        mesh = selection[0]
+        cmds.setAttr(mesh + ".displayColors", 1)
+
+        # 現在の頂点カラーを取得し、表示するチャンネルのみ強調表示
+        mesh_selection_list = om.MSelectionList()
+        mesh_selection_list.add(mesh)
+        dag_path = mesh_selection_list.getDagPath(0)
+        mesh_function = om.MFnMesh(dag_path)
+        vertex_count = mesh_function.numVertices
+        vertex_ids = list(range(vertex_count))
+
+        try:
+            colors = mesh_function.getVertexColors()
+        except RuntimeError:
+            colors = [om.MColor((1.0, 1.0, 1.0, 1.0))] * vertex_count
+
+        for i in range(vertex_count):
+            color = colors[i]
+            if not show_r:
+                color.r = 0.0
+            if not show_g:
+                color.g = 0.0
+            if not show_b:
+                color.b = 0.0
+            colors[i] = color
+
+        mesh_function.setVertexColors(colors, vertex_ids)
+        cmds.refresh()
 
 
 
@@ -97,7 +174,3 @@ def show_main_window():
         pass
     custom_vertex_color_gui = CustomVertexColorGUI()
     custom_vertex_color_gui.show()
-
-
-
-

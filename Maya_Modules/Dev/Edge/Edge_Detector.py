@@ -15,13 +15,15 @@ def maya_main_window():
     return wrapInstance(int(main_window), QtWidgets.QDialog)
 
 
+
 class Edge_Detector:
     def __init__(self):
         self.selected_object = None
         self.curves = []
-        self.layer_name = "CurvesLayer"
-        self.group_name = "CurvesGroup"
+        self.layer_name = "EdgeLayer"
+        self.object_set_name = "EdgeObjectSet"
         self.line_thickness = 0.02
+
 
     def select_object(self):
         selected_objects = cmds.ls(selection=True)
@@ -30,6 +32,7 @@ class Edge_Detector:
             return
         self.selected_object = selected_objects[0]
         print(f"Selected object: {self.selected_object}")
+
 
     def detect_boundary_edges(self):
         if not self.selected_object:
@@ -44,6 +47,7 @@ class Edge_Detector:
             print(f"Boundary edges detected and selected: {boundary_edges}")
         else:
             print("No boundary edges found.")
+
 
     def edge_to_curve(self):
         selected_edges = cmds.filterExpand(sm=32)
@@ -75,16 +79,13 @@ class Edge_Detector:
 
 
     def group_curves(self):
-        if not self.curves:
-            print("No curves to group.")
-            return
-
-        if not cmds.objExists(self.group_name):
-            cmds.group(self.curves, name=self.group_name)
-            print(f"Curves grouped under '{self.group_name}'.")
+        # Group作成または既存グループへの追加
+        if not cmds.objExists(self.object_set_name):
+            cmds.group(self.curves, name=self.object_set_name)
+            print(f"Curves grouped under '{self.object_set_name}'.")
         else:
-            cmds.parent(self.curves, self.group_name)
-            print(f"Curves added to existing group '{self.group_name}'.")
+            cmds.group(self.curves, self.object_set_name)
+            print(f"Curves added to existing group '{self.object_set_name}'.")
 
 
     def convert_curve_to_mesh(self):
@@ -113,6 +114,26 @@ class Edge_Detector:
             cmds.delete(extruded_surface)
 
         return generated_meshes
+
+
+    @staticmethod
+    def apply_clean_uv_layout(poly_mesh):
+        """
+        綺麗なUVレイアウトを適用するメソッド。
+        polyLayoutUVを使用してUVを整理し、均等なスケールと回転を維持
+        """
+        try:
+            cmds.polyLayoutUV(
+                poly_mesh,
+                scaleMode=1,  # 均一スケール
+                layout=2,  # 一般的なレイアウト
+                rotateForBestFit=True,
+                spacing=0.002,  # UV間の間隔を調整
+                worldSpace=True
+            )
+            print(f"Clean UV layout applied for polygon mesh: {poly_mesh}")
+        except Exception as e:
+            cmds.warning(f"Failed to apply clean UV layout to {poly_mesh}: {e}")
 
 
     @staticmethod
@@ -146,9 +167,10 @@ class Edge_Detector:
             cmds.warning(f"Failed to apply UV projection to {poly_mesh}: {e}")
 
 
-    def detect_intersections(self):
+    @staticmethod
+    def detect_intersections():
         # 生成されたメッシュを取得
-        generated_meshes = self.convert_curve_to_mesh()
+        generated_meshes = cmds.ls(selection=True, type="transform")
         if not generated_meshes:
             cmds.error("No meshes generated for intersection detection.")
             return
@@ -156,7 +178,8 @@ class Edge_Detector:
         for i, mesh1 in enumerate(generated_meshes):
             for j, mesh2 in enumerate(generated_meshes):
                 if i >= j:
-                    continue  # 同じメッシュ同士またはすでにチェック済みのペアはスキップ
+                    # 同じメッシュ同士またはすでにチェック済みのペアはスキップ
+                    continue
 
                 # メッシュ同士の交差判定を行う
                 intersection = cmds.polyBoolOp(mesh1, mesh2, operation=3, constructionHistory=False, name=f"Intersection_{i}_{j}")
@@ -166,20 +189,26 @@ class Edge_Detector:
                 else:
                     print(f"No intersection detected between {mesh1} and {mesh2}")
 
+
     def run_detection(self):
         self.select_object()
         self.detect_boundary_edges()
         self.edge_to_curve()
-        self.detect_intersections()
+        self.convert_curve_to_mesh()
+
 
 
 class EdgeDetectorGUI(QtWidgets.QDialog):
+
+    WINDOW_TITLE = "Edge Detector Tool"
+    MODULE_VERSION = "1.0"
+
     def __init__(self, parent=None):
         super(EdgeDetectorGUI, self).__init__(maya_main_window())
-        self.setWindowTitle("Edge Detector GUI")
+        self.setWindowTitle(self.WINDOW_TITLE + " v" + self.MODULE_VERSION)
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
         self.setStyleSheet('background-color: #262f38; color: white;')
-        self.resize(300, 150)
+        self.resize(300, 200)
 
         self.edge_detector = Edge_Detector()
         self.line_thickness_input = QLineEdit(self)
@@ -189,12 +218,18 @@ class EdgeDetectorGUI(QtWidgets.QDialog):
         self.convert_button.clicked.connect(self.run_edge_detection)
         self.convert_button.setStyleSheet("background-color: #34d8ed; color: black;")
 
+        self.intersection_button = QPushButton('Check Intersection')
+        self.intersection_button.clicked.connect(self.check_intersection)
+        self.intersection_button.setStyleSheet("background-color: #ff8080; color: black;")
+
         layout = QVBoxLayout()
         layout.addWidget(QLabel('Line Thickness:'))
         layout.addWidget(self.line_thickness_input)
         layout.addWidget(self.convert_button)
+        layout.addWidget(self.intersection_button)
 
         self.setLayout(layout)
+
 
     def run_edge_detection(self):
         try:
@@ -206,6 +241,12 @@ class EdgeDetectorGUI(QtWidgets.QDialog):
         except Exception as e:
             QMessageBox.warning(self, "Error", f"An error occurred: {str(e)}")
 
+
+    def check_intersection(self):
+        try:
+            self.edge_detector.detect_intersections()
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"An error occurred during intersection check: {str(e)}")
 
 
 def show_main_window():

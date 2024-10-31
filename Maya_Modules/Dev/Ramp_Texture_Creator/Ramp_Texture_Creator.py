@@ -39,7 +39,7 @@ class RampTextureToolGUI(QtWidgets.QDockWidget):
         grid_layout.setSpacing(2)  # グリッド内のボタン間のスペースを縮小
         self.buttons = []
 
-        self.ramp_nodes= []
+        self.ramp_nodes = []
         self.main_ramp_node = None
 
         # グリッドボタンの作成
@@ -69,7 +69,6 @@ class RampTextureToolGUI(QtWidgets.QDockWidget):
         size_layout.addWidget(QLabel("Height:"))
         size_layout.addWidget(self.height_input)
 
-        # ボタンの作成
         self.create_ramp_button = QPushButton("Create Ramp")
         self.create_ramp_button.setFixedHeight(30)
         self.create_ramp_button.setStyleSheet(self.default_style)
@@ -80,7 +79,6 @@ class RampTextureToolGUI(QtWidgets.QDockWidget):
         self.export_button.setStyleSheet(self.default_style)
         self.export_button.clicked.connect(self.export_texture)
 
-        # レイアウトへの追加
         main_layout.addLayout(grid_layout)
         main_layout.addLayout(size_layout)
         main_layout.addWidget(self.create_ramp_button)
@@ -92,46 +90,70 @@ class RampTextureToolGUI(QtWidgets.QDockWidget):
         color = QtWidgets.QColorDialog.getColor()
         if color.isValid():
             button.setStyleSheet(f"background-color: {color.name()};")
-
             rgb = (color.redF(), color.greenF(), color.blueF())
-            # 選択された色を対応するランプノードに反映
-            index = self.buttons.index(button)  # ボタンのインデックスを取得
-            ramp_node_index = index // 5  # 横行のランプノードのインデックス
-            color_entry_index = index % 5  # 縦行のエントリの位置
-            # 色をランプノードの colorEntryList に設定
-            cmds.setAttr(f"{self.ramp_nodes[ramp_node_index]}.colorEntryList[{color_entry_index}].color", rgb[0], rgb[1], rgb[2], type="double3")
+
+            # ボタンのインデックスからランプノードとエントリのインデックスを計算
+            button_index = self.buttons.index(button)
+            ramp_node_index = 4 - (button_index // 5)  # 4から減少させることで縦の逆転を修正
+            color_entry_index = button_index % 5  # 各ランプノード内のエントリインデックス
+
+            # インデックスが範囲内かチェックしてから設定
+            if ramp_node_index < len(self.ramp_nodes) and color_entry_index < 5:
+                cmds.setAttr(f"{self.ramp_nodes[ramp_node_index]}.colorEntryList[{color_entry_index}].color", rgb[0], rgb[1], rgb[2], type="double3")
+            else:
+                print(f"Error: Invalid index - ramp_node_index: {ramp_node_index}, color_entry_index: {color_entry_index}")
 
 
     def create_ramp(self):
         # Hyper shadeウィンドウを開く
         cmds.HypershadeWindow()
 
-        # 5つの横行ランプノードを作成
-        ramp_nodes = []
-        for i in range(5):
-            ramp_node = cmds.shadingNode('ramp', asTexture=True, name=f"horizontalRamp{i + 1}")
-            ramp_nodes.append(ramp_node)
+        # 既存のノードを削除してから新しく作成
+        if hasattr(self, 'ramp_nodes') and self.ramp_nodes:
+            for node in self.ramp_nodes:
+                if cmds.objExists(node):
+                    cmds.delete(node)
+            self.ramp_nodes.clear()
 
-            # 各横行のランプに5つの色を設定（5x5の一行分）
+        if hasattr(self, 'main_ramp_node') and self.main_ramp_node:
+            if cmds.objExists(self.main_ramp_node):
+                cmds.delete(self.main_ramp_node)
+            self.main_ramp_node = None
+
+        # GUI順で5つの横行ランプノードを作成
+        self.ramp_nodes = []  # 初期化後に新しい配列を準備
+
+        for i in range(4, -1, -1):
+            ramp_node = cmds.shadingNode('ramp', asTexture=True, name=f"horizontalRamp{i + 1}")
+            self.ramp_nodes.append(ramp_node)
+
+            # ランプの補間方法を「ノーサー」に設定してブレンドを防ぐ
+            cmds.setAttr(f"{ramp_node}.interpolation", 0)  # 0: None (ノーサー)
+            cmds.setAttr(f"{ramp_node}.type", 1)  # 1: Vランプに設定
+
+            # 各横行ランプに5つの色を設定（5x5の一行分）
             for j in range(5):
-                button_index = i * 5 + j
+                button_index = i * 5 + j  # 各行のインデックスに対応
                 button = self.buttons[button_index]
 
-                # ボタンの色を取得
+                # ボタンの背景色を取得し、ランプノードに設定
                 color = button.palette().button().color()
                 rgb = (color.redF(), color.greenF(), color.blueF())
 
                 # 横行ランプのエントリに色を設定
-                cmds.setAttr(f"{ramp_node}.colorEntryList[{j}].position", j * 0.2)  # 0.2刻み
+                position = j * 0.2  # 0.2刻みで均等に配置（0.0, 0.2, 0.4, 0.6, 0.8）
+                cmds.setAttr(f"{ramp_node}.colorEntryList[{j}].position", position)
                 cmds.setAttr(f"{ramp_node}.colorEntryList[{j}].color", rgb[0], rgb[1], rgb[2], type="double3")
 
-        # メインの縦方向ランプノードを作成し、横行ランプを接続
-        main_ramp_node = cmds.shadingNode('ramp', asTexture=True, name="gridColorRampMain")
+        # 縦方向のメインランプノードを作成し、横行ランプを接続
+        self.main_ramp_node = cmds.shadingNode('ramp', asTexture=True, name="gridColorRampMain")
+        cmds.setAttr(f"{self.main_ramp_node}.interpolation", 0)  # メインランプも補間方法を「ノーサー」に設定
 
-        for i, ramp_node in enumerate(ramp_nodes):
-            # 縦方向の colorEntryList に横行ランプノードを接続
-            cmds.connectAttr(f"{ramp_node}.outColor", f"{main_ramp_node}.colorEntryList[{i}].color")
-            cmds.setAttr(f"{main_ramp_node}.colorEntryList[{i}].position", i * 0.2)  # 縦方向に配置
+        # 横行ランプをメインランプの colorEntryList に正しい順番で接続
+        for i, ramp_node in enumerate(self.ramp_nodes):
+            # メインランプのエントリに横行ランプの出力を接続
+            cmds.connectAttr(f"{ramp_node}.outColor", f"{self.main_ramp_node}.colorEntryList[{i}].color", force=True)
+            cmds.setAttr(f"{self.main_ramp_node}.colorEntryList[{i}].position", i * 0.2)  # 縦方向のポジション設定
 
         # 出力シェーダーに接続（必要な場合のみ）
         if not cmds.objExists("final_output"):
@@ -142,17 +164,13 @@ class RampTextureToolGUI(QtWidgets.QDockWidget):
             if existing_connections:
                 cmds.disconnectAttr(existing_connections[0], f"{final_output}.color")
 
-        cmds.connectAttr(f"{main_ramp_node}.outColor", f"{final_output}.color")
-
-        # ノードリストを保持してUIでアクセスできるようにする
-        self.ramp_nodes = ramp_nodes
-        self.main_ramp_node = main_ramp_node
+        cmds.connectAttr(f"{self.main_ramp_node}.outColor", f"{final_output}.color")
 
 
     def export_texture(self):
-        # テクスチャのエクスポート処理
-        if not self.ramp_node:
-            QMessageBox.warning(self, "Error", "Ramp has not been created yet.")
+        # エクスポート用のテクスチャが生成されているか確認
+        if not self.main_ramp_node or not cmds.objExists(self.main_ramp_node):
+            QMessageBox.warning(self, "Error", "Ramp has not been created or is invalid.")
             return
 
         try:
@@ -162,11 +180,37 @@ class RampTextureToolGUI(QtWidgets.QDockWidget):
             QMessageBox.warning(self, "Error", "Invalid width or height value.")
             return
 
-        # ランプテクスチャをベイクするための処理
+        print(f"Main Ramp Node: {self.main_ramp_node}")
+        print(cmds.nodeType(self.main_ramp_node))  # これでノードのタイプを確認
+
+        # 保存先ファイルパスの取得
         file_path = cmds.fileDialog2(fileFilter="Image Files (*.png *.jpg *.tif)", dialogStyle=2, fileMode=0)
-        if file_path:
-            cmds.convertSolidTx(self.ramp_node, file_path[0], fileImageName=file_path[0], resolutionX=width, resolutionY=height)
-            QMessageBox.information(self, "Success", f"Texture exported to {file_path[0]}")
+        if not file_path:
+            QMessageBox.warning(self, "Error", "No file path selected.")
+            return
+
+        # パスを正しく処理
+        output_path = file_path[0].replace("\\", "/")
+        print(f"Exporting to: {output_path}")
+
+        # 仮のジオメトリ（例えば平面）を作成または選択してベイクを行う
+        bake_geometry = "pPlane1"
+
+        if not cmds.objExists(bake_geometry):
+            bake_geometry = cmds.polyPlane(name="pPlane1", width=1, height=1, subdivisionsX=1, subdivisionsY=1)[0]
+
+        # ベイク処理
+        try:
+            cmds.convertSolidTx(f"{self.main_ramp_node}.outColor", bake_geometry,
+                                backgroundColor=[0, 0, 0],
+                                fileFormat="tif", fileImageName=output_path,
+                                resolutionX=width, resolutionY=height)
+            QMessageBox.information(self, "Success", f"Texture exported to {output_path}")
+
+            cmds.delete(bake_geometry)
+        except Exception as e:
+            print(f"Failed to export texture: {e}")
+
 
 
 

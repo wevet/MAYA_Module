@@ -7,8 +7,8 @@ from PySide2.QtCore import Qt
 import maya.cmds as cmds
 import maya.OpenMayaUI as omui
 from shiboken2 import wrapInstance
-import math
 
+import Intersection
 
 
 def maya_main_window():
@@ -21,17 +21,18 @@ class Edge_Detector:
     def __init__(self):
         self.selected_object = None
         self.curves = []
-        self.layer_name = "EdgeLayer"
         self.object_set_name = "EdgeObjectSet"
+        self.mesh_group_name = "MeshGroup"
+        self.droplet_group_name = "DropletGroup"
         self.line_thickness = 0.02
         self.merge_for_uv = False  # MergeしてUV展開するかのフラグ
 
         self.angle_threshold = 45  # 交差の角度の閾値 (°)
-        self.droplet_size = 0.2  # えきだまりのサイズ
+        self.droplet_size = 0.05  # えきだまりのサイズ
         self.voxel_size = 0.1  # ボクセルサイズ
+        self.tolerance = 0.8  # Default tolerance for intersection in cm
 
         self.selected_meshes = []
-        self.intersections = []
 
 
     def select_object(self):
@@ -64,27 +65,15 @@ class Edge_Detector:
             cmds.error("Please select edges.")
             return
 
-        self.create_display_layer()
-
         for edge in selected_edges:
             try:
                 cmds.select(edge)
                 curve = cmds.polyToCurve(form=2, degree=1, conformToSmoothMeshPreview=False)
                 self.curves.append(curve[0])
                 print(f"Curve created from edge: {curve[0]}")
-                cmds.editDisplayLayerMembers(self.layer_name, curve[0])
             except Exception as e:
                 print(f"Error converting edge {edge} to curve: {e}")
-
         self.group_curves()
-
-
-    def create_display_layer(self):
-        if not cmds.objExists(self.layer_name):
-            cmds.createDisplayLayer(name=self.layer_name, empty=True)
-            print(f"Display layer '{self.layer_name}' created.")
-        else:
-            print(f"Display layer '{self.layer_name}' already exists.")
 
 
     def group_curves(self):
@@ -102,7 +91,7 @@ class Edge_Detector:
             cmds.error("No curves available for NURBS surface creation.")
             return
 
-        mesh_group = cmds.group(empty=True, name="MeshGroup")
+        mesh_group = cmds.group(empty=True, name=self.mesh_group_name)
         generated_meshes = []
 
         for curve in self.curves:
@@ -112,7 +101,9 @@ class Edge_Detector:
             cmds.parent(extruded_surface, mesh_group)
             print(f"Extruded surface created from curve: {extruded_surface}")
 
+            # NURBSからポリゴンへの変換
             poly_mesh = self.convert_nurbs_to_poly(extruded_surface)
+
             if poly_mesh:
                 self.apply_uv_projection(poly_mesh)
                 cmds.parent(poly_mesh, mesh_group)
@@ -145,35 +136,31 @@ class Edge_Detector:
         polyLayoutUVを使用してUVを整理し、均等なスケールと回転を維持
         """
         try:
-            cmds.polyLayoutUV(
-                poly_mesh,
-                layout=2,  # 一般的なレイアウト
-                rotateForBestFit=True,
-                spacing=0.002,  # UV間の間隔を調整
-                worldSpace=True
-            )
+            cmds.polyLayoutUV(poly_mesh, layoutMethod=2)
             print(f"Clean UV layout applied for polygon mesh: {poly_mesh}")
         except Exception as e:
             cmds.warning(f"Failed to apply clean UV layout to {poly_mesh}: {e}")
 
 
     @staticmethod
-    def convert_nurbs_to_poly(nurbs_surface, poly_type=1, chord_height_ratio=0.9, fit_tolerance=0.01, merge_edge_length=0.001):
+    def convert_nurbs_to_poly(nurbs_surface, poly_type=1, chord_height_ratio=0.8, fit_tolerance=0.005, merge_edge_length=0.05):
         try:
             poly_mesh = cmds.nurbsToPoly(
                 nurbs_surface,
-                mnd=1,
-                f=1,
-                pt=poly_type,
-                chr=chord_height_ratio,
-                ft=fit_tolerance,
-                mel=merge_edge_length
+                mnd=1,                      # 法線方向
+                f=1,                        # サンプルベースのフォーマット
+                pt=poly_type,               # ポリゴンタイプ（四角形ポリゴン）
+                chr=chord_height_ratio,     # 曲率に基づく高さの許容誤差を増加
+                ft=fit_tolerance,           # フィットトレランスを高め、面を簡略化
+                mel=merge_edge_length,      # より長いエッジもマージして複雑さを抑える
+                ut=1, vt=1                  # UとVの等間隔サンプリングで密度を抑制
             )[0]
 
             print(f"Polygon mesh created: {poly_mesh}")
             cmds.polyAutoProjection(poly_mesh, layoutMethod=2, insertBeforeDeformers=True, scaleMode=1)
             print(f"UVs projected for {poly_mesh}")
             return poly_mesh
+
         except Exception as e:
             cmds.warning(f"Failed to convert NURBS surface {nurbs_surface} to polygon: {e}")
             return None
@@ -188,151 +175,24 @@ class Edge_Detector:
             cmds.warning(f"Failed to apply UV projection to {poly_mesh}: {e}")
 
 
-    def apply_clean_uv_layout(self, poly_mesh):
-        try:
-            cmds.polyLayoutUV(poly_mesh, scaleMode=1, layout=2, rotateForBestFit=True, spacing=0.002, worldSpace=True)
-            print(f"Clean UV layout applied for polygon mesh: {poly_mesh}")
-        except Exception as e:
-            cmds.warning(f"Failed to apply clean UV layout to {poly_mesh}: {e}")
-
-
-    def run_intersection(self):
-
-        self.selected_meshes = cmds.ls(selection=True, type='transform')
-        if not self.selected_meshes or len(self.selected_meshes) < 1:
-            cmds.error("Please select at least one mesh.")
-            return
-
-        for mesh in self.selected_meshes:
-            print(f"Detecting intersections for {mesh}...")
-            self.detect_self_intersections(mesh)
-        pass
-
-
-    def run_intersections_array(self, selected_meshes):
-        self.selected_meshes = selected_meshes
-        for mesh in self.selected_meshes:
-            print(f"Detecting intersections for {mesh}...")
-            self.detect_self_intersections(mesh)
-        pass
-
-
-    def detect_self_intersections(self, mesh):
-        # メッシュ内のエッジを取得
-        edges = cmds.polyListComponentConversion(mesh, toEdge=True)
-        cmds.select(edges)
-        edge_list = cmds.ls(selection=True, fl=True)
-
-        # エッジ座標をボクセルにマッピング
-        edge_voxels = {}
-        for edge in edge_list:
-            edge_center = self.get_edge_center(edge)
-            voxel_key = self.get_voxel_key(edge_center)
-
-            if voxel_key not in edge_voxels:
-                edge_voxels[voxel_key] = []
-            edge_voxels[voxel_key].append(edge)
-
-        # 同じボクセル内のエッジ間で交差判定
-        for voxel_key, edges_in_voxel in edge_voxels.items():
-            if len(edges_in_voxel) > 1:
-                for i, edge1 in enumerate(edges_in_voxel):
-                    for edge2 in edges_in_voxel[i + 1:]:
-                        if self.is_intersecting(edge1, edge2):
-                            angle = self.calculate_angle_between(edge1, edge2)
-                            droplet_mesh = self.create_droplet_by_intersection_type(angle)
-                            if droplet_mesh:
-                                intersection_position = self.get_edge_center(edge1)  # 交差位置に配置
-                                cmds.move(intersection_position[0], intersection_position[1], intersection_position[2], droplet_mesh)
-                                self.intersections.append((edge1, edge2, droplet_mesh))
-                                print(f"Intersection detected between {edge1} and {edge2} with angle {angle}° - {droplet_mesh} added.")
-
-        if not self.intersections:
-            print(f"No intersections found in {mesh}.")
-        else:
-            print(f"{len(self.intersections)} intersections found in {mesh}.")
-
-
-    @staticmethod
-    def get_edge_center(edge):
-        # エッジの中央座標を計算
-        edge_points = cmds.pointPosition(edge, world=True)
-        center = [(edge_points[0][i] + edge_points[1][i]) / 2 for i in range(3)]
-        return center
-
-
-    def get_voxel_key(self, position):
-        # ボクセルキー（x, y, z のボクセル位置）を計算
-        return tuple(int(pos // self.voxel_size) for pos in position)
-
-
-    def calculate_angle_between(self, edge1, edge2):
-        # エッジの方向ベクトルを取得して角度を計算
-        edge1_dir = self.get_edge_direction(edge1)
-        edge2_dir = self.get_edge_direction(edge2)
-        dot_product = sum(a * b for a, b in zip(edge1_dir, edge2_dir))
-        magnitude1 = math.sqrt(sum(a ** 2 for a in edge1_dir))
-        magnitude2 = math.sqrt(sum(b ** 2 for b in edge2_dir))
-
-        angle_radians = math.acos(dot_product / (magnitude1 * magnitude2))
-        return math.degrees(angle_radians)
-
-
-    @staticmethod
-    def get_edge_direction(edge):
-        # エッジの方向ベクトルを計算
-        edge_points = cmds.pointPosition(edge, world=True)
-        direction = [edge_points[1][i] - edge_points[0][i] for i in range(3)]
-        magnitude = math.sqrt(sum(d ** 2 for d in direction))
-        return [d / magnitude for d in direction]
-
-
-    def is_intersecting(self, edge1, edge2):
-        # エッジの交差判定 (距離で判定)
-        pos1 = cmds.pointPosition(edge1, world=True)
-        pos2 = cmds.pointPosition(edge2, world=True)
-        distance = self.calculate_distance(pos1, pos2)
-        return distance < self.voxel_size / 2  # ボクセルサイズに依存する閾値
-
-
-    def calculate_distance(self, pos1, pos2):
-        # 2つのエッジの距離を計算
-        return math.sqrt(sum((p1 - p2) ** 2 for p1, p2 in zip(pos1, pos2)))
-
-
-    def create_droplet_by_intersection_type(self, angle):
-        # 角度に基づいて交差の種類を判定し、えきだまりメッシュを作成
-        if self.is_cross_intersection(angle):
-            return cmds.polySphere(radius=self.droplet_size, name="Droplet_Circle")[0]
-        elif self.is_t_intersection(angle):
-            return \
-            cmds.polyCube(width=self.droplet_size, height=self.droplet_size, depth=self.droplet_size, name="Droplet_T")[
-                0]
-        elif self.is_diagonal_intersection(angle):
-            return cmds.polyCylinder(radius=self.droplet_size, height=0.05, name="Droplet_Ellipse")[0]
-        return None
-
-
-    def is_cross_intersection(self, angle):
-        # 十字交差判定
-        return abs(angle - 90) < self.angle_threshold
-
-
-    def is_t_intersection(self, angle):
-        # T字交差判定
-        return abs(angle - 90) < self.angle_threshold / 2
-
-
-    def is_diagonal_intersection(self, angle):
-        # 斜め交差の判定
-        return abs(angle - 45) < self.angle_threshold
-
-
+    """
+    edge 検出のメイン処理
+    """
     def run_detection(self):
         self.select_object()
         self.detect_boundary_edges()
         self.edge_to_curve()
         self.convert_curve_to_mesh()
+
+
+    def run_intersections(self, selected_meshes):
+        intersection = Intersection.Face_Intersection()
+        intersection.tolerance = self.tolerance
+        intersection.angle_threshold = self.angle_threshold
+        intersection.droplet_size = self.droplet_size
+        intersection.voxel_size = self.voxel_size
+        intersection.detect_intersections_between_faces(selected_meshes)
+
 
 
 
@@ -377,6 +237,13 @@ class EdgeDetectorGUI(QtWidgets.QDialog):
         self.intersection_button.clicked.connect(self.check_intersection)
         self.intersection_button.setStyleSheet("background-color: #ff8080; color: black;")
 
+        # tolerance slider with label
+        self.tolerance_label = QLabel(f'Tolerance: {self.edge_detector.tolerance} cm')
+        self.tolerance_slider = QSlider(Qt.Horizontal)
+        self.tolerance_slider.setRange(1, 200)
+        self.tolerance_slider.setValue(int(self.edge_detector.tolerance * 10))  # Scale to match slider range
+        self.tolerance_slider.valueChanged.connect(self.update_tolerance)
+
         # Merge UV checkbox
         self.merge_uv_checkbox = QCheckBox("Merge before UV Layout")
         self.merge_uv_checkbox.setChecked(False)
@@ -401,7 +268,11 @@ class EdgeDetectorGUI(QtWidgets.QDialog):
         layout.addWidget(self.angle_threshold_slider)
         layout.addWidget(self.droplet_size_label)
         layout.addWidget(self.droplet_size_slider)
+
+        layout.addWidget(self.tolerance_label)
+        layout.addWidget(self.tolerance_slider)
         layout.addWidget(self.intersection_button)
+
         layout.addWidget(separator_line_2)
         layout.addWidget(self.merge_uv_checkbox)
 
@@ -417,6 +288,11 @@ class EdgeDetectorGUI(QtWidgets.QDialog):
         droplet_size = value / 100.0
         self.edge_detector.droplet_size = droplet_size
         self.droplet_size_label.setText(f'Droplet Size: {droplet_size}')  # 現在の値を更新
+
+
+    def update_tolerance(self, value):
+        self.edge_detector.tolerance = value / 10.0  # Adjust scale if needed
+        self.tolerance_label.setText(f'Tolerance: {self.edge_detector.tolerance:.1f} cm')  # Update label
 
 
     def toggle_merge_uv(self, state):
@@ -443,14 +319,11 @@ class EdgeDetectorGUI(QtWidgets.QDialog):
             for obj in selected_objects:
                 shapes = cmds.listRelatives(obj, shapes=True)
                 if shapes and cmds.nodeType(shapes[0]) == "mesh":  # ポリゴンメッシュのみをリストに追加
-                    # 確実にポリゴンメッシュとして処理されるように、ヒストリーを削除
-                    poly_mesh = cmds.polyUnite(obj, constructionHistory=False, mergeUVSets=True)[0]
-                    cmds.delete(poly_mesh, ch=True)  # ヒストリー削除で確定
                     valid_meshes.append(obj)
                 else:
                     cmds.warning(f"{obj} is not a polygon mesh and will be ignored.")
 
-            self.edge_detector.run_intersections_array(valid_meshes)
+            self.edge_detector.run_intersections(valid_meshes)
 
         except Exception as e:
             QMessageBox.warning(self, "Error", f"An error occurred during intersection check: {str(e)}")

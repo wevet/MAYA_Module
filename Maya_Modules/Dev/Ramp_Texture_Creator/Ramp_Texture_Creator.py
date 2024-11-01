@@ -18,6 +18,7 @@ def maya_main_window():
 class RampTextureToolGUI(QtWidgets.QDockWidget):
     WINDOW_TITLE = "Ramp Texture Creator"
     MODULE_VERSION = "1.0"
+    K_MATERIAL_NAME = "FH_Ramp_Lambert"
 
     def __init__(self, parent=None):
         super(RampTextureToolGUI, self).__init__(parent)
@@ -41,6 +42,7 @@ class RampTextureToolGUI(QtWidgets.QDockWidget):
 
         self.ramp_nodes = []
         self.main_ramp_node = None
+
 
         # グリッドボタンの作成
         for i in range(5):
@@ -156,15 +158,14 @@ class RampTextureToolGUI(QtWidgets.QDockWidget):
             cmds.setAttr(f"{self.main_ramp_node}.colorEntryList[{i}].position", i * 0.2)  # 縦方向のポジション設定
 
         # 出力シェーダーに接続（必要な場合のみ）
-        if not cmds.objExists("final_output"):
-            final_output = cmds.shadingNode('lambert', asShader=True, name="final_output")
+        if not cmds.objExists(self.K_MATERIAL_NAME):
+            final_output = cmds.shadingNode('lambert', asShader=True, name=self.K_MATERIAL_NAME)
         else:
-            final_output = "final_output"
-            existing_connections = cmds.listConnections(f"{final_output}.color", source=True, destination=False, plugs=True)
+            existing_connections = cmds.listConnections(f"{self.K_MATERIAL_NAME}.color", source=True, destination=False, plugs=True)
             if existing_connections:
-                cmds.disconnectAttr(existing_connections[0], f"{final_output}.color")
+                cmds.disconnectAttr(existing_connections[0], f"{self.K_MATERIAL_NAME}.color")
 
-        cmds.connectAttr(f"{self.main_ramp_node}.outColor", f"{final_output}.color")
+        cmds.connectAttr(f"{self.main_ramp_node}.outColor", f"{self.K_MATERIAL_NAME}.color")
 
 
     def export_texture(self):

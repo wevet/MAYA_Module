@@ -2,7 +2,7 @@
 
 import sys
 import os
-from PySide2.QtWidgets import QVBoxLayout, QPushButton, QLabel, QComboBox, QLineEdit, QSpinBox, QFileDialog, QDialog, QCheckBox
+from PySide2.QtWidgets import QVBoxLayout, QPushButton, QLabel, QComboBox, QLineEdit, QSpinBox, QFileDialog, QDialog, QCheckBox, QListWidget, QListWidgetItem
 from PySide2 import QtCore, QtWidgets
 import maya.cmds as cmds
 import maya.OpenMayaUI as omui
@@ -39,6 +39,60 @@ class AnimationExporter:
 
 
     @staticmethod
+    def get_related_joints(meshes):
+        """
+        選択されたメッシュに影響を与えているジョイントを取得します。
+        """
+        joints = set()
+        for mesh in meshes:
+            skin_cluster = cmds.ls(cmds.listHistory(mesh), type='skinCluster')
+            if skin_cluster:
+                influences = cmds.skinCluster(skin_cluster[0], query=True, influence=True)
+                joints.update(influences)
+        return list(joints)
+
+
+    @staticmethod
+    def _get_bake_attributes(objects):
+        result = []
+        if not objects:
+            raise ValueError("No objects specified")
+        connections = cmds.listConnections(
+            objects,
+            plugs=True,
+            source=True,
+            connections=True,
+            destination=False
+        ) or []
+        for dst_obj, src_obj in zip(connections[::2], connections[1::2]):
+            nodeType = cmds.nodeType(src_obj)
+            if not nodeType.startswith("animCurve"):
+                result.append(dst_obj)
+        return result
+
+
+    def bake_animation(self, objects):
+        bake_attributes = self._get_bake_attributes(objects)
+        if bake_attributes:
+            cmds.bakeResults(
+                bake_attributes,
+                time=(self.start_frame, self.end_frame),
+                shape=True,
+                simulation=True,
+                sampleBy=1,
+                controlPoints=False,
+                minimizeRotation=True,
+                bakeOnOverrideLayer=False,
+                preserveOutsideKeys=False,
+                sparseAnimCurveBake=False,
+                disableImplicitControl=True,
+                removeBakedAttributeFromLayer=False,
+            )
+        else:
+            print("Cannot find any connection to bake!")
+
+
+    @staticmethod
     def _prepare_fbx_export():
         """
         Set up FBX export options.
@@ -57,15 +111,26 @@ class AnimationExporter:
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
 
+        print(f"self.characters => {self.characters}")
+
         # キャラクターごとにエクスポート
         for character in self.characters:
+            # キャラクター名のコロンをアンダースコアに置換
+            sanitized_character = character.replace(":", "_")
+
             cmds.select(character)
+
+            # メッシュに関連するジョイントを取得してアニメーションをベイク
+            meshes = cmds.ls(selection=True, dag=True, type='mesh')
+            joints = self.get_related_joints(meshes)
+
+            print(f"joints => {joints}")
+            #self.bake_animation(joints)
+
+            file_path = os.path.join(self.directory, f"{self.filename}_{sanitized_character}.fbx")
             if self.frame_split:
-                file_path = os.path.join(self.directory, f"{self.filename}_{character}_frames_{self.start_frame}-{self.end_frame}.fbx")
-                self._export_fbx(file_path, self.start_frame, self.end_frame)
-            else:
-                file_path = os.path.join(self.directory, f"{self.filename}_{character}.fbx")
-                self._export_fbx(file_path, self.start_frame, self.end_frame)
+                file_path = os.path.join(self.directory, f"{self.filename}_{sanitized_character}_frames_{self.start_frame}-{self.end_frame}.fbx")
+            self._export_fbx(file_path, self.start_frame, self.end_frame)
 
 
     def _export_fbx(self, file_path, start_frame, end_frame):
@@ -74,8 +139,9 @@ class AnimationExporter:
         """
         cmds.playbackOptions(min=start_frame, max=end_frame)
         self._prepare_fbx_export()
-        mel.eval(f'FBXExport -f "{file_path}" -s')
-        print(f"Exported {file_path} from frames {start_frame} to {end_frame}")
+        encoded_path = file_path.replace("\\", "/")
+        mel.eval(f'FBXExport -f "{encoded_path}" -s')
+        print(f"Exported {encoded_path} from frames {start_frame} to {end_frame}")
 
 
 
@@ -96,14 +162,26 @@ class Animation_ExporterGUI(QDialog):
         layout = QVBoxLayout()
 
         self.directory = None
-        self.characters = []  # キャラクターリストのデフォルト
 
         # キャラクターリスト
-        self.character_label = QLabel("Choose Target")
-        self.character_list = QComboBox()
-        self.character_list.addItems(self.characters)
+        self.character_label = QLabel("Character Selection (multiple selections allowed)")
+        self.character_list = QListWidget()
+        self.character_list.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
+        self.character_list.itemSelectionChanged.connect(self.on_selection_changed)
         layout.addWidget(self.character_label)
         layout.addWidget(self.character_list)
+
+        # キャラクターリスト更新ボタン
+        self.update_button = QPushButton("Update Character List")
+        self.update_button.setStyleSheet(self.default_style)
+        self.update_button.clicked.connect(self.update_character_list)
+        layout.addWidget(self.update_button)
+
+        # リストクリアボタン
+        self.clear_button = QPushButton("Clear Character List")
+        self.clear_button.setStyleSheet(self.default_style)
+        self.clear_button.clicked.connect(self.clear_character_list)
+        layout.addWidget(self.clear_button)
 
         # 出力ファイル名
         self.filename_label = QLabel("Export FileName")
@@ -146,24 +224,72 @@ class Animation_ExporterGUI(QDialog):
         layout.addWidget(self.export_button)
         self.setLayout(layout)
 
+        """
+        以下のformatに沿った形式でfbx exportできるといい？
+        [
+            {
+                "mesh_name" : "mGear:m_med_nrw_body_lod0_mesh",
+                "time_range" : [0, 100], [200, 500],
+                "file_name" : ["A", "B"]
+            },
+            {
+                "mesh_name" : "mGear:m_med_nrw_body_lod1_mesh",
+                "time_range" : [0, 100], [200, 500],
+                "file_name" : ["A", "B"]            
+            }
+        ]
+
+        """
+
+
+    def update_character_list(self):
+        selected_meshes = cmds.ls(selection=True, type='transform')
+        self.character_list.clear()  # リストをクリア
+        for mesh in selected_meshes:
+            item = QListWidgetItem(mesh)
+            self.character_list.addItem(item)
+            print(f"mesh => {mesh}")
+
+
+    def clear_character_list(self):
+        """
+        キャラクターリストをクリアします。
+        """
+        self.character_list.clear()
+
+
+    def on_selection_changed(self):
+        selected_items = self.character_list.selectedItems()
+        print(f"Currently selected items: {[item.text() for item in selected_items]}")  # 選択状態をデバッグ出力
+
 
     def select_directory(self):
-        self.directory = QFileDialog.getExistingDirectory(self, "出力先ディレクトリを選択")
+        self.directory = QFileDialog.getExistingDirectory(self, "Choose Export Dir")
         if self.directory:
-            self.dir_label.setText(f"出力先: {self.directory}")
+            self.dir_label.setText(f"Directory: {self.directory}")
 
 
     def export_animation(self):
-        character = self.character_list.currentText()
+        selected_items = self.character_list.selectedItems()
+        print(f"Selected items: {[item.text() for item in selected_items]}")  # デバッグ
+        characters = [item.text() for item in selected_items]
         filename = self.filename_edit.text()
-        start_frame = self.start_frame.value()
-        end_frame = self.end_frame.value()
         directory = self.directory
         frame_split = self.frame_split_checkbox.isChecked()
 
+        # frame_splitがFalseの場合、Mayaファイルのデフォルトフレーム範囲を使用
+        if frame_split:
+            start_frame = self.start_frame.value()
+            end_frame = self.end_frame.value()
+        else:
+            start_frame = int(cmds.playbackOptions(query=True, min=True))
+            end_frame = int(cmds.playbackOptions(query=True, max=True))
+
+        print(f"export_animation")
+
         # AnimationExporterクラスを利用してエクスポート処理を実行
         exporter = AnimationExporter(
-            characters=[character],
+            characters=characters,
             filename=filename,
             directory=directory,
             start_frame=start_frame,

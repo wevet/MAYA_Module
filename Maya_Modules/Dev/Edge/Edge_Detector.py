@@ -9,7 +9,9 @@ import maya.OpenMayaUI as omui
 from shiboken2 import wrapInstance
 
 import Intersection
+import importlib
 
+importlib.reload(Intersection)
 
 def maya_main_window():
     main_window = omui.MQtUtil.mainWindow()
@@ -191,7 +193,7 @@ class Edge_Detector:
         intersection.angle_threshold = self.angle_threshold
         intersection.droplet_size = self.droplet_size
         intersection.voxel_size = self.voxel_size
-        intersection.detect_intersections_between_faces(selected_meshes)
+        intersection.handle_intersections(selected_meshes)
 
 
 

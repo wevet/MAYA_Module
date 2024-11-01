@@ -4,6 +4,7 @@ import sys
 import maya.cmds as cmds
 import math
 import numpy as np
+from scipy.spatial import KDTree
 
 
 class Face_Intersection:
@@ -18,16 +19,57 @@ class Face_Intersection:
         self.intersections = []
 
 
+    def handle_intersections(self, mesh_list):
+        if len(mesh_list) < 2:
+            self.detect_intersections_in_single_mesh(mesh_list[0])
+        else:
+            self.detect_intersections_between_faces(mesh_list)
+
+
     """
-    face での交点検出
+    複数meshでの交点検査 
     """
     def detect_intersections_between_faces(self, mesh_list):
         """
         異なるメッシュ間でのface交差を検出し、交差点にドロップレットを配置します
         """
+        print("detect_intersections_between_faces")
 
         intersection_positions = set()  # 交差点の座標を保持するセット
+        all_centers = []
+        normals = []
 
+        for i, mesh1 in enumerate(mesh_list):
+            faces1 = cmds.polyListComponentConversion(mesh1, toFace=True)
+            face_list1 = cmds.ls(faces1, fl=True)
+            centers1 = []
+            normals1 = []
+            for face in face_list1:
+                center = self.get_face_center(face)
+                normal = self.get_face_normal(face)
+                if center is not None and normal is not None:
+                    centers1.append(center)
+                    normals1.append(normal)
+            all_centers.extend(centers1)
+            normals.extend(normals1)
+
+        tree = KDTree(all_centers)
+
+        for idx, center in enumerate(all_centers):
+            nearby_centers = tree.query_ball_point(center, r=self.voxel_size)
+            for near_idx in nearby_centers:
+                if idx != near_idx and not self._is_near_existing_intersection(center, intersection_positions):
+                    normal1, normal2 = normals[idx], normals[near_idx]
+                    angle = self.calculate_angle_between_vectors(normal1, normal2)
+                    intersection_type = self._determine_intersection_type(angle)
+
+                    if intersection_type != "none":
+                        intersection_positions.add(tuple(center))
+                        self.intersections.append({"position": center.tolist(), "angle": angle, "type": intersection_type})
+
+        self._create_droplets_for_intersections()
+
+        """
         for i, mesh1 in enumerate(mesh_list):
             faces1 = cmds.polyListComponentConversion(mesh1, toFace=True)
             face_list1 = cmds.ls(faces1, fl=True)
@@ -84,17 +126,65 @@ class Face_Intersection:
         else:
             print(f"{len(self.intersections)} intersections found between selected faces.")
             self._create_droplets_for_intersections()
+        """
+
+
+    """
+    単一meshでの交点検査 
+    """
+    def detect_intersections_in_single_mesh(self, mesh):
+
+        print("detect_intersections_in_single_mesh")
+
+        faces = cmds.polyListComponentConversion(mesh, toFace=True)
+        face_list = cmds.ls(faces, fl=True)
+        intersection_positions = set()
+
+        centers = np.array([self.get_face_center(face) for face in face_list if self.get_face_center(face) is not None])
+
+        if centers.size == 0:
+            return
+
+        # 自己交差判定
+        distances = np.linalg.norm(centers[:, None] - centers, axis=2)
+        intersecting_pairs = np.where((distances < self.voxel_size) & (distances > 0))  # 距離が閾値未満で自分自身は除外
+
+        for idx1, idx2 in zip(*intersecting_pairs):
+            face1, face2 = face_list[idx1], face_list[idx2]
+            normal1, normal2 = self.get_face_normal(face1), self.get_face_normal(face2)
+            if normal1 is None or normal2 is None:
+                continue
+
+            angle = self.calculate_angle_between_vectors(normal1, normal2)
+            intersection_type = self._determine_intersection_type(angle)
+            if intersection_type == "none":
+                continue
+
+            intersection_position = ((centers[idx1] + centers[idx2]) / 2).tolist()
+
+            if not self._is_near_existing_intersection(intersection_position, intersection_positions):
+                intersection_positions.add(tuple(intersection_position))
+                self.intersections.append({"position": intersection_position, "angle": angle, "type": intersection_type})
+
+        if not self.intersections:
+            print("No intersections found within the mesh.")
+        else:
+            print(f"{len(self.intersections)} intersections found within the mesh.")
+            self._create_droplets_for_intersections()
 
 
     def _is_near_existing_intersection(self, position, intersection_positions):
         """
         既存の交差位置に対して、指定された位置が近似的に一致するかを確認します。
         """
+        """
         for existing_position in intersection_positions:
             distance = np.linalg.norm(np.array(existing_position) - np.array(position))
             if distance < self.tolerance:
                 return True
         return False
+        """
+        return any(np.linalg.norm(np.array(pos) - np.array(position)) < self.tolerance for pos in intersection_positions)
 
 
     def _create_droplets_for_intersections(self):
@@ -222,6 +312,8 @@ class Face_Intersection:
             droplet_mesh = cmds.polyCube(width=self.droplet_size, height=self.droplet_size, depth=self.droplet_size, name="Droplet_T")[0]
         elif intersection_type == "diagonal":
             droplet_mesh = cmds.polyCylinder(radius=self.droplet_size, height=0.05, name="Droplet_Ellipse")[0]
+        elif intersection_type == "L":
+            droplet_mesh = cmds.polyCube(width=self.droplet_size, height=self.droplet_size, depth=self.droplet_size, name="Droplet_L")[0]
         else:
             return None
         return droplet_mesh
@@ -237,6 +329,8 @@ class Face_Intersection:
             return "T"
         elif self._is_diagonal_intersection(angle):
             return "diagonal"
+        elif self._is_l_intersection(angle):
+            return "L"
         return "none"
 
 
@@ -253,5 +347,10 @@ class Face_Intersection:
     def _is_diagonal_intersection(self, angle):
         # 斜め交差の判定
         return abs(angle - 45) < self.angle_threshold
+
+
+    def _is_l_intersection(self, angle):
+        # L字交差の角度範囲を指定
+        return abs(angle - 90) < self.angle_threshold / 4  # L字用の狭い閾値
 
 

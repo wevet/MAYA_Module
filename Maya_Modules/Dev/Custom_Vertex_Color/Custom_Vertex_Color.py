@@ -19,7 +19,7 @@ def maya_main_window():
 
 class CustomVertexColorGUI(QtWidgets.QDockWidget):
     WINDOW_TITLE = "Vertex Color Tool"
-    MODULE_VERSION = "1.3"
+    MODULE_VERSION = "1.4"
 
     def __init__(self, parent=maya_main_window()):
         super(CustomVertexColorGUI, self).__init__(parent)
@@ -125,7 +125,7 @@ class CustomVertexColorGUI(QtWidgets.QDockWidget):
 
     def toggle_channel(self, channel, state):
         # チャンネルの表示/非表示を切り替え
-        print(f"{channel} チャンネルの表示を切り替えました: {state}")
+        #print(f"{channel} チャンネルの表示を切り替えました: {state}")
         self.update_vertex_color_display(channel, state)
 
 
@@ -261,14 +261,15 @@ class CustomVertexColorGUI(QtWidgets.QDockWidget):
             return
 
         # メッシュと頂点情報を確認
-        mesh = selected_vertices[0].split(".vtx[")[0]
-        # format {0: [1.0, 0.0, 0.0],
+        mesh = self._get_obtain_object_with_shape()
+        if not mesh:
+            print(f"{mesh} has no mesh")
+            return
+
         self._apply_paint_vertex_color_frag(mesh)
         self._global_vertex_color_display(2)
         self.display_vertex_color_checkbox.setChecked(True)
 
-        # 先にcacheを反映させる
-        #self._prepare_copy_vertex(selected_vertices, mesh, channel, value)
 
         # ここにアクセスする前には頂点カラーは編集が許可されている
         for vertex in selected_vertices:
@@ -277,31 +278,35 @@ class CustomVertexColorGUI(QtWidgets.QDockWidget):
                 print(f"{vertex} は頂点形式ではないためスキップします")
                 continue
 
-            # 既存の頂点カラーを取得（存在しない場合はデフォルトカラーを設定）
-            existing_color = cmds.polyColorPerVertex(vertex, query=True, rgb=True)
-            if existing_color is None:
-                cmds.warning(f"{vertex} の頂点カラーを取得できなかったため、スキップします")
-                continue
+            try:
+                # 既存の頂点カラーを取得（存在しない場合はデフォルトカラーを設定）
+                existing_color = cmds.polyColorPerVertex(vertex, query=True, rgb=True)
+                if existing_color is None:
+                    cmds.warning(f"{vertex} の頂点カラーを取得できなかったため、スキップします")
+                    continue
 
-            # 頂点IDの抽出
-            vtx_id = int(vertex.split(".vtx[")[-1][:-1])
-            cache_color = self.cache_vertex_colors[mesh].get(vtx_id, existing_color)
-            vertex_color = cache_color
+                # 頂点IDの抽出
+                vtx_id = int(vertex.split(".vtx[")[-1][:-1])
+                cache_color = self.cache_vertex_colors[mesh].get(vtx_id, existing_color)
+                vertex_color = cache_color
 
-            r_value = value if channel == "R" else vertex_color[0]
-            g_value = value if channel == "G" else vertex_color[1]
-            b_value = value if channel == "B" else vertex_color[2]
+                r_value = value if channel == "R" else vertex_color[0]
+                g_value = value if channel == "G" else vertex_color[1]
+                b_value = value if channel == "B" else vertex_color[2]
 
-            # チェックボックスの状態に応じて表示上の値をマスク（0に設定）
-            display_r = r_value if self.r_checkbox.isChecked() else 0.0
-            display_g = g_value if self.g_checkbox.isChecked() else 0.0
-            display_b = b_value if self.b_checkbox.isChecked() else 0.0
+                # チェックボックスの状態に応じて表示上の値をマスク（0に設定）
+                display_r = r_value if self.r_checkbox.isChecked() else 0.0
+                display_g = g_value if self.g_checkbox.isChecked() else 0.0
+                display_b = b_value if self.b_checkbox.isChecked() else 0.0
 
-            # MELコマンドを生成して実行
-            mel_command = f"polyColorPerVertex -r {display_r} -g {display_g} -b {display_b} {vertex};"
-            mel.eval(mel_command)
-            #print(f"Executing: {mel_command}")
-            self._modify_vertex_cache(mesh, vtx_id, r_value, g_value, b_value)
+                # MELコマンドを生成して実行
+                mel_command = f"polyColorPerVertex -r {display_r} -g {display_g} -b {display_b} {vertex};"
+                mel.eval(mel_command)
+                #print(f"Executing: {mel_command}")
+                self._modify_vertex_cache(mesh, vtx_id, r_value, g_value, b_value)
+
+            except (ValueError, IndexError):
+                cmds.warning(f"無効な頂点の選択: {vertex}")
 
         cmds.refresh()
 
@@ -312,14 +317,12 @@ class CustomVertexColorGUI(QtWidgets.QDockWidget):
     def update_vertex_color_display(self, channel, state):
         print("update_vertex_color_display")
 
-        selected_vertices = cmds.ls(selection=True, flatten=True)
-
-        if not selected_vertices:
-            cmds.warning("頂点を選択してください")
+        # メッシュと頂点情報を確認
+        mesh = self._get_obtain_object_with_shape()
+        if not mesh:
+            print(f"{mesh} has no mesh")
             return
 
-        # メッシュと頂点情報を確認
-        mesh = selected_vertices[0].split(".vtx[")[0]
         # format {0: [1.0, 0.0, 0.0],
         self._apply_paint_vertex_color_frag(mesh)
         self._global_vertex_color_display(2)
@@ -362,20 +365,6 @@ class CustomVertexColorGUI(QtWidgets.QDockWidget):
 
 
     @staticmethod
-    def get_mesh_shape(obj):
-        """オブジェクトまたはコンポーネントの親からメッシュシェイプを取得"""
-        # メッシュシェイプがあるか確認
-        mesh_shapes = cmds.listRelatives(obj, shapes=True, type='mesh')
-
-        # メッシュシェイプが見つからない場合、親トランスフォームから取得
-        if not mesh_shapes:
-            transform = cmds.listRelatives(obj, parent=True, fullPath=True)
-            if transform:
-                mesh_shapes = cmds.listRelatives(transform[0], shapes=True, type='mesh')
-        return mesh_shapes
-
-
-    @staticmethod
     def _global_vertex_color_display(state):
         # シーン全体で頂点カラーの表示を切り替える
         if state == 2:
@@ -386,26 +375,39 @@ class CustomVertexColorGUI(QtWidgets.QDockWidget):
 
     def toggle_vertex_color_display(self, state):
         """頂点カラーの表示をシーン全体で切り替える"""
-
         self._global_vertex_color_display(state)
 
-        # 選択オブジェクトがある場合は、各メッシュのdisplayColorsも更新
-        selected_objects = cmds.ls(selection=True, objectsOnly=True, dag=True)
-        if not selected_objects:
-            cmds.warning("Object not selected")
+        # メッシュと頂点情報を確認
+        mesh = self._get_obtain_object_with_shape()
+        if not mesh:
+            print(f"{mesh} has no mesh")
             return
 
-        for obj in selected_objects:
-            mesh_shapes = CustomVertexColorGUI.get_mesh_shape(obj)
-            if mesh_shapes:
-                for mesh in mesh_shapes:
-                    cmds.setAttr(mesh + ".displayColors", 1 if state == 2 else 0)
-                    if state == 2:
-                        self._apply_paint_vertex_color_frag(mesh)
-                    else:
-                        cmds.polyOptions(mesh, colorShadedDisplay=False)
-            else:
-                print(f"{obj} has no mesh")
+        if state == 2:
+            self._apply_paint_vertex_color_frag(mesh)
+        else:
+            cmds.polyOptions(mesh, colorShadedDisplay=False)
+            cmds.setAttr(mesh + ".displayColors", 0)
+
+
+    @staticmethod
+    def _get_obtain_object_with_shape():
+        selected_vertices = cmds.ls(selection=True, flatten=True)
+        if not selected_vertices:
+            cmds.warning("頂点を選択してください")
+            return
+        # メッシュと頂点情報を確認
+        transform = selected_vertices[0].split(".vtx[")[0]
+        # format {0: [1.0, 0.0, 0.0],
+        # トランスフォームからシェイプを取得
+        shape = cmds.listRelatives(transform, shapes=True, fullPath=True)
+        if shape:
+            mesh_shape = shape[0]
+            print(f"Acquired shape name: {mesh_shape}")
+            return transform
+        else:
+            cmds.warning("Selected object has no shape")
+            return None
 
 
     def update_mesh_info(self, mesh):

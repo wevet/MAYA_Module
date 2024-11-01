@@ -7,6 +7,7 @@ REM pipがインストールされているか確認し、なければインス�
 
 REM numpyをインストール
 %MAYA_PYTHON% -m pip install numpy
+%MAYA_PYTHON% -m pip install scipy
 
 echo numpy installation completed.
 pause

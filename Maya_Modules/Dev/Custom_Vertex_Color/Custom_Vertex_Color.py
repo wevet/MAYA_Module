@@ -30,7 +30,8 @@ class CustomVertexColorGUI(QtWidgets.QDockWidget):
         self.setStyleSheet('background-color: #262f38; color: white;')
 
         # color cache
-        self.cache_vertex_colors = {}
+        self.cache_vertex_colors = None
+
 
         # メインウィジェットを設定
         main_widget = QtWidgets.QWidget()
@@ -87,12 +88,6 @@ class CustomVertexColorGUI(QtWidgets.QDockWidget):
 
 
 
-    def set_temp_vertex_color(self, channel, value):
-        """一時的に頂点カラーを設定し、GUI上に表示"""
-        setattr(self, f"{channel.lower()}_value", value)
-        self.update_current_color_label()
-
-
     @staticmethod
     def get_color_style(channel, value):
         """指定されたチャンネルと値に基づいてボタンの色を設定する"""
@@ -130,12 +125,6 @@ class CustomVertexColorGUI(QtWidgets.QDockWidget):
 
 
     @staticmethod
-    def clamp(value, min_value=0.0, max_value=1.0):
-        """valueをmin_valueとmax_valueの間に制限"""
-        return max(min(value, max_value), min_value)
-
-
-    @staticmethod
     def get_vertex_colors_with_poly_color_per_vertex(mesh):
         """各頂点のカラーを取得し、キャッシュする"""
         # メッシュが存在するか確認
@@ -159,6 +148,7 @@ class CustomVertexColorGUI(QtWidgets.QDockWidget):
         return vertex_colors
 
 
+
     """
     初回のみdictionaryを作成し、頂点カラーをcopyする
     """
@@ -171,9 +161,7 @@ class CustomVertexColorGUI(QtWidgets.QDockWidget):
         if mesh not in self.cache_vertex_colors:
             vertex_colors = self.get_vertex_colors_with_poly_color_per_vertex(mesh)
             # 初期化時には全ての頂点を「面ではなく頂点で塗られた」としてキャッシュに保存
-            self.cache_vertex_colors[mesh] = {
-                vtx_id: {"color": color, "is_face": False} for vtx_id, color in vertex_colors.items()
-            }
+            self.cache_vertex_colors[mesh] = { vtx_id: {"color": color, "is_face": False} for vtx_id, color in vertex_colors.items() }
             print(f"initialized => {self.cache_vertex_colors[mesh]}")
         else:
             print(f"Existing cache is being used.: {mesh}")
@@ -210,21 +198,7 @@ class CustomVertexColorGUI(QtWidgets.QDockWidget):
             self.initialized_vertex_color = True
             self.cache_vertex_colors = None
             self.initialize_vertex_cache(mesh)
-
         self.update_mesh_info(mesh)
-
-
-    def _modify_vertex_cache(self, mesh, vtx_id, r_value, g_value, b_value, is_face=False):
-        if vtx_id in self.cache_vertex_colors[mesh]:
-            self.cache_vertex_colors[mesh][vtx_id] = {
-                "color": [r_value, g_value, b_value],
-                "is_face": is_face  # 面塗りかどうかをフラグで保存
-            }
-            print(
-                f"updated vertex {vtx_id} in cache with color {self.cache_vertex_colors[mesh][vtx_id]['color']} and is_face {is_face}")
-        else:
-            print(f"key not found error => {vtx_id}")
-        pass
 
 
     """
@@ -262,7 +236,9 @@ class CustomVertexColorGUI(QtWidgets.QDockWidget):
 
                         # 頂点IDの抽出
                         vtx_id = int(vertex.split(".vtx[")[-1][:-1])
-                        cache_data = self.cache_vertex_colors[mesh].get(vtx_id, {"color": existing_color, "is_face": False})
+                        cache_data = self.cache_vertex_colors[mesh].get(
+                            vtx_id, {"color": existing_color, "is_face": False}
+                        )
                         vertex_color = cache_data["color"]
 
                         r_value = value if channel == "R" else vertex_color[0]
@@ -316,7 +292,8 @@ class CustomVertexColorGUI(QtWidgets.QDockWidget):
                         display_b = b_value if self.b_checkbox.isChecked() else 0.0
 
                         # MELコマンドを生成して実行（面ごとの塗りに対して全体適用）
-                        mel_command = f"polyColorPerVertex -r {display_r} -g {display_g} -b {display_b};"
+                        face_name = f"{mesh}.f[{face_id}]"
+                        mel_command = f"polyColorPerVertex -r {display_r} -g {display_g} -b {display_b} {face_name};"
                         mel.eval(mel_command)
 
                         # 更新した情報をキャッシュに格納
@@ -329,7 +306,6 @@ class CustomVertexColorGUI(QtWidgets.QDockWidget):
 
                     except (ValueError, IndexError):
                         cmds.warning(f"無効な頂点の選択: {vertex}")
-
         cmds.refresh()
 
 
@@ -345,14 +321,10 @@ class CustomVertexColorGUI(QtWidgets.QDockWidget):
             print(f"{mesh} has no mesh")
             return
 
-        # format {0: [1.0, 0.0, 0.0],
         self._apply_paint_vertex_color_frag(mesh)
         self._global_vertex_color_display(2)
         self.display_vertex_color_checkbox.setChecked(True)
         vertex_colors = self.cache_vertex_colors[mesh]
-
-        # グラデーションで表示したい頂点リストと、カッチリ表示したい頂点リストを分ける
-        vertex_display_colors = []
 
         # メッシュの頂点にアクセス
         mesh_selection_list = om.MSelectionList()
@@ -366,22 +338,18 @@ class CustomVertexColorGUI(QtWidgets.QDockWidget):
             if vtx_id in vertex_colors:
                 cache_data = vertex_colors[vtx_id]
                 current_color = cache_data["color"]
-
                 is_face_painted = cache_data["is_face"]
+
                 if not is_face_painted:
                     r_display = current_color[0] if self.r_checkbox.isChecked() else 0.0
                     g_display = current_color[1] if self.g_checkbox.isChecked() else 0.0
                     b_display = current_color[2] if self.b_checkbox.isChecked() else 0.0
                     # 頂点で塗られた箇所の色表示（グラデーションあり）
                     display_color = om.MColor((r_display, g_display, b_display, 1.0))
-                    vertex_display_colors.append((vtx_id, display_color))
+                    mesh_function.setVertexColor(display_color, vtx_id)
 
 
-        # 頂点ごとのカラーを設定（グラデーションあり）
-        for vtx_id, color in vertex_display_colors:
-            mesh_function.setVertexColor(color, vtx_id)
-
-        # 面に対する処理（カッチリした色を適用）
+        # 面に対する処理
         all_faces = cmds.polyEvaluate(mesh, face=True)
         for face_id in range(all_faces):
             if face_id in vertex_colors:
@@ -389,17 +357,14 @@ class CustomVertexColorGUI(QtWidgets.QDockWidget):
                 current_color = cache_data["color"]
                 is_face_painted = cache_data["is_face"]
 
-                # 面ごとの色表示（カッチリした表示）
-                r_display = current_color[0] if self.r_checkbox.isChecked() else 0.0
-                g_display = current_color[1] if self.g_checkbox.isChecked() else 0.0
-                b_display = current_color[2] if self.b_checkbox.isChecked() else 0.0
-
                 if is_face_painted:
+                    r_display = current_color[0] if self.r_checkbox.isChecked() else 0.0
+                    g_display = current_color[1] if self.g_checkbox.isChecked() else 0.0
+                    b_display = current_color[2] if self.b_checkbox.isChecked() else 0.0
                     face_name = f"{mesh}.f[{face_id}]"
                     print(f"face id => {face_id}")
                     mel_command = f"polyColorPerVertex -r {r_display} -g {g_display} -b {b_display} {face_name};"
                     mel.eval(mel_command)
-
         cmds.refresh()
 
 
@@ -505,3 +470,5 @@ def show_main_window():
         qt_control = wrapInstance(int(workspace_control_ptr), QtWidgets.QWidget)
         layout = qt_control.layout()
         layout.addWidget(custom_vertex_color_gui)
+
+

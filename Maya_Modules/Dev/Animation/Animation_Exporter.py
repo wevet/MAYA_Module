@@ -236,7 +236,12 @@ class Animation_ExporterGUI(QDialog):
                 "mesh_name" : "mGear:m_med_nrw_body_lod1_mesh",
                 "time_range" : [0, 100], [200, 500],
                 "file_name" : ["A", "B"]            
-            }
+            },
+            {
+                "mesh_name" : "mGear:m_med_nrw_body_lod0_mesh",
+                "time_range" : [0, 100],
+                "file_name" : "Sample"
+            },
         ]
 
         """

@@ -17,7 +17,7 @@ def maya_main_window():
 
 
 class AnimationExporter:
-    def __init__(self, characters, filename, directory, start_frame, end_frame, frame_split=False):
+    def __init__(self, characters, filename, directory, start_frame, end_frame, frame_split=False, bake_keyframes=True):
         """
         :param characters: List of character names to export
         :param filename: Base filename for exported files
@@ -32,6 +32,7 @@ class AnimationExporter:
         self.start_frame = int(start_frame)
         self.end_frame = int(end_frame)
         self.frame_split = frame_split
+        self.bake_keyframes = bake_keyframes
 
         # プラグインのロード
         if not cmds.pluginInfo('fbxmaya', query=True, loaded=True):
@@ -125,11 +126,12 @@ class AnimationExporter:
             joints = self.get_related_joints(meshes)
 
             print(f"joints => {joints}")
-            #self.bake_animation(joints)
+            if self.bake_keyframes is True:
+                self.bake_animation(joints)
 
             file_path = os.path.join(self.directory, f"{self.filename}_{sanitized_character}.fbx")
             if self.frame_split:
-                file_path = os.path.join(self.directory, f"{self.filename}_{sanitized_character}_frames_{self.start_frame}-{self.end_frame}.fbx")
+                file_path = os.path.join(self.directory, f"{self.filename}_{sanitized_character}_frames_{self.start_frame}_{self.end_frame}.fbx")
             self._export_fbx(file_path, self.start_frame, self.end_frame)
 
 
@@ -217,34 +219,18 @@ class Animation_ExporterGUI(QDialog):
         self.frame_split_checkbox = QCheckBox("Output by specifying frames")
         layout.addWidget(self.frame_split_checkbox)
 
+        # Keyframe Bake オプション
+        self.bake_keyframes_checkbox = QCheckBox("Export KeyFrame")
+        self.bake_keyframes_checkbox.setChecked(True)  # デフォルトでチェックを入れる
+        self.bake_keyframes_checkbox.stateChanged.connect(self.on_bake_keyframes_changed)
+        layout.addWidget(self.bake_keyframes_checkbox)
+
         # エクスポートボタン
         self.export_button = QPushButton("Export Animation")
         self.export_button.setStyleSheet(self.default_style)
         self.export_button.clicked.connect(self.export_animation)
         layout.addWidget(self.export_button)
         self.setLayout(layout)
-
-        """
-        以下のformatに沿った形式でfbx exportできるといい？
-        [
-            {
-                "mesh_name" : "mGear:m_med_nrw_body_lod0_mesh",
-                "time_range" : [0, 100], [200, 500],
-                "file_name" : ["A", "B"]
-            },
-            {
-                "mesh_name" : "mGear:m_med_nrw_body_lod1_mesh",
-                "time_range" : [0, 100], [200, 500],
-                "file_name" : ["A", "B"]            
-            },
-            {
-                "mesh_name" : "mGear:m_med_nrw_body_lod0_mesh",
-                "time_range" : [0, 100],
-                "file_name" : "Sample"
-            },
-        ]
-
-        """
 
 
     def update_character_list(self):
@@ -254,6 +240,14 @@ class Animation_ExporterGUI(QDialog):
             item = QListWidgetItem(mesh)
             self.character_list.addItem(item)
             print(f"mesh => {mesh}")
+
+
+    def on_bake_keyframes_changed(self, state):
+        # Bake KeyFramesがオンなら単一選択、オフなら複数選択に変更
+        if state == QtCore.Qt.Checked:
+            self.character_list.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        else:
+            self.character_list.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
 
 
     def clear_character_list(self):
@@ -281,6 +275,7 @@ class Animation_ExporterGUI(QDialog):
         filename = self.filename_edit.text()
         directory = self.directory
         frame_split = self.frame_split_checkbox.isChecked()
+        bake_keyframes = self.bake_keyframes_checkbox.isChecked()
 
         # frame_splitがFalseの場合、Mayaファイルのデフォルトフレーム範囲を使用
         if frame_split:
@@ -299,7 +294,8 @@ class Animation_ExporterGUI(QDialog):
             directory=directory,
             start_frame=start_frame,
             end_frame=end_frame,
-            frame_split=frame_split
+            frame_split=frame_split,
+            bake_keyframes=bake_keyframes
         )
         exporter.export()
 
@@ -315,6 +311,48 @@ def show_main_window():
     animation_exporter = Animation_ExporterGUI()
     animation_exporter.show()
 
+
+
+# @TODO
+# batch files
+def run(file_path):
+    print(f'## Scene File Open >> {file_path}')
+    cmds.file(file_path, o=True, force=True)
+
+    # 出力ディレクトリとファイル名を設定
+    root, _ = os.path.splitext(file_path)
+    output_dir = os.path.join(os.path.dirname(root), "Export")
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    # MAファイルのベース名
+    filename = os.path.basename(root)
+
+    # `characters`としてメッシュリストを取得
+    characters = cmds.ls(geometry=True)
+    if not characters:
+        print("No mesh found in the scene.")
+        return
+
+    # start_frameとend_frameをシーンから取得
+    start_frame = int(cmds.playbackOptions(query=True, min=True))
+    end_frame = int(cmds.playbackOptions(query=True, max=True))
+
+    # AnimationExporterインスタンスを作成し、エクスポートを実行
+    exporter = AnimationExporter(
+        characters=characters,
+        filename=filename,
+        directory=output_dir,
+        start_frame=start_frame,
+        end_frame=end_frame,
+        frame_split=False,
+        bake_keyframes=True
+    )
+    exporter.export()
+
+    # Mayaバッチモードの場合はMayaを終了
+    if cmds.about(batch=True):
+        cmds.evalDeferred('cmds.quit(force=True)')
 
 
 

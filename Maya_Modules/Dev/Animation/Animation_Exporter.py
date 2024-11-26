@@ -2,13 +2,19 @@
 
 import sys
 import os
-from PySide2.QtWidgets import QVBoxLayout, QPushButton, QLabel, QComboBox, QLineEdit, QSpinBox, QFileDialog, QDialog, QCheckBox, QListWidget, QListWidgetItem
+from PySide2.QtWidgets import QVBoxLayout, QPushButton, QLabel, QComboBox, QLineEdit, QSpinBox, QFileDialog, QDialog, QCheckBox, QListWidget, QListWidgetItem, QGridLayout, QHBoxLayout
 from PySide2 import QtCore, QtWidgets
 import maya.cmds as cmds
 import maya.OpenMayaUI as omui
 from shiboken2 import wrapInstance
 from functools import partial
 import maya.mel as mel
+import logging
+import subprocess
+
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
+logger = logging.getLogger(__name__)
 
 
 def maya_main_window():
@@ -16,41 +22,128 @@ def maya_main_window():
     return wrapInstance(int(main_window), QtWidgets.QMainWindow)
 
 
+class AnimationUtil:
+
+    @staticmethod
+    def all_import_reference():
+        """
+        すべてのリファレンスをインポート（マージ）
+        """
+        # すべてのリファレンスノードを取得
+        references = cmds.ls(references=True)
+        for ref in references:
+            try:
+                # 各リファレンスのファイルパスを取得
+                filename = cmds.referenceQuery(ref, filename=True)
+
+                # ファイルパスが無効な場合をスキップ
+                if not filename or not cmds.file(filename, query=True, exists=True):
+                    print(f"Skipped invalid or non-existent file: {filename}")
+                    continue
+
+                cmds.file(filename, importReference=True)
+                print(f"Imported reference: {filename}")
+
+            except RuntimeError as e:
+                print(f"Error importing reference {ref}: {e}")
+            except Exception as e:
+                print(f"Unexpected error with reference '{ref}': {e}")
+        print("All references processed.")
+
+
+    @staticmethod
+    def remove_namespace():
+        """
+        すべての名前空間を削除します（"UI" と "shared" を除く）。
+        """
+        namespaces = cmds.namespaceInfo(listOnlyNamespaces=True) or []  # 名前空間リストを取得
+        namespaces = [ns for ns in namespaces if ns not in ["UI", "shared"]]  # "UI" と "shared" を除外
+
+        for namespace in namespaces:
+            try:
+                # 名前空間内のノードをルートに移動
+                cmds.namespace(force=True, moveNamespace=(namespace, ":"))
+                # 名前空間を削除
+                cmds.namespace(removeNamespace=namespace)
+                print(f"Removed namespace: {namespace}")
+            except RuntimeError as e:
+                print(f"Error removing namespace {namespace}: {e}")
+
+
+    @staticmethod
+    def reload_current_scene_without_saving():
+        """
+        現在開いているシーンを保存せずに再読み込みする。
+        """
+        current_scene = cmds.file(query=True, sceneName=True)
+        if not current_scene:
+            print("There are currently no open scenes.")
+            return
+
+        try:
+            cmds.file(current_scene, open=True, force=True)
+            print(f"Reloaded the scene without saving it.: {current_scene}")
+        except Exception as e:
+            print(f"An error occurred while reloading the scene: {e}")
+
+
+    @staticmethod
+    def toggle_plugin_scanner(enable=True):
+        if enable:
+            if not cmds.pluginInfo('MayaScannerCB', query=True, loaded=True):
+                try:
+                    cmds.loadPlugin('MayaScannerCB')
+                    print("Plugin MayaScannerCB has been enable.")
+                except RuntimeError as e:
+                    print(f"Failed to disable plugin MayaScannerCB : {e}")
+        else:
+            if cmds.pluginInfo('MayaScannerCB', query=True, loaded=True):
+                try:
+                    cmds.unloadPlugin('MayaScannerCB')
+                    print("Plugin MayaScannerCB has been disabled.")
+                except RuntimeError as e:
+                    print(f"Failed to disable plugin MayaScannerCB : {e}")
+
+
 class AnimationExporter:
-    def __init__(self, characters, filename, directory, start_frame, end_frame, frame_split=False, bake_keyframes=True):
+    def __init__(self, characters, filename, directory, start_frame, end_frame,
+                 bake_keyframes=True, joints=None, controllers=None, prefix=None, multiple_export=False):
         """
         :param characters: List of character names to export
         :param filename: Base filename for exported files
         :param directory: Directory to export files to
         :param start_frame: Start frame for export
         :param end_frame: End frame for export
-        :param frame_split: Boolean indicating if frames should be split into multiple files
+        :param bake_keyframes: Whether to bake keyframes for Animator export
+        :param joints: List of joint nodes to be exported
+        :param controllers: List of animation controller nodes (e.g., nurbs curves)
+        :param prefix namespace prefix
+        :param multiple_export animation export many files
         """
         self.characters = characters
         self.filename = filename
         self.directory = directory
         self.start_frame = int(start_frame)
         self.end_frame = int(end_frame)
-        self.frame_split = frame_split
         self.bake_keyframes = bake_keyframes
-
-        # プラグインのロード
-        if not cmds.pluginInfo('fbxmaya', query=True, loaded=True):
-            cmds.loadPlugin('fbxmaya')
+        self.joints = joints or []  # Default to empty list if None
+        self.controllers = controllers or []  # Default to empty list if None
+        self.prefix = prefix or None
+        self.multiple_export = multiple_export
 
 
     @staticmethod
-    def get_related_joints(meshes):
+    def _get_related_joints(meshes):
         """
-        選択されたメッシュに影響を与えているジョイントを取得します。
+        選択されたメッシュに影響を与えているジョイントを取得
         """
-        joints = set()
+        local_joints = set()
         for mesh in meshes:
             skin_cluster = cmds.ls(cmds.listHistory(mesh), type='skinCluster')
             if skin_cluster:
                 influences = cmds.skinCluster(skin_cluster[0], query=True, influence=True)
-                joints.update(influences)
-        return list(joints)
+                local_joints.update(influences)
+        return list(local_joints)
 
 
     @staticmethod
@@ -65,6 +158,7 @@ class AnimationExporter:
             connections=True,
             destination=False
         ) or []
+
         for dst_obj, src_obj in zip(connections[::2], connections[1::2]):
             nodeType = cmds.nodeType(src_obj)
             if not nodeType.startswith("animCurve"):
@@ -72,8 +166,15 @@ class AnimationExporter:
         return result
 
 
-    def bake_animation(self, objects):
+    def _bake_animation(self, objects):
+
         bake_attributes = self._get_bake_attributes(objects)
+        if not bake_attributes:
+            print("No attributes found to bake!")
+            return
+
+        #print(f"Baking attributes: {bake_attributes}")
+
         if bake_attributes:
             cmds.bakeResults(
                 bake_attributes,
@@ -84,31 +185,85 @@ class AnimationExporter:
                 controlPoints=False,
                 minimizeRotation=True,
                 bakeOnOverrideLayer=False,
-                preserveOutsideKeys=False,
+                preserveOutsideKeys=True, # ベイク時に範囲外のキーを削除しない
                 sparseAnimCurveBake=False,
                 disableImplicitControl=True,
-                removeBakedAttributeFromLayer=False,
-            )
+                removeBakedAttributeFromLayer=False)
         else:
             print("Cannot find any connection to bake!")
 
 
-    @staticmethod
-    def _prepare_fbx_export():
+    def _export_fbx(self, file_path):
         """
         Set up FBX export options.
         """
+        encoded_path = file_path.replace("\\", "/")
+
         if mel.eval('optionVar -q "FileDialogStyle"') == 1:
             mel.eval('optionVar -iv FileDialogStyle 2 ;')
+            print("modify FileDialogStyle")
+
+        if not cmds.pluginInfo('fbxmaya', q=True, loaded=True):
+            cmds.loadPlugin('fbxmaya')
+
+        # reset export
         mel.eval('FBXResetExport')
-        mel.eval('FBXExportBakeComplexAnimation -v 1')
+        # Enable skeleton definitions and skin export
+        mel.eval('FBXExportSkeletonDefinitions -v 1')
+        mel.eval('FBXExportSkins -v 1')
+
+        if self.bake_keyframes:
+            mel.eval('FBXExportAnimationOnly -v 0;')
+            mel.eval('FBXExportBakeComplexAnimation -v 1;')
+            mel.eval('FBXExportSkeletonDefinitions -v 1;')
+        else:
+            mel.eval('FBXExportBakeComplexAnimation -v 0')
+            mel.eval('FBXExportAnimationOnly -v 0')
+
         mel.eval('FBXExportInAscii -v 1')
+        try:
+            mel.eval(f'FBXExport -f "{encoded_path}" -s')
+            print(f"Exported {encoded_path}")
+        except RuntimeError as e:
+            print(f"FBX export failed: {e}")
 
 
-    def export(self):
+    def _select_with_prefix(self):
         """
-        Export each character as specified in the class parameters.
+        指定されたprefixを使用してノードを選択します。
         """
+        if not self.prefix.endswith(":"):
+            self.prefix += ":"
+        prefixed_nodes = [f"{self.prefix}{node}" for node in self.joints]
+        return prefixed_nodes
+
+
+    """
+    bake animation export
+    """
+    def animation_export(self):
+
+        if not os.path.exists(self.directory):
+            os.makedirs(self.directory)
+
+        print(f"self.characters => {self.characters}")
+        cmds.currentTime(self.start_frame)
+
+        if self.multiple_export is True:
+            self.joints = self._select_with_prefix()
+            cmds.select(self.joints, replace=True)
+        else:
+            cmds.select(self.joints)
+
+        self._bake_animation(self.joints)
+        file_path = os.path.join(self.directory, f"{self.filename}.fbx")
+        self._export_fbx(file_path)
+
+
+    """
+    no animation export
+    """
+    def model_export(self):
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
 
@@ -116,40 +271,26 @@ class AnimationExporter:
 
         # キャラクターごとにエクスポート
         for character in self.characters:
-            # キャラクター名のコロンをアンダースコアに置換
             sanitized_character = character.replace(":", "_")
-
             cmds.select(character)
-
-            # メッシュに関連するジョイントを取得してアニメーションをベイク
             meshes = cmds.ls(selection=True, dag=True, type='mesh')
-            joints = self.get_related_joints(meshes)
+            local_joints = self._get_related_joints(meshes)
 
-            print(f"joints => {joints}")
-            if self.bake_keyframes is True:
-                self.bake_animation(joints)
-
+            print(f"joints => {local_joints}")
+            for joint in local_joints:
+                keyframes = cmds.keyframe(joint, query=True)
+                if keyframes:
+                    print(f"Joint {joint} has keyframes: {keyframes}")
+                else:
+                    print(f"Joint {joint} has no keyframes.")
             file_path = os.path.join(self.directory, f"{self.filename}_{sanitized_character}.fbx")
-            if self.frame_split:
-                file_path = os.path.join(self.directory, f"{self.filename}_{sanitized_character}_frames_{self.start_frame}_{self.end_frame}.fbx")
-            self._export_fbx(file_path, self.start_frame, self.end_frame)
-
-
-    def _export_fbx(self, file_path, start_frame, end_frame):
-        """
-        Export selected character to an FBX file.
-        """
-        cmds.playbackOptions(min=start_frame, max=end_frame)
-        self._prepare_fbx_export()
-        encoded_path = file_path.replace("\\", "/")
-        mel.eval(f'FBXExport -f "{encoded_path}" -s')
-        print(f"Exported {encoded_path} from frames {start_frame} to {end_frame}")
+            self._export_fbx(file_path)
 
 
 
 class Animation_ExporterGUI(QDialog):
 
-    WINDOW_TITLE = "Animation Exporter"
+    WINDOW_TITLE = "Character ToolKit"
     MODULE_VERSION = "1.0"
 
     def __init__(self, parent=None, *args, **kwargs):
@@ -159,31 +300,533 @@ class Animation_ExporterGUI(QDialog):
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
         self.resize(420, 420)
         self.default_style = "background-color: #34d8ed; color: black"
+        self.model_style = "background-color: #ff8080; color: black;"
         self.setStyleSheet('background-color:#262f38;')
 
+        self.export_configs = []
+
+        main_layout = QtWidgets.QVBoxLayout()
+
+        self.tabs = QtWidgets.QTabWidget()
+        self.tabs.setStyleSheet("""
+            QTabWidget::pane { /* タブ全体の背景 */
+                border: 1px solid #2c3e50; background: #2c3e50;
+            }
+            QTabBar::tab { /* 通常 */
+                background: #34495e; color: white; padding: 10px;
+                border: 1px solid #2c3e50; border-bottom: none;
+            }
+            QTabBar::tab:selected { /* 選択中 */
+                background: #1abc9c; color: white;
+            }
+            QTabBar::tab:hover { /* ホバー時 */
+                background: #16a085; }
+        """)
+
+        main_layout.addWidget(self.tabs)
+        self.model_directory = None
+        self.model_directory_label  = None
+        self.model_directory_button = None
+
+        self.animation_directory = None
+        self.animator_directory_label = None
+        self.animator_directory_button = None
+
+        self.character_label = None
+        self.character_list = None
+        self.update_button = None
+        self.clear_button = None
+        self.filename_label = None
+        self.filename_edit = None
+
+        self.start_label = None
+        self.start_frame = None
+        self.end_label = None
+        self.end_frame = None
+
+        self.export_button = None
+        self.export_without_bake_button = None
+        self.create_model_scene_button = None
+
+        self.output_only_checkbox = None
+
+        # エクスポート設定リスト
+        self.export_config_list = None
+
+
+        self.animator_tab = self._create_animator_tab()
+        self.tabs.addTab(self.animator_tab, "Animator")
+        self.modeler_tab = self._create_modeler_tab()
+        self.tabs.addTab(self.modeler_tab, "Modeler")
+        self.setLayout(main_layout)
+
+
+    def _create_animator_tab(self):
+        tab = QtWidgets.QWidget()
+        layout = QtWidgets.QVBoxLayout()
+
+        """
+        export_directory : "your/path",
+        export_setting :
+        [
+            {
+                "root_node": LTN:output,
+                "prefix" : LTN,
+                "file_name": foo,
+                "joints": rig["joints"],
+                "controllers": rig["controllers"],
+                "start_frame": 0,
+                "end_frame": 100
+            },
+            {
+                "root_node": LUK:output,
+                "prefix" : LUK,
+                "file_name": bar,
+                "joints": rig["joints"],
+                "controllers": rig["controllers"],
+                "start_frame": 0,
+                "end_frame": 120            
+            }
+        ]
+        """
+
+        self.output_only_checkbox = QCheckBox("Output Node Only Reference")
+        self.output_only_checkbox.setChecked(True)
+        layout.addWidget(self.output_only_checkbox)
+
+        self.export_config_list = QListWidget()
+        self.export_config_list.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        layout.addWidget(self.export_config_list)
+
+        # ボタン用のグリッドレイアウト
+        button_layout = QtWidgets.QGridLayout()
+
+        add_config_button = QPushButton("Add Config")
+        add_config_button.setStyleSheet(self.default_style)
+        add_config_button.clicked.connect(self._add_config)
+        button_layout.addWidget(add_config_button, 0, 0)
+
+        edit_config_button = QPushButton("Edit Config")
+        edit_config_button.setStyleSheet(self.default_style)
+        edit_config_button.clicked.connect(self._edit_config)
+        button_layout.addWidget(edit_config_button, 0, 1)
+
+        remove_config_button = QPushButton("Remove Config")
+        remove_config_button.setStyleSheet(self.default_style)
+        remove_config_button.clicked.connect(self._remove_config)
+        button_layout.addWidget(remove_config_button, 1, 0)
+
+        find_references_button = QPushButton("Find References Rig")
+        find_references_button.setStyleSheet(self.default_style)
+        find_references_button.clicked.connect(self._find_and_add_reference_rigs)
+        button_layout.addWidget(find_references_button, 1, 1)
+
+        layout.addLayout(button_layout)
+
+        # エクスポートディレクトリ選択
+        self.animator_directory_label = QLabel("Animator Export Directory:")
+        self.animator_directory_button = QPushButton("Choose Directory")
+        self.animator_directory_button.setStyleSheet(self.default_style)
+        self.animator_directory_button.clicked.connect(self.select_animator_export_directory)
+        layout.addWidget(self.animator_directory_label)
+        layout.addWidget(self.animator_directory_button)
+
+        # エクスポート実行ボタン
+        export_button = QPushButton("Export Animation")
+        export_button.setStyleSheet(self.model_style)
+        export_button.clicked.connect(self._export_configurations)
+        layout.addWidget(export_button)
+
+        tab.setLayout(layout)
+        return tab
+
+
+    @staticmethod
+    def get_joints_and_controls_under_root(root_node):
+        """
+        Retrieve all joints and animation controls under the specified root node.
+        """
+        if not cmds.objExists(root_node):
+            print(f"Root node '{root_node}' does not exist in the scene.")
+            return {"joints": [], "controls": []}
+
+        # 再帰的に全ての子孫ノードを取得
+        descendants = cmds.listRelatives(root_node, allDescendents=True, fullPath=True) or []
+
+        # ジョイントを取得し、名前空間を削除
+        joints = [
+            # パスを分割し、名前空間を除外
+            node.split("|")[-1].split(":")[-1]
+            for node in descendants if cmds.nodeType(node) == "joint"
+        ]
+
+        # コントロールを取得し、名前空間を削除
+        controls = [
+            cmds.listRelatives(node, parent=True, fullPath=False)[0].split(":")[-1]
+            for node in descendants if cmds.nodeType(node) == "nurbsCurve"
+        ]
+
+        return joints, controls
+
+
+    @staticmethod
+    def find_reference_rigs(output_only=False):
+        """
+        シーン内のリファレンスリグを検索し、ジョイントまたはAnimation Controllerがある場合のみ結果に含める。
+        output_onlyがTrueの場合、"output"ノード以下のみを検索
+        """
+        references = cmds.file(query=True, reference=True)
+        if not references:
+            print("No reference nodes found in the scene.")
+            return []
+
+        reference_rigs = []
+        for ref in references:
+            try:
+                # リファレンスファイルから名前空間を取得
+                namespace = cmds.file(ref, query=True, namespace=True)
+                prefix = namespace.split(":")[0] if ":" in namespace else namespace
+
+                # 名前空間が有効かを確認（空でない、または ":" を含む場合に有効とみなす）
+                if not namespace or namespace == ":":
+                    print(f"Skipped namespace: {namespace} (Invalid or empty)")
+                    continue
+
+                # 名前空間以下のトップノードを取得
+                top_nodes = cmds.ls(f"{namespace}:*", assemblies=True)
+                print(f"namespace found => {namespace}")
+
+                for top_node in top_nodes:
+                    if output_only and "output" not in top_node:
+                        continue
+
+                    joints, controllers = Animation_ExporterGUI.get_joints_and_controls_under_root(top_node)
+
+                    if not joints and not controllers:
+                        print(f"Skipped {top_node}: No joints or animation controllers found.")
+                        continue
+
+                    file_name = top_node.replace(":", "_")
+
+                    reference_rigs.append({
+                        "reference_node": ref,
+                        "root_node": top_node,
+                        "prefix": prefix,
+                        "file_name": file_name,
+                        "joints": joints,
+                        "controllers": controllers
+                    })
+                    print(f"Found rig: {top_node}, Prefix:{prefix}, Joints: {len(joints)}, Controllers: {len(controllers)}")
+
+            except RuntimeError as e:
+                print(f"Error processing reference node {ref}: {e}")
+        return reference_rigs
+
+
+    def _find_and_add_reference_rigs(self):
+        """
+        Find reference rigs in the current Maya scene and add them to the export configurations.
+        Automatically sets start and end frames to the scene's playback range.
+        """
+        output_only = self.output_only_checkbox.isChecked()
+        reference_rigs = Animation_ExporterGUI.find_reference_rigs(output_only=output_only)
+        if not reference_rigs:
+            print("No reference rigs found in the current scene.")
+            return
+
+        start_frame = int(cmds.playbackOptions(query=True, min=True))
+        end_frame = int(cmds.playbackOptions(query=True, max=True))
+
+        for rig in reference_rigs:
+            root_node = rig["root_node"]
+            file_name = rig["file_name"]
+            prefix = rig["prefix"]
+
+            if any(config["root_node"] == root_node for config in self.export_configs):
+                print(f"Skipped duplicate configuration for top node: {root_node}")
+                continue
+
+            config = {
+                "root_node": root_node,
+                "file_name": file_name,
+                "prefix": prefix,
+                "joints": rig["joints"],
+                "controllers": rig["controllers"],
+                "start_frame": start_frame,
+                "end_frame": end_frame
+            }
+            self.export_configs.append(config)
+            self.export_config_list.addItem(f"{prefix} | {root_node} | {config['start_frame']}-{config['end_frame']} | {file_name}")
+
+
+    def _edit_config(self):
+        """
+        Edit the configuration of the selected export setting.
+        """
+        selected_items = self.export_config_list.selectedItems()
+        if not selected_items:
+            print("No configuration selected!")
+            return
+
+        selected_index = self.export_config_list.row(selected_items[0])
+        if selected_index < 0 or selected_index >= len(self.export_configs):
+            print(f"Error: Selected index {selected_index} is out of range.")
+            return
+
+        selected_config = self.export_configs[selected_index]
+
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Edit Export Configuration")
+        layout = QVBoxLayout(dialog)
+
+        root_node_label = QLabel("RootNode:")
+        root_node_edit = QLineEdit(selected_config.get("root_node", ""))
+        layout.addWidget(root_node_label)
+        layout.addWidget(root_node_edit)
+
+        prefix_label = QLabel("Prefix:")
+        prefix_edit = QLineEdit(selected_config.get("prefix", ""))
+        layout.addWidget(prefix_label)
+        layout.addWidget(prefix_edit)
+
+        start_frame_label = QLabel("Start Frame:")
+        start_frame_spinbox = QSpinBox()
+        start_frame_spinbox.setRange(0, 10000)
+        start_frame_spinbox.setValue(selected_config.get("start_frame", 0))
+        layout.addWidget(start_frame_label)
+        layout.addWidget(start_frame_spinbox)
+
+        end_frame_label = QLabel("End Frame:")
+        end_frame_spinbox = QSpinBox()
+        end_frame_spinbox.setRange(1, 10000)
+        end_frame_spinbox.setValue(selected_config.get("end_frame", 1000))
+        layout.addWidget(end_frame_label)
+        layout.addWidget(end_frame_spinbox)
+
+        file_name_label = QLabel("Input File Name:")
+        file_name_edit = QLineEdit(selected_config.get("file_name", ""))
+        layout.addWidget(file_name_label)
+        layout.addWidget(file_name_edit)
+
+        button_layout = QHBoxLayout()
+        ok_button = QPushButton("OK")
+        cancel_button = QPushButton("Cancel")
+        button_layout.addWidget(ok_button)
+        button_layout.addWidget(cancel_button)
+        layout.addLayout(button_layout)
+
+        def edit_config_internal():
+            selected_config: dict = self.export_configs[selected_index]
+            root_node_name = root_node_edit.text().strip()
+            selected_config["root_node"] = root_node_name
+            selected_config["prefix"] = prefix_edit.text().strip()
+            selected_config["start_frame"] = start_frame_spinbox.value()
+            selected_config["end_frame"] = end_frame_spinbox.value()
+            selected_config["file_name"] = file_name_edit.text().strip()
+
+            if not selected_config["joints"] or not selected_config["controllers"]:
+                joints, controllers = self.get_joints_and_controls_under_root(root_node_name)
+                selected_config["joints"] = joints
+                selected_config["controllers"] = controllers
+                print(f"Updated joints and controllers for root node '{root_node_name}':")
+                print(f"Joints: {joints}")
+                print(f"Controllers: {controllers}")
+
+            self.export_config_list.item(selected_index).setText(f"{selected_config['prefix']} | {selected_config['root_node']} | " f"{selected_config['start_frame']}-{selected_config['end_frame']} | {selected_config['file_name']}")
+            dialog.accept()
+
+        ok_button.clicked.connect(edit_config_internal)
+        cancel_button.clicked.connect(dialog.reject)
+        dialog.exec_()
+
+
+    def _add_config(self):
+        """
+        設定を追加
+        """
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Add Export Config")
+        layout = QVBoxLayout(dialog)
+
+        root_node_label = QLabel("RootNode:")
+        root_node_edit = QLineEdit()
+        layout.addWidget(root_node_label)
+        layout.addWidget(root_node_edit)
+
+        prefix_label = QLabel("Prefix:")
+        prefix_edit = QLineEdit()
+        layout.addWidget(prefix_label)
+        layout.addWidget(prefix_edit)
+
+        start_frame_label = QLabel("Start Frame:")
+        start_frame_spinbox = QSpinBox()
+        start_frame_spinbox.setRange(0, 10000)
+        layout.addWidget(start_frame_label)
+        layout.addWidget(start_frame_spinbox)
+
+        end_frame_label = QLabel("End Frame:")
+        end_frame_spinbox = QSpinBox()
+        end_frame_spinbox.setRange(1, 10000)
+        layout.addWidget(end_frame_label)
+        layout.addWidget(end_frame_spinbox)
+
+        file_name_label = QLabel("Input File Name:")
+        file_name_edit = QLineEdit()
+        layout.addWidget(file_name_label)
+        layout.addWidget(file_name_edit)
+
+        button_layout = QHBoxLayout()
+        ok_button = QPushButton("OK")
+        cancel_button = QPushButton("Cancel")
+        button_layout.addWidget(ok_button)
+        button_layout.addWidget(cancel_button)
+        layout.addLayout(button_layout)
+
+        def add_config_internal():
+            prefix = prefix_edit.text().strip()
+            root_node = root_node_edit.text().strip()
+            file_name = file_name_edit.text().strip()
+            if root_node:
+                joints, controllers = self.get_joints_and_controls_under_root(root_node)
+                config = {
+                    "root_node": root_node,
+                    "prefix": prefix,
+                    "file_name": file_name,
+                    "joints": joints,
+                    "controllers": controllers,
+                    "start_frame": start_frame_spinbox.value(),
+                    "end_frame": end_frame_spinbox.value(),
+                }
+                self.export_configs.append(config)
+                self.export_config_list.addItem(f"{prefix} | {root_node} | {config['start_frame']}-{config['end_frame']} | {file_name}")
+                dialog.accept()
+
+        ok_button.clicked.connect(add_config_internal)
+        cancel_button.clicked.connect(dialog.reject)
+        dialog.exec_()
+
+
+    def _remove_config(self):
+        """
+        選択したconfigを削除
+        """
+        selected_items = self.export_config_list.selectedItems()
+        if not selected_items:
+            print("No configuration selected!")
+            return
+
+        selected_index = self.export_config_list.row(selected_items[0])
+        if selected_index < 0 or selected_index >= len(self.export_configs):
+            print(f"Error: Selected index {selected_index} is invalid.")
+            return
+
+        print(f"Removing config at index: {selected_index}, Config: {self.export_configs[selected_index]}")
+
+        del self.export_configs[selected_index]
+        self.export_config_list.takeItem(selected_index)
+        print("Configuration removed successfully.")
+
+
+    def _show_progress_bar(self, max_value, title="Processing", label="Processing files..."):
+        progress_dialog = QtWidgets.QProgressDialog(label, None, 0, max_value, self)
+        progress_dialog.setWindowTitle(title)
+        progress_dialog.setWindowModality(QtCore.Qt.WindowModal)
+        progress_dialog.show()
+        QtCore.QCoreApplication.processEvents()
+        return progress_dialog
+
+
+    # @TODO
+    # Animation Exporter Single and Multiple
+    def _export_configurations(self):
+        """
+        保存された設定に基づいてエクスポートを実行
+        """
+        if not self.export_configs:
+            print("No export configurations to process!")
+            return
+
+        directory = self.animation_directory
+
+        if not directory:
+            print("Export directory is not set!")
+            return
+
+        total_configs = len(self.export_configs)
+        progress_dialog = self._show_progress_bar(total_configs, title="Exporting...", label="Exporting rigs...")
+
+        is_multiple_export = len(self.export_configs) > 1
+        if is_multiple_export:
+            AnimationUtil.toggle_plugin_scanner(False)
+        AnimationUtil.all_import_reference()
+        if not is_multiple_export:
+            AnimationUtil.remove_namespace()
+
+        successful_exports = 0
+        for index, config in enumerate(self.export_configs):
+            try:
+                root_node = config["root_node"]
+                file_name = config["file_name"]
+                prefix = config["prefix"]
+                start_frame = config["start_frame"]
+                end_frame = config["end_frame"]
+                joints = config["joints"]
+                controllers = config["controllers"]
+
+                progress_dialog.setLabelText(f"Exporting {file_name}...")
+
+                exporter = AnimationExporter(characters=root_node, filename=file_name, directory=directory,
+                                             start_frame=start_frame, end_frame=end_frame, bake_keyframes=True,
+                                             joints=joints, controllers=controllers, prefix=prefix, multiple_export=is_multiple_export)
+                exporter.animation_export()
+                successful_exports += 1
+
+            except Exception as e:
+                QtWidgets.QMessageBox.critical(self, "Export Error", f"Error exporting {config['file_name']}: {str(e)}")
+                progress_dialog.close()
+                AnimationUtil.toggle_plugin_scanner(True)
+                return
+
+            progress_dialog.setValue(index + 1)
+            QtCore.QCoreApplication.processEvents()
+            if progress_dialog.wasCanceled():
+                print(f"Export canceled. {index} of {total_configs} files were processed.")
+                break
+
+        progress_dialog.close()
+        AnimationUtil.reload_current_scene_without_saving()
+        AnimationUtil.toggle_plugin_scanner(True)
+
+        if successful_exports == total_configs:
+            QtWidgets.QMessageBox.information(self, "Export Complete", "All files have been successfully exported.")
+        else:
+            QtWidgets.QMessageBox.warning(self, "Partial Export", f"{successful_exports} of {total_configs} files were successfully exported.")
+
+
+    def _create_modeler_tab(self):
+        tab = QtWidgets.QWidget()
         layout = QVBoxLayout()
-
-        self.directory = None
-
         # キャラクターリスト
-        self.character_label = QLabel("Character Selection (multiple selections allowed)")
+        self.character_label = QLabel("Mesh Selection (multiple selections allowed)")
         self.character_list = QListWidget()
         self.character_list.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
         self.character_list.itemSelectionChanged.connect(self.on_selection_changed)
         layout.addWidget(self.character_label)
         layout.addWidget(self.character_list)
 
+        character_list_layout = QGridLayout()
         # キャラクターリスト更新ボタン
-        self.update_button = QPushButton("Update Character List")
+        self.update_button = QPushButton("Add Mesh List")
         self.update_button.setStyleSheet(self.default_style)
         self.update_button.clicked.connect(self.update_character_list)
-        layout.addWidget(self.update_button)
+        character_list_layout.addWidget(self.update_button, 0, 0)
 
         # リストクリアボタン
-        self.clear_button = QPushButton("Clear Character List")
+        self.clear_button = QPushButton("Clear Mesh List")
         self.clear_button.setStyleSheet(self.default_style)
         self.clear_button.clicked.connect(self.clear_character_list)
-        layout.addWidget(self.clear_button)
+        character_list_layout.addWidget(self.clear_button, 0, 1)
+        layout.addLayout(character_list_layout)
 
         # 出力ファイル名
         self.filename_label = QLabel("Export FileName")
@@ -192,45 +835,77 @@ class Animation_ExporterGUI(QDialog):
         layout.addWidget(self.filename_edit)
 
         # 出力ディレクトリ選択
-        self.dir_label = QLabel("Export Directory")
-        self.dir_button = QPushButton("Choose Directory")
-        self.dir_button.setStyleSheet(self.default_style)
-        self.dir_button.clicked.connect(self.select_directory)
-        layout.addWidget(self.dir_label)
-        layout.addWidget(self.dir_button)
+        self.model_directory_label = QLabel("Export Directory")
+        self.model_directory_button = QPushButton("Choose Directory")
+        self.model_directory_button.setStyleSheet(self.default_style)
+        self.model_directory_button.clicked.connect(self.select_model_directory)
+        layout.addWidget(self.model_directory_label)
+        layout.addWidget(self.model_directory_button)
 
-        # フレームレンジ指定
-        self.start_label = QLabel("Start Frame")
-        self.start_frame = QSpinBox()
-        self.start_frame.setMinimum(1)
-        # 開いているシーンのStart Frame
-        self.start_frame.setValue(int(cmds.playbackOptions(query=True, min=True)))
-        self.end_label = QLabel("End Frame")
-        self.end_frame = QSpinBox()
-        self.end_frame.setMinimum(1)
-        # 開いているシーンのEnd Frame
-        self.end_frame.setValue(int(cmds.playbackOptions(query=True, max=True)))
-        layout.addWidget(self.start_label)
-        layout.addWidget(self.start_frame)
-        layout.addWidget(self.end_label)
-        layout.addWidget(self.end_frame)
+        button_layout = QGridLayout()
+        # エクスポートボタン（アニメーションベイクなし）
+        self.export_without_bake_button = QPushButton("Export Model")
+        self.export_without_bake_button.setStyleSheet(self.model_style)
+        self.export_without_bake_button.clicked.connect(self.export_model)
+        button_layout.addWidget(self.export_without_bake_button, 0, 0)
 
-        # フレーム分割オプションのチェックボックス
-        self.frame_split_checkbox = QCheckBox("Output by specifying frames")
-        layout.addWidget(self.frame_split_checkbox)
+        # モデル用シーン作成ボタン
+        self.create_model_scene_button = QPushButton("Create Model Scene")
+        self.create_model_scene_button.setStyleSheet(self.model_style)
+        self.create_model_scene_button.clicked.connect(self.create_modeler_scene_with_dialog)
+        button_layout.addWidget(self.create_model_scene_button, 0, 1)
+        layout.addLayout(button_layout)
+        tab.setLayout(layout)
+        return tab
 
-        # Keyframe Bake オプション
-        self.bake_keyframes_checkbox = QCheckBox("Export KeyFrame")
-        self.bake_keyframes_checkbox.setChecked(True)  # デフォルトでチェックを入れる
-        self.bake_keyframes_checkbox.stateChanged.connect(self.on_bake_keyframes_changed)
-        layout.addWidget(self.bake_keyframes_checkbox)
 
-        # エクスポートボタン
-        self.export_button = QPushButton("Export Animation")
-        self.export_button.setStyleSheet(self.default_style)
-        self.export_button.clicked.connect(self.export_animation)
-        layout.addWidget(self.export_button)
-        self.setLayout(layout)
+    def select_animator_export_directory(self):
+        self.animation_directory = QFileDialog.getExistingDirectory(self, "Choose Export Dir")
+        if self.animation_directory:
+            self.animator_directory_label.setText(f"Directory: {self.animation_directory}")
+
+
+    @staticmethod
+    def create_modeler_scene_with_dialog():
+        """
+        Create a Modeler-specific MA file from the current Animator MA file with user-defined save path.
+        Steps:
+        1. Hide the 'rig' node.
+        2. Show a dialog for the user to specify the save location.
+        3. Save the file as <chosen_path>_work.ma.
+        """
+        # Step 1: Get the current scene name
+        current_scene = cmds.file(query=True, sceneName=True)
+        if not current_scene:
+            print("Error: No scene is currently open.")
+            return
+
+        # Hide the 'rig' node
+        top_node = "rig"
+        if cmds.objExists(top_node):
+            cmds.setAttr(f"{top_node}.visibility", 0)  # Hide the rig node
+            print(f"Node '{top_node}' has been hidden.")
+        else:
+            print(f"Warning: Node '{top_node}' does not exist in the scene.")
+
+        # Step 2: Open a dialog for saving the new file
+        save_path = QFileDialog.getSaveFileName(
+            None,
+            "Save Modeler Scene",
+            os.path.splitext(current_scene)[0] + "_work.ma",  # Suggest default name
+            "Maya ASCII Files (*.ma)"
+        )[0]
+
+        if not save_path:
+            if cmds.objExists(top_node):
+                cmds.setAttr(f"{top_node}.visibility", 1)
+            print("Save operation canceled.")
+            return
+
+        # Step 3: Save the scene as <chosen_path>_work.ma
+        cmds.file(rename=save_path)
+        cmds.file(save=True, type='mayaAscii')  # Save as .ma file
+        print(f"Scene saved as: {save_path}")
 
 
     def update_character_list(self):
@@ -240,14 +915,6 @@ class Animation_ExporterGUI(QDialog):
             item = QListWidgetItem(mesh)
             self.character_list.addItem(item)
             print(f"mesh => {mesh}")
-
-
-    def on_bake_keyframes_changed(self, state):
-        # Bake KeyFramesがオンなら単一選択、オフなら複数選択に変更
-        if state == QtCore.Qt.Checked:
-            self.character_list.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
-        else:
-            self.character_list.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
 
 
     def clear_character_list(self):
@@ -262,43 +929,63 @@ class Animation_ExporterGUI(QDialog):
         print(f"Currently selected items: {[item.text() for item in selected_items]}")  # 選択状態をデバッグ出力
 
 
-    def select_directory(self):
-        self.directory = QFileDialog.getExistingDirectory(self, "Choose Export Dir")
-        if self.directory:
-            self.dir_label.setText(f"Directory: {self.directory}")
+    def select_model_directory(self):
+        self.model_directory = QFileDialog.getExistingDirectory(self, "Choose Export Dir")
+        if self.model_directory:
+            self.model_directory_label.setText(f"Directory: {self.model_directory}")
 
 
-    def export_animation(self):
-        selected_items = self.character_list.selectedItems()
-        print(f"Selected items: {[item.text() for item in selected_items]}")  # デバッグ
-        characters = [item.text() for item in selected_items]
+    @staticmethod
+    def _get_output_meshes():
+        """
+        Export meshes under 'root/output' without baking keyframes.
+        """
+        # Get all meshes under 'root/output'
+        root_node = "root"
+        output_node = f"{root_node}|output"  # Assuming "output" is directly under "root"
+        if not cmds.objExists(output_node):
+            print(f"Error: {output_node} does not exist.")
+            return []
+
+        # Get all meshes under 'output'
+        meshes = cmds.listRelatives(output_node, allDescendents=True, type="mesh", fullPath=True)
+        if not meshes:
+            print(f"No meshes found under {output_node}")
+            return []
+
+        transforms = list(set(cmds.listRelatives(meshes, parent=True, fullPath=True)))
+        sanitized_transforms = [transform.split("|")[-1] for transform in transforms]
+        print(f"Sanitized Transforms: {sanitized_transforms}")
+        return sanitized_transforms
+
+
+    # @TODO
+    # 自動取得は要望があれば対応
+    def export_model(self):
+        """
+        #自動で取得する場合の処理
+        meshes = self._get_output_meshes()
+        if not meshes:
+            print("No meshes found to export.")
+            return
+        characters = meshes
+        """
+        """
+        選択されたリストではなく、character_listに含まれる全ての要素をエクスポート
+        """
+        characters = [self.character_list.item(i).text() for i in range(self.character_list.count())]
+
         filename = self.filename_edit.text()
-        directory = self.directory
-        frame_split = self.frame_split_checkbox.isChecked()
-        bake_keyframes = self.bake_keyframes_checkbox.isChecked()
+        directory = self.model_directory
+        start_frame = int(cmds.playbackOptions(query=True, min=True))
+        end_frame = int(cmds.playbackOptions(query=True, max=True))
 
-        # frame_splitがFalseの場合、Mayaファイルのデフォルトフレーム範囲を使用
-        if frame_split:
-            start_frame = self.start_frame.value()
-            end_frame = self.end_frame.value()
-        else:
-            start_frame = int(cmds.playbackOptions(query=True, min=True))
-            end_frame = int(cmds.playbackOptions(query=True, max=True))
+        if not directory:
+            print("Export directory is not set!")
+            return
 
-        print(f"export_animation")
-
-        # AnimationExporterクラスを利用してエクスポート処理を実行
-        exporter = AnimationExporter(
-            characters=characters,
-            filename=filename,
-            directory=directory,
-            start_frame=start_frame,
-            end_frame=end_frame,
-            frame_split=frame_split,
-            bake_keyframes=bake_keyframes
-        )
-        exporter.export()
-
+        exporter = AnimationExporter(characters=characters, filename=filename, directory=directory, start_frame=start_frame, end_frame=end_frame, bake_keyframes=False)
+        exporter.model_export()
 
 
 def show_main_window():
@@ -312,47 +999,79 @@ def show_main_window():
     animation_exporter.show()
 
 
+# 外部からの呼び出し
+def run_outer(file_paths):
+    for path in file_paths:
+        run_internal(path)
 
-# @TODO
-# batch files
-def run(file_path):
-    print(f'## Scene File Open >> {file_path}')
+    # finish job
+    if cmds.about(batch=True):
+        logger.info("+-------------------------------------------------------+")
+        logger.info("All Export complete. Exiting Maya Batch.")
+        logger.info("+-------------------------------------------------------+")
+        try:
+            cmds.evalDeferred('cmds.quit(force=True)')
+            cmds.quit(force=True)
+            subprocess.run("taskkill /F /IM cmd.exe", shell=True)
+
+        except Exception as e:
+            logger.error(f"Failed to quit Maya: {e}")
+    else:
+        logger.info("Batch mode detected but '--no-exit' flag is present. Keeping Maya open.")
+
+
+def run_internal(file_path):
+    logger.info(f'Scene File Open >> {file_path}')
     cmds.file(file_path, o=True, force=True)
+    asset_file_path = cmds.file(q=True, sn=True)
 
-    # 出力ディレクトリとファイル名を設定
-    root, _ = os.path.splitext(file_path)
-    output_dir = os.path.join(os.path.dirname(root), "Export")
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+    if not asset_file_path:
+        raise ValueError("No scene file is currently open in Maya.")
 
-    # MAファイルのベース名
-    filename = os.path.basename(root)
+    filename = os.path.basename(asset_file_path)
+    scene_name = os.path.splitext(filename)[0]
 
-    # `characters`としてメッシュリストを取得
-    characters = cmds.ls(geometry=True)
-    if not characters:
-        print("No mesh found in the scene.")
-        return
+    base_directory = os.path.dirname(asset_file_path)
+    output_directory = os.path.join(base_directory, "Exported")
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
 
-    # start_frameとend_frameをシーンから取得
     start_frame = int(cmds.playbackOptions(query=True, min=True))
     end_frame = int(cmds.playbackOptions(query=True, max=True))
+    logger.info(f"Start Frame: {start_frame}, End Frame: {end_frame}")
+    # output ノードのみを検出する
+    reference_rigs = Animation_ExporterGUI.find_reference_rigs(True)
 
-    # AnimationExporterインスタンスを作成し、エクスポートを実行
-    exporter = AnimationExporter(
-        characters=characters,
-        filename=filename,
-        directory=output_dir,
-        start_frame=start_frame,
-        end_frame=end_frame,
-        frame_split=False,
-        bake_keyframes=True
-    )
-    exporter.export()
+    if not reference_rigs:
+        logger.error("No output rigs found in the scene.")
+        return
 
-    # Mayaバッチモードの場合はMayaを終了
-    if cmds.about(batch=True):
-        cmds.evalDeferred('cmds.quit(force=True)')
+    logger.info(f"Start Export => {scene_name}")
+
+    is_multiple_export = len(reference_rigs) > 1
+    if is_multiple_export:
+        AnimationUtil.toggle_plugin_scanner(False)
+    AnimationUtil.all_import_reference()
+    if not is_multiple_export:
+        AnimationUtil.remove_namespace()
+
+    for rig in reference_rigs:
+        root_node = rig["root_node"]
+        joints = rig["joints"]
+        controllers = rig["controllers"]
+        file_name = rig["file_name"]
+        prefix = rig["prefix"]
+        convert_file_name= scene_name + "_{}".format(file_name)
+        logger.info(f"convert_file_name => {convert_file_name}")
+
+        exporter = AnimationExporter(
+            characters=root_node, filename=convert_file_name, directory=output_directory,
+            start_frame=start_frame, end_frame=end_frame, bake_keyframes=True, joints=joints, controllers=controllers, prefix=prefix,
+            multiple_export=is_multiple_export)
+        exporter.animation_export()
+
+    AnimationUtil.toggle_plugin_scanner(True)
+    logger.info(f"Export => {scene_name} complete")
 
 
 

@@ -1,28 +1,42 @@
+rem choose directory command
 @echo off
-rem Choose Directory Dialog and Run Animation_Job_Caller.py
 
-rem Set PowerShell command for directory selection
-for /f "usebackq delims=" %%I in (`powershell -command "Add-Type -AssemblyName System.windows.forms; $f = New-Object System.Windows.Forms.OpenFileDialog; $f.Filter = 'All Files (*.*)|*.*'; if($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK){$f.FileName}"`) do set "selected_file=%%I"
+rem set folder=
+rem set "psCommand="(new-object -COM 'Shell.Application').BrowseForFolder(0,'Please choose your SOURCE folder.',0x010,17).self.path""
+rem for /f "usebackq delims=" %%I in (`powershell %psCommand%`) do set "folder=%%I
 
-rem Check if a directory was selected
-if "%selected_file%"=="" (
+rem echo selected  folder is : "%folder%"
+rem pause
+
+
+echo +-------------------------------------------------------+
+echo please input directory
+echo +-------------------------------------------------------+
+
+set input_str=
+set /p input_str=
+pause
+
+
+if "%input_str%"=="" (
     echo +-------------------------------------------------------+
-    echo No directory selected. Exiting...
+    echo not input directory
     echo +-------------------------------------------------------+
-    pause
-    exit /b
+    exit
 ) else (
     echo +-------------------------------------------------------+
-    echo Selected directory: %selected_file%
+    echo input directory %input_str%
     echo +-------------------------------------------------------+
+    call :finalize
 )
 
-rem Set the path to the Python script
-set "PYPATH=%~dp0Animation_Job_Caller.py"
-echo Running Animation Job Caller with directory: %selected_file%
+:finalize
+@echo off
+set PYPATH=%~d0%~p0Animation_Exporter_Caller.py
+echo %PYPATH%
 
-rem Run the Python script using Maya's mayapy interpreter
-"C:\Program Files\Autodesk\Maya2023\bin\mayapy.exe" "%PYPATH%" "%selected_file%"
+"C:\Program Files\Autodesk\Maya2023\bin\mayapy.exe" %PYPATH% %1 %input_str%
 
 pause
 exit
+

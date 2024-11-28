@@ -11,6 +11,10 @@ from functools import partial
 import maya.mel as mel
 import logging
 import subprocess
+import Animation_Util as Util
+
+import importlib
+importlib.reload(Util)
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
@@ -21,89 +25,7 @@ def maya_main_window():
     main_window = omui.MQtUtil.mainWindow()
     return wrapInstance(int(main_window), QtWidgets.QMainWindow)
 
-
-class AnimationUtil:
-
-    @staticmethod
-    def all_import_reference():
-        """
-        すべてのリファレンスをインポート（マージ）
-        """
-        # すべてのリファレンスノードを取得
-        references = cmds.ls(references=True)
-        for ref in references:
-            try:
-                # 各リファレンスのファイルパスを取得
-                filename = cmds.referenceQuery(ref, filename=True)
-
-                # ファイルパスが無効な場合をスキップ
-                if not filename or not cmds.file(filename, query=True, exists=True):
-                    print(f"Skipped invalid or non-existent file: {filename}")
-                    continue
-
-                cmds.file(filename, importReference=True)
-                print(f"Imported reference: {filename}")
-
-            except RuntimeError as e:
-                print(f"Error importing reference {ref}: {e}")
-            except Exception as e:
-                print(f"Unexpected error with reference '{ref}': {e}")
-        print("All references processed.")
-
-
-    @staticmethod
-    def remove_namespace():
-        """
-        すべての名前空間を削除します（"UI" と "shared" を除く）。
-        """
-        namespaces = cmds.namespaceInfo(listOnlyNamespaces=True) or []  # 名前空間リストを取得
-        namespaces = [ns for ns in namespaces if ns not in ["UI", "shared"]]  # "UI" と "shared" を除外
-
-        for namespace in namespaces:
-            try:
-                # 名前空間内のノードをルートに移動
-                cmds.namespace(force=True, moveNamespace=(namespace, ":"))
-                # 名前空間を削除
-                cmds.namespace(removeNamespace=namespace)
-                print(f"Removed namespace: {namespace}")
-            except RuntimeError as e:
-                print(f"Error removing namespace {namespace}: {e}")
-
-
-    @staticmethod
-    def reload_current_scene_without_saving():
-        """
-        現在開いているシーンを保存せずに再読み込みする。
-        """
-        current_scene = cmds.file(query=True, sceneName=True)
-        if not current_scene:
-            print("There are currently no open scenes.")
-            return
-
-        try:
-            cmds.file(current_scene, open=True, force=True)
-            print(f"Reloaded the scene without saving it.: {current_scene}")
-        except Exception as e:
-            print(f"An error occurred while reloading the scene: {e}")
-
-
-    @staticmethod
-    def toggle_plugin_scanner(enable=True):
-        if enable:
-            if not cmds.pluginInfo('MayaScannerCB', query=True, loaded=True):
-                try:
-                    cmds.loadPlugin('MayaScannerCB')
-                    print("Plugin MayaScannerCB has been enable.")
-                except RuntimeError as e:
-                    print(f"Failed to disable plugin MayaScannerCB : {e}")
-        else:
-            if cmds.pluginInfo('MayaScannerCB', query=True, loaded=True):
-                try:
-                    cmds.unloadPlugin('MayaScannerCB')
-                    print("Plugin MayaScannerCB has been disabled.")
-                except RuntimeError as e:
-                    print(f"Failed to disable plugin MayaScannerCB : {e}")
-
+g_is_strip_name_space = True
 
 class AnimationExporter:
     def __init__(self, characters, filename, directory, start_frame, end_frame,
@@ -130,10 +52,11 @@ class AnimationExporter:
         self.controllers = controllers or []  # Default to empty list if None
         self.prefix = prefix or None
         self.multiple_export = multiple_export
+        self.original_names = {}  # To store original names for restoring
 
 
     @staticmethod
-    def _get_related_joints(meshes):
+    def get_related_joints(meshes):
         """
         選択されたメッシュに影響を与えているジョイントを取得
         """
@@ -147,7 +70,7 @@ class AnimationExporter:
 
 
     @staticmethod
-    def _get_bake_attributes(objects):
+    def get_bake_attributes(objects):
         result = []
         if not objects:
             raise ValueError("No objects specified")
@@ -168,7 +91,7 @@ class AnimationExporter:
 
     def _bake_animation(self, objects):
 
-        bake_attributes = self._get_bake_attributes(objects)
+        bake_attributes = self.get_bake_attributes(objects)
         if not bake_attributes:
             print("No attributes found to bake!")
             return
@@ -249,12 +172,7 @@ class AnimationExporter:
         print(f"self.characters => {self.characters}")
         cmds.currentTime(self.start_frame)
 
-        if self.multiple_export is True:
-            self.joints = self._select_with_prefix()
-            cmds.select(self.joints, replace=True)
-        else:
-            cmds.select(self.joints)
-
+        cmds.select(self.joints, replace=True)
         self._bake_animation(self.joints)
         file_path = os.path.join(self.directory, f"{self.filename}.fbx")
         self._export_fbx(file_path)
@@ -274,7 +192,7 @@ class AnimationExporter:
             sanitized_character = character.replace(":", "_")
             cmds.select(character)
             meshes = cmds.ls(selection=True, dag=True, type='mesh')
-            local_joints = self._get_related_joints(meshes)
+            local_joints = self.get_related_joints(meshes)
 
             print(f"joints => {local_joints}")
             for joint in local_joints:
@@ -353,7 +271,6 @@ class Animation_ExporterGUI(QDialog):
         # エクスポート設定リスト
         self.export_config_list = None
 
-
         self.animator_tab = self._create_animator_tab()
         self.tabs.addTab(self.animator_tab, "Animator")
         self.modeler_tab = self._create_modeler_tab()
@@ -416,7 +333,7 @@ class Animation_ExporterGUI(QDialog):
         remove_config_button.clicked.connect(self._remove_config)
         button_layout.addWidget(remove_config_button, 1, 0)
 
-        find_references_button = QPushButton("Find References Rig")
+        find_references_button = QPushButton("Find Rig")
         find_references_button.setStyleSheet(self.default_style)
         find_references_button.clicked.connect(self._find_and_add_reference_rigs)
         button_layout.addWidget(find_references_button, 1, 1)
@@ -427,7 +344,7 @@ class Animation_ExporterGUI(QDialog):
         self.animator_directory_label = QLabel("Animator Export Directory:")
         self.animator_directory_button = QPushButton("Choose Directory")
         self.animator_directory_button.setStyleSheet(self.default_style)
-        self.animator_directory_button.clicked.connect(self.select_animator_export_directory)
+        self.animator_directory_button.clicked.connect(self._select_animator_export_directory)
         layout.addWidget(self.animator_directory_label)
         layout.addWidget(self.animator_directory_button)
 
@@ -453,18 +370,26 @@ class Animation_ExporterGUI(QDialog):
         # 再帰的に全ての子孫ノードを取得
         descendants = cmds.listRelatives(root_node, allDescendents=True, fullPath=True) or []
 
-        # ジョイントを取得し、名前空間を削除
-        joints = [
-            # パスを分割し、名前空間を除外
-            node.split("|")[-1].split(":")[-1]
-            for node in descendants if cmds.nodeType(node) == "joint"
-        ]
+        if g_is_strip_name_space:
+            joints = [
+                node.split("|")[-1].split(":")[-1]
+                for node in descendants if cmds.nodeType(node) == "joint"
+            ]
 
-        # コントロールを取得し、名前空間を削除
-        controls = [
-            cmds.listRelatives(node, parent=True, fullPath=False)[0].split(":")[-1]
-            for node in descendants if cmds.nodeType(node) == "nurbsCurve"
-        ]
+            controls = [
+                cmds.listRelatives(node, parent=True, fullPath=False)[0].split(":")[-1]
+                for node in descendants if cmds.nodeType(node) == "nurbsCurve"
+            ]
+        else:
+            joints = [
+                node.split("|")[-1]
+                for node in descendants if cmds.nodeType(node) == "joint"
+            ]
+
+            controls = [
+                cmds.listRelatives(node, parent=True, fullPath=False)[0]
+                for node in descendants if cmds.nodeType(node) == "nurbsCurve"
+            ]
 
         return joints, controls
 
@@ -756,13 +681,18 @@ class Animation_ExporterGUI(QDialog):
         progress_dialog = self._show_progress_bar(total_configs, title="Exporting...", label="Exporting rigs...")
 
         is_multiple_export = len(self.export_configs) > 1
-        if is_multiple_export:
-            AnimationUtil.toggle_plugin_scanner(False)
-        AnimationUtil.all_import_reference()
-        if not is_multiple_export:
-            AnimationUtil.remove_namespace()
+
+        if g_is_strip_name_space is True:
+            Util.AnimationUtil.toggle_plugin_scanner(False)
+        else:
+            if is_multiple_export:
+                Util.AnimationUtil.toggle_plugin_scanner(False)
+            Util.AnimationUtil.all_import_reference()
+            if not is_multiple_export:
+                Util.AnimationUtil.remove_namespace()
 
         successful_exports = 0
+
         for index, config in enumerate(self.export_configs):
             try:
                 root_node = config["root_node"]
@@ -772,19 +702,35 @@ class Animation_ExporterGUI(QDialog):
                 end_frame = config["end_frame"]
                 joints = config["joints"]
                 controllers = config["controllers"]
-
                 progress_dialog.setLabelText(f"Exporting {file_name}...")
+
+                print(f"prefix => {prefix}")
+                Util.AnimationUtil.all_import_reference()
+                restore_data = Util.AnimationUtil.remove_namespace_prefix(prefix=prefix)
+
+                """
+                output_node = "output"
+                joints = cmds.listRelatives(output_node, allDescendents=True, type="joint", fullPath=True) or []
+                if not joints:
+                    raise RuntimeError(f"No joints found under node '{output_node}'.")
+                """
 
                 exporter = AnimationExporter(characters=root_node, filename=file_name, directory=directory,
                                              start_frame=start_frame, end_frame=end_frame, bake_keyframes=True,
-                                             joints=joints, controllers=controllers, prefix=prefix, multiple_export=is_multiple_export)
+                                             joints=joints, controllers=controllers, prefix=prefix,
+                                             multiple_export=is_multiple_export)
+
                 exporter.animation_export()
                 successful_exports += 1
+
+                if g_is_strip_name_space is True:
+                    Util.AnimationUtil.restore_namespace(restore_data=restore_data)
+                    Util.AnimationUtil.reload_current_scene_without_saving()
 
             except Exception as e:
                 QtWidgets.QMessageBox.critical(self, "Export Error", f"Error exporting {config['file_name']}: {str(e)}")
                 progress_dialog.close()
-                AnimationUtil.toggle_plugin_scanner(True)
+                Util.AnimationUtil.toggle_plugin_scanner(True)
                 return
 
             progress_dialog.setValue(index + 1)
@@ -794,13 +740,18 @@ class Animation_ExporterGUI(QDialog):
                 break
 
         progress_dialog.close()
-        AnimationUtil.reload_current_scene_without_saving()
-        AnimationUtil.toggle_plugin_scanner(True)
-
+        Util.AnimationUtil.reload_current_scene_without_saving()
+        Util.AnimationUtil.toggle_plugin_scanner(True)
         if successful_exports == total_configs:
             QtWidgets.QMessageBox.information(self, "Export Complete", "All files have been successfully exported.")
         else:
             QtWidgets.QMessageBox.warning(self, "Partial Export", f"{successful_exports} of {total_configs} files were successfully exported.")
+
+
+    def _select_animator_export_directory(self):
+        self.animation_directory = QFileDialog.getExistingDirectory(self, "Choose Export Dir")
+        if self.animation_directory:
+            self.animator_directory_label.setText(f"Directory: {self.animation_directory}")
 
 
     def _create_modeler_tab(self):
@@ -810,7 +761,7 @@ class Animation_ExporterGUI(QDialog):
         self.character_label = QLabel("Mesh Selection (multiple selections allowed)")
         self.character_list = QListWidget()
         self.character_list.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
-        self.character_list.itemSelectionChanged.connect(self.on_selection_changed)
+        self.character_list.itemSelectionChanged.connect(self._on_selection_changed)
         layout.addWidget(self.character_label)
         layout.addWidget(self.character_list)
 
@@ -818,13 +769,13 @@ class Animation_ExporterGUI(QDialog):
         # キャラクターリスト更新ボタン
         self.update_button = QPushButton("Add Mesh List")
         self.update_button.setStyleSheet(self.default_style)
-        self.update_button.clicked.connect(self.update_character_list)
+        self.update_button.clicked.connect(self._update_character_list)
         character_list_layout.addWidget(self.update_button, 0, 0)
 
         # リストクリアボタン
         self.clear_button = QPushButton("Clear Mesh List")
         self.clear_button.setStyleSheet(self.default_style)
-        self.clear_button.clicked.connect(self.clear_character_list)
+        self.clear_button.clicked.connect(self._clear_character_list)
         character_list_layout.addWidget(self.clear_button, 0, 1)
         layout.addLayout(character_list_layout)
 
@@ -838,7 +789,7 @@ class Animation_ExporterGUI(QDialog):
         self.model_directory_label = QLabel("Export Directory")
         self.model_directory_button = QPushButton("Choose Directory")
         self.model_directory_button.setStyleSheet(self.default_style)
-        self.model_directory_button.clicked.connect(self.select_model_directory)
+        self.model_directory_button.clicked.connect(self._select_model_directory)
         layout.addWidget(self.model_directory_label)
         layout.addWidget(self.model_directory_button)
 
@@ -846,7 +797,7 @@ class Animation_ExporterGUI(QDialog):
         # エクスポートボタン（アニメーションベイクなし）
         self.export_without_bake_button = QPushButton("Export Model")
         self.export_without_bake_button.setStyleSheet(self.model_style)
-        self.export_without_bake_button.clicked.connect(self.export_model)
+        self.export_without_bake_button.clicked.connect(self._export_model)
         button_layout.addWidget(self.export_without_bake_button, 0, 0)
 
         # モデル用シーン作成ボタン
@@ -857,12 +808,6 @@ class Animation_ExporterGUI(QDialog):
         layout.addLayout(button_layout)
         tab.setLayout(layout)
         return tab
-
-
-    def select_animator_export_directory(self):
-        self.animation_directory = QFileDialog.getExistingDirectory(self, "Choose Export Dir")
-        if self.animation_directory:
-            self.animator_directory_label.setText(f"Directory: {self.animation_directory}")
 
 
     @staticmethod
@@ -880,25 +825,13 @@ class Animation_ExporterGUI(QDialog):
             print("Error: No scene is currently open.")
             return
 
-        # Hide the 'rig' node
-        top_node = "rig"
-        if cmds.objExists(top_node):
-            cmds.setAttr(f"{top_node}.visibility", 0)  # Hide the rig node
-            print(f"Node '{top_node}' has been hidden.")
-        else:
-            print(f"Warning: Node '{top_node}' does not exist in the scene.")
+        Util.AnimationUtil.find_rig_root_node(index=0)
 
         # Step 2: Open a dialog for saving the new file
-        save_path = QFileDialog.getSaveFileName(
-            None,
-            "Save Modeler Scene",
-            os.path.splitext(current_scene)[0] + "_work.ma",  # Suggest default name
-            "Maya ASCII Files (*.ma)"
-        )[0]
+        save_path = QFileDialog.getSaveFileName(None, "Save Modeler Scene", os.path.splitext(current_scene)[0] + "_work.ma", "Maya ASCII Files (*.ma)")[0]
 
         if not save_path:
-            if cmds.objExists(top_node):
-                cmds.setAttr(f"{top_node}.visibility", 1)
+            Util.AnimationUtil.find_rig_root_node(index=1)
             print("Save operation canceled.")
             return
 
@@ -908,7 +841,7 @@ class Animation_ExporterGUI(QDialog):
         print(f"Scene saved as: {save_path}")
 
 
-    def update_character_list(self):
+    def _update_character_list(self):
         selected_meshes = cmds.ls(selection=True, type='transform')
         self.character_list.clear()  # リストをクリア
         for mesh in selected_meshes:
@@ -917,26 +850,26 @@ class Animation_ExporterGUI(QDialog):
             print(f"mesh => {mesh}")
 
 
-    def clear_character_list(self):
+    def _clear_character_list(self):
         """
         キャラクターリストをクリアします。
         """
         self.character_list.clear()
 
 
-    def on_selection_changed(self):
+    def _on_selection_changed(self):
         selected_items = self.character_list.selectedItems()
         print(f"Currently selected items: {[item.text() for item in selected_items]}")  # 選択状態をデバッグ出力
 
 
-    def select_model_directory(self):
+    def _select_model_directory(self):
         self.model_directory = QFileDialog.getExistingDirectory(self, "Choose Export Dir")
         if self.model_directory:
             self.model_directory_label.setText(f"Directory: {self.model_directory}")
 
 
     @staticmethod
-    def _get_output_meshes():
+    def get_output_meshes():
         """
         Export meshes under 'root/output' without baking keyframes.
         """
@@ -961,7 +894,7 @@ class Animation_ExporterGUI(QDialog):
 
     # @TODO
     # 自動取得は要望があれば対応
-    def export_model(self):
+    def _export_model(self):
         """
         #自動で取得する場合の処理
         meshes = self._get_output_meshes()
@@ -1049,11 +982,14 @@ def run_internal(file_path):
     logger.info(f"Start Export => {scene_name}")
 
     is_multiple_export = len(reference_rigs) > 1
-    if is_multiple_export:
-        AnimationUtil.toggle_plugin_scanner(False)
-    AnimationUtil.all_import_reference()
-    if not is_multiple_export:
-        AnimationUtil.remove_namespace()
+    if g_is_strip_name_space is True:
+        Util.AnimationUtil.toggle_plugin_scanner(False)
+    else:
+        if is_multiple_export:
+            Util.AnimationUtil.toggle_plugin_scanner(False)
+        Util.AnimationUtil.all_import_reference()
+        if not is_multiple_export:
+            Util.AnimationUtil.remove_namespace()
 
     for rig in reference_rigs:
         root_node = rig["root_node"]
@@ -1064,13 +1000,22 @@ def run_internal(file_path):
         convert_file_name= scene_name + "_{}".format(file_name)
         logger.info(f"convert_file_name => {convert_file_name}")
 
+        print(f"prefix => {prefix}")
+        Util.AnimationUtil.all_import_reference()
+        restore_data = Util.AnimationUtil.remove_namespace_prefix(prefix=prefix)
+
         exporter = AnimationExporter(
             characters=root_node, filename=convert_file_name, directory=output_directory,
-            start_frame=start_frame, end_frame=end_frame, bake_keyframes=True, joints=joints, controllers=controllers, prefix=prefix,
+            start_frame=start_frame, end_frame=end_frame, bake_keyframes=True, joints=joints, controllers=controllers,
+            prefix=prefix,
             multiple_export=is_multiple_export)
         exporter.animation_export()
 
-    AnimationUtil.toggle_plugin_scanner(True)
+        if g_is_strip_name_space is True:
+            Util.AnimationUtil.restore_namespace(restore_data=restore_data)
+            Util.AnimationUtil.reload_current_scene_without_saving()
+
+    Util.AnimationUtil.toggle_plugin_scanner(True)
     logger.info(f"Export => {scene_name} complete")
 
 

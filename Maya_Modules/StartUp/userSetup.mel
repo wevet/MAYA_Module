@@ -1,0 +1,5 @@
+
+
+string $startupPythonFile = "C:/Users/waltz/Documents/MAYA_Module/Maya_Modules/StartUp/startup.py";
+python("import sys; sys.path.append('C:/Users/waltz/Documents/MAYA_Module/Maya_Modules/StartUp/'); exec(open('" + $startupPythonFile + "', encoding='utf-8').read())");
+

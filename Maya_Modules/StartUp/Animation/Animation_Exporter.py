@@ -2,7 +2,7 @@
 
 import sys
 import os
-from PySide2.QtWidgets import QVBoxLayout, QPushButton, QLabel, QComboBox, QLineEdit, QSpinBox, QFileDialog, QDialog, QCheckBox, QListWidget, QListWidgetItem, QGridLayout, QHBoxLayout
+from PySide2.QtWidgets import QVBoxLayout, QPushButton, QLabel, QComboBox, QLineEdit, QSpinBox, QFileDialog, QDialog, QCheckBox, QListWidget, QListWidgetItem, QGridLayout, QHBoxLayout, QMessageBox
 from PySide2 import QtCore, QtWidgets
 import maya.cmds as cmds
 import maya.OpenMayaUI as omui
@@ -53,6 +53,8 @@ class AnimationExporter:
         self.prefix = prefix or None
         self.multiple_export = multiple_export
         self.original_names = {}  # To store original names for restoring
+
+        self.K_PRESET_FILE_NAME = "C:/Program Files/Autodesk/Maya2023/plug-ins/fbx/plug-ins/FBX/Presets/export/L5LT1.fbxexportpreset"
 
 
     @staticmethod
@@ -134,7 +136,6 @@ class AnimationExporter:
         # Enable skeleton definitions and skin export
         mel.eval('FBXExportSkeletonDefinitions -v 1')
         mel.eval('FBXExportSkins -v 1')
-
         if self.bake_keyframes:
             mel.eval('FBXExportAnimationOnly -v 0;')
             mel.eval('FBXExportBakeComplexAnimation -v 1;')
@@ -142,13 +143,8 @@ class AnimationExporter:
         else:
             mel.eval('FBXExportBakeComplexAnimation -v 0')
             mel.eval('FBXExportAnimationOnly -v 0')
-
         mel.eval('FBXExportInAscii -v 1')
-        try:
-            mel.eval(f'FBXExport -f "{encoded_path}" -s')
-            print(f"Exported {encoded_path}")
-        except RuntimeError as e:
-            print(f"FBX export failed: {e}")
+        mel.eval(f'FBXExport -f "{encoded_path}" -s')
 
 
     def _select_with_prefix(self):
@@ -172,44 +168,176 @@ class AnimationExporter:
         print(f"self.characters => {self.characters}")
         cmds.currentTime(self.start_frame)
 
+        # 出力対象を "output" 以下のノードに限定
+        output_joints = cmds.listRelatives("output", allDescendents=True, type="joint", fullPath=True) or []
+
+        if not output_joints:
+            raise RuntimeError("No joints found under 'output'. Ensure that the output node exists and has children.")
+
+        self.joints = output_joints
+        cmds.select(clear=True)
         cmds.select(self.joints, replace=True)
+
+        # **アニメーションをベイク**
         self._bake_animation(self.joints)
+
+        # **ベイク後に connector を削除**
+        if cmds.objExists("connector"):
+            cmds.delete("connector")
+            print("Connector node deleted before export.")
+
         file_path = os.path.join(self.directory, f"{self.filename}.fbx")
         self._export_fbx(file_path)
+
+
+    @staticmethod
+    def clean_scene_for_export():
+        """
+        エクスポート前に不要なデータを削除。
+        1. `line` 以外の頂点カラーセットを削除。
+        2. `uvSet`, `hatching`, `sdf` 以外のUVセットを削除。
+        3. L5リグツールを使用してリグを削除（コンストレインノードを残さない）。
+        """
+        # **① line 以外の頂点カラーを削除**
+        meshes = cmds.ls(type="mesh")  # メッシュを取得
+        for mesh in meshes:
+            color_sets = cmds.polyColorSet(mesh, query=True, allColorSets=True) or []
+            for color_set in color_sets:
+                if color_set != "line":
+                    try:
+                        cmds.polyColorSet(mesh, delete=True, colorSet=color_set)
+                        print(f"Deleted color set: {color_set} on {mesh}")
+                    except RuntimeError:
+                        print(f"Warning: Could not delete color set {color_set} on {mesh}")
+
+        # **② 不要なUVセットを削除**
+        keep_uv_sets = {"map1", "hatching", "sdf"}
+        for mesh in meshes:
+            uv_sets = cmds.polyUVSet(mesh, query=True, allUVSets=True) or []
+            for uv_set in uv_sets:
+                # 既定のUVセットは削除しない
+                if uv_set not in keep_uv_sets:
+                    try:
+                        cmds.polyUVSet(mesh, delete=True, uvSet=uv_set)
+                        print(f"Deleted UV Set: {uv_set} on {mesh}")
+                    except RuntimeError:
+                        print(f"Warning: Could not delete UV Set: {uv_set} on {mesh}")
+
+        # **③ L5リグツールを使用してリグを削除**
+        if cmds.pluginInfo("L5RigTool", query=True, loaded=True):
+            cmds.unloadPlugin (rm=True)
+            print("L5リグを削除しました。")
+        else:
+            print("Warning: L5リグツールが見つかりませんでした。")
+        print("Scene cleanup completed.")
 
 
     """
     no animation export
     """
-    def model_export(self):
+    def model_export(self, restore_hierarchy=True):
+
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
 
+        if not self.characters:
+            print("No characters provided for export. Aborting.")
+            return
+
         print(f"self.characters => {self.characters}")
 
-        # キャラクターごとにエクスポート
+        # **名前空間の削除（エクスポート前）**
+        Util.AnimationUtil.all_import_reference()
+        prefix = self.characters[0].split(":")[0] if ":" in self.characters[0] else ""
+        restore_data = Util.AnimationUtil.remove_namespace_prefix(prefix=prefix)
+
+        # **"connector" を削除**
+        if cmds.objExists("connector"):
+            cmds.delete("connector")
+            print("Deleted 'connector' node.")
+
+        # エクスポート前に不要なデータをクリーンアップ
+        self.clean_scene_for_export()
+
+        # **rootの子ノードをすべて取得し、ワールドへ移動**
+        if cmds.objExists("root"):
+            root_children = cmds.listRelatives("root", children=True, fullPath=True) or []
+            for child in root_children:
+                if cmds.objExists(child):
+                    try:
+                        cmds.parent(child, world=True)
+                        print(f"Moved {child} to world.")
+                    except RuntimeError:
+                        print(f"Warning: Could not move {child} to world. Possible constraint or reference issue.")
+
+        if os.path.exists(self.K_PRESET_FILE_NAME) is False:
+            print(f"Warning: FBX preset not found at {self.K_PRESET_FILE_NAME}")
+            return
+
+        all_meshes = []
+        all_joints = []
+
+        # meshごとにエクスポート
         for character in self.characters:
             sanitized_character = character.replace(":", "_")
             cmds.select(character)
             meshes = cmds.ls(selection=True, dag=True, type='mesh')
-            local_joints = self.get_related_joints(meshes)
 
+            local_joints = self.get_related_joints(meshes)
             print(f"joints => {local_joints}")
-            for joint in local_joints:
-                keyframes = cmds.keyframe(joint, query=True)
-                if keyframes:
-                    print(f"Joint {joint} has keyframes: {keyframes}")
-                else:
-                    print(f"Joint {joint} has no keyframes.")
-            file_path = os.path.join(self.directory, f"{self.filename}_{sanitized_character}.fbx")
-            self._export_fbx(file_path)
+
+            # **リファレンスオブジェクトの変換（リファレンス解除）**
+            local_transforms = [character]
+
+            try:
+                # **トランスフォームをワールドへ移動**
+                cmds.parent(local_transforms, world=True)
+                print(f"Moved {character} to world.")
+            except RuntimeError:
+                print(f"Warning: Could not move {character} to world. Possible constraint or reference issue.")
+
+
+            all_meshes.extend(meshes)
+            all_joints.extend(local_joints)
+
+
+        cmds.select(clear=True)
+        cmds.select(all_meshes, add=True)
+        cmds.select(all_joints, add=True)
+
+        mel.eval('FBXLoadExportPresetFile -f "' + self.K_PRESET_FILE_NAME + '"')
+        print(f"Loaded FBX preset: {self.K_PRESET_FILE_NAME}")
+
+        file_path = os.path.join(self.directory, f"{self.filename}.fbx")
+        #self._export_fbx(file_path)
+
+        encoded_path = file_path.replace("\\", "/")
+
+        if not cmds.pluginInfo('fbxmaya', q=True, loaded=True):
+            cmds.loadPlugin('fbxmaya')
+
+        # reset export
+        mel.eval('FBXResetExport')
+        # Enable skeleton definitions and skin export
+        mel.eval('FBXExportSkeletonDefinitions -v 1')
+        mel.eval('FBXExportSkins -v 1')
+        mel.eval('FBXExportBakeComplexAnimation -v 0')
+        mel.eval('FBXExportAnimationOnly -v 0')
+        # バイナリ形式でエクスポート
+        mel.eval('FBXExportInAscii -v 0')
+        mel.eval(f'FBXExport -f "{encoded_path}" -s')
+
+        Util.AnimationUtil.restore_namespace(restore_data=restore_data)
+        if restore_hierarchy:
+            Util.AnimationUtil.reload_current_scene_without_saving()
+        print("Model export completed.")
 
 
 
 class Animation_ExporterGUI(QDialog):
 
     WINDOW_TITLE = "Character ToolKit"
-    MODULE_VERSION = "1.0"
+    MODULE_VERSION = "1.2"
 
     def __init__(self, parent=None, *args, **kwargs):
         super(Animation_ExporterGUI, self).__init__(maya_main_window())
@@ -265,6 +393,7 @@ class Animation_ExporterGUI(QDialog):
         self.export_button = None
         self.export_without_bake_button = None
         self.create_model_scene_button = None
+        self.create_animation_scene_button = None
 
         self.output_only_checkbox = None
 
@@ -661,7 +790,6 @@ class Animation_ExporterGUI(QDialog):
         return progress_dialog
 
 
-    # @TODO
     # Animation Exporter Single and Multiple
     def _export_configurations(self):
         """
@@ -708,13 +836,6 @@ class Animation_ExporterGUI(QDialog):
                 Util.AnimationUtil.all_import_reference()
                 restore_data = Util.AnimationUtil.remove_namespace_prefix(prefix=prefix)
 
-                """
-                output_node = "output"
-                joints = cmds.listRelatives(output_node, allDescendents=True, type="joint", fullPath=True) or []
-                if not joints:
-                    raise RuntimeError(f"No joints found under node '{output_node}'.")
-                """
-
                 exporter = AnimationExporter(characters=root_node, filename=file_name, directory=directory,
                                              start_frame=start_frame, end_frame=end_frame, bake_keyframes=True,
                                              joints=joints, controllers=controllers, prefix=prefix,
@@ -754,6 +875,8 @@ class Animation_ExporterGUI(QDialog):
             self.animator_directory_label.setText(f"Directory: {self.animation_directory}")
 
 
+    # @TODO
+    # Wip
     def _create_modeler_tab(self):
         tab = QtWidgets.QWidget()
         layout = QVBoxLayout()
@@ -805,6 +928,13 @@ class Animation_ExporterGUI(QDialog):
         self.create_model_scene_button.setStyleSheet(self.model_style)
         self.create_model_scene_button.clicked.connect(self.create_modeler_scene_with_dialog)
         button_layout.addWidget(self.create_model_scene_button, 0, 1)
+
+        # Animation用シーン作成ボタン
+        self.create_animation_scene_button = QPushButton("Create Animation Scene")
+        self.create_animation_scene_button.setStyleSheet(self.model_style)
+        self.create_animation_scene_button.clicked.connect(self.create_animation_scene_with_dialog)
+        button_layout.addWidget(self.create_animation_scene_button, 0, 2)
+
         layout.addLayout(button_layout)
         tab.setLayout(layout)
         return tab
@@ -839,6 +969,55 @@ class Animation_ExporterGUI(QDialog):
         cmds.file(rename=save_path)
         cmds.file(save=True, type='mayaAscii')  # Save as .ma file
         print(f"Scene saved as: {save_path}")
+
+
+    @staticmethod
+    def create_animation_scene_with_dialog():
+        """
+        Create an animation scene by removing unnecessary nodes and saving the clean scene.
+        Steps:
+        1. Delete unnecessary nodes (`etc`, `guide_root`, `set1_fc`, `set1_hizi`, `set1_mata`).
+        2. Keep the structure under `root` unchanged.
+        3. Save the new scene as `scenes/キャラ名.ma`.
+        """
+
+        # **現在のシーン名を取得**
+        current_scene = cmds.file(query=True, sceneName=True)
+        if not current_scene:
+            print("Error: No scene is currently open.")
+            return
+
+        # **シーンのディレクトリを取得**
+        current_dir = os.path.dirname(current_scene)
+        parent_dir = os.path.dirname(current_dir)  # 上の階層を取得
+        scenes_dir = os.path.join(parent_dir, "scenes")  # `scenes/` フォルダに保存
+        os.makedirs(scenes_dir, exist_ok=True)  # フォルダがなければ作成
+
+        # **キャラクター名を取得（シーン名のベース部分を使用）**
+        filename = os.path.basename(current_scene)
+        character_name = os.path.splitext(filename)[0].replace("_rig", "")
+        save_path = os.path.join(scenes_dir, f"{character_name}.ma")
+
+        # **Step 1: 保存ダイアログを開く**
+        save_path, _ = QFileDialog.getSaveFileName(None, "Save Animation Scene", save_path, "Maya ASCII Files (*.ma)")
+
+        # **Step 2: キャンセルされた場合、何もせず終了**
+        if not save_path:
+            print("Save operation canceled. No changes were made.")
+            return
+
+        # **Step 3: 削除するノード一覧**
+        nodes_to_delete = ["etc", "guide_root", "set1_fc", "set1_hizi", "set1_mata"]
+        for node in nodes_to_delete:
+            if cmds.objExists(node):
+                cmds.delete(node)
+                print(f"Deleted {node}")
+
+        # **Step 4: シーンを保存**
+        cmds.file(rename=save_path)
+        cmds.file(save=True, type='mayaAscii')  # `.ma` として保存
+        print(f"Animation scene saved at: {save_path}")
+        QMessageBox.information(None, "Success", f"Scene saved successfully at:\n{save_path}")
 
 
     def _update_character_list(self):
@@ -906,6 +1085,7 @@ class Animation_ExporterGUI(QDialog):
         """
         選択されたリストではなく、character_listに含まれる全ての要素をエクスポート
         """
+
         characters = [self.character_list.item(i).text() for i in range(self.character_list.count())]
 
         filename = self.filename_edit.text()
@@ -919,6 +1099,7 @@ class Animation_ExporterGUI(QDialog):
 
         exporter = AnimationExporter(characters=characters, filename=filename, directory=directory, start_frame=start_frame, end_frame=end_frame, bake_keyframes=False)
         exporter.model_export()
+
 
 
 def show_main_window():

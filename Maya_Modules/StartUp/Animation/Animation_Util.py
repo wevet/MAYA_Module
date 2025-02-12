@@ -107,47 +107,52 @@ class AnimationUtil:
     @staticmethod
     def remove_namespace_prefix(prefix):
         """
-        Remove namespaces from root_node, connector, and their children for the given prefix.
+        root 以下のすべてのノードの namespace を削除する。
         Args:
-            prefix (str): The namespace prefix to remove (e.g., "LTN").
+            prefix (str): 削除する namespace の接頭辞 (例: "LTN")
 
         Returns:
-            dict: A dictionary with original names as keys and new names as values for restoring.
+            dict: 元の名前と新しい名前のマッピング (リストア用)
         """
         restore_data = {}
 
-        # Define target nodes (root_node and connector)
-        root_node = f"{prefix}:output"
-        connector_node = f"{prefix}:connector"
+        if prefix is None:
+            return restore_data
+
+        root_node = f"{prefix}:root"
+
+        if not cmds.objExists(root_node):
+            print(f"WARNING: Root node '{root_node}' does not exist. Skipping namespace removal.")
+            return restore_data
+
+        all_nodes = cmds.listRelatives(root_node, allDescendents=True, fullPath=True) or []
+        all_nodes.append(root_node)
 
         def recursive_rename(node):
             """
-            Recursively process a node and its children to remove namespaces.
+            再帰的に namespace を削除
             Args:
-                node (str): The node to process.
+                node (str): 対象ノード
             """
             if not cmds.objExists(node):
                 print(f"WARNING: Node '{node}' does not exist. Skipping.")
                 return
 
-            # Process children first (recursive step)
-            children = cmds.listRelatives(node, children=True, fullPath=True) or []
-            for child in children:
-                recursive_rename(child)
-
-            # Process the current node
             base_name = node.split(":")[-1]
+
+            # 名前が競合しない場合のみリネーム
             if not cmds.objExists(base_name):
                 restore_data[node] = base_name
                 cmds.rename(node, base_name)
+                print(f"Renamed: {node} → {base_name}")
             else:
                 print(f"WARNING: Name conflict for node '{node}'. Skipping rename.")
 
-        # Process the root and connector nodes
-        recursive_rename(root_node)
-        recursive_rename(connector_node)
+        # すべてのノードをリネーム
+        for node in all_nodes:
+            recursive_rename(node)
 
-        print("Namespaces removed. Restore data prepared.")
+        print("All namespaces removed under root. Restore data prepared.")
         return restore_data
 
 

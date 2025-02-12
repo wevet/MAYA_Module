@@ -165,11 +165,17 @@ class AnimationExporter:
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
 
-        print(f"self.characters => {self.characters}")
         cmds.currentTime(self.start_frame)
 
-        # 出力対象を "output" 以下のノードに限定
-        output_joints = cmds.listRelatives("output", allDescendents=True, type="joint", fullPath=True) or []
+        # **root ノードの直下にある output ノードを検索**
+        output_nodes = cmds.listRelatives("root", children=True, type="transform", fullPath=True) or []
+        output_nodes = [node for node in output_nodes if "output" in node]
+
+        if not output_nodes:
+            raise RuntimeError("No 'output' node found under 'root'. Ensure that the hierarchy is correct.")
+
+        output_node = output_nodes[0]
+        output_joints = cmds.listRelatives(output_node, allDescendents=True, type="joint", fullPath=True) or []
 
         if not output_joints:
             raise RuntimeError("No joints found under 'output'. Ensure that the output node exists and has children.")
@@ -181,10 +187,21 @@ class AnimationExporter:
         # **アニメーションをベイク**
         self._bake_animation(self.joints)
 
-        # **ベイク後に connector を削除**
+        # **ベイク後に connector、model を削除**
         if cmds.objExists("connector"):
             cmds.delete("connector")
             print("Connector node deleted before export.")
+
+        if cmds.objExists("model"):
+            cmds.delete("model")
+            print("Model node deleted before export.")
+
+        # output 自身をワールドに移動
+        try:
+            cmds.parent(output_node, world=True)
+            print(f"Moved '{output_node}' to world.")
+        except RuntimeError:
+            print(f"⚠ Warning: Could not move '{output_node}' to world. Possible constraint or reference issue.")
 
         file_path = os.path.join(self.directory, f"{self.filename}.fbx")
         self._export_fbx(file_path)
@@ -235,7 +252,7 @@ class AnimationExporter:
     """
     no animation export
     """
-    def model_export(self, restore_hierarchy=True):
+    def model_export(self):
 
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
@@ -245,11 +262,6 @@ class AnimationExporter:
             return
 
         print(f"self.characters => {self.characters}")
-
-        # **名前空間の削除（エクスポート前）**
-        Util.AnimationUtil.all_import_reference()
-        prefix = self.characters[0].split(":")[0] if ":" in self.characters[0] else ""
-        restore_data = Util.AnimationUtil.remove_namespace_prefix(prefix=prefix)
 
         # **"connector" を削除**
         if cmds.objExists("connector"):
@@ -309,7 +321,6 @@ class AnimationExporter:
         print(f"Loaded FBX preset: {self.K_PRESET_FILE_NAME}")
 
         file_path = os.path.join(self.directory, f"{self.filename}.fbx")
-        #self._export_fbx(file_path)
 
         encoded_path = file_path.replace("\\", "/")
 
@@ -327,17 +338,13 @@ class AnimationExporter:
         mel.eval('FBXExportInAscii -v 0')
         mel.eval(f'FBXExport -f "{encoded_path}" -s')
 
-        Util.AnimationUtil.restore_namespace(restore_data=restore_data)
-        if restore_hierarchy:
-            Util.AnimationUtil.reload_current_scene_without_saving()
-        print("Model export completed.")
 
 
 
 class Animation_ExporterGUI(QDialog):
 
     WINDOW_TITLE = "Character ToolKit"
-    MODULE_VERSION = "1.2"
+    MODULE_VERSION = "1.3"
 
     def __init__(self, parent=None, *args, **kwargs):
         super(Animation_ExporterGUI, self).__init__(maya_main_window())
@@ -395,8 +402,6 @@ class Animation_ExporterGUI(QDialog):
         self.create_model_scene_button = None
         self.create_animation_scene_button = None
 
-        self.output_only_checkbox = None
-
         # エクスポート設定リスト
         self.export_config_list = None
 
@@ -416,7 +421,7 @@ class Animation_ExporterGUI(QDialog):
         export_setting :
         [
             {
-                "root_node": LTN:output,
+                "root_node": LTN:root,
                 "prefix" : LTN,
                 "file_name": foo,
                 "joints": rig["joints"],
@@ -425,7 +430,7 @@ class Animation_ExporterGUI(QDialog):
                 "end_frame": 100
             },
             {
-                "root_node": LUK:output,
+                "root_node": LUK:root,
                 "prefix" : LUK,
                 "file_name": bar,
                 "joints": rig["joints"],
@@ -435,10 +440,6 @@ class Animation_ExporterGUI(QDialog):
             }
         ]
         """
-
-        self.output_only_checkbox = QCheckBox("Output Node Only Reference")
-        self.output_only_checkbox.setChecked(True)
-        layout.addWidget(self.output_only_checkbox)
 
         self.export_config_list = QListWidget()
         self.export_config_list.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
@@ -524,10 +525,10 @@ class Animation_ExporterGUI(QDialog):
 
 
     @staticmethod
-    def find_reference_rigs(output_only=False):
+    def find_reference_rigs():
         """
         シーン内のリファレンスリグを検索し、ジョイントまたはAnimation Controllerがある場合のみ結果に含める。
-        output_onlyがTrueの場合、"output"ノード以下のみを検索
+        top nodeは "root" から取得
         """
         references = cmds.file(query=True, reference=True)
         if not references:
@@ -549,9 +550,10 @@ class Animation_ExporterGUI(QDialog):
                 # 名前空間以下のトップノードを取得
                 top_nodes = cmds.ls(f"{namespace}:*", assemblies=True)
                 print(f"namespace found => {namespace}")
+                print(f"top_nodes found => {top_nodes}")
 
                 for top_node in top_nodes:
-                    if output_only and "output" not in top_node:
+                    if "root" not in top_node:
                         continue
 
                     joints, controllers = Animation_ExporterGUI.get_joints_and_controls_under_root(top_node)
@@ -582,8 +584,7 @@ class Animation_ExporterGUI(QDialog):
         Find reference rigs in the current Maya scene and add them to the export configurations.
         Automatically sets start and end frames to the scene's playback range.
         """
-        output_only = self.output_only_checkbox.isChecked()
-        reference_rigs = Animation_ExporterGUI.find_reference_rigs(output_only=output_only)
+        reference_rigs = Animation_ExporterGUI.find_reference_rigs()
         if not reference_rigs:
             print("No reference rigs found in the current scene.")
             return
@@ -1097,9 +1098,15 @@ class Animation_ExporterGUI(QDialog):
             print("Export directory is not set!")
             return
 
+        # **名前空間の削除（エクスポート前）**
+        Util.AnimationUtil.all_import_reference()
+        prefix = characters[0].split(":")[0] if ":" in characters[0] else None
+        restore_data = Util.AnimationUtil.remove_namespace_prefix(prefix=prefix)
         exporter = AnimationExporter(characters=characters, filename=filename, directory=directory, start_frame=start_frame, end_frame=end_frame, bake_keyframes=False)
         exporter.model_export()
-
+        Util.AnimationUtil.restore_namespace(restore_data=restore_data)
+        Util.AnimationUtil.reload_current_scene_without_saving()
+        print("Model export completed.")
 
 
 def show_main_window():
@@ -1153,8 +1160,8 @@ def run_internal(file_path):
     start_frame = int(cmds.playbackOptions(query=True, min=True))
     end_frame = int(cmds.playbackOptions(query=True, max=True))
     logger.info(f"Start Frame: {start_frame}, End Frame: {end_frame}")
-    # output ノードのみを検出する
-    reference_rigs = Animation_ExporterGUI.find_reference_rigs(True)
+    # root ノードのみを検出する
+    reference_rigs = Animation_ExporterGUI.find_reference_rigs()
 
     if not reference_rigs:
         logger.error("No output rigs found in the scene.")

@@ -49,13 +49,14 @@ class Animation_Job_Caller:
         """
         env_settings = (
             ":: ENV\n"
-            "set L5ToolsMt=D:/dp1_out\n"
-            "set L5ToolsPath=D:/L5Tools/dp1\n"
-            "set L5ToolsPj=V:/project/fuk1/DP1/JPN\n\n"
-            ":: SHELF\n"
-            "set MAYA_SHELF_PATH=D:/L5Tools/dp1/svn/05_base/shelves;D:/L5Tools/dp1/svn/10_chara/shelves;D:/L5Tools/dp1/svn/10_event/shelves\n\n"
-            ":: MODULE\n"
-            "set MAYA_MODULE_PATH=D:/L5Tools/dp1/svn/05_base/Modules;D:/L5Tools/dp1/svn/10_chara/Modules;D:/L5Tools/dp1/svn/10_event/Modules\n\n"
+            "set MGEAR_MODULE_PATH=C:/Users/waltz/Documents/Maya_Project/Scripts/mgear_4.2.2\n"
+            "set MAYA_MODULE_PATH=%MGEAR_MODULE_PATH%;\n\n"            
+
+
+            ":: SCRIPTS & PYTHONPATH\n"
+            "set PYTHONPATH=C:/Users/waltz/Documents/MAYA_Module/Maya_Modules/StartUp\n"
+            "set MAYA_SCRIPT_PATH=C:/Users/waltz/Documents/MAYA_Module/Maya_Modules/StartUp\n\n"
+            
             ":: ENV\n"
             "set MAYA_UI_LANGUAGE=ja_JP\n\n"
         )
